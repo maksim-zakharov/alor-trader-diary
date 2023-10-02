@@ -264,8 +264,9 @@ function App() {
         if(location.search){
             url.search = location.search;
         }
-        // url.searchParams.
-        getCommulitiveTrades({}).then(data => {
+        const date = url.searchParams.get('date');
+        const dateFrom = url.searchParams.get('dateFrom');
+        getCommulitiveTrades({date, dateFrom}).then(data => {
             data.positions = data.positions.map((p: any) => ({...p, id: p.trades[0].id}));
             setData(data)
         })
