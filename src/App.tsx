@@ -256,25 +256,25 @@ function App() {
     const [settings, setSettings] = useState<{token: string, portfolio: string}>(JSON.parse(localStorage.getItem('settings') || '{}'));
     const api = useApi(settings.token);
 
-    // useEffect(() => {
-    //     if(!api){
-    //         return
-    //     }
-    //     const url = new URL('http://localhost:3000/commulitive-trades');
-    //     if(location.search){
-    //         url.search = location.search;
-    //     }
-    //     // url.searchParams.
-    //     getCommulitiveTrades({}).then(data => {
-    //         data.positions = data.positions.map((p: any) => ({...p, id: p.trades[0].id}));
-    //         setData(data)
-    //     })
-    //     // fetch(url.toString()).then(async r => {
-    //     //     const data = await r.json();
-    //     //     data.positions = data.positions.map((p: any) => ({...p, id: p.trades[0].id}));
-    //     //     setData(data)
-    //     // })
-    // }, [location.search, api])
+    useEffect(() => {
+        if(!api){
+            return
+        }
+        const url = new URL('http://localhost:3000/commulitive-trades');
+        if(location.search){
+            url.search = location.search;
+        }
+        // url.searchParams.
+        getCommulitiveTrades({}).then(data => {
+            data.positions = data.positions.map((p: any) => ({...p, id: p.trades[0].id}));
+            setData(data)
+        })
+        // fetch(url.toString()).then(async r => {
+        //     const data = await r.json();
+        //     data.positions = data.positions.map((p: any) => ({...p, id: p.trades[0].id}));
+        //     setData(data)
+        // })
+    }, [location.search, api])
 
     useEffect(() => {
         localStorage.setItem('state', JSON.stringify(comments));
