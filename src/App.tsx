@@ -27,6 +27,8 @@ import {Exchange, Side, Trade} from "alor-api";
 import FormItem from "antd/es/form/FormItem";
 
 
+export const avg = (numbers: number[]) =>
+    !numbers.length ? 0 : summ(numbers) / numbers.length;
 export const summ = (numbers: number[]) =>
     numbers.reduce((acc, curr) => acc + curr, 0);
 interface DataType {
@@ -69,6 +71,7 @@ function App() {
                 qtyBatch: Math.abs(p.qty),
                 qtyUnits: Math.abs(p.qty),
                 existing: false,
+                date: new Date().toISOString(),
                 brokerSymbol: `${p.exchange}:${p.symbol}`,
                 side: p.qty > 0 ? Side.Sell : Side.Buy,
                 board: 'TQBR',
@@ -135,6 +138,7 @@ function App() {
                 };
                 // Если позиция есть - работаем
             } else {
+
                 // Если направление трейда такое же как у трейда закрытия - суммируем тотал лот
                 if (trade.side === currentPositionsMap[trade.symbol].lastSide) {
                     currentPositionsMap[trade.symbol].commQty += trade.qty;
@@ -173,6 +177,10 @@ function App() {
 
                         currentPositionsMap[trade.symbol].PnL =
                             totalDiffVolume - totalCommission;
+
+                        const avgBuyVolume = avg(currentPositionsMap[trade.symbol].trades.filter(t => t.side === Side.Buy).map(t => t.volume));
+                        const avgSellVolume = avg(currentPositionsMap[trade.symbol].trades.filter(t => t.side === Side.Sell).map(t => t.volume));
+                        currentPositionsMap[trade.symbol].PnLPercent = currentPositionsMap[trade.symbol].side === Side.Buy ? totalDiffVolume / avgBuyVolume : totalDiffVolume / avgSellVolume;
 
                         batchPositions.push({ ...currentPositionsMap[trade.symbol] });
                         delete currentPositionsMap[trade.symbol];
@@ -215,6 +223,10 @@ function App() {
 
                         currentPositionsMap[trade.symbol].PnL =
                             totalDiffVolume - totalCommission;
+
+                        const avgBuyVolume = avg(currentPositionsMap[trade.symbol].trades.filter(t => t.side === Side.Buy).map(t => t.volume));
+                        const avgSellVolume = avg(currentPositionsMap[trade.symbol].trades.filter(t => t.side === Side.Sell).map(t => t.volume));
+                        currentPositionsMap[trade.symbol].PnLPercent = currentPositionsMap[trade.symbol].side === Side.Buy ? totalDiffVolume / avgBuyVolume : totalDiffVolume / avgSellVolume;
 
                         const { commQty, lastSide, ...newPosition } =
                             currentPositionsMap[trade.symbol];
@@ -353,6 +365,14 @@ function App() {
             render: (_, row) => row.side === 'sell' ? <ArrowDownOutlined /> : <ArrowUpOutlined />,
         },
         {
+            title: 'PnL %',
+            dataIndex: 'PnLPercent',
+            key: 'PnLPercent',
+            // onCell: (record: any, rowIndex) => ({className: record.PnLPercent > 0 ? 'profit' : 'loss'}),
+            // render: (_, row) => moneyFormat(_)
+            render: (val: number) => `${(val * 100).toFixed(2)}%`
+        },
+        {
             title: 'Fee',
             dataIndex: 'Fee',
             key: 'Fee',
@@ -362,7 +382,7 @@ function App() {
             title: 'Comment',
             dataIndex: 'comment',
             key: 'comment',
-            render: (_, row) => <Input placeholder="Add comment..." {...inputProps(row)}/>
+            render: (_, row) => <Input allowClear placeholder="Add comment..." {...inputProps(row)}/>
         },
     ];
 
