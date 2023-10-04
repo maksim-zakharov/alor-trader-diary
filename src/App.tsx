@@ -25,6 +25,8 @@ import {useApi} from "./useApi";
 import process from "process";
 import {Exchange, Side, Trade} from "alor-api";
 import FormItem from "antd/es/form/FormItem";
+import Chart from "./Chart";
+import Test from "./Test";
 
 
 export const avg = (numbers: number[]) =>
@@ -318,6 +320,7 @@ function App() {
         ];
 
         return <>
+            <Chart trades={row.trades} symbol={row.symbol} api={api} from={row.trades[0].date} to={row.trades.slice(-1)[0].date}/>
             <Input.TextArea placeholder="Add comment..." {...inputProps(row)}/>
             <Table columns={columns} dataSource={row.trades.sort((a: any, b: any) => a.date.localeCompare(b.date))} pagination={false} />
             </>;
@@ -382,7 +385,7 @@ function App() {
             title: 'Comment',
             dataIndex: 'comment',
             key: 'comment',
-            render: (_, row) => <Input allowClear placeholder="Add comment..." {...inputProps(row)}/>
+            render: (_, row) => <Input size="small" allowClear placeholder="Add comment..." {...inputProps(row)}/>
         },
     ];
 
@@ -403,6 +406,7 @@ function App() {
 
   return (
       <Layout>
+          {/*<Test api={api}/>*/}
         <Content className="site-layout" style={{ padding: '0 50px', minHeight: '100vh' }}>
           <div style={{ padding: 24, minHeight: 380, maxWidth: '1200px', margin: 'auto' }}>
               <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
