@@ -1,33 +1,24 @@
 // import logo from './logo.svg';
 import './App.css';
 import {
-    Badge,
-    Breadcrumb,
     Button, Drawer, Form,
     Input,
     Layout,
-    Menu,
-    Space,
     Statistic,
     Table,
     TableColumnsType,
-    Tag,
     Typography
 } from "antd";
-import {Content, Footer, Header} from "antd/es/layout/layout";
+import {Content, Footer} from "antd/es/layout/layout";
 import {ColumnsType} from "antd/es/table";
 import React, {useEffect, useState} from "react";
 import moment from "moment";
 import {ArrowDownOutlined, ArrowUpOutlined, SettingOutlined} from '@ant-design/icons'
-import {useLocation, useSearchParams} from "react-router-dom";
-import Title from 'antd/es/skeleton/Title';
+import {useLocation} from "react-router-dom";
 import {useApi} from "./useApi";
-import process from "process";
 import {Exchange, Side, Trade} from "alor-api";
 import FormItem from "antd/es/form/FormItem";
 import Chart from "./Chart";
-import Test from "./Test";
-
 
 export const avg = (numbers: number[]) =>
     !numbers.length ? 0 : summ(numbers) / numbers.length;
@@ -47,6 +38,22 @@ interface ExpandedDataType {
     name: string;
     upgradeNum: string;
 }
+
+interface DataType {
+    key: string;
+    name: string;
+    age: number;
+    tel: string;
+    phone: number;
+    address: string;
+}
+const sharedOnCell = (_: DataType, index: number) => {
+    if (index === 1) {
+        return { colSpan: 0 };
+    }
+
+    return {};
+};
 
 const moneyFormat = (money: number) => new Intl.NumberFormat('ru-RU', {
     style: 'currency', currency: 'RUB'
@@ -279,9 +286,25 @@ function App() {
             url.search = location.search;
         }
         const date = url.searchParams.get('date');
-        const dateFrom = url.searchParams.get('dateFrom');
+        let dateFrom = url.searchParams.get('dateFrom');
+        if(!dateFrom){
+            dateFrom = moment().add(-7, 'day').format('YYYY-MM-DD');
+        }
         getCommulitiveTrades({date, dateFrom}).then(data => {
             data.positions = data.positions.map((p: any) => ({...p, id: p.trades[0].id}));
+            const dayPositionsWithSummaryMap = {};
+            for(let i = 0; i< data.positions.length; i++){
+                const currentDay = moment(data.positions[i].openDate).format('YYYY-MM-DD')
+                if(!dayPositionsWithSummaryMap[currentDay]){
+                    const currentDayPositions = data.positions.filter(p => moment(p.openDate).format('YYYY-MM-DD') === currentDay);
+                    dayPositionsWithSummaryMap[currentDay] = [{type: 'summary', Fee: summ(currentDayPositions.map(p => p.Fee)), PnL: summ(currentDayPositions.map(p => p.PnL)), openDate: currentDay}];
+                    dayPositionsWithSummaryMap[currentDay].push(...currentDayPositions)
+                }
+            }
+            console.log(dayPositionsWithSummaryMap)
+
+            data.positions = Object.entries(dayPositionsWithSummaryMap).sort((a, b) => b[0].localeCompare(a[0])).map(([key, value]) => value).flat();
+
             setData(data)
         })
         // fetch(url.toString()).then(async r => {
@@ -319,11 +342,13 @@ function App() {
                 render: (_, row) => moneyFormat(_) },
         ];
 
-        return <>
+        return <div style={{    display: "grid",
+            gridTemplateColumns: "800px auto",
+            gap: '8px'}}>
             <Chart trades={row.trades} symbol={row.symbol} api={api} from={row.trades[0].date} to={row.trades.slice(-1)[0].date}/>
             <Input.TextArea placeholder="Add comment..." {...inputProps(row)}/>
-            <Table columns={columns} dataSource={row.trades.sort((a: any, b: any) => a.date.localeCompare(b.date))} pagination={false} />
-            </>;
+            <Table style={{gridColumnStart: 1, gridColumnEnd: 3}} columns={columns} dataSource={row.trades.sort((a: any, b: any) => a.date.localeCompare(b.date))} pagination={false} />
+            </div>;
     };
 
     const inputProps = (position: any) => {
@@ -345,47 +370,60 @@ function App() {
             title: 'Time',
             dataIndex: 'openDate',
             key: 'openDate',
+            width: 100,
+            // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
             // @ts-ignore
-            render: (_, row) => moment(row.openDate).format('HH:mm:ss'),
+            render: (_, row) => row.type !== 'summary' ? moment(row.openDate).format('HH:mm:ss') :  moment(row.openDate).format('DD.MM.YYYY'),
+            // onCell: sharedOnCell,
         },
         {
             title: 'PnL',
             dataIndex: 'PnL',
             key: 'PnL',
-            onCell: (record: any, rowIndex) => ({className: record.PnL > 0 ? 'profit' : 'loss'}),
-            render: (_, row) => moneyFormat(_)
+            onCell: (record: any, rowIndex) => ({className: record.type !== 'summary' && (record.PnL > 0 ? 'profit' : 'loss'), style: {textAlign: 'center'}}),
+            render: (_, row: any) => row.type !== 'summary' ? moneyFormat(_) : <strong>{moneyFormat(_)}</strong>,
+            // onCell: (_, index) => ({
+            //     colSpan: index === 1 ? 4 : 1,
+            // }),
         },
         {
             title: 'Symbol',
             dataIndex: 'symbol',
             key: 'symbol',
+            // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
+            // @ts-ignore
+            render: (_, row) => row.type !== 'summary' && _,
         },
         {
             title: 'L/S',
             dataIndex: 'side',
             key: 'side',
+            // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
             // @ts-ignore
-            render: (_, row) => row.side === 'sell' ? <ArrowDownOutlined /> : <ArrowUpOutlined />,
+            render: (_, row) => row.type !== 'summary' && (row.side === 'sell' ? <ArrowDownOutlined /> : <ArrowUpOutlined />),
         },
         {
             title: 'PnL %',
             dataIndex: 'PnLPercent',
             key: 'PnLPercent',
+            // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
             // onCell: (record: any, rowIndex) => ({className: record.PnLPercent > 0 ? 'profit' : 'loss'}),
             // render: (_, row) => moneyFormat(_)
-            render: (val: number) => `${(val * 100).toFixed(2)}%`
+            render: (val: number, row: any) => row.type !== 'summary' &&  `${(val * 100).toFixed(2)}%`
         },
         {
             title: 'Fee',
             dataIndex: 'Fee',
             key: 'Fee',
+            // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
             render: (_, row) => moneyFormat(_)
         },
         {
             title: 'Comment',
             dataIndex: 'comment',
             key: 'comment',
-            render: (_, row) => <Input size="small" allowClear placeholder="Add comment..." {...inputProps(row)}/>
+            // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
+            render: (_, row: any) => row.type !== 'summary' && <Input size="small" allowClear placeholder="Add comment..." {...inputProps(row)}/>
         },
     ];
 
@@ -437,8 +475,8 @@ function App() {
                       </Drawer>
                   </div>
               </div>
-              <Table rowKey="id" columns={columns} dataSource={data.positions.sort((a: any, b: any) => a.openDate.localeCompare(b.openDate))} size="small" pagination={false}
-                     expandable={{ expandedRowRender, defaultExpandedRowKeys: ['0'] }} />
+              <Table onRow={(row) => row.type === 'summary' && {className: row.PnL > 0 ? 'profit' : 'loss'}} rowKey="id" columns={columns} dataSource={data.positions} size="small" pagination={false}
+                     expandable={{ expandedRowRender, defaultExpandedRowKeys: ['0'], rowExpandable: (row) => row.type !== 'summary' }} />
           </div>
         </Content>
         <Footer style={{ textAlign: 'center' }}>Alor Trader Diary ©2023 Created by Maksim Zakharov</Footer>
