@@ -358,7 +358,7 @@ function App() {
         return <div style={{    display: "grid",
             gridTemplateColumns: "800px auto",
             gap: '8px'}}>
-            <Chart colors={darkColors} trades={row.trades} symbol={row.symbol} api={api} from={row.trades[0].date} to={row.trades.slice(-1)[0].date}/>
+            <Chart colors={nightMode && darkColors} trades={row.trades} symbol={row.symbol} api={api} from={row.trades[0].date} to={row.trades.slice(-1)[0].date}/>
             <Input.TextArea placeholder="Add comment..." {...inputProps(row)}/>
             <Table style={{gridColumnStart: 1, gridColumnEnd: 3}} columns={columns} dataSource={row.trades.sort((a: any, b: any) => a.date.localeCompare(b.date))} pagination={false} />
             </div>;
