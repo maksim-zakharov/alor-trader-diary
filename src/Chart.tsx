@@ -49,12 +49,18 @@ const Chart: FC<IProps> = ({symbol, api, from, to, trades}) => {
                     //     return moment(zonedDate).format('HH:mm'); //  zonedDate.getTime() / 1000;
                     // }
                 },
+                leftPriceScale: {
+                    visible: true,
+                },
+                rightPriceScale: {
+                    visible: false
+                },
                 layout: {
                     background: { type: ColorType.Solid, color: backgroundColor },
                     textColor,
                 },
                 width: chartContainerRef!.current.clientWidth,
-                height: 500,
+                height: 400,
             });
             chart.timeScale().fitContent();
 
@@ -96,11 +102,9 @@ const Chart: FC<IProps> = ({symbol, api, from, to, trades}) => {
         }).then(r => setData(r.history)); // .map(c => [c.time, c.open, c.high, c.low, c.close])))
     }, [symbol, api, from, to]);
 
-    return <>
-        <div
-            ref={chartContainerRef}
-        />
-        </>
+    return <div
+        ref={chartContainerRef}
+    />
 }
 
 export default Chart;

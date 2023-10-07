@@ -18,3 +18,7 @@ code {
 .profit{
   background-color: rgba(44,232,156, 0.2);
 }
+
+:where(.css-dev-only-do-not-override-pr0fja).ant-table-wrapper .ant-table.ant-table-small .ant-table-title, :where(.css-dev-only-do-not-override-pr0fja).ant-table-wrapper .ant-table.ant-table-small .ant-table-footer, :where(.css-dev-only-do-not-override-pr0fja).ant-table-wrapper .ant-table.ant-table-small .ant-table-cell, :where(.css-dev-only-do-not-override-pr0fja).ant-table-wrapper .ant-table.ant-table-small .ant-table-thead>tr>th, :where(.css-dev-only-do-not-override-pr0fja).ant-table-wrapper .ant-table.ant-table-small .ant-table-tbody>tr>th, :where(.css-dev-only-do-not-override-pr0fja).ant-table-wrapper .ant-table.ant-table-small .ant-table-tbody>tr>td, :where(.css-dev-only-do-not-override-pr0fja).ant-table-wrapper .ant-table.ant-table-small tfoot>tr>th, :where(.css-dev-only-do-not-override-pr0fja).ant-table-wrapper .ant-table.ant-table-small tfoot>tr>td {
+  padding: 4px;
+}
