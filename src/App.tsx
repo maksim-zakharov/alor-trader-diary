@@ -4,7 +4,7 @@ import {
     Button, Drawer, Form,
     Input,
     Layout,
-    Statistic,
+    Statistic, Switch,
     Table,
     TableColumnsType,
     Typography
@@ -19,6 +19,7 @@ import {useApi} from "./useApi";
 import {Exchange, Side, Trade} from "alor-api";
 import FormItem from "antd/es/form/FormItem";
 import Chart from "./Chart";
+import {SwitchChangeEventHandler} from "antd/es/switch";
 
 export const avg = (numbers: number[]) =>
     !numbers.length ? 0 : summ(numbers) / numbers.length;
@@ -59,7 +60,13 @@ const moneyFormat = (money: number) => new Intl.NumberFormat('ru-RU', {
     style: 'currency', currency: 'RUB'
 }).format(money)
 function App() {
+    const [nightMode, setNightMode] = useState(Boolean(localStorage.getItem('night') === 'true'));
     const [showSettings, setShowSettings] = useState(false);
+
+    const onChangeNightMode: SwitchChangeEventHandler = (e) => {
+        localStorage.setItem('night', String(e));
+        setNightMode(e)
+    }
 
      const getCommulitiveTrades = async (
         { date, dateFrom }: { date?: string; dateFrom?: string },
@@ -342,10 +349,16 @@ function App() {
                 render: (_, row) => moneyFormat(_) },
         ];
 
+        const darkColors = {
+            backgroundColor: 'rgb(30,44,57)',
+            color: 'rgb(166,189,213)',
+            borderColor: 'rgb(44,60,75)'
+        }
+
         return <div style={{    display: "grid",
             gridTemplateColumns: "800px auto",
             gap: '8px'}}>
-            <Chart trades={row.trades} symbol={row.symbol} api={api} from={row.trades[0].date} to={row.trades.slice(-1)[0].date}/>
+            <Chart colors={darkColors} trades={row.trades} symbol={row.symbol} api={api} from={row.trades[0].date} to={row.trades.slice(-1)[0].date}/>
             <Input.TextArea placeholder="Add comment..." {...inputProps(row)}/>
             <Table style={{gridColumnStart: 1, gridColumnEnd: 3}} columns={columns} dataSource={row.trades.sort((a: any, b: any) => a.date.localeCompare(b.date))} pagination={false} />
             </div>;
@@ -443,24 +456,26 @@ function App() {
     }
 
   return (
-      <Layout>
+      <Layout className={nightMode ? "dark-theme" : null}>
           {/*<Test api={api}/>*/}
         <Content className="site-layout" style={{ padding: '0 50px', minHeight: '100vh' }}>
           <div style={{ padding: 24, minHeight: 380, maxWidth: '1200px', margin: 'auto' }}>
               <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                   <Typography.Title>Alor Trader Diary</Typography.Title>
                   <div style={{display: 'flex', gap: '24px', justifyContent: 'space-between', alignItems: 'center'}}>
+                      <Switch defaultChecked={nightMode} checked={nightMode} onChange={onChangeNightMode}
+                      />
                       <Statistic
                           title="Total PnL"
                           value={moneyFormat(data.totalPnL)}
                           precision={2}
-                          valueStyle={{ color: data.totalPnL > 0 ? 'rgb(11,162,100)' : 'rgb(187,51,64)' }}
+                          valueStyle={{ color: data.totalPnL > 0 ? 'rgb(44,232,156)' : 'rgb( 255,117,132)' }}
                       />
                       <Statistic
                           title="Total Fee"
                           value={moneyFormat(data.totalFee)}
                           precision={2}
-                          valueStyle={{ color: 'rgb(213,54,69)' }}
+                          valueStyle={{ color: 'rgb( 255,117,132)' }}
                       />
                       <Button type="text" icon={<SettingOutlined/>} onClick={(f) => setShowSettings(true)}/>
                       <Drawer title="Settings" placement="right" onClose={() => setShowSettings(false)} open={showSettings}>

@@ -1,4 +1,4 @@
-import React, {FC, useEffect, useRef, useState} from 'react'
+import React, {CSSProperties, FC, useEffect, useRef, useState} from 'react'
 import {AlorApi, HistoryObject, Side, Timeframe} from "alor-api";
 import {ColorType, createChart, SeriesMarker, Time, UTCTimestamp} from "lightweight-charts";
 
@@ -8,6 +8,7 @@ interface IProps{
     from: string;
     to: string;
     trades: any[]
+    colors?: Pick<CSSProperties, 'backgroundColor' | 'color' | 'borderColor'>
 }
 
 function timeToLocal(originalTime: number) {
@@ -15,17 +16,16 @@ function timeToLocal(originalTime: number) {
     return Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes(), d.getSeconds(), d.getMilliseconds()) / 1000;
 }
 
-const Chart: FC<IProps> = ({symbol, api, from, to, trades}) => {
+const Chart: FC<IProps> = ({symbol, api, from, to, trades, colors = {}}) => {
+
+    const currentTimeframe = Timeframe.Min5 * 2;
 
     const [data, setData] = useState<HistoryObject[]>([]);
 
     const {
-        backgroundColor = 'white',
-        lineColor = '#2962FF',
-        textColor = 'black',
-        areaTopColor = '#2962FF',
-        areaBottomColor = 'rgba(41, 98, 255, 0.28)',
-    } = {}
+        backgroundColor = 'white', // 'rgb(30,44,57)
+        color = 'black', // 'rgb(166,189,213)'
+    } = colors
 
     const chartContainerRef = useRef<any>();
 
@@ -43,11 +43,6 @@ const Chart: FC<IProps> = ({symbol, api, from, to, trades}) => {
                 },
                 localization: {
                     locale: 'ru-RU',
-                    // timeFormatter: (originalTime, timeZone) => {
-                    //     console.log(originalTime)
-                    //     const zonedDate = new Date(new Date(originalTime * 1000).toLocaleString('ru-RU', { timeZone }));
-                    //     return moment(zonedDate).format('HH:mm'); //  zonedDate.getTime() / 1000;
-                    // }
                 },
                 leftPriceScale: {
                     visible: true,
@@ -55,26 +50,41 @@ const Chart: FC<IProps> = ({symbol, api, from, to, trades}) => {
                 rightPriceScale: {
                     visible: false
                 },
+                grid: {
+                    vertLines: {
+                        color: colors.borderColor
+                    },
+
+                    horzLines: {
+                        color: colors.borderColor
+                    }
+                },
                 layout: {
                     background: { type: ColorType.Solid, color: backgroundColor },
-                    textColor,
+                    textColor: color,
                 },
                 width: chartContainerRef!.current.clientWidth,
                 height: 400,
             });
             chart.timeScale().fitContent();
 
-            const candlestickSeries = chart.addCandlestickSeries();
+            const candlestickSeries = chart.addCandlestickSeries({
+                wickColor: '#000',
+                downColor: 'rgb(255,117,132)',
+                borderDownColor: 'rgb(255,117,132)',
+                upColor: 'rgb(19,193,123)',
+                borderUpColor: 'rgb(19,193,123)',
+            });
             candlestickSeries.setData(data.map(d => ({...d, time: timeToLocal(d.time)})) as any[]);
 
             const markers: SeriesMarker<Time>[] = trades.map(t => ({
-                time: timeToLocal(new Date(t.date).getTime() / 1000) as UTCTimestamp,
+                time: timeToLocal(new Date(t.date).getTime() / 1000) - currentTimeframe as UTCTimestamp,
                 position: t.side === Side.Buy ? 'belowBar' : 'aboveBar',
-                    color: t.side === Side.Buy ? '#26a69a' : '#ef5350',
+                    color: t.side === Side.Buy ? 'rgb(19,193,123)' : 'rgb(255,117,132)',
                     shape: t.side === Side.Buy ? 'arrowUp' : 'arrowDown',
                 // size: t.volume,
                 id: t.id,
-                text: `${t.side === Side.Buy ? 'Buy' : 'Sell'} ${t.qty} lots`
+                text: `${t.side === Side.Buy ? 'Buy' : 'Sell'} ${t.qty} lots by ${t.price}`
             }));
             candlestickSeries.setMarkers(markers);
 
@@ -86,17 +96,17 @@ const Chart: FC<IProps> = ({symbol, api, from, to, trades}) => {
                 chart.remove();
             };
         },
-        [data, backgroundColor, lineColor, textColor, areaTopColor, areaBottomColor, chartContainerRef.current, trades]
+        [data, backgroundColor, color, chartContainerRef.current, trades]
     );
 
     useEffect(() => {
-        const fromNum = new Date(from).getTime() / 1000 - Timeframe.Min5 * 10;
-            let toNum = new Date(to).getTime() / 1000 + Timeframe.Min5 * 10;
+        const fromNum = new Date(from).getTime() / 1000 - currentTimeframe * 2;
+            let toNum = new Date(to).getTime() / 1000 + currentTimeframe * 9;
         api.instruments.getHistory({
             symbol,
             exchange: "MOEX",
             // @ts-ignore
-            tf: Timeframe.Min5,
+            tf: currentTimeframe,
             from: fromNum,
             to:toNum,
         }).then(r => setData(r.history)); // .map(c => [c.time, c.open, c.high, c.low, c.close])))
