@@ -28,7 +28,7 @@ code {
     text-align: center;
 }
 
-.ant-layout.dark-theme {
+.dark-theme .ant-layout {
     background-color: rgb(23,35,46);
     color: rgb(179,199,219);
 
@@ -113,6 +113,22 @@ code {
         }
     }
 
+    :where(.css-dev-only-do-not-override-pr0fja).ant-select:not(.ant-select-customize-input) .ant-select-selector{
+        background-color: rgb(44,60,75);
+        border-color: rgb(44,60,75);
+        color: rgb(179,199,219);
+
+        &::placeholder{
+            color: rgb(140,167,190);
+
+        }
+    }
+
+    :where(.css-dev-only-do-not-override-pr0fja).ant-select-single.ant-select-sm:not(.ant-select-customize-input).ant-select-show-arrow .ant-select-selection-item, :where(.css-dev-only-do-not-override-pr0fja).ant-select-single.ant-select-sm:not(.ant-select-customize-input).ant-select-show-arrow .ant-select-selection-placeholder{
+
+        color: rgb(140,167,190);
+    }
+
     :where(.css-dev-only-do-not-override-pr0fja).ant-switch.ant-switch-checked{
         background-color: rgb(44,60,75);
     }
@@ -124,5 +140,21 @@ code {
     :where(.css-dev-only-do-not-override-pr0fja).ant-layout-footer{
         background-color: rgb(30,44,57);
         color: rgb(179,199,219);
+    }
+    :where(.css-dev-only-do-not-override-pr0fja).ant-select .ant-select-clear{
+        background-color: transparent;
+    }
+}
+
+.dark-theme .ant-select-dropdown{
+    background-color: rgb(30,44,57);
+    color: rgb(179,199,219);
+
+     .ant-select-item{
+        color: rgb(179,199,219);
+    }
+
+    .ant-select-item-option-selected:not(.ant-select-item-option-disabled){
+        background-color: rgba(179,199,219, 0.2);
     }
 }

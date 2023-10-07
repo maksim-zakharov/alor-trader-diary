@@ -1,9 +1,9 @@
 // import logo from './logo.svg';
 import './App.css';
 import {
-    Button, Drawer, Form,
-    Input,
-    Layout,
+    Button, Divider, Drawer, Form,
+    Input, InputRef,
+    Layout, Select, SelectProps, Space,
     Statistic, Switch,
     Table,
     TableColumnsType,
@@ -11,7 +11,7 @@ import {
 } from "antd";
 import {Content, Footer} from "antd/es/layout/layout";
 import {ColumnsType} from "antd/es/table";
-import React, {useEffect, useState} from "react";
+import React, {ChangeEventHandler, useEffect, useRef, useState} from "react";
 import moment from "moment";
 import {ArrowDownOutlined, ArrowUpOutlined, SettingOutlined} from '@ant-design/icons'
 import {useLocation} from "react-router-dom";
@@ -20,6 +20,9 @@ import {Exchange, Side, Trade} from "alor-api";
 import FormItem from "antd/es/form/FormItem";
 import Chart from "./Chart";
 import {SwitchChangeEventHandler} from "antd/es/switch";
+import {SelectHandler} from "rc-select/lib/Select";
+import { DefaultOptionType } from 'antd/es/select';
+import { PlusOutlined } from '@ant-design/icons';
 
 export const avg = (numbers: number[]) =>
     !numbers.length ? 0 : summ(numbers) / numbers.length;
@@ -63,8 +66,18 @@ function App() {
     const [nightMode, setNightMode] = useState(Boolean(localStorage.getItem('night') === 'true'));
     const [showSettings, setShowSettings] = useState(false);
 
+    useEffect(() => {
+        if(nightMode){
+            document.body.className = 'dark-theme';
+        } else {
+
+            document.body.removeAttribute('class');
+        }
+    }, [nightMode]);
+
     const onChangeNightMode: SwitchChangeEventHandler = (e) => {
         localStorage.setItem('night', String(e));
+        document.body.className = 'dark-theme';
         setNightMode(e)
     }
 
@@ -281,6 +294,8 @@ function App() {
 
     const [comments, setComments] = useState<{[id: string]: string}>(JSON.parse(localStorage.getItem('state') || '{}'));
 
+    const [reasons, setReasons] = useState<{[id: string]: string}>(JSON.parse(localStorage.getItem('reasons') || '{}'));
+
     const [settings, setSettings] = useState<{token: string, portfolio: string}>(JSON.parse(localStorage.getItem('settings') || '{}'));
     const api = useApi(settings.token);
 
@@ -326,6 +341,10 @@ function App() {
     }, [comments])
 
     useEffect(() => {
+        localStorage.setItem('reasons', JSON.stringify(reasons));
+    }, [reasons])
+
+    useEffect(() => {
         localStorage.setItem('settings', JSON.stringify(settings));
     }, [settings])
 
@@ -364,9 +383,39 @@ function App() {
             </div>;
     };
 
+    const selectOptions: DefaultOptionType[] = [
+        {label: 'Эмоции', value: 'Emotion'},
+        {label: 'Отскок от уровня', value: 'ReboundLevel'},
+        {label: 'Отскок от айса', value: 'ReboundIce'},
+        {label: 'Отскок от плотности', value: 'ReboundSize'},
+        {label: 'Пробой уровня', value: 'BreakoutLevel'},
+        {label: 'Пробой айса', value: 'BreakoutIce'},
+        {label: 'Пробой плотности', value: 'BreakoutSize'},
+        {label: 'Памп неликвида', value: 'Pump'},
+        {label: 'Планка', value: 'PriceLimit'},
+        {label: 'Прострел', value: 'Prostrel'},
+        {label: 'Робот', value: 'Robot'},
+        {label: 'Сбор волатильности', value: 'Volatility'},
+        {label: 'Спред', value: 'Spread'},
+    ]
+
+    const selectProps = (position: any): SelectProps => {
+
+        const onSelect: SelectProps["onSelect"] = (value) => {
+            setReasons(prevState => ({...prevState, [position.id]: value}))
+        }
+
+        return {
+            value: reasons[position.id],
+            defaultValue: reasons[position.id],
+            options: selectOptions,
+            onSelect
+        }
+    }
+
     const inputProps = (position: any) => {
 
-        const onChange = (e: any) => {
+        const onChange: ChangeEventHandler = (e: any) => {
             const value = e.target.value;
             setComments(prevState => ({...prevState, [position.id]: value}))
         }
@@ -384,6 +433,7 @@ function App() {
             dataIndex: 'openDate',
             key: 'openDate',
             width: 100,
+            align: 'center',
             // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
             // @ts-ignore
             render: (_, row) => row.type !== 'summary' ? moment(row.openDate).format('HH:mm:ss') :  moment(row.openDate).format('DD.MM.YYYY'),
@@ -393,6 +443,7 @@ function App() {
             title: 'PnL',
             dataIndex: 'PnL',
             key: 'PnL',
+            align: 'center',
             onCell: (record: any, rowIndex) => ({className: record.type !== 'summary' && (record.PnL > 0 ? 'profit' : 'loss'), style: {textAlign: 'center'}}),
             render: (_, row: any) => row.type !== 'summary' ? moneyFormat(_) : <strong>{moneyFormat(_)}</strong>,
             // onCell: (_, index) => ({
@@ -403,6 +454,7 @@ function App() {
             title: 'Symbol',
             dataIndex: 'symbol',
             key: 'symbol',
+            align: 'center',
             // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
             // @ts-ignore
             render: (_, row) => row.type !== 'summary' && _,
@@ -411,6 +463,7 @@ function App() {
             title: 'L/S',
             dataIndex: 'side',
             key: 'side',
+            align: 'center',
             // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
             // @ts-ignore
             render: (_, row) => row.type !== 'summary' && (row.side === 'sell' ? <ArrowDownOutlined /> : <ArrowUpOutlined />),
@@ -419,6 +472,7 @@ function App() {
             title: 'PnL %',
             dataIndex: 'PnLPercent',
             key: 'PnLPercent',
+            align: 'center',
             // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
             // onCell: (record: any, rowIndex) => ({className: record.PnLPercent > 0 ? 'profit' : 'loss'}),
             // render: (_, row) => moneyFormat(_)
@@ -428,8 +482,17 @@ function App() {
             title: 'Fee',
             dataIndex: 'Fee',
             key: 'Fee',
+            align: 'center',
             // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
             render: (_, row) => moneyFormat(_)
+        },
+        {
+            title: 'Reason',
+            dataIndex: 'reason',
+            key: 'reason',
+            width: 200,
+            // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
+            render: (_, row: any) => row.type !== 'summary' && <Select size="small" style={{width: '180px'}} allowClear placeholder="Select reason..." {...selectProps(row)}/>
         },
         {
             title: 'Comment',
@@ -456,7 +519,7 @@ function App() {
     }
 
   return (
-      <Layout className={nightMode ? "dark-theme" : null}>
+      <Layout>
           {/*<Test api={api}/>*/}
         <Content className="site-layout" style={{ padding: '0 50px', minHeight: '100vh' }}>
           <div style={{ padding: 24, minHeight: 380, maxWidth: '1200px', margin: 'auto' }}>
