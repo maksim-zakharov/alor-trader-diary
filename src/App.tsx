@@ -546,7 +546,7 @@ function App() {
   return (
       <Layout>
           {/*<Test api={api}/>*/}
-        <Content className="site-layout" style={{ padding: '0 50px', minHeight: '100vh' }}>
+        <Content className="site-layout" style={{ minHeight: '100vh' }}>
           <div style={{ padding: 24, minHeight: 380, maxWidth: '1200px', margin: 'auto' }}>
               <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                   <Typography.Title>Alor Trader Diary</Typography.Title>
