@@ -59,8 +59,8 @@ const sharedOnCell = (_: DataType, index: number) => {
     return {};
 };
 
-const moneyFormat = (money: number) => new Intl.NumberFormat('ru-RU', {
-    style: 'currency', currency: 'RUB'
+const moneyFormat = (money: number, maximumFractionDigits?: number) => new Intl.NumberFormat('ru-RU', {
+    style: 'currency', currency: 'RUB', maximumFractionDigits
 }).format(money)
 function App() {
     const [nightMode, setNightMode] = useState(Boolean(localStorage.getItem('night') === 'true'));
@@ -313,7 +313,12 @@ function App() {
             dateFrom = moment().add(-7, 'day').format('YYYY-MM-DD');
         }
         getCommulitiveTrades({date, dateFrom}).then(data => {
-            data.positions = data.positions.map((p: any) => ({...p, id: p.trades[0].id}));
+            data.positions = data.positions.map((p: any) =>
+                ({...p,
+                id: p.trades[0].id,
+                duration: moment(p.closeDate).diff(moment(p.openDate), 'seconds'),
+                    volume: summ(p.trades.filter(t => t.side === p.side).map(t => t.volume))
+            }));
             const dayPositionsWithSummaryMap = {};
             for(let i = 0; i< data.positions.length; i++){
                 const currentDay = moment(data.positions[i].openDate).format('YYYY-MM-DD')
@@ -429,6 +434,16 @@ function App() {
 
     const columns: ColumnsType<DataType> = [
         {
+            title: 'Symbol',
+            dataIndex: 'symbol',
+            key: 'symbol',
+            width: 60,
+            align: 'center',
+            // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
+            // @ts-ignore
+            render: (_, row) => row.type !== 'summary' && _,
+        },
+        {
             title: 'Time',
             dataIndex: 'openDate',
             key: 'openDate',
@@ -440,24 +455,15 @@ function App() {
             // onCell: sharedOnCell,
         },
         {
-            title: 'PnL',
-            dataIndex: 'PnL',
-            key: 'PnL',
-            align: 'center',
-            onCell: (record: any, rowIndex) => ({className: record.type !== 'summary' && (record.PnL > 0 ? 'profit' : 'loss'), style: {textAlign: 'center'}}),
-            render: (_, row: any) => row.type !== 'summary' ? moneyFormat(_) : <strong>{moneyFormat(_)}</strong>,
-            // onCell: (_, index) => ({
-            //     colSpan: index === 1 ? 4 : 1,
-            // }),
-        },
-        {
-            title: 'Symbol',
-            dataIndex: 'symbol',
-            key: 'symbol',
+            title: 'Duration',
+            dataIndex: 'duration',
+            key: 'duration',
+            width: 100,
             align: 'center',
             // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
             // @ts-ignore
-            render: (_, row) => row.type !== 'summary' && _,
+            render: (_, row) => row.type !== 'summary' && moment.duration(_, 'seconds').humanize(),
+            // onCell: sharedOnCell,
         },
         {
             title: 'L/S',
@@ -477,6 +483,25 @@ function App() {
             // onCell: (record: any, rowIndex) => ({className: record.PnLPercent > 0 ? 'profit' : 'loss'}),
             // render: (_, row) => moneyFormat(_)
             render: (val: number, row: any) => row.type !== 'summary' &&  `${(val * 100).toFixed(2)}%`
+        },
+        {
+            title: 'PnL',
+            dataIndex: 'PnL',
+            key: 'PnL',
+            align: 'center',
+            onCell: (record: any, rowIndex) => ({className: record.type !== 'summary' && (record.PnL > 0 ? 'profit' : 'loss'), style: {textAlign: 'center'}}),
+            render: (_, row: any) => row.type !== 'summary' ? moneyFormat(_) : <strong>{moneyFormat(_)}</strong>,
+            // onCell: (_, index) => ({
+            //     colSpan: index === 1 ? 4 : 1,
+            // }),
+        },
+        {
+            title: 'Volume',
+            dataIndex: 'volume',
+            key: 'volume',
+            align: 'center',
+            // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
+            render: (_, row: any) => row.type !== 'summary' &&  moneyFormat(_, 0)
         },
         {
             title: 'Fee',
