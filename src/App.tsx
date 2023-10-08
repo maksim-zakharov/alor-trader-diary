@@ -1,70 +1,62 @@
 // import logo from './logo.svg';
 import './App.css';
 import {
-    Button, Divider, Drawer, Form,
+    Button, DatePicker, DatePickerProps, Divider, Drawer, Form,
     Input, InputRef,
-    Layout, Select, SelectProps, Space,
+    Layout, Menu, MenuProps, Select, SelectProps, Space,
     Statistic, Switch,
     Table,
     TableColumnsType,
     Typography
 } from "antd";
-import {Content, Footer} from "antd/es/layout/layout";
+import {Content, Footer, Header} from "antd/es/layout/layout";
 import {ColumnsType} from "antd/es/table";
-import React, {ChangeEventHandler, useEffect, useRef, useState} from "react";
+import React, {ChangeEventHandler, ReactNode, useEffect, useRef, useState} from "react";
 import moment from "moment";
 import {ArrowDownOutlined, ArrowUpOutlined, SettingOutlined} from '@ant-design/icons'
-import {useLocation} from "react-router-dom";
+import {Navigate, Route, Routes, useLocation, useNavigate, useSearchParams} from "react-router-dom";
 import {useApi} from "./useApi";
 import {Exchange, Side, Trade} from "alor-api";
-import FormItem from "antd/es/form/FormItem";
-import Chart from "./Chart";
+import {ItemType, MenuItemType} from "antd/es/menu/hooks/useItems";
+import Diary from "./pages/Diary";
+import Analytics from "./pages/Analytics";
+import {RangePickerProps} from "antd/es/date-picker";
+import * as days from 'dayjs'
+import {DefaultOptionType} from "antd/es/select";
 import {SwitchChangeEventHandler} from "antd/es/switch";
-import {SelectHandler} from "rc-select/lib/Select";
-import { DefaultOptionType } from 'antd/es/select';
-import { PlusOutlined } from '@ant-design/icons';
 
 export const avg = (numbers: number[]) =>
     !numbers.length ? 0 : summ(numbers) / numbers.length;
 export const summ = (numbers: number[]) =>
     numbers.reduce((acc, curr) => acc + curr, 0);
-interface DataType {
-    key: string;
-    name: string;
-    age: number;
-    address: string;
-    tags: string[];
-}
 
-interface ExpandedDataType {
-    key: React.Key;
-    date: string;
-    name: string;
-    upgradeNum: string;
-}
+export const selectOptions: DefaultOptionType[] = [
+    {label: 'Эмоции', value: 'Emotion'},
+    {label: 'Отскок от уровня', value: 'ReboundLevel'},
+    {label: 'Отскок от айса', value: 'ReboundIce'},
+    {label: 'Отскок от плотности', value: 'ReboundSize'},
+    {label: 'Пробой уровня', value: 'BreakoutLevel'},
+    {label: 'Пробой айса', value: 'BreakoutIce'},
+    {label: 'Пробой плотности', value: 'BreakoutSize'},
+    {label: 'Памп неликвида', value: 'Pump'},
+    {label: 'Планка', value: 'PriceLimit'},
+    {label: 'Прострел', value: 'Prostrel'},
+    {label: 'Робот', value: 'Robot'},
+    {label: 'Сбор волатильности', value: 'Volatility'},
+    {label: 'Спред', value: 'Spread'},
+    {label: 'Другое', value: undefined},
+]
+export const selectOptionsMap = selectOptions.reduce((acc, curr) => ({...acc, [curr.value]: curr.label}),{})
 
-interface DataType {
-    key: string;
-    name: string;
-    age: number;
-    tel: string;
-    phone: number;
-    address: string;
-}
-const sharedOnCell = (_: DataType, index: number) => {
-    if (index === 1) {
-        return { colSpan: 0 };
-    }
-
-    return {};
-};
-
-const moneyFormat = (money: number, maximumFractionDigits?: number) => new Intl.NumberFormat('ru-RU', {
-    style: 'currency', currency: 'RUB', maximumFractionDigits
-}).format(money)
 function App() {
     const [nightMode, setNightMode] = useState(Boolean(localStorage.getItem('night') === 'true'));
-    const [showSettings, setShowSettings] = useState(false);
+
+
+    const onChangeNightMode: SwitchChangeEventHandler = (e) => {
+        localStorage.setItem('night', String(e));
+        document.body.className = 'dark-theme';
+        setNightMode(e)
+    }
 
     useEffect(() => {
         if(nightMode){
@@ -74,12 +66,18 @@ function App() {
             document.body.removeAttribute('class');
         }
     }, [nightMode]);
+    const navigate = useNavigate();
+    const location = useLocation();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const currentMenuSelectedKey = location.pathname?.split('/')[1] || 'diary';
+    const date = searchParams.get('date');
+    let dateFrom = searchParams.get('dateFrom');
 
-    const onChangeNightMode: SwitchChangeEventHandler = (e) => {
-        localStorage.setItem('night', String(e));
-        document.body.className = 'dark-theme';
-        setNightMode(e)
+    if(!dateFrom){
+        dateFrom = moment().add(-30, 'day').format('YYYY-MM-DD');
     }
+
+    const currentDates: DatePickerProps['value'] = days(dateFrom);
 
      const getCommulitiveTrades = async (
         { date, dateFrom }: { date?: string; dateFrom?: string },
@@ -124,6 +122,17 @@ function App() {
                 portfolio: settings.portfolio,
                 dateFrom: date || dateFrom,
             });
+
+            let lastTrades = trades;
+
+            while (lastTrades.length > 1){
+                lastTrades = await api.clientInfo.getHistoryTrades({
+                    exchange: Exchange.MOEX,
+                    portfolio: settings.portfolio,
+                    from: trades.slice(-1)[0].id
+                })
+                trades.push(...lastTrades.slice(1))
+            }
 
             if (date)
                 trades = trades.filter((t) =>
@@ -289,12 +298,8 @@ function App() {
         return { positions: batchPositions, totalPnL, totalFee };
     }
 
-    const location = useLocation();
     const [data, setData] = useState({positions: [], totalPnL: 0, totalFee: 0});
 
-    const [comments, setComments] = useState<{[id: string]: string}>(JSON.parse(localStorage.getItem('state') || '{}'));
-
-    const [reasons, setReasons] = useState<{[id: string]: string}>(JSON.parse(localStorage.getItem('reasons') || '{}'));
 
     const [settings, setSettings] = useState<{token: string, portfolio: string}>(JSON.parse(localStorage.getItem('settings') || '{}'));
     const api = useApi(settings.token);
@@ -306,11 +311,6 @@ function App() {
         const url = new URL('http://localhost:3000/commulitive-trades');
         if(location.search){
             url.search = location.search;
-        }
-        const date = url.searchParams.get('date');
-        let dateFrom = url.searchParams.get('dateFrom');
-        if(!dateFrom){
-            dateFrom = moment().add(-7, 'day').format('YYYY-MM-DD');
         }
         getCommulitiveTrades({date, dateFrom}).then(data => {
             data.positions = data.positions.map((p: any) =>
@@ -342,244 +342,54 @@ function App() {
     }, [location.search, api])
 
     useEffect(() => {
-        localStorage.setItem('state', JSON.stringify(comments));
-    }, [comments])
-
-    useEffect(() => {
-        localStorage.setItem('reasons', JSON.stringify(reasons));
-    }, [reasons])
-
-    useEffect(() => {
         localStorage.setItem('settings', JSON.stringify(settings));
     }, [settings])
 
-    const expandedRowRender = (row: any) => {
-        const columns: TableColumnsType<ExpandedDataType> = [
-            {
-                title: 'Time',
-                dataIndex: 'date',
-                key: 'date',
-                render: (_, row) => moment(row.date).format('HH:mm:ss'),
-            },
-            { title: 'Side', dataIndex: 'side', key: 'side',
-                // @ts-ignore
-                render: (_, row) => row.side === 'sell' ? <ArrowDownOutlined /> : <ArrowUpOutlined />, },
-            { title: 'Quantity', dataIndex: 'qty', key: 'qty' },
-            { title: 'Price', dataIndex: 'price', key: 'price',
-                render: (_, row) => moneyFormat(_) },
-            { title: 'Amount', dataIndex: 'volume', key: 'volume',
-                render: (_, row) => moneyFormat(_) },
-            { title: 'Fee', dataIndex: 'commission', key: 'commission',
-                render: (_, row) => moneyFormat(_) },
-        ];
-
-        const darkColors = {
-            backgroundColor: 'rgb(30,44,57)',
-            color: 'rgb(166,189,213)',
-            borderColor: 'rgb(44,60,75)'
-        }
-
-        return <div style={{    display: "grid",
-            gridTemplateColumns: "800px auto",
-            gap: '8px'}}>
-            <Chart colors={nightMode && darkColors} trades={row.trades} symbol={row.symbol} api={api} from={row.trades[0].date} to={row.trades.slice(-1)[0].date}/>
-            <Input.TextArea placeholder="Add comment..." {...inputProps(row)}/>
-            <Table style={{gridColumnStart: 1, gridColumnEnd: 3}} columns={columns} dataSource={row.trades.sort((a: any, b: any) => a.date.localeCompare(b.date))} pagination={false} />
-            </div>;
-    };
-
-    const selectOptions: DefaultOptionType[] = [
-        {label: 'Эмоции', value: 'Emotion'},
-        {label: 'Отскок от уровня', value: 'ReboundLevel'},
-        {label: 'Отскок от айса', value: 'ReboundIce'},
-        {label: 'Отскок от плотности', value: 'ReboundSize'},
-        {label: 'Пробой уровня', value: 'BreakoutLevel'},
-        {label: 'Пробой айса', value: 'BreakoutIce'},
-        {label: 'Пробой плотности', value: 'BreakoutSize'},
-        {label: 'Памп неликвида', value: 'Pump'},
-        {label: 'Планка', value: 'PriceLimit'},
-        {label: 'Прострел', value: 'Prostrel'},
-        {label: 'Робот', value: 'Robot'},
-        {label: 'Сбор волатильности', value: 'Volatility'},
-        {label: 'Спред', value: 'Spread'},
+    const menuItems: (MenuItemType & {element: ReactNode})[] = [
+        {key: 'diary', label: 'Diary', element: <Diary data={data} api={api}/>},
+        {key: 'analytics', label: 'Analytics', element: <Analytics data={data} api={api}/>}
     ]
 
-    const selectProps = (position: any): SelectProps => {
-
-        const onSelect: SelectProps["onSelect"] = (value) => {
-            setReasons(prevState => ({...prevState, [position.id]: value}))
+    const onSelectMenu: MenuProps['onSelect'] = (e) => {
+        let to = `/${e.key}`;
+        if(location.search){
+            to += location.search;
         }
 
-        return {
-            value: reasons[position.id],
-            defaultValue: reasons[position.id],
-            options: selectOptions,
-            onSelect
-        }
+        navigate(to);
     }
 
-    const inputProps = (position: any) => {
-
-        const onChange: ChangeEventHandler = (e: any) => {
-            const value = e.target.value;
-            setComments(prevState => ({...prevState, [position.id]: value}))
-        }
-
-        return {
-            value: comments[position.id],
-            defaultValue: comments[position.id],
-            onChange
-        }
-    }
-
-    const columns: ColumnsType<DataType> = [
-        {
-            title: 'Symbol',
-            dataIndex: 'symbol',
-            key: 'symbol',
-            width: 60,
-            align: 'center',
-            // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
-            // @ts-ignore
-            render: (_, row) => row.type !== 'summary' && _,
-        },
-        {
-            title: 'Time',
-            dataIndex: 'openDate',
-            key: 'openDate',
-            width: 100,
-            align: 'center',
-            // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
-            // @ts-ignore
-            render: (_, row) => row.type !== 'summary' ? moment(row.openDate).format('HH:mm:ss') :  moment(row.openDate).format('DD.MM.YYYY'),
-            // onCell: sharedOnCell,
-        },
-        {
-            title: 'Duration',
-            dataIndex: 'duration',
-            key: 'duration',
-            width: 100,
-            align: 'center',
-            // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
-            // @ts-ignore
-            render: (_, row) => row.type !== 'summary' && moment.duration(_, 'seconds').humanize(),
-            // onCell: sharedOnCell,
-        },
-        {
-            title: 'L/S',
-            dataIndex: 'side',
-            key: 'side',
-            align: 'center',
-            // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
-            // @ts-ignore
-            render: (_, row) => row.type !== 'summary' && (row.side === 'sell' ? <ArrowDownOutlined /> : <ArrowUpOutlined />),
-        },
-        {
-            title: 'PnL %',
-            dataIndex: 'PnLPercent',
-            key: 'PnLPercent',
-            align: 'center',
-            // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
-            // onCell: (record: any, rowIndex) => ({className: record.PnLPercent > 0 ? 'profit' : 'loss'}),
-            // render: (_, row) => moneyFormat(_)
-            render: (val: number, row: any) => row.type !== 'summary' &&  `${(val * 100).toFixed(2)}%`
-        },
-        {
-            title: 'PnL',
-            dataIndex: 'PnL',
-            key: 'PnL',
-            align: 'center',
-            onCell: (record: any, rowIndex) => ({className: record.type !== 'summary' && (record.PnL > 0 ? 'profit' : 'loss'), style: {textAlign: 'center'}}),
-            render: (_, row: any) => row.type !== 'summary' ? moneyFormat(_) : <strong>{moneyFormat(_)}</strong>,
-            // onCell: (_, index) => ({
-            //     colSpan: index === 1 ? 4 : 1,
-            // }),
-        },
-        {
-            title: 'Volume',
-            dataIndex: 'volume',
-            key: 'volume',
-            align: 'center',
-            // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
-            render: (_, row: any) => row.type !== 'summary' &&  moneyFormat(_, 0)
-        },
-        {
-            title: 'Fee',
-            dataIndex: 'Fee',
-            key: 'Fee',
-            align: 'center',
-            // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
-            render: (_, row) => moneyFormat(_)
-        },
-        {
-            title: 'Reason',
-            dataIndex: 'reason',
-            key: 'reason',
-            width: 200,
-            // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
-            render: (_, row: any) => row.type !== 'summary' && <Select size="small" style={{width: '180px'}} allowClear placeholder="Select reason..." {...selectProps(row)}/>
-        },
-        {
-            title: 'Comment',
-            dataIndex: 'comment',
-            key: 'comment',
-            // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
-            render: (_, row: any) => row.type !== 'summary' && <Input size="small" allowClear placeholder="Add comment..." {...inputProps(row)}/>
-        },
-    ];
-
-    const settingsInputProps = (field: string) => {
-        const onChange = (e: any) => {
-            const value = e.target.value;
-            setSettings(prevState => ({...prevState, [field]: value}))
-        }
-
-        return {
-            value: settings[field],
-            defaultValue: settings[field],
-            onChange,
-            name: field,
-            id: field
-        }
+    const onChangeDate: DatePickerProps['onChange'] = (dateFrom) => {
+        searchParams.set('dateFrom', dateFrom.format('YYYY-MM-DD'));
+        setSearchParams(searchParams)
     }
 
   return (
       <Layout>
           {/*<Test api={api}/>*/}
-        <Content className="site-layout" style={{ minHeight: '100vh' }}>
-          <div style={{ padding: 24, minHeight: 380, maxWidth: '1200px', margin: 'auto' }}>
-              <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                  <Typography.Title>Alor Trader Diary</Typography.Title>
-                  <div style={{display: 'flex', gap: '24px', justifyContent: 'space-between', alignItems: 'center'}}>
+          <Header style={{ display: 'flex', alignItems: 'center' }}>
+              <div className="menu-content">
+                  <Menu
+                      theme="dark"
+                      mode="horizontal"
+                      defaultSelectedKeys={[currentMenuSelectedKey]}
+                      items={menuItems}
+                      onSelect={onSelectMenu}
+                  />
+                  <Space>
+                      <DatePicker value={currentDates} onChange={onChangeDate} />
                       <Switch defaultChecked={nightMode} checked={nightMode} onChange={onChangeNightMode}
                       />
-                      <Statistic
-                          title="Total PnL"
-                          value={moneyFormat(data.totalPnL)}
-                          precision={2}
-                          valueStyle={{ color: data.totalPnL > 0 ? 'rgb(44,232,156)' : 'rgb( 255,117,132)' }}
-                      />
-                      <Statistic
-                          title="Total Fee"
-                          value={moneyFormat(data.totalFee)}
-                          precision={2}
-                          valueStyle={{ color: 'rgb( 255,117,132)' }}
-                      />
-                      <Button type="text" icon={<SettingOutlined/>} onClick={(f) => setShowSettings(true)}/>
-                      <Drawer title="Settings" placement="right" onClose={() => setShowSettings(false)} open={showSettings}>
-                          <Form>
-                              <FormItem label="Alor Token">
-                                  <Input placeholder="Token" {...settingsInputProps('token')}/>
-                              </FormItem>
-                              <FormItem label="Alor Portfolio">
-                                  <Input placeholder="Portfolio" {...settingsInputProps('portfolio')}/>
-                              </FormItem>
-                          </Form>
-                      </Drawer>
-                  </div>
+                  </Space>
               </div>
-              <Table onRow={(row) => row.type === 'summary' && {className: row.PnL > 0 ? 'profit' : 'loss'}} rowKey="id" columns={columns} dataSource={data.positions} size="small" pagination={false}
-                     expandable={{ expandedRowRender, defaultExpandedRowKeys: ['0'], rowExpandable: (row) => row.type !== 'summary' }} />
+          </Header>
+        <Content className="site-layout" style={{ minHeight: '100vh' }}>
+          <div style={{ padding: 24, minHeight: 380, maxWidth: '1200px', margin: 'auto' }}>
+              <Routes>
+                  <Route path="/" element={<Navigate to={`/${menuItems[0].key}`} />}/>
+                  {menuItems.map(item => <Route path={`/${item.key}`} element={item.element}/>)}
+                  <Route path="*" element={<Navigate to="/" />}/>
+              </Routes>
           </div>
         </Content>
         <Footer style={{ textAlign: 'center' }}>Alor Trader Diary ©2023 Created by Maksim Zakharov</Footer>

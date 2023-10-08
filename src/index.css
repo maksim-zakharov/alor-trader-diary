@@ -22,15 +22,53 @@ code {
 
 .ant-table-wrapper .ant-table.ant-table-small .ant-table-title, .ant-table-wrapper .ant-table.ant-table-small .ant-table-footer, .ant-table-wrapper .ant-table.ant-table-small .ant-table-cell, .ant-table-wrapper .ant-table.ant-table-small .ant-table-thead > tr > th, .ant-table-wrapper .ant-table.ant-table-small .ant-table-tbody > tr > th, .ant-table-wrapper .ant-table.ant-table-small .ant-table-tbody > tr > td, .ant-table-wrapper .ant-table.ant-table-small tfoot > tr > th, .ant-table-wrapper .ant-table.ant-table-small tfoot > tr > td {
     padding: 4px;
+
+}
+.ant-layout-header{
+    background-color: transparent;
+    /*color: rgb(179,199,219);*/
+    color: #000
 }
 
 .ant-table-wrapper .ant-table-thead >tr>th, .ant-table-wrapper .ant-table-thead >tr>td{
     text-align: center;
 }
 
+.ant-menu{
+    background-color: transparent;
+    color: #000;
+    width: 100%;
+}
+
+.menu-content{
+    width: 1200px;
+    margin: auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ant-menu-dark.ant-menu-horizontal >.ant-menu-item-selected:hover, :where(.css-dev-only-do-not-override-pr0fja).ant-menu-dark>.ant-menu.ant-menu-horizontal >.ant-menu-item-selected:hover, :where(.css-dev-only-do-not-override-pr0fja).ant-menu-dark.ant-menu-horizontal >.ant-menu-submenu-selected:hover, :where(.css-dev-only-do-not-override-pr0fja).ant-menu-dark>.ant-menu.ant-menu-horizontal >.ant-menu-submenu-selected:hover{
+    background-color: transparent;
+    font-weight: bold;
+    color: #000;
+}
+
+.ant-menu-dark.ant-menu-horizontal >.ant-menu-item-selected, :where(.css-dev-only-do-not-override-pr0fja).ant-menu-dark>.ant-menu.ant-menu-horizontal >.ant-menu-item-selected, :where(.css-dev-only-do-not-override-pr0fja).ant-menu-dark.ant-menu-horizontal >.ant-menu-submenu-selected, :where(.css-dev-only-do-not-override-pr0fja).ant-menu-dark>.ant-menu.ant-menu-horizontal >.ant-menu-submenu-selected{
+    background-color: transparent;
+    font-weight: bold;
+    color: #000;
+}
+
 .dark-theme .ant-layout {
     background-color: rgb(23,35,46);
     color: rgb(179,199,219);
+
+    .ant-menu-dark.ant-menu-horizontal >.ant-menu-item-selected, :where(.css-dev-only-do-not-override-pr0fja).ant-menu-dark>.ant-menu.ant-menu-horizontal >.ant-menu-item-selected, :where(.css-dev-only-do-not-override-pr0fja).ant-menu-dark.ant-menu-horizontal >.ant-menu-submenu-selected, :where(.css-dev-only-do-not-override-pr0fja).ant-menu-dark>.ant-menu.ant-menu-horizontal >.ant-menu-submenu-selected{
+font-weight: bold;
+        color: rgb(179,199,219);
+    }
 
     .ant-statistic .ant-statistic-title{
         color: rgb(179,199,219);
@@ -138,6 +176,14 @@ code {
     }
 
     .ant-layout-footer{
+        background-color: rgb(30,44,57);
+        color: rgb(179,199,219);
+    }
+    .ant-layout-header{
+        background-color: rgb(30,44,57);
+        color: rgb(179,199,219);
+    }
+    .ant-menu{
         background-color: rgb(30,44,57);
         color: rgb(179,199,219);
     }
