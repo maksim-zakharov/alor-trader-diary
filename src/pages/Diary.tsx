@@ -13,7 +13,7 @@ import {
 } from "antd";
 import {ArrowDownOutlined, ArrowUpOutlined, SettingOutlined} from "@ant-design/icons";
 import FormItem from "antd/es/form/FormItem";
-import React, {ChangeEventHandler, useEffect, useState} from "react";
+import React, {ChangeEventHandler, memo, useEffect, useState} from "react";
 import {ColumnsType} from "antd/es/table";
 import moment from "moment/moment";
 import Chart from "../Chart";
@@ -50,6 +50,7 @@ const sharedOnCell = (_: DataType, index: number) => {
 
     return {};
 };
+
 const moneyFormat = (money: number, maximumFractionDigits?: number) => new Intl.NumberFormat('ru-RU', {
     style: 'currency', currency: 'RUB', maximumFractionDigits
 }).format(money)

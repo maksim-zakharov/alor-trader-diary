@@ -74,7 +74,7 @@ function App() {
     let dateFrom = searchParams.get('dateFrom');
 
     if(!dateFrom){
-        dateFrom = moment().add(-30, 'day').format('YYYY-MM-DD');
+        dateFrom = moment().startOf('week').format('YYYY-MM-DD');
     }
 
     const currentDates: DatePickerProps['value'] = days(dateFrom);
@@ -114,16 +114,18 @@ function App() {
             }),
         );
 
-        let trades: Trade[] = [];
+        let trades: Trade[] = await api.clientInfo.getTrades({
+            exchange: Exchange.MOEX,
+            portfolio: settings.portfolio,
+        });
 
         if (date || dateFrom) {
-            trades = await api.clientInfo.getHistoryTrades({
+            let lastTrades = await api.clientInfo.getHistoryTrades({
                 exchange: Exchange.MOEX,
                 portfolio: settings.portfolio,
                 dateFrom: date || dateFrom,
             });
-
-            let lastTrades = trades;
+            trades.push(...lastTrades)
 
             while (lastTrades.length > 1){
                 lastTrades = await api.clientInfo.getHistoryTrades({
@@ -144,11 +146,6 @@ function App() {
                 // @ts-ignore
                 commission: !t.commission ? t.volume * 0.0005 : t.commission,
             }));
-        } else {
-            trades = await api.clientInfo.getTrades({
-                exchange: Exchange.MOEX,
-                portfolio: settings.portfolio,
-            });
         }
 
         const allTrades = [...trades, ...startedTrades];

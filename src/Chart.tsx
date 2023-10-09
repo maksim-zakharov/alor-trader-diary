@@ -43,7 +43,7 @@ const Chart: FC<IProps> = ({symbol, api, from, to, trades, colors = {}}) => {
             // @ts-ignore
             tf: currentTimeframe,
             from: fromNum,
-            to:toNum,
+            to: Math.floor(toNum),
         }).then(r => setData(r.history)); // .map(c => [c.time, c.open, c.high, c.low, c.close])))
     }, [symbol, api, from, to]);
 
