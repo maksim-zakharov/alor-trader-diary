@@ -1,0 +1,303 @@
+import { FC, useEffect, useMemo, useState } from 'react';
+import { Spin } from 'antd';
+import TradesPanel from './TradesPanel';
+import OrderbookTable, {
+  ScalperOrderBookRowType,
+  VolumeHighlightMode,
+} from './OrderbookTable';
+import {
+  AlorApi,
+  Condition,
+  Exchange,
+  fromTo,
+  Orders,
+  OrderStatus,
+  Side,
+} from 'alor-api';
+import { random } from '../../common/utils';
+
+interface IProps {
+  isActive: boolean;
+  guid: string;
+  workingVolume: number;
+  api: AlorApi;
+}
+export type ThemeColors = any;
+
+const darkThemeColors: ThemeColors = {
+  sellColor: 'rgba(209, 38, 27, 1)',
+  sellColorBackground: 'rgba(209, 38, 27, 0.4)',
+  sellColorAccent: 'rgba(255, 69, 0, 1)',
+  buyColor: 'rgba(0, 155, 99, 1)',
+  buyColorBackground: 'rgba(0, 155, 99, 0.4)',
+  buyColorBackgroundLight: 'rgba(0, 155, 99, 1)',
+  buySellLabelColor: '#ffffff',
+  buyColorAccent: 'rgba(19, 219, 146, 1)',
+  componentBackground: '#141922',
+  primaryColor: '#177ddc',
+  purpleColor: '#51258f',
+  errorColor: '#a61d24',
+  chartGridColor: '#272E3B',
+  chartLabelsColor: '#97A4BB',
+  chartPrimaryTextColor: '#ffffff',
+  chartBackground: '#1F2530',
+  textColor: '#97A4BB',
+};
+
+const AtsScalperOrderBookBody: FC<IProps> = ({
+  api,
+  isActive,
+  guid,
+  workingVolume,
+}) => {
+  const symbol = 'SELG';
+  const [settings, setSettings] = useState<{
+    token: string;
+    portfolio: string;
+  }>(JSON.parse(localStorage.getItem('settings') || '{}'));
+
+  const isMock = false;
+
+  const [orderBookData, setOrderbookData] = useState<{ a: any[]; b: any[] }>({
+    a: [],
+    b: [],
+  });
+  const [trades, setTrades] = useState([]);
+  const [positions, setPositions] = useState([]);
+  const [orders, setOrders] = useState(new Map<string, any>([]));
+
+  useEffect(() => {
+    if (!isMock) return;
+    const orderbook = {
+      asks: new Array(20).fill(80.1).map((price, index) => ({
+        price: +(price + index * 0.01).toFixed(2),
+        volume: random(10000),
+      })),
+      bids: new Array(20).fill(80.09).map((price, index) => ({
+        price: +(price - index * 0.01).toFixed(2),
+        volume: random(10000),
+      })),
+    };
+
+    setOrderbookData({
+      a: orderbook.asks.map((p) => ({
+        price: p.price,
+        v: p.volume,
+        volume: p.volume,
+        rowType: ScalperOrderBookRowType.Ask,
+      })),
+      b: orderbook.bids.map((p) => ({
+        price: p.price,
+        v: p.volume,
+        volume: p.volume,
+        rowType: ScalperOrderBookRowType.Bid,
+      })),
+    });
+
+    const trades = [
+      ...orderbook.asks
+        .reverse()
+        .map((t) => ({ ...t, qty: t.volume, side: Side.Sell })),
+      ...orderbook.bids.map((t) => ({ ...t, qty: t.volume, side: Side.Buy })),
+    ];
+
+    setTrades(trades);
+  }, [isMock]);
+
+  const orderBookBody = useMemo(
+    () =>
+      [...orderBookData.b, ...orderBookData.a].sort(
+        (a, b) => b.price - a.price,
+      ),
+    [orderBookData],
+  );
+
+  let orderBookSubscription;
+  let tradesSubscription;
+
+  const subscribe = async () => {
+    await api.refresh();
+    await api.subscriptions.positions(
+      {
+        exchange: Exchange.MOEX,
+        portfolio: settings.portfolio,
+      },
+      (position) => setPositions((prevState) => [...prevState, position]),
+    );
+    await api.subscriptions.orders(
+      {
+        exchange: Exchange.MOEX,
+        portfolio: settings.portfolio,
+      },
+      (position) =>
+        setOrders((prevState) =>
+          prevState.set(position.id, {
+            ...position,
+            linkedPrice: position.price,
+            displayVolume: position.qty,
+          }),
+        ),
+    );
+    await api.subscriptions.stoporders(
+      {
+        exchange: Exchange.MOEX,
+        portfolio: settings.portfolio,
+      },
+      (position) =>
+        setOrders((prevState) =>
+          prevState.set(position.id.toString(), {
+            ...position,
+            linkedPrice: position.price,
+            displayVolume: position.qty,
+          }),
+        ),
+    );
+    if (isMock) return;
+
+    await api.subscriptions
+      .orderBook(
+        {
+          exchange: Exchange.MOEX,
+          code: symbol,
+          depth: 20,
+        },
+        (orderbook) =>
+          setOrderbookData({
+            a: orderbook.asks.map((p) => ({
+              price: p.price,
+              v: p.volume,
+              volume: p.volume,
+              rowType: ScalperOrderBookRowType.Ask,
+            })),
+            b: orderbook.bids.map((p) => ({
+              price: p.price,
+              v: p.volume,
+              volume: p.volume,
+              rowType: ScalperOrderBookRowType.Bid,
+            })),
+          }),
+      )
+      .then((s) => (orderBookSubscription = s));
+
+    await api.subscriptions
+      .alltrades(
+        {
+          exchange: Exchange.MOEX,
+          depth: 50,
+          // @ts-ignore
+          code: symbol,
+        },
+        (data) => setTrades((prev) => [data, ...prev]),
+      )
+      .then((s) => (tradesSubscription = s));
+  };
+
+  useEffect(() => {
+    if (api) {
+      subscribe();
+    }
+
+    return () => {
+      tradesSubscription?.();
+      orderBookSubscription?.();
+    };
+  }, [api]);
+
+  const rowHeight = 18;
+
+  const isLoading = false;
+
+  if (isLoading) {
+    return <Spin />;
+  }
+
+  const themeSettings = { themeColors: darkThemeColors };
+
+  const orderService = {
+    sendLimitOrder: ({ side, price, qty }) =>
+      api.orders.sendLimitOrder({
+        price,
+        side,
+        type: 'limit',
+        user: {
+          portfolio: settings.portfolio,
+        },
+        instrument: {
+          symbol,
+          exchange: Exchange.MOEX,
+        },
+        quantity: qty,
+        icebergVariance: qty,
+        icebergFixed: qty,
+      }),
+    sendStopLimitOrder: ({ side, price, qty }) =>
+      api.stoporders.sendStopLimitOrder({
+        price,
+        side,
+        condition: side === Side.Buy ? Condition.More : Condition.Less,
+        triggerPrice: price,
+        user: {
+          portfolio: settings.portfolio,
+        },
+        instrument: {
+          symbol,
+          exchange: Exchange.MOEX,
+        },
+        quantity: qty,
+        icebergVariance: qty,
+        icebergFixed: qty,
+      }),
+    cancelOrders: (orders: Orders) =>
+      orders.map((p) =>
+        api.orders.cancelOrder({
+          portfolio: settings.portfolio,
+          orderId: Number(p.id),
+          exchange: 'MOEX',
+          stop: typeof p.id === 'string',
+        }),
+      ),
+  };
+
+  const dataContext = {
+    currentOrders: Array.from(orders)
+      .map(([key, value]) => value)
+      .filter((o) => [OrderStatus.Working].includes(o.status)),
+    orderBookBody: orderBookBody,
+    orderBookData: orderBookData,
+    trades: trades,
+    displayRange: { start: 0, end: 40 },
+    settings: {
+      widgetSettings: {
+        volumeHighlightMode: VolumeHighlightMode.BiggestVolume,
+      },
+    },
+  };
+
+  const renderOrderTemplate = ({ orderSymbol, volume }) => {
+    return <div>{volume}</div>;
+  };
+
+  return (
+    <>
+      <div>
+        <TradesPanel
+          themeSettings={themeSettings}
+          dataContext={dataContext}
+          xAxisStep={rowHeight}
+          api={api}
+        />
+      </div>
+      <div id="table">
+        <OrderbookTable
+          orderService={orderService}
+          themeSettings={themeSettings}
+          dataContext={dataContext}
+          isActive={isActive}
+          rowHeight={rowHeight}
+        />
+      </div>
+    </>
+  );
+};
+
+export default AtsScalperOrderBookBody;

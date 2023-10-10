@@ -24,6 +24,7 @@ import {RangePickerProps} from "antd/es/date-picker";
 import * as days from 'dayjs'
 import {DefaultOptionType} from "antd/es/select";
 import {SwitchChangeEventHandler} from "antd/es/switch";
+import OrderbookWidget from "./pages/Orderbook/OrderbookWidget";
 
 export const avg = (numbers: number[]) =>
     !numbers.length ? 0 : summ(numbers) / numbers.length;
@@ -344,7 +345,8 @@ function App() {
 
     const menuItems: (MenuItemType & {element: ReactNode})[] = [
         {key: 'diary', label: 'Diary', element: <Diary data={data} api={api}/>},
-        {key: 'analytics', label: 'Analytics', element: <Analytics data={data} api={api}/>}
+        {key: 'analytics', label: 'Analytics', element: <Analytics data={data} api={api}/>},
+        {key: 'orderbook', label: 'Orderbook', element: <OrderbookWidget api={api}/>}
     ]
 
     const onSelectMenu: MenuProps['onSelect'] = (e) => {
