@@ -1,5 +1,5 @@
 import { FC, useEffect, useMemo, useState } from 'react';
-import { Spin } from 'antd';
+import { notification, Spin } from 'antd';
 import TradesPanel from './TradesPanel';
 import OrderbookTable, {
   ScalperOrderBookRowType,
@@ -13,14 +13,17 @@ import {
   Orders,
   OrderStatus,
   Side,
+  Timeframe,
 } from 'alor-api';
 import { random } from '../../common/utils';
+import AtsTradeClustersPanel from './AtsTradeClustersPanel';
 
 interface IProps {
-  isActive: boolean;
-  guid: string;
+  showClusters: boolean;
+  symbol: string;
   workingVolume: number;
   api: AlorApi;
+  orderBookPosition: any;
 }
 export type ThemeColors = any;
 
@@ -46,11 +49,11 @@ const darkThemeColors: ThemeColors = {
 
 const AtsScalperOrderBookBody: FC<IProps> = ({
   api,
-  isActive,
-  guid,
+  showClusters,
+  symbol,
+  orderBookPosition,
   workingVolume,
 }) => {
-  const symbol = 'SELG';
   const [settings, setSettings] = useState<{
     token: string;
     portfolio: string;
@@ -63,7 +66,6 @@ const AtsScalperOrderBookBody: FC<IProps> = ({
     b: [],
   });
   const [trades, setTrades] = useState([]);
-  const [positions, setPositions] = useState([]);
   const [orders, setOrders] = useState(new Map<string, any>([]));
 
   useEffect(() => {
@@ -116,14 +118,6 @@ const AtsScalperOrderBookBody: FC<IProps> = ({
   let tradesSubscription;
 
   const subscribe = async () => {
-    await api.refresh();
-    await api.subscriptions.positions(
-      {
-        exchange: Exchange.MOEX,
-        portfolio: settings.portfolio,
-      },
-      (position) => setPositions((prevState) => [...prevState, position]),
-    );
     await api.subscriptions.orders(
       {
         exchange: Exchange.MOEX,
@@ -147,6 +141,7 @@ const AtsScalperOrderBookBody: FC<IProps> = ({
         setOrders((prevState) =>
           prevState.set(position.id.toString(), {
             ...position,
+            type: 'stop',
             linkedPrice: position.price,
             displayVolume: position.qty,
           }),
@@ -179,15 +174,35 @@ const AtsScalperOrderBookBody: FC<IProps> = ({
       )
       .then((s) => (orderBookSubscription = s));
 
+    // const trades = await api.instruments.getAlltrades({
+    //   symbol,
+    //   exchange: Exchange.MOEX,
+    //   from,
+    // });
+
+    // setTrades(trades);
+
     await api.subscriptions
       .alltrades(
         {
           exchange: Exchange.MOEX,
-          depth: 50,
+          depth: showClusters ? 1000 : 20,
           // @ts-ignore
           code: symbol,
         },
-        (data) => setTrades((prev) => [data, ...prev]),
+        (data) =>
+          setTrades((prev) => {
+            const exist = prev.find((t) => t.id === data.id);
+            if (!exist) {
+              prev.push(data);
+            }
+
+            const timeUTC = new Date().getTime() / 1000;
+
+            const from = Math.floor(timeUTC - (timeUTC % Timeframe.Min5) * 3);
+
+            return prev.filter((t) => t.timestamp >= from);
+          }),
       )
       .then((s) => (tradesSubscription = s));
   };
@@ -215,46 +230,67 @@ const AtsScalperOrderBookBody: FC<IProps> = ({
 
   const orderService = {
     sendLimitOrder: ({ side, price, qty }) =>
-      api.orders.sendLimitOrder({
-        price,
-        side,
-        type: 'limit',
-        user: {
-          portfolio: settings.portfolio,
-        },
-        instrument: {
-          symbol,
-          exchange: Exchange.MOEX,
-        },
-        quantity: qty,
-        icebergVariance: qty,
-        icebergFixed: qty,
-      }),
+      api.orders
+        .sendLimitOrder({
+          price,
+          side,
+          type: 'limit',
+          user: {
+            portfolio: settings.portfolio,
+          },
+          instrument: {
+            symbol,
+            exchange: Exchange.MOEX,
+          },
+          quantity: qty,
+          icebergVariance: qty,
+          icebergFixed: qty,
+        })
+        .then(() =>
+          notification.success({
+            message: `Лимитная заявка для ${symbol} по цене ${price} установлена`,
+          }),
+        )
+        .catch((e) => notification.error({ message: e.message })),
     sendStopLimitOrder: ({ side, price, qty }) =>
-      api.stoporders.sendStopLimitOrder({
-        price,
-        side,
-        condition: side === Side.Buy ? Condition.More : Condition.Less,
-        triggerPrice: price,
-        user: {
-          portfolio: settings.portfolio,
-        },
-        instrument: {
-          symbol,
-          exchange: Exchange.MOEX,
-        },
-        quantity: qty,
-        icebergVariance: qty,
-        icebergFixed: qty,
-      }),
+      api.stoporders
+        .sendStopOrder({
+          // price,
+          side,
+          condition: side === Side.Buy ? Condition.More : Condition.Less,
+          triggerPrice: price,
+          user: {
+            portfolio: settings.portfolio,
+          },
+          instrument: {
+            symbol,
+            exchange: Exchange.MOEX,
+          },
+          quantity: qty,
+          // icebergVariance: qty,
+          // icebergFixed: qty,
+        })
+        .then(() =>
+          notification.success({
+            message: `Стоп заявка для ${symbol} по цене ${price} установлена`,
+          }),
+        )
+        .catch((e) => notification.error({ message: e.message })),
     cancelOrders: (orders: Orders) =>
       orders.map((p) =>
-        api.orders.cancelOrder({
-          portfolio: settings.portfolio,
-          orderId: Number(p.id),
-          exchange: 'MOEX',
-          stop: typeof p.id === 'string',
-        }),
+        api.orders
+          .cancelOrder({
+            portfolio: settings.portfolio,
+            orderId: Number(p.id),
+            exchange: 'MOEX',
+            stop: typeof p.id !== 'string',
+          })
+          .then(() =>
+            notification.success({
+              message: `Заявка для ${symbol} отменена`,
+            }),
+          )
+          .catch((e) => notification.error({ message: e.message })),
       ),
   };
 
@@ -264,8 +300,9 @@ const AtsScalperOrderBookBody: FC<IProps> = ({
       .filter((o) => [OrderStatus.Working].includes(o.status)),
     orderBookBody: orderBookBody,
     orderBookData: orderBookData,
-    trades: trades,
+    trades: trades.sort((a, b) => b.timestamp - a.timestamp),
     displayRange: { start: 0, end: 40 },
+    orderBookPosition,
     settings: {
       widgetSettings: {
         volumeHighlightMode: VolumeHighlightMode.BiggestVolume,
@@ -279,12 +316,22 @@ const AtsScalperOrderBookBody: FC<IProps> = ({
 
   return (
     <>
+      {showClusters && (
+        <div>
+          <AtsTradeClustersPanel
+            themeSettings={themeSettings}
+            xAxisStep={rowHeight}
+            dataContext={dataContext}
+            columnsCount={1}
+          />
+        </div>
+      )}
       <div>
         <TradesPanel
           themeSettings={themeSettings}
           dataContext={dataContext}
           xAxisStep={rowHeight}
-          api={api}
+          maxWidth={100}
         />
       </div>
       <div id="table">
@@ -292,7 +339,7 @@ const AtsScalperOrderBookBody: FC<IProps> = ({
           orderService={orderService}
           themeSettings={themeSettings}
           dataContext={dataContext}
-          isActive={isActive}
+          isActive={true}
           rowHeight={rowHeight}
         />
       </div>

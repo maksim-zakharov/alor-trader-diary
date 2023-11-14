@@ -1,8 +1,16 @@
-import { FC, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  FC,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 // @ts-ignore
 import { ScaleLinear, scaleLinear } from 'd3';
 import { AlorApi, Exchange, fromTo } from 'alor-api';
 import { ThemeColors } from './AtsScalperOrderBookBody';
+import { fillCanvas } from '../../common/utils';
 
 interface DrewItemMeta {
   xLeft: number;
@@ -39,18 +47,30 @@ type ThemeSettings = any;
 type AllTradesItem = any;
 
 interface IProps {
-  api: AlorApi;
   xAxisStep: number;
   dataContext: any;
   themeSettings: any;
+  maxWidth?: number;
 }
 
 const TradesPanel: FC<IProps> = ({
   dataContext,
   xAxisStep,
   themeSettings,
-  api,
+  maxWidth = 200,
 }) => {
+  const containerRef = useRef<HTMLDivElement>();
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+
+  useLayoutEffect(() => {
+    if (containerRef.current) {
+      setDimensions({
+        width: containerRef.current.offsetWidth,
+        height: containerRef.current.offsetHeight,
+      });
+    }
+  }, [containerRef.current?.offsetWidth]);
+
   const ref = useRef<HTMLCanvasElement>();
 
   const priceItems = useMemo(() => {
@@ -72,13 +92,11 @@ const TradesPanel: FC<IProps> = ({
       return;
     }
 
-    const canvas = ref.current!;
-    const context = canvas.getContext('2d')!;
-
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    // Ширина области ленты
-    canvas.width = 1000; // size!.width;
-    canvas.height = priceItems.length * xAxisStep;
+    const canvas = fillCanvas(
+      ref.current!,
+      dimensions.width > maxWidth ? maxWidth : dimensions.width,
+      priceItems.length * xAxisStep,
+    );
 
     draw(canvas, themeSettings, priceItems, dataContext.trades);
   }, [priceItems, dataContext.trades.length, ref.current]);
@@ -548,9 +566,44 @@ const TradesPanel: FC<IProps> = ({
     return getCenter(item.yTop, item.yBottom);
   };
 
+  const mediumTradeVolume = useMemo(() => {
+    const trades = [...dataContext.trades].sort((a, b) => b.qty - a.qty);
+
+    return trades[Math.floor(trades.length / 2)]?.qty;
+  }, [dataContext.trades.length]);
+
+  const mediumTradesPerSecond = useMemo(() => {
+    const trades = [...dataContext.trades]
+      .sort((a, b) => b.timestamp - a.timestamp)
+      .reduce((acc, { timestamp }) => {
+        if (!acc.length || acc[0][0] !== timestamp) {
+          acc.push([timestamp, 1]);
+        } else if (acc[0][0] === timestamp) {
+          acc[0][1]++;
+        }
+
+        return acc;
+      }, []);
+
+    const sorted = [...trades].sort((a, b) => b[1] - a[1]);
+
+    return {
+      medium: sorted[Math.floor(sorted.length / 2)]?.[1],
+      current: trades[0]?.[1] || 0,
+    };
+  }, [dataContext.trades.length]);
+
   return (
-    <div className="container">
+    <div
+      className="container"
+      style={{ display: 'flex', flexDirection: 'column' }}
+      ref={containerRef}
+    >
       <canvas ref={ref}></canvas>
+      {/*<div style={{ color: 'rgb(140,167,190)' }}>*/}
+      {/*  mV: {mediumTradeVolume}lts mS: {mediumTradesPerSecond.medium}tps cs:{' '}*/}
+      {/*  {mediumTradesPerSecond.current}tps*/}
+      {/*</div>*/}
     </div>
   );
 };

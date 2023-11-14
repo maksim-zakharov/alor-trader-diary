@@ -1,5 +1,6 @@
 import { FC, useMemo } from 'react';
 import { Side } from 'alor-api';
+import { shortNumberFormat } from '../../common/utils';
 
 export interface CurrentOrderDisplay {
   orderId: string;
@@ -351,106 +352,108 @@ const OrderbookTable: FC<IProps> = ({
   };
 
   return (
-    <>
-      <div id="table-body-container" style={{ display: 'flex' }}>
-        <div className="table-col" id="volume-panel">
-          {displayItems.map((row) => (
+    <div id="table-body-container" style={{ display: 'flex' }}>
+      <div className="table-col" id="volume-panel">
+        {displayItems.map((row) => (
+          <div
+            key={`volume-panel-${row.price}`}
+            onClick={($event) => leftMouseClick($event, row)}
+            style={{
+              height: `${rowHeight}px`,
+              lineHeight: `${rowHeight}px`,
+              minWidth: '50px',
+            }}
+            className="table-row"
+          >
             <div
-              onClick={($event) => leftMouseClick($event, row)}
-              style={{
-                height: `${rowHeight}px`,
-                lineHeight: `${rowHeight}px`,
-                minWidth: '50px',
-              }}
-              className="table-row"
+              style={row.getVolumeStyle()}
+              className={`table-cell ${Object.entries(getVolumeCellClasses(row))
+                .filter(([key, value]) => !!value)
+                .map(([key]) => key)
+                .join(' ')}`}
             >
-              <div
-                style={row.getVolumeStyle()}
-                className={`table-cell ${Object.entries(
-                  getVolumeCellClasses(row),
-                )
-                  .filter(([key, value]) => !!value)
-                  .map(([key]) => key)
-                  .join(' ')}`}
-              >
-                {row.volume}
-              </div>
+              {shortNumberFormat(row.volume)}
             </div>
-          ))}
-        </div>
-        <div className="table-col" id="price-panel">
-          {displayItems.map((row) => (
-            <div
-              key={row}
-              className="table-row"
-              style={{
-                height: `${rowHeight}px`,
-                lineHeight: `${rowHeight}px`,
-                minWidth: '50px',
-              }}
-              onClick={($event) => leftMouseClick($event, row)}
-              onContextMenu={($event) => rightMouseClick($event, row)}
-              onDoubleClick={(e) => e.stopPropagation()}
-            >
-              <div
-                className={`table-cell ${Object.entries(
-                  getPriceCellClasses(row),
-                )
-                  .filter(([key, value]) => !!value)
-                  .map(([key]) => key)
-                  .join(' ')}`}
-              >
-                {row.price}
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="table-col" id="orders-panel">
-          {displayItems.map((row) => (
-            <div
-              key={row}
-              className="table-row"
-              style={{
-                height: `${rowHeight}px`,
-                lineHeight: `${rowHeight}px`,
-                minWidth: '50px',
-              }}
-              onClick={($event) => leftMouseClick($event, row)}
-              onContextMenu={($event) => rightMouseClick($event, row)}
-              onDoubleClick={(e) => e.stopPropagation()}
-            >
-              <div
-                className={`table-cell ${Object.entries(
-                  getOrdersCellClasses(row),
-                )
-                  .filter(([key, value]) => !!value)
-                  .map(([key]) => key)
-                  .join(' ')}`}
-              >
-                {renderOrderView({
-                  orders: getFilteredOrders(row.currentOrders, 'limit'),
-                  orderSymbol: 'L',
-                  // tooltipKey: 'limitOrderTooltip',
-                  // enableDrag: true
-                })}
-                {renderOrderView({
-                  orders: getFilteredOrders(row.currentOrders, 'stoplimit'),
-                  orderSymbol: 'SL',
-                  // tooltipKey: 'stopLimitOrderTooltip',
-                  // enableDrag: false
-                })}
-                {renderOrderView({
-                  orders: getFilteredOrders(row.currentOrders, 'stop'),
-                  orderSymbol: 'SM',
-                  // tooltipKey: 'stopMarketOrderTooltip',
-                  // enableDrag: false
-                })}
-              </div>
-            </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
-    </>
+      <div className="table-col" id="price-panel">
+        {displayItems.map((row) => (
+          <div
+            key={`price-panel-${row.price}`}
+            className="table-row"
+            style={{
+              height: `${rowHeight}px`,
+              lineHeight: `${rowHeight}px`,
+              minWidth: '50px',
+            }}
+            onClick={($event) => leftMouseClick($event, row)}
+            onContextMenu={($event) => rightMouseClick($event, row)}
+            onDoubleClick={(e) => e.stopPropagation()}
+          >
+            <div
+              className={`table-cell ${Object.entries(getPriceCellClasses(row))
+                .filter(([key, value]) => !!value)
+                .map(([key]) => key)
+                .join(' ')}`}
+            >
+              {row.price}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="table-col" id="orders-panel">
+        {displayItems.map((row) => (
+          <div
+            key={`orders-panel-${row.price}`}
+            className="table-row"
+            style={{
+              height: `${rowHeight}px`,
+              lineHeight: `${rowHeight}px`,
+              minWidth: '50px',
+            }}
+            onClick={($event) => leftMouseClick($event, row)}
+            onContextMenu={($event) => rightMouseClick($event, row)}
+            onDoubleClick={(e) => e.stopPropagation()}
+          >
+            {/*{dataContext.orderBookPosition && (*/}
+            {/*  <div className="percent">*/}
+            {/*    {(*/}
+            {/*      row.price / dataContext.orderBookPosition.avgPrice -*/}
+            {/*      1*/}
+            {/*    ).toFixed(2)}*/}
+            {/*    %*/}
+            {/*  </div>*/}
+            {/*)}*/}
+            <div
+              className={`table-cell ${Object.entries(getOrdersCellClasses(row))
+                .filter(([key, value]) => !!value)
+                .map(([key]) => key)
+                .join(' ')}`}
+            >
+              {renderOrderView({
+                orders: getFilteredOrders(row.currentOrders, 'limit'),
+                orderSymbol: 'L',
+                // tooltipKey: 'limitOrderTooltip',
+                // enableDrag: true
+              })}
+              {renderOrderView({
+                orders: getFilteredOrders(row.currentOrders, 'stoplimit'),
+                orderSymbol: 'SL',
+                // tooltipKey: 'stopLimitOrderTooltip',
+                // enableDrag: false
+              })}
+              {renderOrderView({
+                orders: getFilteredOrders(row.currentOrders, 'stop'),
+                orderSymbol: 'SM',
+                // tooltipKey: 'stopMarketOrderTooltip',
+                // enableDrag: false
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 };
 

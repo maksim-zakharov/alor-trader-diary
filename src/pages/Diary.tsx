@@ -19,6 +19,7 @@ import moment from "moment/moment";
 import Chart from "../Chart";
 import {SwitchChangeEventHandler} from "antd/es/switch";
 import {selectOptions} from "../App";
+import { moneyFormat } from '../common/utils';
 
 interface DataType {
     key: string;
@@ -51,9 +52,6 @@ const sharedOnCell = (_: DataType, index: number) => {
     return {};
 };
 
-const moneyFormat = (money: number, maximumFractionDigits?: number) => new Intl.NumberFormat('ru-RU', {
-    style: 'currency', currency: 'RUB', maximumFractionDigits
-}).format(money)
 const Diary = ({data, api}) => {
     const [settings, setSettings] = useState<{token: string, portfolio: string}>(JSON.parse(localStorage.getItem('settings') || '{}'));
 
