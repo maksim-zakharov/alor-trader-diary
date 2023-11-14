@@ -32,13 +32,7 @@ const AtsTradeClustersPanel: FC<IProps> = ({
   const itemWidth = 44;
   const itemHeight = xAxisStep - 0.04;
 
-  const displayRows = dataContext.orderBookBody.slice(
-    dataContext.displayRange!.start,
-    Math.min(
-      dataContext.displayRange!.end + 1,
-      dataContext.orderBookBody.length,
-    ),
-  );
+  const displayRows = dataContext.displayRows;
 
   const clusters = useMemo(() => {
     const buffer = {};

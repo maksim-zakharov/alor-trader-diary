@@ -1,6 +1,25 @@
 import { Positions, Side, Trade } from 'alor-api';
 import { avg, summ } from './App';
 
+export const digitsAfterDot = (num) => {
+  if (!num) {
+    return 0;
+  }
+
+  return `${num}`.split('.')?.[1]?.length || 0;
+};
+
+export const roundPrice = (
+  price: number,
+  minPriceIncrement?: number,
+): number => {
+  if (!minPriceIncrement) {
+    return Math.round(price);
+  }
+  const withIncrement =
+    Math.round(price / minPriceIncrement) * minPriceIncrement;
+  return +withIncrement.toFixed(digitsAfterDot(minPriceIncrement));
+};
 export const positionsToTrades = (positions: Positions) =>
   positions.map(
     (p) =>

@@ -20,20 +20,12 @@ const AtsTradeClusters: FC<IProps> = ({ dataContext, xAxisStep, cluster }) => {
       return [];
     }
 
-    const displayRows = dataContext.orderBookBody.slice(
-      dataContext.displayRange!.start,
-      Math.min(
-        dataContext.displayRange!.end + 1,
-        dataContext.orderBookBody.length,
-      ),
-    );
-
     const maxVolume =
       !!cluster && cluster.tradeClusters.length > 0
         ? Math.max(...cluster.tradeClusters.map((c) => getVolume(c)))
         : null;
 
-    return displayRows.map((r) => {
+    return dataContext.displayRows.map((r) => {
       if (!cluster) {
         return null;
       }

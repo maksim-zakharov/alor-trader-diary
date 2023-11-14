@@ -12,11 +12,13 @@ import {
   fromTo,
   Orders,
   OrderStatus,
+  Security,
   Side,
   Timeframe,
 } from 'alor-api';
 import { random } from '../../common/utils';
 import AtsTradeClustersPanel from './AtsTradeClustersPanel';
+import { roundPrice } from '../../utils';
 
 interface IProps {
   showClusters: boolean;
@@ -59,52 +61,13 @@ const AtsScalperOrderBookBody: FC<IProps> = ({
     portfolio: string;
   }>(JSON.parse(localStorage.getItem('settings') || '{}'));
 
-  const isMock = false;
-
   const [orderBookData, setOrderbookData] = useState<{ a: any[]; b: any[] }>({
     a: [],
     b: [],
   });
+  const [security, setSecurity] = useState<Security | undefined>();
   const [trades, setTrades] = useState([]);
   const [orders, setOrders] = useState(new Map<string, any>([]));
-
-  useEffect(() => {
-    if (!isMock) return;
-    const orderbook = {
-      asks: new Array(20).fill(80.1).map((price, index) => ({
-        price: +(price + index * 0.01).toFixed(2),
-        volume: random(10000),
-      })),
-      bids: new Array(20).fill(80.09).map((price, index) => ({
-        price: +(price - index * 0.01).toFixed(2),
-        volume: random(10000),
-      })),
-    };
-
-    setOrderbookData({
-      a: orderbook.asks.map((p) => ({
-        price: p.price,
-        v: p.volume,
-        volume: p.volume,
-        rowType: ScalperOrderBookRowType.Ask,
-      })),
-      b: orderbook.bids.map((p) => ({
-        price: p.price,
-        v: p.volume,
-        volume: p.volume,
-        rowType: ScalperOrderBookRowType.Bid,
-      })),
-    });
-
-    const trades = [
-      ...orderbook.asks
-        .reverse()
-        .map((t) => ({ ...t, qty: t.volume, side: Side.Sell })),
-      ...orderbook.bids.map((t) => ({ ...t, qty: t.volume, side: Side.Buy })),
-    ];
-
-    setTrades(trades);
-  }, [isMock]);
 
   const orderBookBody = useMemo(
     () =>
@@ -118,6 +81,12 @@ const AtsScalperOrderBookBody: FC<IProps> = ({
   let tradesSubscription;
 
   const subscribe = async () => {
+    const security = await api.instruments.getSecurityByExchangeAndSymbol({
+      exchange: Exchange.MOEX,
+      symbol,
+    });
+    setSecurity(security);
+
     await api.subscriptions.orders(
       {
         exchange: Exchange.MOEX,
@@ -147,7 +116,6 @@ const AtsScalperOrderBookBody: FC<IProps> = ({
           }),
         ),
     );
-    if (isMock) return;
 
     await api.subscriptions
       .orderBook(
@@ -173,14 +141,6 @@ const AtsScalperOrderBookBody: FC<IProps> = ({
           }),
       )
       .then((s) => (orderBookSubscription = s));
-
-    // const trades = await api.instruments.getAlltrades({
-    //   symbol,
-    //   exchange: Exchange.MOEX,
-    //   from,
-    // });
-
-    // setTrades(trades);
 
     await api.subscriptions
       .alltrades(
@@ -294,6 +254,58 @@ const AtsScalperOrderBookBody: FC<IProps> = ({
       ),
   };
 
+  const displayRange = { start: 0, end: 60 };
+
+  const calculateRows = () => {
+    const minStep = security?.minstep;
+    if (!minStep) {
+      return [];
+    }
+
+    const displayRows = orderBookBody.length ? [orderBookBody[0]] : [];
+
+    for (let i = 1; i < orderBookBody.length; i++) {
+      const minSteps = Math.round(
+        Math.abs(
+          (orderBookBody[i].price - orderBookBody[i - 1].price) / minStep,
+        ),
+      );
+      if (minSteps > 1) {
+        for (let j = 1; j < minSteps; j++) {
+          let price;
+          if (orderBookBody[i - 1].rowType === 'ask') {
+            price = roundPrice(
+              orderBookBody[i].price + (minSteps - j) * minStep,
+              minStep,
+            );
+          } else {
+            price = roundPrice(orderBookBody[i].price + j * minStep, minStep);
+          }
+          // debugger;
+          displayRows.push({
+            price,
+            v: 0,
+            volume: 0,
+            rowType: orderBookBody[i].rowType,
+          });
+        }
+        displayRows.push(orderBookBody[i]);
+      } else {
+        displayRows.push(orderBookBody[i]);
+      }
+    }
+
+    return orderBookBody.slice(
+      displayRange!.start,
+      Math.min(displayRange!.end + 1, orderBookBody.length),
+    );
+
+    return displayRows.slice(
+      displayRange!.start,
+      Math.min(displayRange!.end + 1, displayRows.length),
+    );
+  };
+
   const dataContext = {
     currentOrders: Array.from(orders)
       .map(([key, value]) => value)
@@ -301,17 +313,14 @@ const AtsScalperOrderBookBody: FC<IProps> = ({
     orderBookBody: orderBookBody,
     orderBookData: orderBookData,
     trades: trades.sort((a, b) => b.timestamp - a.timestamp),
-    displayRange: { start: 0, end: 40 },
+    displayRange,
+    displayRows: calculateRows(),
     orderBookPosition,
     settings: {
       widgetSettings: {
         volumeHighlightMode: VolumeHighlightMode.BiggestVolume,
       },
     },
-  };
-
-  const renderOrderTemplate = ({ orderSymbol, volume }) => {
-    return <div>{volume}</div>;
   };
 
   return (

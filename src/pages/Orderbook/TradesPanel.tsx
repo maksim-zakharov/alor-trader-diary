@@ -76,15 +76,7 @@ const TradesPanel: FC<IProps> = ({
   const priceItems = useMemo(() => {
     return !dataContext.displayRange
       ? []
-      : dataContext.orderBookBody
-          .slice(
-            dataContext.displayRange!.start,
-            Math.min(
-              dataContext.displayRange!.end + 1,
-              dataContext.orderBookBody.length,
-            ),
-          )
-          .map((x) => x.price);
+      : dataContext.displayRows.map((x) => x.price);
   }, [dataContext]);
 
   useEffect(() => {

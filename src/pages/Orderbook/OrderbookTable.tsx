@@ -172,14 +172,10 @@ const OrderbookTable: FC<IProps> = ({
       settings,
       orderBookBody: body,
       orderBookData,
-      displayRange,
+      displayRows,
       currentOrders,
     } = dataContext;
 
-    const displayRows = body.slice(
-      displayRange!.start,
-      Math.min(displayRange!.end + 1, body.length),
-    );
     const minOrderPrice = Math.min(...currentOrders.map((x) => x.linkedPrice));
     const maxOrderPrice = Math.max(...currentOrders.map((x) => x.linkedPrice));
     const volumeHighlightStrategy = getVolumeHighlightStrategy(
