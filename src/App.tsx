@@ -51,6 +51,7 @@ export const selectOptions: DefaultOptionType[] = [
   { label: 'Робот', value: 'Robot' },
   { label: 'Сбор волатильности', value: 'Volatility' },
   { label: 'Спред', value: 'Spread' },
+  { label: 'Сигнал', value: 'Signal' },
   { label: 'Другое', value: undefined },
 ];
 export const selectOptionsMap = selectOptions.reduce(

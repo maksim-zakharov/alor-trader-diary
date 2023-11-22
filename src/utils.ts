@@ -104,23 +104,22 @@ export const tradesToHistoryPositions = (trades: Trade[]) => {
 
           currentPositionsMap[trade.symbol].Fee = totalCommission;
 
-          currentPositionsMap[trade.symbol].PnL =
-            totalDiffVolume - totalCommission;
+          const buyVolume = summ(
+            currentPositionsMap[trade.symbol].trades
+              .filter((c) => c.side === Side.Buy)
+              .map((t) => t.volume),
+          );
+          const sellVolume = summ(
+            currentPositionsMap[trade.symbol].trades
+              .filter((c) => c.side === Side.Sell)
+              .map((t) => t.volume),
+          );
 
-          const avgBuyVolume = avg(
-            currentPositionsMap[trade.symbol].trades
-              .filter((t) => t.side === Side.Buy)
-              .map((t) => t.volume),
-          );
-          const avgSellVolume = avg(
-            currentPositionsMap[trade.symbol].trades
-              .filter((t) => t.side === Side.Sell)
-              .map((t) => t.volume),
-          );
+          currentPositionsMap[trade.symbol].PnL =
+            sellVolume - buyVolume - Math.abs(totalCommission);
           currentPositionsMap[trade.symbol].PnLPercent =
-            currentPositionsMap[trade.symbol].side === Side.Buy
-              ? totalDiffVolume / avgBuyVolume
-              : totalDiffVolume / avgSellVolume;
+            (sellVolume - currentPositionsMap[trade.symbol].Fee) / buyVolume -
+            1;
 
           batchPositions.push({ ...currentPositionsMap[trade.symbol] });
           delete currentPositionsMap[trade.symbol];
@@ -160,23 +159,22 @@ export const tradesToHistoryPositions = (trades: Trade[]) => {
 
           currentPositionsMap[trade.symbol].Fee = totalCommission;
 
-          currentPositionsMap[trade.symbol].PnL =
-            totalDiffVolume - totalCommission;
+          const buyVolume = summ(
+            currentPositionsMap[trade.symbol].trades
+              .filter((c) => c.side === Side.Buy)
+              .map((t) => t.volume),
+          );
+          const sellVolume = summ(
+            currentPositionsMap[trade.symbol].trades
+              .filter((c) => c.side === Side.Sell)
+              .map((t) => t.volume),
+          );
 
-          const avgBuyVolume = avg(
-            currentPositionsMap[trade.symbol].trades
-              .filter((t) => t.side === Side.Buy)
-              .map((t) => t.volume),
-          );
-          const avgSellVolume = avg(
-            currentPositionsMap[trade.symbol].trades
-              .filter((t) => t.side === Side.Sell)
-              .map((t) => t.volume),
-          );
+          currentPositionsMap[trade.symbol].PnL =
+            sellVolume - buyVolume - Math.abs(totalCommission);
           currentPositionsMap[trade.symbol].PnLPercent =
-            currentPositionsMap[trade.symbol].side === Side.Buy
-              ? totalDiffVolume / avgBuyVolume
-              : totalDiffVolume / avgSellVolume;
+            (sellVolume - currentPositionsMap[trade.symbol].Fee) / buyVolume -
+            1;
 
           const { commQty, lastSide, ...newPosition } =
             currentPositionsMap[trade.symbol];
