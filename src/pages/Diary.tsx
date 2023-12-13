@@ -95,8 +95,8 @@ const Diary = ({ data, api }) => {
         title: 'Side',
         dataIndex: 'side',
         key: 'side',
-        // @ts-ignore
         render: (_, row) =>
+          // @ts-ignore
           row.side === 'sell' ? <ArrowDownOutlined /> : <ArrowUpOutlined />,
       },
       { title: 'Quantity', dataIndex: 'qty', key: 'qty' },
@@ -202,11 +202,13 @@ const Diary = ({ data, api }) => {
       width: 100,
       align: 'center',
       // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
-      // @ts-ignore
       render: (_, row) =>
+        // @ts-ignore
         row.type !== 'summary'
-          ? moment(row.openDate).format('HH:mm:ss')
-          : moment(row.openDate).format('DD.MM.YYYY'),
+          ? // @ts-ignore
+            moment(row.openDate).format('HH:mm:ss')
+          : // @ts-ignore
+            moment(row.openDate).format('DD.MM.YYYY'),
       // onCell: sharedOnCell,
     },
     {
@@ -216,8 +218,8 @@ const Diary = ({ data, api }) => {
       width: 100,
       align: 'center',
       // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
-      // @ts-ignore
       render: (_, row) =>
+        // @ts-ignore
         row.type !== 'summary' && moment.duration(_, 'seconds').humanize(),
       // onCell: sharedOnCell,
     },
@@ -227,9 +229,10 @@ const Diary = ({ data, api }) => {
       key: 'side',
       align: 'center',
       // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
-      // @ts-ignore
       render: (_, row) =>
+        // @ts-ignore
         row.type !== 'summary' &&
+        // @ts-ignore
         (row.side === 'sell' ? <ArrowDownOutlined /> : <ArrowUpOutlined />),
     },
     {
