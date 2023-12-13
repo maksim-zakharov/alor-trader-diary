@@ -2,7 +2,6 @@
   "name": "alor-trader-diary",
   "version": "0.1.0",
   "private": true,
-  "homepage": "/alor-trader-diary",
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
@@ -24,7 +23,7 @@
   "scripts": {
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",
-    "build:ci": "CI=false react-app-rewired build",
+    "build:ci": "CI=false PUBLIC_URL=/alor-trader-diary react-app-rewired build",
     "test": "react-app-rewired test",
     "eject": "react-app-rewired eject"
   },
