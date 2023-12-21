@@ -90,11 +90,11 @@ font-weight: bold;
         color: rgb(179,199,219);
     }
 
-    .ant-table {
+    .ant-table, .ant-table-summary {
         background-color: rgb(30,44,57);
     }
 
-    .ant-table-wrapper .ant-table-tbody >tr >th, .ant-table-wrapper .ant-table-tbody >tr >td{
+    .ant-table-wrapper .ant-table-tbody >tr >th, .ant-table-wrapper .ant-table-tbody >tr >td, .ant-table-wrapper .ant-table-summary >tr >td{
         border-bottom-color: rgb(23,35,46);
         color: rgb(166,189,213);
 

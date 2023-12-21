@@ -1,5 +1,5 @@
 import {
-  Button,
+  Button, Divider,
   Drawer,
   Form,
   Input,
@@ -56,7 +56,7 @@ const sharedOnCell = (_: DataType, index: number) => {
   return {};
 };
 
-const Diary = ({ data, api }) => {
+const Diary = ({ data, trades, api }) => {
   const [settings, setSettings] = useState<{
     token: string;
     portfolio: string;
@@ -215,7 +215,7 @@ const Diary = ({ data, api }) => {
       title: 'Duration',
       dataIndex: 'duration',
       key: 'duration',
-      width: 100,
+      width: 110,
       align: 'center',
       // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
       render: (_, row) =>
@@ -405,6 +405,30 @@ const Diary = ({ data, api }) => {
           expandedRowRender,
           defaultExpandedRowKeys: ['0'],
           rowExpandable: (row) => row.type !== 'summary',
+        }}
+
+        summary={pageData => {
+          let totalBorrow = 0;
+          let totalRepayment = 0;
+
+          pageData.forEach(({ borrow, repayment }) => {
+            totalBorrow += borrow;
+            totalRepayment += repayment;
+          });
+
+          return (
+              <>
+                <Table.Summary.Row>
+                  <Table.Summary.Cell index={1} colSpan={11} align="center">
+                    {data.positions.filter(p => p.type !== 'summary').length} trades
+                    <Divider type="vertical"/>
+                    {moneyFormat(data.totalPnL)} Net Profit
+                    <Divider type="vertical"/>
+                    {moneyFormat(data.totalFee)} Commission
+                  </Table.Summary.Cell>
+                </Table.Summary.Row>
+              </>
+          );
         }}
       />
     </>
