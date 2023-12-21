@@ -27,7 +27,8 @@ code {
 .ant-layout-header{
     background-color: transparent;
     /*color: rgb(179,199,219);*/
-    color: #000
+    color: #000;
+    padding: 0 24px;
 }
 
 .ant-table-wrapper .ant-table-thead >tr>th, .ant-table-wrapper .ant-table-thead >tr>td{
@@ -43,7 +44,7 @@ code {
 .menu-content{
     width: 2000px;
     margin: auto;
-    padding: 0 24px;
+    padding: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;

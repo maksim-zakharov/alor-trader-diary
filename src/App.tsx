@@ -8,7 +8,7 @@ import {
   MenuProps,
   Select,
   Space,
-  Switch,
+  Switch, Typography,
 } from 'antd';
 import { Content, Footer, Header } from 'antd/es/layout/layout';
 import React, { ReactNode, useEffect, useMemo, useState } from 'react';
@@ -313,6 +313,7 @@ function App() {
   return (
     <Layout>
       <Header style={{ display: 'flex', alignItems: 'center' }}>
+        {/*<Typography.Title level={2} style={{width: 'auto'}}>Alor Trader Diary</Typography.Title>*/}
         <div className="menu-content">
           <Menu
             theme="dark"
