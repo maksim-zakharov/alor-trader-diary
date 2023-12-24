@@ -45,19 +45,23 @@ const Analytics: FC<IProps> = ({data, balanceSeriesData}) => {
         data: symbolCategories.map(([key]) => Math.floor(symbolPnlMap[key]))
     } as Highcharts.SeriesOptionsType], [symbolPnlMap, reasonCategories]);
 
+    const renderHighchartsTitle = (title: string): Highcharts.Options['title'] => ({
+        style: {
+            fontSize: '15px',
+            lineHeight: '20px',
+            // fontWeight: 500,
+            color: nightMode && darkColors.color
+        },
+        text: title,
+        align: 'left',
+    } as Highcharts.Options['title'])
+
     const reasonOptions: Highcharts.Options = {
         chart: {
             type: 'bar',
             backgroundColor: nightMode && darkColors.backgroundColor,
         },
-        title: {
-            style: {
-
-                color: nightMode && darkColors.color
-            },
-            text: 'Reasons',
-            align: 'left',
-        },
+        title: renderHighchartsTitle('Reasons'),
         xAxis: {
             categories: reasonCategories.map(([key]) => selectOptionsMap[key]),
             title: {
@@ -108,14 +112,7 @@ const Analytics: FC<IProps> = ({data, balanceSeriesData}) => {
             type: 'bar',
             backgroundColor: nightMode && darkColors.backgroundColor,
         },
-        title: {
-            style: {
-
-                color: nightMode && darkColors.color
-            },
-            text: 'Symbols',
-            align: 'left',
-        },
+        title: renderHighchartsTitle('Symbols'),
         xAxis: {
             categories: symbolCategories.map(([key]) => key),
             title: {
@@ -162,16 +159,22 @@ const Analytics: FC<IProps> = ({data, balanceSeriesData}) => {
     }
 
     return <>
-        <Typography.Title>Equity</Typography.Title>
-        <TVChart colors={nightMode && darkColors} seriesType="line" data={balanceSeriesData}/>
-        <HighchartsReact
-            highcharts={Highcharts}
-            options={reasonOptions}
-        />
-        <HighchartsReact
-            highcharts={Highcharts}
-            options={symbolOptions}
-        />
+        <div className="widget">
+            <div className="widget_header">Equity</div>
+            <TVChart colors={nightMode && darkColors} seriesType="line" data={balanceSeriesData}/>
+        </div>
+        <div className="widget">
+            <HighchartsReact
+                highcharts={Highcharts}
+                options={reasonOptions}
+            />
+        </div>
+        <div className="widget">
+            <HighchartsReact
+                highcharts={Highcharts}
+                options={symbolOptions}
+            />
+        </div>
         </>
 }
 
