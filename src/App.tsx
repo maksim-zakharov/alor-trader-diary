@@ -22,7 +22,7 @@ import {
   useSearchParams,
 } from 'react-router-dom';
 import { useApi } from './useApi';
-import { Exchange, Positions, Trade, Trades } from 'alor-api';
+import {Exchange, Positions, Summary, Trade, Trades} from 'alor-api';
 import { MenuItemType } from 'antd/es/menu/hooks/useItems';
 import Diary from './pages/Diary';
 import Analytics from './pages/Analytics';
@@ -31,6 +31,7 @@ import { DefaultOptionType } from 'antd/es/select';
 import { SwitchChangeEventHandler } from 'antd/es/switch';
 import OrderbookWidget from './pages/Orderbook/OrderbookWidget';
 import { positionsToTrades, tradesToHistoryPositions } from './utils';
+import {Time, WhitespaceData} from "lightweight-charts";
 
 export const avg = (numbers: number[]) =>
   !numbers.length ? 0 : summ(numbers) / numbers.length;
@@ -66,6 +67,9 @@ function App() {
       : [],
   );
 
+  const [balanceSeriesData, setBalanceSeriesData] = useState< WhitespaceData<Time>[]>([]);
+  const [summary, setSummary] = useState<Summary | undefined>(undefined);
+
   const [nightMode, setNightMode] = useState(
     Boolean(localStorage.getItem('night') === 'true'),
   );
@@ -85,6 +89,7 @@ function App() {
   }, [nightMode]);
   const [positions, setPositions] = useState<Positions>([]);
   const [trades, setTrades] = useState<Trades>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -214,11 +219,34 @@ function App() {
       })
       .then(setPositions);
 
+    setIsLoading(true);
     loadTrades({
       date,
       dateFrom,
-    }).then(setTrades);
-  }, [api]);
+    }).then(setTrades).finally(() => setIsLoading(false));
+  }, [api, dateFrom]);
+
+  const loadData = async () => {
+    const summary = await api.clientInfo.getSummary({
+      exchange: Exchange.MOEX,
+      portfolio: settings.portfolio,
+      format: 'Simple'
+    })
+
+    const summaryData = data.positions.filter(p => p.type === 'summary')
+
+    const result = [{time: moment().format('YYYY-MM-DD'), value: summary.portfolioEvaluation}];
+    summaryData.forEach((d) => result.unshift({time: d.openDate, value: result[0].value - d.PnL}))
+
+    setBalanceSeriesData(result)
+    setSummary(summary)
+  }
+
+  useEffect(() => {
+    if(api && settings.portfolio){
+      loadData();
+    }
+  }, [api, settings.portfolio, data.positions])
 
   useEffect(() => {
     if (!api) {
@@ -265,11 +293,11 @@ function App() {
   }, [settings]);
 
   const menuItems: (MenuItemType & { element: ReactNode })[] = [
-    { key: 'diary', label: 'Diary', element: <Diary data={data} trades={trades} api={api} /> },
+    { key: 'diary', label: 'Diary', element: <Diary data={data} trades={trades} api={api} isLoading={isLoading} summary={summary} /> },
     {
       key: 'analytics',
       label: 'Analytics',
-      element: <Analytics data={data} api={api} />,
+      element: <Analytics data={data} balanceSeriesData={balanceSeriesData} />,
     },
     {
       key: 'orderbook',

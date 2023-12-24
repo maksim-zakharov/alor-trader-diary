@@ -9,15 +9,14 @@ import HighchartsReact from 'highcharts-react-official'
 import {selectOptions, selectOptionsMap} from "../App";
 
 interface IProps{
-    api: AlorApi;
+    balanceSeriesData: any
     data: any
 }
 
-const Analytics: FC<IProps> = ({data, api}) => {
+const Analytics: FC<IProps> = ({data, balanceSeriesData}) => {
     const [settings, setSettings] = useState<{token: string, portfolio: string}>(JSON.parse(localStorage.getItem('settings') || '{}'));
     const [reasons, setReasons] = useState<{[id: string]: string}>(JSON.parse(localStorage.getItem('reasons') || '{}'));
 
-    const [balanceSeriesData, setBalanceSeriesData] = useState< WhitespaceData<Time>[]>([]);
 
     const [nightMode] = useState(Boolean(localStorage.getItem('night') === 'true'));
 
@@ -26,19 +25,6 @@ const Analytics: FC<IProps> = ({data, api}) => {
         backgroundColor: 'rgb(30,44,57)',
         color: 'rgb(166,189,213)',
         borderColor: 'rgb(44,60,75)'
-    }
-    const loadData = async () => {
-        const summary = await api.clientInfo.getSummary({
-            exchange: Exchange.MOEX,
-            portfolio: settings.portfolio
-        })
-
-        const summaryData = data.positions.filter(p => p.type === 'summary')
-
-        const result = [{time: moment().format('YYYY-MM-DD'), value: summary.portfolioEvaluation}];
-        summaryData.forEach((d) => result.unshift({time: d.openDate, value: result[0].value - d.PnL}))
-
-        setBalanceSeriesData(result)
     }
 
     const nonSummaryPositions = useMemo(() => data.positions.filter(p => p.type !== 'summary'), [data.positions]);
@@ -58,12 +44,6 @@ const Analytics: FC<IProps> = ({data, api}) => {
     const symbolSeries: Highcharts.SeriesOptionsType[] = useMemo(() => [{
         data: symbolCategories.map(([key]) => Math.floor(symbolPnlMap[key]))
     } as Highcharts.SeriesOptionsType], [symbolPnlMap, reasonCategories]);
-
-    useEffect(() => {
-        if(api && settings.portfolio){
-            loadData();
-        }
-    }, [api, settings.portfolio, data.positions])
 
     const reasonOptions: Highcharts.Options = {
         chart: {

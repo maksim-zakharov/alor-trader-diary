@@ -20,9 +20,29 @@ code {
     background-color: rgba(44, 232, 156, 0.2);
 }
 
-.ant-table-wrapper .ant-table.ant-table-small .ant-table-title, .ant-table-wrapper .ant-table.ant-table-small .ant-table-footer, .ant-table-wrapper .ant-table.ant-table-small .ant-table-cell, .ant-table-wrapper .ant-table.ant-table-small .ant-table-thead > tr > th, .ant-table-wrapper .ant-table.ant-table-small .ant-table-tbody > tr > th, .ant-table-wrapper .ant-table.ant-table-small .ant-table-tbody > tr > td, .ant-table-wrapper .ant-table.ant-table-small tfoot > tr > th, .ant-table-wrapper .ant-table.ant-table-small tfoot > tr > td {
-    padding: 4px;
+.ant-statistic .ant-statistic-title{
+    margin-bottom: 0;
+    font-size: 13px;
+    line-height: 20px;
+    font-weight: 400;
+}
 
+.ant-statistic .ant-statistic-content{
+    margin-bottom: 0;
+    line-height: 20px;
+    font-size: inherit;
+}
+
+.ant-statistic-content-value{
+    font-size: 13px;
+    line-height: 20px;
+    font-weight: 500;
+}
+
+.ant-table-wrapper .ant-table.ant-table-small .ant-table-title, .ant-table-wrapper .ant-table.ant-table-small .ant-table-footer, .ant-table-wrapper .ant-table.ant-table-small .ant-table-cell, .ant-table-wrapper .ant-table.ant-table-small .ant-table-thead > tr > th, .ant-table-wrapper .ant-table.ant-table-small .ant-table-tbody > tr > th, .ant-table-wrapper .ant-table.ant-table-small .ant-table-tbody > tr > td, .ant-table-wrapper .ant-table.ant-table-small tfoot > tr > th, .ant-table-wrapper .ant-table.ant-table-small tfoot > tr > td {
+    /*padding: 4px;*/
+    padding: 1px 8px;
+    /*height: 26px;*/
 }
 .ant-layout-header{
     background-color: transparent;
@@ -57,6 +77,10 @@ code {
     margin: auto;
 }
 
+a, .link-color {
+    color: rgb(98,161,255);
+}
+
 .ant-menu-dark.ant-menu-horizontal >.ant-menu-item-selected:hover, :where(.css-dev-only-do-not-override-pr0fja).ant-menu-dark>.ant-menu.ant-menu-horizontal >.ant-menu-item-selected:hover, :where(.css-dev-only-do-not-override-pr0fja).ant-menu-dark.ant-menu-horizontal >.ant-menu-submenu-selected:hover, :where(.css-dev-only-do-not-override-pr0fja).ant-menu-dark>.ant-menu.ant-menu-horizontal >.ant-menu-submenu-selected:hover{
     background-color: transparent;
     font-weight: bold;
@@ -71,7 +95,16 @@ code {
 
 .dark-theme .ant-layout {
     background-color: rgb(23,35,46);
+    color: rgb(166,189,213);
+
+
+.ant-statistic .ant-statistic-title{
+    color: rgb(166,189,213);
+}
+
+.ant-statistic .ant-statistic-content{
     color: rgb(179,199,219);
+}
 
     .ant-menu-dark.ant-menu-horizontal >.ant-menu-item-selected, :where(.css-dev-only-do-not-override-pr0fja).ant-menu-dark>.ant-menu.ant-menu-horizontal >.ant-menu-item-selected, :where(.css-dev-only-do-not-override-pr0fja).ant-menu-dark.ant-menu-horizontal >.ant-menu-submenu-selected, :where(.css-dev-only-do-not-override-pr0fja).ant-menu-dark>.ant-menu.ant-menu-horizontal >.ant-menu-submenu-selected{
 font-weight: bold;
@@ -79,7 +112,7 @@ font-weight: bold;
     }
 
     .ant-statistic .ant-statistic-title{
-        color: rgb(179,199,219);
+        color: rgb(166,189,213);
     }
 
     .ant-btn-icon{
@@ -134,9 +167,12 @@ font-weight: bold;
     }
 
     .ant-table-wrapper .ant-table-thead >tr>th, .ant-table-wrapper .ant-table-thead >tr>td{
-        background-color: rgb(30,44,57);
+        background-color: rgb(36,52,66);
         border-bottom-color: rgb(23,35,46);
         color: rgb(179,199,219);
+        font-size: 13px;
+        line-height: 20px;
+        height: 26px;
     }
 
     .ant-table-wrapper .ant-table-thead >tr>th:not(:last-child):not(.ant-table-selection-column):not(.ant-table-row-expand-icon-cell):not([colspan])::before, .ant-table-wrapper .ant-table-thead >tr>td:not(:last-child):not(.ant-table-selection-column):not(.ant-table-row-expand-icon-cell):not([colspan])::before{

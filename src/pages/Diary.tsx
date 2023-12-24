@@ -2,7 +2,7 @@ import {
   Button, Divider,
   Drawer,
   Form,
-  Input,
+  Input, message,
   Select,
   SelectProps,
   Statistic,
@@ -17,13 +17,13 @@ import {
   SettingOutlined,
 } from '@ant-design/icons';
 import FormItem from 'antd/es/form/FormItem';
-import React, { ChangeEventHandler, memo, useEffect, useState } from 'react';
+import React, {ChangeEventHandler, memo, useEffect, useMemo, useState} from 'react';
 import { ColumnsType } from 'antd/es/table';
 import moment from 'moment/moment';
 import Chart from '../Chart';
 import { SwitchChangeEventHandler } from 'antd/es/switch';
 import { selectOptions } from '../App';
-import { moneyFormat } from '../common/utils';
+import {moneyFormat, shortNumberFormat} from '../common/utils';
 
 interface DataType {
   key: string;
@@ -56,7 +56,7 @@ const sharedOnCell = (_: DataType, index: number) => {
   return {};
 };
 
-const Diary = ({ data, trades, api }) => {
+const Diary = ({ data, trades, api, isLoading, summary }) => {
   const [settings, setSettings] = useState<{
     token: string;
     portfolio: string;
@@ -184,6 +184,11 @@ const Diary = ({ data, trades, api }) => {
     localStorage.setItem('reasons', JSON.stringify(reasons));
   }, [reasons]);
 
+  const copyToClipboard = (symbol: string) => {
+    navigator.clipboard.writeText(symbol);
+    message.info(`Тикер ${symbol} скопирован.`);
+  };
+
   const columns: ColumnsType<DataType> = [
     {
       title: 'Symbol',
@@ -193,7 +198,7 @@ const Diary = ({ data, trades, api }) => {
       align: 'center',
       // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
       // @ts-ignore
-      render: (_, row) => row.type !== 'summary' && _,
+      render: (_, row) => row.type !== 'summary' && <span className="link-color" onClick={() => copyToClipboard(row.symbol)} style={{cursor: 'pointer'}}>${row.symbol}</span>,
     },
     {
       title: 'Time',
@@ -332,6 +337,8 @@ const Diary = ({ data, trades, api }) => {
     };
   };
 
+  const netProfitPercent = useMemo(() => !summary ? 0 : data.totalPnL * 100 / summary?.portfolioEvaluation, [data.totalPnL, summary?.portfolioEvaluation]);
+
   return (
     <>
       <div
@@ -339,27 +346,37 @@ const Diary = ({ data, trades, api }) => {
           display: 'flex',
           justifyContent: 'end',
           alignItems: 'center',
+          marginBottom: '8px',
+          marginTop: '-16px'
         }}
       >
         <div
           style={{
             display: 'flex',
-            gap: '24px',
+            gap: '32px',
             justifyContent: 'space-between',
             alignItems: 'center',
           }}
         >
           <Statistic
-            title="Total PnL"
-            value={moneyFormat(data.totalPnL)}
-            precision={2}
-            valueStyle={{
-              color:
-                data.totalPnL > 0 ? 'rgb(44,232,156)' : 'rgb( 255,117,132)',
-            }}
+              title="Trades"
+              loading={isLoading}
+              value={`${data.positions.filter(p => p.type !== 'summary').length} trades`}
+              precision={2}
+          />
+          <Statistic
+              title="Net Profit"
+              loading={isLoading}
+              value={`${moneyFormat(data.totalPnL)} (${shortNumberFormat(netProfitPercent)}%)`}
+              precision={2}
+              valueStyle={{
+                color:
+                    data.totalPnL > 0 ? 'rgb(44,232,156)' : 'rgb( 255,117,132)',
+              }}
           />
           <Statistic
             title="Total Fee"
+            loading={isLoading}
             value={moneyFormat(data.totalFee)}
             precision={2}
             valueStyle={{ color: 'rgb( 255,117,132)' }}
@@ -397,6 +414,7 @@ const Diary = ({ data, trades, api }) => {
         }
         rowKey="id"
         columns={columns}
+        loading={isLoading}
         dataSource={data.positions}
         size="small"
         pagination={false}
@@ -404,30 +422,6 @@ const Diary = ({ data, trades, api }) => {
           expandedRowRender,
           defaultExpandedRowKeys: ['0'],
           rowExpandable: (row) => row.type !== 'summary',
-        }}
-
-        summary={pageData => {
-          let totalBorrow = 0;
-          let totalRepayment = 0;
-
-          pageData.forEach(({ borrow, repayment }) => {
-            totalBorrow += borrow;
-            totalRepayment += repayment;
-          });
-
-          return (
-              <>
-                <Table.Summary.Row>
-                  <Table.Summary.Cell index={1} colSpan={11} align="center">
-                    {data.positions.filter(p => p.type !== 'summary').length} trades
-                    <Divider type="vertical"/>
-                    {moneyFormat(data.totalPnL)} Net Profit
-                    <Divider type="vertical"/>
-                    {moneyFormat(data.totalFee)} Commission
-                  </Table.Summary.Cell>
-                </Table.Summary.Row>
-              </>
-          );
         }}
       />
     </>
