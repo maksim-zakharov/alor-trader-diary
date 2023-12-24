@@ -337,7 +337,7 @@ const Diary = ({ data, trades, api, isLoading, summary }) => {
     };
   };
 
-  const netProfitPercent = useMemo(() => !summary ? 0 : data.totalPnL * 100 / summary?.portfolioEvaluation, [data.totalPnL, summary?.portfolioEvaluation]);
+  const netProfitPercent = useMemo(() => !summary ? 0 : data.totalPnL * 100 / (summary?.portfolioEvaluation - data.totalPnL), [data.totalPnL, summary?.portfolioEvaluation]);
 
   return (
     <>
