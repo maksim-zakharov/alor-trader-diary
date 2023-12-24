@@ -23,7 +23,6 @@ const Analytics: FC<IProps> = ({data, api, dateFrom}) => {
     const [nightMode] = useState(Boolean(localStorage.getItem('night') === 'true'));
 
     const [balanceSeriesData, setData] = useState([]);
-    console.log(balanceSeriesData)
 
     const darkColors = {
         backgroundColor: 'rgb(30,44,57)',
@@ -55,9 +54,9 @@ const Analytics: FC<IProps> = ({data, api, dateFrom}) => {
 
     const symbolCategories = useMemo(() => Object.entries(symbolPnlMap).sort((a, b) => a[1] - b[1]), [symbolPnlMap])
 
-    const symbolSeries: Highcharts.SeriesOptionsType[] = useMemo(() => [{
-        data: symbolCategories.map(([key]) => Math.floor(symbolPnlMap[key]))
-    } as Highcharts.SeriesOptionsType], [symbolPnlMap, reasonCategories]);
+    const symbolSeries: any = useMemo(() => [{
+        data: symbolCategories.map(([key]) => [Math.floor(symbolPnlMap[key])])
+    }], [symbolPnlMap, symbolCategories]);
 
     const renderHighchartsTitle = (title: string): Highcharts.Options['title'] => ({
         style: {
@@ -123,7 +122,7 @@ const Analytics: FC<IProps> = ({data, api, dateFrom}) => {
 
     const symbolOptions: Highcharts.Options = {
         chart: {
-            type: 'bar',
+            type: 'column',
             backgroundColor: nightMode && darkColors.backgroundColor,
         },
         title: renderHighchartsTitle('Symbols'),
@@ -150,16 +149,29 @@ const Analytics: FC<IProps> = ({data, api, dateFrom}) => {
 
             gridLineColor: nightMode && darkColors.borderColor,
         },
-        tooltip: {
-            valueSuffix: ' millions'
-        },
         plotOptions: {
-            bar: {
-                borderRadius: '50%',
+            column: {
+                negativeColor: "rgb(255,117,132)",
+                color: "rgb(19,193,123)",
+                // colors: {
+                //     ranges: [
+                //         {
+                //             from: -Infinity, // Any value less than this will be red
+                //             to: 0,
+                //             color: "#e85347" // Red color
+                //         },
+                //         {
+                //             from: 0,
+                //             to: Infinity, // Any value greater than this will be green
+                //             color: "#1ee0ac" // Green color
+                //         }
+                //     ]
+                // },
                 borderColor: 'transparent',
                 dataLabels: {
                     enabled: true
                 },
+                // color: 'rgb(51,111,238)',
                 groupPadding: 0.1
             }
         },
@@ -175,7 +187,7 @@ const Analytics: FC<IProps> = ({data, api, dateFrom}) => {
     return <>
         <div className="widget">
             <div className="widget_header">Equity</div>
-            <TVChart colors={nightMode && darkColors} seriesType="line" data={balanceSeriesData}/>
+            <TVChart colors={nightMode && darkColors} seriesType="baseLine" data={balanceSeriesData}/>
         </div>
         <div className="widget">
             <HighchartsReact

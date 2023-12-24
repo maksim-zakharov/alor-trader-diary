@@ -12,7 +12,7 @@ interface IProps{
     data:(CandlestickData<Time> | WhitespaceData<Time>)[];
     markers?: SeriesMarker<Time>[];
     colors?: Pick<CSSProperties, 'backgroundColor' | 'color' | 'borderColor'>
-    seriesType: 'candlestick' | 'line'
+    seriesType: 'candlestick' | 'line' | 'baseLine'
 }
 
 const TVChart: FC<IProps> = ({colors, seriesType, data, markers}) => {
@@ -77,7 +77,22 @@ const TVChart: FC<IProps> = ({colors, seriesType, data, markers}) => {
             }
 
             if(seriesType === 'line') {
-                series = chart.addLineSeries()
+                series = chart.addLineSeries({
+                    color: 'rgb(51,111,238)'
+                })
+            }
+
+            if(seriesType === 'baseLine') {
+                series = chart.addBaselineSeries({
+                    // priceLineColor: 'rgb(51,111,238)',
+                    // crosshairMarkerBackgroundColor: 'rgb(51,111,238)',
+                    topFillColor1: 'rgb(51,111,238, 0.7)',
+                    topFillColor2: 'rgba(51,111,238, 0.1)',
+                    topLineColor: 'rgb(51,111,238)',
+                    // bottomFillColor1: 'rgb(51,111,238)',
+                    // bottomLineColor: 'rgb(51,111,238)',
+                    // bottomFillColor2: 'rgb(51,111,238)',
+                })
             }
 
             series?.setData(data);
