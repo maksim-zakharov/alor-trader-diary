@@ -58,23 +58,12 @@ const Analytics: FC<IProps> = ({data, api, dateFrom}) => {
         data: symbolCategories.map(([key]) => [Math.floor(symbolPnlMap[key])])
     }], [symbolPnlMap, symbolCategories]);
 
-    const renderHighchartsTitle = (title: string): Highcharts.Options['title'] => ({
-        style: {
-            fontSize: '15px',
-            lineHeight: '20px',
-            // fontWeight: 500,
-            color: nightMode && darkColors.color
-        },
-        text: title,
-        align: 'left',
-    } as Highcharts.Options['title'])
-
     const reasonOptions: Highcharts.Options = {
         chart: {
             type: 'bar',
             backgroundColor: nightMode && darkColors.backgroundColor,
         },
-        title: renderHighchartsTitle('Reasons'),
+        title: null,
         xAxis: {
             categories: reasonCategories.map(([key]) => selectOptionsMap[key]),
             title: {
@@ -125,7 +114,7 @@ const Analytics: FC<IProps> = ({data, api, dateFrom}) => {
             type: 'column',
             backgroundColor: nightMode && darkColors.backgroundColor,
         },
-        title: renderHighchartsTitle('Symbols'),
+        title: null,
         xAxis: {
             categories: symbolCategories.map(([key]) => key),
             title: {
@@ -190,12 +179,14 @@ const Analytics: FC<IProps> = ({data, api, dateFrom}) => {
             <TVChart colors={nightMode && darkColors} seriesType="baseLine" data={balanceSeriesData}/>
         </div>
         <div className="widget">
+            <div className="widget_header">Reasons</div>
             <HighchartsReact
                 highcharts={Highcharts}
                 options={reasonOptions}
             />
         </div>
         <div className="widget">
+            <div className="widget_header">Symbols</div>
             <HighchartsReact
                 highcharts={Highcharts}
                 options={symbolOptions}
