@@ -297,7 +297,7 @@ function App() {
     {
       key: 'analytics',
       label: 'Analytics',
-      element: <Analytics data={data} balanceSeriesData={balanceSeriesData} />,
+      element: <Analytics data={data} balanceSeriesData={balanceSeriesData} api={api} dateFrom={dateFrom} />,
     },
     {
       key: 'orderbook',

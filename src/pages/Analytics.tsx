@@ -7,25 +7,39 @@ import {Typography} from "antd";
 import * as Highcharts from "highcharts";
 import HighchartsReact from 'highcharts-react-official'
 import {selectOptions, selectOptionsMap} from "../App";
+import {useSearchParams} from "react-router-dom";
 
 interface IProps{
     balanceSeriesData: any
-    data: any
+    data: any;
+    api: AlorApi;
+    dateFrom: any;
 }
 
-const Analytics: FC<IProps> = ({data, balanceSeriesData}) => {
+const Analytics: FC<IProps> = ({data, api, dateFrom}) => {
     const [settings, setSettings] = useState<{token: string, portfolio: string}>(JSON.parse(localStorage.getItem('settings') || '{}'));
     const [reasons, setReasons] = useState<{[id: string]: string}>(JSON.parse(localStorage.getItem('reasons') || '{}'));
 
-
     const [nightMode] = useState(Boolean(localStorage.getItem('night') === 'true'));
 
+    const [balanceSeriesData, setData] = useState([]);
+    console.log(balanceSeriesData)
 
     const darkColors = {
         backgroundColor: 'rgb(30,44,57)',
         color: 'rgb(166,189,213)',
         borderColor: 'rgb(44,60,75)'
     }
+
+    useEffect(() => {
+        if(api && settings.portfolio){
+            api.clientInfo.getEquityDynamics({
+                startDate: dateFrom,
+                endDate: moment().format('YYYY-MM-DD'),
+                portfolio: settings.portfolio?.replace('D', '')
+            }).then(res => setData(res.portfolioValues.map(v => ({time: moment(v.date).format('YYYY-MM-DD'), value: v.value}))))
+        }
+    }, [api, dateFrom]);
 
     const nonSummaryPositions = useMemo(() => data.positions.filter(p => p.type !== 'summary'), [data.positions]);
 
