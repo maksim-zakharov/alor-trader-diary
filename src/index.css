@@ -13,7 +13,7 @@ code {
 }
 
 .widget{
-    margin-bottom: 2px;
+    margin: 1px;
     border-radius: 4px;
     overflow: hidden;
 }
@@ -136,6 +136,20 @@ font-weight: bold;
     .ant-typography, div.ant-typography-h1, div.ant-typography-h1>textarea, .ant-typography h1{
 
         color: rgb(179,199,219);
+    }
+
+    .ant-list .ant-list-item{
+
+        color: rgb(179,199,219);
+    }
+
+    .ant-list .ant-list-item .ant-list-item-action > li{
+        color: rgb(179,199,219);
+    }
+
+    .ant-list{
+        background-color: rgb(30,44,57);
+        padding: 0px 16px;
     }
 
     .ant-table, .ant-table-summary {

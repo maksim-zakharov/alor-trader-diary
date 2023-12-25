@@ -3,11 +3,12 @@ import React, {FC, useEffect, useMemo, useState} from "react";
 import {AlorApi, Exchange} from "alor-api";
 import {Time, WhitespaceData} from "lightweight-charts";
 import * as moment from "moment";
-import {Typography} from "antd";
+import {List, Space, Typography} from "antd";
 import * as Highcharts from "highcharts";
 import HighchartsReact from 'highcharts-react-official'
 import {selectOptions, selectOptionsMap} from "../App";
 import {useSearchParams} from "react-router-dom";
+import {moneyFormat} from "../common/utils";
 
 interface IProps{
     balanceSeriesData: any
@@ -41,6 +42,76 @@ const Analytics: FC<IProps> = ({data, api, dateFrom}) => {
     }, [api, dateFrom]);
 
     const nonSummaryPositions = useMemo(() => data.positions.filter(p => p.type !== 'summary'), [data.positions]);
+
+    const profitPositions =  useMemo(() => nonSummaryPositions.filter(p => p.PnL > 0), [nonSummaryPositions]);
+    const lossPositions =  useMemo(() => nonSummaryPositions.filter(p => p.PnL <= 0), [nonSummaryPositions]);
+
+    const profitMap = useMemo(() => Object.entries(profitPositions.reduce((acc, curr) => {
+        if(!acc['seconds']){
+            acc['seconds'] = {PnL: 0, count: 0};
+        }
+        if(!acc['5min']){
+            acc['5min'] = {PnL: 0, count: 0};
+        }
+        if(!acc['1hour']){
+            acc['1hour'] = {PnL: 0, count: 0};
+        }
+        if(!acc['hours']){
+            acc['hours'] = {PnL: 0, count: 0};
+        }
+        if(curr.duration < 60) {
+            acc['seconds'].PnL += curr.PnL;
+            acc['seconds'].count++;
+        } else if (curr.duration >= 60 && curr.duration < 300){
+            acc['5min'].PnL += curr.PnL;
+            acc['5min'].count++;
+        } else if (curr.duration >= 300 && curr.duration < 3600){
+            acc['1hour'].PnL += curr.PnL;
+            acc['1hour'].count++;
+        } else {
+            acc['hours'].PnL += curr.PnL;
+            acc['hours'].count++;
+        }
+        return acc;
+        // @ts-ignore
+    }, {} as {[key: string]: number})).sort((a, b) => b[1].count - a[1].count), [profitPositions]);
+
+    const lossMap = useMemo(() => Object.entries(lossPositions.reduce((acc, curr) => {
+        if(!acc['seconds']){
+            acc['seconds'] = {PnL: 0, count: 0};
+        }
+        if(!acc['5min']){
+            acc['5min'] = {PnL: 0, count: 0};
+        }
+        if(!acc['1hour']){
+            acc['1hour'] = {PnL: 0, count: 0};
+        }
+        if(!acc['hours']){
+            acc['hours'] = {PnL: 0, count: 0};
+        }
+        if(curr.duration < 60) {
+            acc['seconds'].PnL += curr.PnL;
+            acc['seconds'].count++;
+        } else if (curr.duration >= 60 && curr.duration < 300){
+            acc['5min'].PnL += curr.PnL;
+            acc['5min'].count++;
+        } else if (curr.duration >= 300 && curr.duration < 3600){
+            acc['1hour'].PnL += curr.PnL;
+            acc['1hour'].count++;
+        } else {
+            acc['hours'].PnL += curr.PnL;
+            acc['hours'].count++;
+        }
+        return acc;
+        // @ts-ignore
+    }, {} as {[key: string]: number})).sort((a, b) => b[1].count - a[1].count), [lossPositions]);
+
+    const durationLabels = {
+        seconds: 'До 1 минуты',
+        '5min': 'От 1 до 5 минут',
+        '1hour': 'От 5 минут до 1 часа',
+        'hours': 'Более часа',
+    }
 
     const reasonPnlMap: {[reason: string]: number} = useMemo(() => nonSummaryPositions.reduce((acc, curr) => ({...acc, [reasons[curr.id]]: (acc[reasons[curr.id]] || 0) +  curr.PnL  }), {} as {[reason: string]: number}), [nonSummaryPositions, reasons])
 
@@ -178,12 +249,42 @@ const Analytics: FC<IProps> = ({data, api, dateFrom}) => {
             <div className="widget_header">Equity</div>
             <TVChart colors={nightMode && darkColors} seriesType="baseLine" data={balanceSeriesData}/>
         </div>
-        <div className="widget">
-            <div className="widget_header">Reasons</div>
-            <HighchartsReact
-                highcharts={Highcharts}
-                options={reasonOptions}
-            />
+        {/*<div className="widget">*/}
+        {/*    <div className="widget_header">Reasons</div>*/}
+        {/*    <HighchartsReact*/}
+        {/*        highcharts={Highcharts}*/}
+        {/*        options={reasonOptions}*/}
+        {/*    />*/}
+        {/*</div>*/}
+        <div style={{display: 'flex'}}>
+            <div className="widget">
+                <div className="widget_header">Profit intervals</div>
+                <List
+                    itemLayout="horizontal"
+                    dataSource={profitMap}
+                    renderItem={(item: any) => (
+                        <List.Item
+                            actions={[<div style={{color: 'rgb(44,232,156)'}}>{moneyFormat(item[1].PnL)} ({item[1].count} trades)</div>]}
+                        >
+                            {durationLabels[item[0]]}
+                        </List.Item>
+                    )}
+                />
+            </div>
+            <div className="widget">
+                <div className="widget_header">Loss intervals</div>
+                <List
+                    itemLayout="horizontal"
+                    dataSource={lossMap}
+                    renderItem={(item: any) => (
+                        <List.Item
+                            actions={[<div style={{color: 'rgb( 255,117,132)'}}>{moneyFormat(item[1].PnL)} ({item[1].count} trades)</div>]}
+                        >
+                            {durationLabels[item[0]]}
+                        </List.Item>
+                    )}
+                />
+            </div>
         </div>
         <div className="widget">
             <div className="widget_header">Symbols</div>
