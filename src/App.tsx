@@ -25,7 +25,7 @@ import { useApi } from './useApi';
 import {Exchange, Positions, Summary, Trade, Trades} from 'alor-api';
 import { MenuItemType } from 'antd/es/menu/hooks/useItems';
 import Diary from './pages/Diary';
-import Analytics from './pages/Analytics';
+import Analytics from './pages/Analytics/Analytics';
 import * as days from 'dayjs';
 import { DefaultOptionType } from 'antd/es/select';
 import { SwitchChangeEventHandler } from 'antd/es/switch';

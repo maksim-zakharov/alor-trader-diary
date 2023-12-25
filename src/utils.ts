@@ -207,3 +207,10 @@ export const tradesToHistoryPositions = (trades: Trade[]) => {
 
   return { positions: batchPositions, totalPnL, totalFee };
 };
+
+export const durationLabels = {
+  seconds: 'До 1 минуты',
+  '5min': 'От 1 до 5 минут',
+  '1hour': 'От 5 минут до 1 часа',
+  'hours': 'Более часа',
+}
