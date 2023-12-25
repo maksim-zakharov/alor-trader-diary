@@ -3,7 +3,7 @@ import React, {FC, useEffect, useMemo, useState} from "react";
 import {AlorApi, Exchange} from "alor-api";
 import {Time, WhitespaceData} from "lightweight-charts";
 import * as moment from "moment";
-import {List, Space, Typography} from "antd";
+import {Card, List, Space, Statistic, Typography} from "antd";
 import * as Highcharts from "highcharts";
 import HighchartsReact from 'highcharts-react-official'
 import {selectOptions, selectOptionsMap} from "../../App";
@@ -12,6 +12,7 @@ import {moneyFormat} from "../../common/utils";
 import ProfitIntervalWidget from "./widgets/ProfitIntervalWidget";
 import {durationLabels} from "../../utils";
 import LossIntervalWidget from "./widgets/LossIntervalWidget";
+import {ArrowUpOutlined} from "@ant-design/icons";
 
 interface IProps{
     balanceSeriesData: any
@@ -44,7 +45,7 @@ const Analytics: FC<IProps> = ({data, api, dateFrom}) => {
         }
     }, [api, dateFrom]);
 
-    const nonSummaryPositions = useMemo(() => data.positions.filter(p => p.type !== 'summary'), [data.positions]);
+    const nonSummaryPositions: any[] = useMemo(() => data.positions.filter(p => p.type !== 'summary'), [data.positions]);
 
     const reasonPnlMap: {[reason: string]: number} = useMemo(() => nonSummaryPositions.reduce((acc, curr) => ({...acc, [reasons[curr.id]]: (acc[reasons[curr.id]] || 0) +  curr.PnL  }), {} as {[reason: string]: number}), [nonSummaryPositions, reasons])
 
@@ -177,6 +178,10 @@ const Analytics: FC<IProps> = ({data, api, dateFrom}) => {
         series: symbolSeries
     }
 
+    const getMaxProfitTrade = useMemo(() => nonSummaryPositions.sort((a, b) => b.PnL - a.PnL)[0], [nonSummaryPositions])
+
+    const getMaxLossTrade = useMemo(() => nonSummaryPositions.sort((a, b) => a.PnL - b.PnL)[0], [nonSummaryPositions])
+
     return <>
         <div className="widget">
             <div className="widget_header">Equity</div>
@@ -192,6 +197,24 @@ const Analytics: FC<IProps> = ({data, api, dateFrom}) => {
         <div style={{display: 'flex'}}>
             <ProfitIntervalWidget nonSummaryPositions={nonSummaryPositions}/>
             <LossIntervalWidget nonSummaryPositions={nonSummaryPositions}/>
+            <div className="widget">
+                <div className="widget_header">Top profit trade</div>
+                <div style={{padding: '0px 16px'}}>
+                    <p style={{ color: 'rgb( 44,232,156)' }}>{moneyFormat(getMaxProfitTrade?.PnL || 0)}</p>
+                    <div>Symbol: {getMaxProfitTrade?.symbol}</div>
+                    <div>Date: {moment(getMaxProfitTrade?.openDate).format('DD.MM.YYYY HH:mm:ss')}</div>
+                    <div>Volume: {moneyFormat(getMaxProfitTrade?.volume)}</div>
+                </div>
+            </div>
+            <div className="widget">
+                <div className="widget_header">Top loss trade</div>
+                <div style={{padding: '0px 16px'}}>
+                    <p style={{ color: 'rgb( 255,117,132)' }}>{moneyFormat(getMaxLossTrade?.PnL || 0)}</p>
+                    <div>Symbol: {getMaxLossTrade?.symbol}</div>
+                    <div>Date: {moment(getMaxLossTrade?.openDate).format('DD.MM.YYYY HH:mm:ss')}</div>
+                    <div>Volume: {moneyFormat(getMaxLossTrade?.volume)}</div>
+                </div>
+            </div>
         </div>
         <div className="widget">
             <div className="widget_header">Symbols</div>
