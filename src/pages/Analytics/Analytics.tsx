@@ -193,7 +193,7 @@ const Analytics: FC<IProps> = ({data, api, dateFrom}) => {
             <ProfitIntervalWidget nonSummaryPositions={nonSummaryPositions}/>
             <LossIntervalWidget nonSummaryPositions={nonSummaryPositions}/>
             <div className="widget">
-                <div className="widget_header">Top profit trade</div>
+                <div className="widget_header">Top profit trades</div>
                 <div>
                     {getMaxProfitTrades.map(getMaxProfitTrade => <div className="ticker-info">
                         <div style={{display: 'flex'}}>
@@ -213,7 +213,7 @@ const Analytics: FC<IProps> = ({data, api, dateFrom}) => {
                 </div>
             </div>
             <div className="widget">
-                <div className="widget_header">Top loss trade</div>
+                <div className="widget_header">Top loss trades</div>
                 <div>
                     {getMaxLossTrades.map(getMaxLossTrade => <div className="ticker-info">
                         <div style={{display: 'flex'}}>
