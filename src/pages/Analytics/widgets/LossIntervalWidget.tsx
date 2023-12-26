@@ -1,9 +1,9 @@
-import {List} from "antd";
+import {List, Skeleton} from "antd";
 import {moneyFormat} from "../../../common/utils";
 import {durationLabels} from "../../../utils";
 import React, {useMemo} from "react";
 
-const LossIntervalWidget = ({nonSummaryPositions}) => {
+const LossIntervalWidget = ({nonSummaryPositions, isLoading}) => {
     const lossPositions =  useMemo(() => nonSummaryPositions.filter(p => p.PnL <= 0), [nonSummaryPositions]);
 
     const lossMap = useMemo(() => Object.entries(lossPositions.reduce((acc, curr) => {
@@ -38,6 +38,9 @@ const LossIntervalWidget = ({nonSummaryPositions}) => {
 
     return <div className="widget">
         <div className="widget_header">Loss intervals</div>
+        {isLoading ? <Skeleton title={false} paragraph={{
+            rows: 4
+            }} /> :
         <List
             itemLayout="horizontal"
             dataSource={lossMap}
@@ -48,7 +51,7 @@ const LossIntervalWidget = ({nonSummaryPositions}) => {
                     {durationLabels[item[0]]}
                 </List.Item>
             )}
-        />
+        />}
     </div>
 }
 

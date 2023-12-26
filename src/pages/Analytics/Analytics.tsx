@@ -8,15 +8,18 @@ import {selectOptionsMap} from "../../App";
 import {moneyFormat} from "../../common/utils";
 import ProfitIntervalWidget from "./widgets/ProfitIntervalWidget";
 import LossIntervalWidget from "./widgets/LossIntervalWidget";
+import MaxProfitTradesWidget from "./widgets/MaxProfitTradesWidget";
+import MaxLossTradesWidget from "./widgets/MaxLossTradesWidget";
 
 interface IProps{
     balanceSeriesData: any
     data: any;
     api: AlorApi;
     dateFrom: any;
+    isLoading: boolean;
 }
 
-const Analytics: FC<IProps> = ({data, api, dateFrom}) => {
+const Analytics: FC<IProps> = ({data, api, dateFrom, isLoading}) => {
     const [settings, setSettings] = useState<{token: string, portfolio: string}>(JSON.parse(localStorage.getItem('settings') || '{}'));
     const [reasons, setReasons] = useState<{[id: string]: string}>(JSON.parse(localStorage.getItem('reasons') || '{}'));
 
@@ -173,10 +176,6 @@ const Analytics: FC<IProps> = ({data, api, dateFrom}) => {
         series: symbolSeries
     }
 
-    const getMaxProfitTrades = useMemo(() => nonSummaryPositions.sort((a, b) => b.PnL - a.PnL).slice(0, 3), [nonSummaryPositions])
-
-    const getMaxLossTrades = useMemo(() => nonSummaryPositions.sort((a, b) => a.PnL - b.PnL).slice(0, 3), [nonSummaryPositions])
-
     return <>
         <div className="widget">
             <div className="widget_header">Equity</div>
@@ -190,48 +189,10 @@ const Analytics: FC<IProps> = ({data, api, dateFrom}) => {
         {/*    />*/}
         {/*</div>*/}
         <div style={{display: 'flex', flexWrap: 'wrap', margin: '0 -1px'}}>
-            <ProfitIntervalWidget nonSummaryPositions={nonSummaryPositions}/>
-            <LossIntervalWidget nonSummaryPositions={nonSummaryPositions}/>
-            <div className="widget">
-                <div className="widget_header">Top profit trades</div>
-                <div style={{paddingBottom: '16px'}}>
-                    {getMaxProfitTrades.map(getMaxProfitTrade => <div className="ticker-info">
-                        <div style={{display: 'flex'}}>
-                            <img className="ticker_logo" src={`https://storage.alorbroker.ru/icon/${getMaxProfitTrade?.symbol}.png`} alt={getMaxProfitTrade?.symbol}/>
-                            <div className="ticker_name">
-                                <div className="ticker_name_title">{getMaxProfitTrade?.symbol}</div>
-                                <div className="ticker_name_description">
-                                    {moment(getMaxProfitTrade?.openDate).format('DD.MM.YYYY HH:mm:ss')}
-                                </div>
-                            </div>
-                        </div>
-                        <div className="ticker_actions">
-                            <div className="ticker_name_title" style={{ color: 'rgb( 44,232,156)' }}>{moneyFormat(getMaxProfitTrade?.PnL || 0)}</div>
-                            <div className="ticker_name_description">на сумму {moneyFormat(getMaxProfitTrade?.volume, 0)}</div>
-                        </div>
-                    </div>)}
-                </div>
-            </div>
-            <div className="widget">
-                <div className="widget_header">Top loss trades</div>
-                <div style={{paddingBottom: '16px'}}>
-                    {getMaxLossTrades.map(getMaxLossTrade => <div className="ticker-info">
-                        <div style={{display: 'flex'}}>
-                            <img className="ticker_logo" src={`https://storage.alorbroker.ru/icon/${getMaxLossTrade?.symbol}.png`} alt={getMaxLossTrade?.symbol}/>
-                            <div className="ticker_name">
-                                <div className="ticker_name_title">{getMaxLossTrade?.symbol}</div>
-                                <div className="ticker_name_description">
-                                    {moment(getMaxLossTrade?.openDate).format('DD.MM.YYYY HH:mm:ss')}
-                                </div>
-                            </div>
-                        </div>
-                        <div className="ticker_actions">
-                            <div className="ticker_name_title" style={{ color: 'rgb( 255,117,132)' }}>{moneyFormat(getMaxLossTrade?.PnL || 0)}</div>
-                            <div className="ticker_name_description">на сумму {moneyFormat(getMaxLossTrade?.volume, 0)}</div>
-                        </div>
-                    </div>)}
-                </div>
-            </div>
+            <ProfitIntervalWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
+            <LossIntervalWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
+            <MaxProfitTradesWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
+            <MaxLossTradesWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
         </div>
         <div className="widget">
             <div className="widget_header">Symbols</div>

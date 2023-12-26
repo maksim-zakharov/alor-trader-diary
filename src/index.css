@@ -29,17 +29,17 @@ body {
 
 .ticker-info {
     display: flex;
-    padding: 4px 16px;
+    padding: 4px 0;
     min-width: 320px;
     justify-content: space-between;
 }
 
 .ticker-info:first-child{
-    padding: 0 16px 4px;
+    padding: 0 0 4px;
 }
 
 .ticker-info:last-child{
-    padding: 4px 16px 0;
+    padding: 4px 0 0;
 }
 
 .ticker_name{
@@ -79,6 +79,25 @@ code {
     border-radius: 4px;
     overflow: hidden;
     background-color: rgb(30,44,57);
+    padding: 16px;
+    min-width: 348px;
+}
+
+.ant-skeleton .ant-skeleton-content .ant-skeleton-title{
+    background-color: rgba(179,199,219, 0.1);
+    margin-top: 0;
+}
+
+.ant-skeleton .ant-skeleton-content .ant-skeleton-paragraph >li{
+    background-color: rgba(179,199,219, 0.1);
+}
+
+.ant-skeleton .ant-skeleton-content .ant-skeleton-paragraph{
+    margin-bottom: 0;
+}
+
+.ant-skeleton .ant-skeleton-content .ant-skeleton-paragraph:first-child{
+    margin-top: 0;
 }
 
 @media only screen and (max-width: 700px) {
@@ -92,7 +111,7 @@ code {
     line-height: 20px;
     font-weight: 500;
     background-color: rgb(30,44,57);
-    padding: 6px 16px 12px;
+    padding: 0 0 12px;
 }
 
 .loss {
@@ -273,7 +292,6 @@ font-weight: bold;
 
     .ant-list{
         background-color: rgb(30,44,57);
-        padding: 0px 16px 16px;
     }
 
     .ant-table, .ant-table-summary {

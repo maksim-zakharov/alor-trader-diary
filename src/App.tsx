@@ -89,7 +89,7 @@ function App() {
   }, [nightMode]);
   const [positions, setPositions] = useState<Positions>([]);
   const [trades, setTrades] = useState<Trades>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -297,7 +297,7 @@ function App() {
     {
       key: 'analytics',
       label: 'Analytics',
-      element: <Analytics data={data} balanceSeriesData={balanceSeriesData} api={api} dateFrom={dateFrom} />,
+      element: <Analytics data={data} balanceSeriesData={balanceSeriesData} api={api} isLoading={isLoading} dateFrom={dateFrom} />,
     },
     {
       key: 'orderbook',

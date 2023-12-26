@@ -1,9 +1,9 @@
-import {List} from "antd";
+import {List, Skeleton} from "antd";
 import {moneyFormat} from "../../../common/utils";
 import React, {useMemo} from "react";
 import {durationLabels} from "../../../utils";
 
-const ProfitIntervalWidget = ({nonSummaryPositions}) => {
+const ProfitIntervalWidget = ({nonSummaryPositions, isLoading}) => {
     const profitPositions =  useMemo(() => nonSummaryPositions.filter(p => p.PnL > 0), [nonSummaryPositions]);
 
     const profitMap = useMemo(() => Object.entries(profitPositions.reduce((acc, curr) => {
@@ -38,6 +38,9 @@ const ProfitIntervalWidget = ({nonSummaryPositions}) => {
 
     return <div className="widget">
         <div className="widget_header">Profit intervals</div>
+        {isLoading ? <Skeleton title={false} paragraph={{
+                rows: 4
+            }} /> :
         <List
             itemLayout="horizontal"
             dataSource={profitMap}
@@ -48,7 +51,7 @@ const ProfitIntervalWidget = ({nonSummaryPositions}) => {
                     {durationLabels[item[0]]}
                 </List.Item>
             )}
-        />
+        />}
     </div>
 }
 
