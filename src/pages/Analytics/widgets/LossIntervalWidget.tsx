@@ -43,7 +43,7 @@ const LossIntervalWidget = ({nonSummaryPositions}) => {
             dataSource={lossMap}
             renderItem={(item: any) => (
                 <List.Item
-                    actions={[<div style={{color: 'rgb( 255,117,132)'}}>{moneyFormat(item[1].PnL)} ({item[1].count} trades)</div>]}
+                    actions={[<div style={{color: 'rgb( 255,117,132)'}}>{moneyFormat(item[1].PnL)}</div>, <div>{item[1].count} trades</div>]}
                 >
                     {durationLabels[item[0]]}
                 </List.Item>

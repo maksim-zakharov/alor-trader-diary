@@ -141,8 +141,48 @@ font-weight: bold;
 
     .ant-list .ant-list-item{
 
-        color: rgb(179,199,219);
+        color: rgb(140,167,190);
+        font-size: 13px;
+        line-height: 16px;
+        font-weight: 400;
     }
+.ant-list .ant-list-item:first-child{
+    padding: 0 0 8px 0;
+}
+
+.ant-list .ant-list-item:not(:first-child):not(:last-child){
+    padding: 8px 0;
+}
+.ant-list .ant-list-item:last-child{
+    padding: 8px 0 0 0;
+}
+
+.ant-list .ant-list-item .ant-list-item-action>li{
+    font-size: 13px;
+    line-height: 16px;
+    font-weight: 500;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+}
+.ant-list .ant-list-item .ant-list-item-action {
+    display: flex;
+}
+
+.ant-list .ant-list-item .ant-list-item-action>li:last-child:before {
+    content: "";
+    margin: 0 8px;
+    width: 3px;
+    height: 3px;
+    border-radius: 1.5px;
+    display: inline-block;
+    vertical-align: middle;
+    background-color: rgba(51,70,87,1);
+}
+
+.ant-list .ant-list-item:not(:last-child){
+    border-bottom: 1px solid rgb(51,70,87);
+}
 
     .ant-card-head-title{
 
@@ -165,7 +205,7 @@ font-weight: bold;
 
     .ant-list{
         background-color: rgb(30,44,57);
-        padding: 0px 16px;
+        padding: 0px 16px 16px;
     }
 
     .ant-table, .ant-table-summary {

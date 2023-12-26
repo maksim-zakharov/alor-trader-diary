@@ -43,7 +43,7 @@ const ProfitIntervalWidget = ({nonSummaryPositions}) => {
             dataSource={profitMap}
             renderItem={(item: any) => (
                 <List.Item
-                    actions={[<div style={{color: 'rgb(44,232,156)'}}>{moneyFormat(item[1].PnL)} ({item[1].count} trades)</div>]}
+                    actions={[<div style={{color: 'rgb(44,232,156)'}}>{moneyFormat(item[1].PnL)}</div>, <div>{item[1].count} trades</div>]}
                 >
                     {durationLabels[item[0]]}
                 </List.Item>
