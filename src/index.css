@@ -7,6 +7,59 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+.ticker_logo{
+    margin-right: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /*color: rgba(var(--pro-icons-marker-2),1);*/
+    /*background-color: rgba(var(--pro-icons-marker-1),1);*/
+    min-width: 32px;
+    min-height: 32px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    position: relative;
+    word-wrap: break-word;
+    font-size: 15px;
+    line-height: 20px;
+    font-weight: 400;
+    letter-spacing: 0;
+}
+
+.ticker-info{
+    display: flex;
+    padding: 0 16px;
+    min-width: 320px;
+    justify-content: space-between;
+}
+
+.ticker_name{
+
+}
+
+.ticker_actions{
+    /*line-height: 20px;*/
+    /*font-weight: 500;*/
+    /*color: rgba(179,199,219,1);*/
+    /*font-size: 13px;*/
+    /*display: flex;*/
+    /*flex-direction: column;*/
+    text-align: right;
+}
+
+.ticker_name_title{
+    line-height: 20px;
+    font-weight: 500;
+    color: rgba(179,199,219,1);
+    font-size: 13px;
+}
+
+.ticker_name_description{
+    color: rgb(140,167,190);
+    font-size: 12px;
+}
+
 code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;

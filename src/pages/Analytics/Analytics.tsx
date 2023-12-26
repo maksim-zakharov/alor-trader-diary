@@ -1,18 +1,13 @@
 import TVChart from "../../common/TVChart";
 import React, {FC, useEffect, useMemo, useState} from "react";
-import {AlorApi, Exchange} from "alor-api";
-import {Time, WhitespaceData} from "lightweight-charts";
+import {AlorApi} from "alor-api";
 import * as moment from "moment";
-import {Card, List, Space, Statistic, Typography} from "antd";
 import * as Highcharts from "highcharts";
 import HighchartsReact from 'highcharts-react-official'
-import {selectOptions, selectOptionsMap} from "../../App";
-import {useSearchParams} from "react-router-dom";
+import {selectOptionsMap} from "../../App";
 import {moneyFormat} from "../../common/utils";
 import ProfitIntervalWidget from "./widgets/ProfitIntervalWidget";
-import {durationLabels} from "../../utils";
 import LossIntervalWidget from "./widgets/LossIntervalWidget";
-import {ArrowUpOutlined} from "@ant-design/icons";
 
 interface IProps{
     balanceSeriesData: any
@@ -199,11 +194,20 @@ const Analytics: FC<IProps> = ({data, api, dateFrom}) => {
             <LossIntervalWidget nonSummaryPositions={nonSummaryPositions}/>
             <div className="widget">
                 <div className="widget_header">Top profit trade</div>
-                <div style={{padding: '0px 16px'}}>
-                    <p style={{ color: 'rgb( 44,232,156)' }}>{moneyFormat(getMaxProfitTrade?.PnL || 0)}</p>
-                    <div>Symbol: {getMaxProfitTrade?.symbol}</div>
-                    <div>Date: {moment(getMaxProfitTrade?.openDate).format('DD.MM.YYYY HH:mm:ss')}</div>
-                    <div>Volume: {moneyFormat(getMaxProfitTrade?.volume)}</div>
+                <div className="ticker-info">
+                    <div style={{display: 'flex'}}>
+                        <img className="ticker_logo" src={`https://storage.alorbroker.ru/icon/${getMaxProfitTrade?.symbol}.png`} alt={getMaxProfitTrade?.symbol}/>
+                        <div className="ticker_name">
+                            <div className="ticker_name_title">{getMaxProfitTrade?.symbol}</div>
+                            <div className="ticker_name_description">
+                                {moment(getMaxProfitTrade?.openDate).format('DD.MM.YYYY HH:mm:ss')}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="ticker_actions">
+                        <div className="ticker_name_title" style={{ color: 'rgb( 44,232,156)' }}>{moneyFormat(getMaxProfitTrade?.PnL || 0)}</div>
+                        <div className="ticker_name_description">на сумму {moneyFormat(getMaxProfitTrade?.volume, 0)}</div>
+                    </div>
                 </div>
             </div>
             <div className="widget">
