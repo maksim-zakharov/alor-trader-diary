@@ -66,6 +66,7 @@ body {
 .ticker_name_description{
     color: rgb(140,167,190);
     font-size: 12px;
+    line-height: 1;
 }
 
 code {
