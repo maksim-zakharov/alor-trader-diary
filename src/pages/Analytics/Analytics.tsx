@@ -189,12 +189,12 @@ const Analytics: FC<IProps> = ({data, api, dateFrom}) => {
         {/*        options={reasonOptions}*/}
         {/*    />*/}
         {/*</div>*/}
-        <div style={{display: 'flex'}}>
+        <div style={{display: 'flex', flexWrap: 'wrap', margin: '0 -1px'}}>
             <ProfitIntervalWidget nonSummaryPositions={nonSummaryPositions}/>
             <LossIntervalWidget nonSummaryPositions={nonSummaryPositions}/>
             <div className="widget">
                 <div className="widget_header">Top profit trades</div>
-                <div>
+                <div style={{paddingBottom: '16px'}}>
                     {getMaxProfitTrades.map(getMaxProfitTrade => <div className="ticker-info">
                         <div style={{display: 'flex'}}>
                             <img className="ticker_logo" src={`https://storage.alorbroker.ru/icon/${getMaxProfitTrade?.symbol}.png`} alt={getMaxProfitTrade?.symbol}/>
@@ -214,7 +214,7 @@ const Analytics: FC<IProps> = ({data, api, dateFrom}) => {
             </div>
             <div className="widget">
                 <div className="widget_header">Top loss trades</div>
-                <div>
+                <div style={{paddingBottom: '16px'}}>
                     {getMaxLossTrades.map(getMaxLossTrade => <div className="ticker-info">
                         <div style={{display: 'flex'}}>
                             <img className="ticker_logo" src={`https://storage.alorbroker.ru/icon/${getMaxLossTrade?.symbol}.png`} alt={getMaxLossTrade?.symbol}/>
