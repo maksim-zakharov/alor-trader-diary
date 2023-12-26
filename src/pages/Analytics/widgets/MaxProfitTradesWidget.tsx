@@ -22,7 +22,7 @@ const MaxProfitTradesWidget = ({nonSummaryPositions, isLoading}) => {
                     </div>
                 </div>
                 <div className="ticker_actions">
-                    <div className="ticker_name_title" style={{ color: 'rgb( 44,232,156)' }}>{moneyFormat(getMaxProfitTrade?.PnL || 0)}</div>
+                    <div className="ticker_name_title" style={{ color: 'rgb( 44,232,156)' }}>{moneyFormat(getMaxProfitTrade?.PnL || 0)} ({`${(getMaxProfitTrade?.PnLPercent * 100).toFixed(2)}%`})</div>
                     <div className="ticker_name_description">на сумму {moneyFormat(getMaxProfitTrade?.volume, 0)}</div>
                 </div>
             </div>)}
