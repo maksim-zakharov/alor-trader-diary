@@ -173,9 +173,9 @@ const Analytics: FC<IProps> = ({data, api, dateFrom}) => {
         series: symbolSeries
     }
 
-    const getMaxProfitTrade = useMemo(() => nonSummaryPositions.sort((a, b) => b.PnL - a.PnL)[0], [nonSummaryPositions])
+    const getMaxProfitTrades = useMemo(() => nonSummaryPositions.sort((a, b) => b.PnL - a.PnL).slice(0, 3), [nonSummaryPositions])
 
-    const getMaxLossTrade = useMemo(() => nonSummaryPositions.sort((a, b) => a.PnL - b.PnL)[0], [nonSummaryPositions])
+    const getMaxLossTrades = useMemo(() => nonSummaryPositions.sort((a, b) => a.PnL - b.PnL).slice(0, 3), [nonSummaryPositions])
 
     return <>
         <div className="widget">
@@ -194,29 +194,42 @@ const Analytics: FC<IProps> = ({data, api, dateFrom}) => {
             <LossIntervalWidget nonSummaryPositions={nonSummaryPositions}/>
             <div className="widget">
                 <div className="widget_header">Top profit trade</div>
-                <div className="ticker-info">
-                    <div style={{display: 'flex'}}>
-                        <img className="ticker_logo" src={`https://storage.alorbroker.ru/icon/${getMaxProfitTrade?.symbol}.png`} alt={getMaxProfitTrade?.symbol}/>
-                        <div className="ticker_name">
-                            <div className="ticker_name_title">{getMaxProfitTrade?.symbol}</div>
-                            <div className="ticker_name_description">
-                                {moment(getMaxProfitTrade?.openDate).format('DD.MM.YYYY HH:mm:ss')}
+                <div>
+                    {getMaxProfitTrades.map(getMaxProfitTrade => <div className="ticker-info">
+                        <div style={{display: 'flex'}}>
+                            <img className="ticker_logo" src={`https://storage.alorbroker.ru/icon/${getMaxProfitTrade?.symbol}.png`} alt={getMaxProfitTrade?.symbol}/>
+                            <div className="ticker_name">
+                                <div className="ticker_name_title">{getMaxProfitTrade?.symbol}</div>
+                                <div className="ticker_name_description">
+                                    {moment(getMaxProfitTrade?.openDate).format('DD.MM.YYYY HH:mm:ss')}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div className="ticker_actions">
-                        <div className="ticker_name_title" style={{ color: 'rgb( 44,232,156)' }}>{moneyFormat(getMaxProfitTrade?.PnL || 0)}</div>
-                        <div className="ticker_name_description">на сумму {moneyFormat(getMaxProfitTrade?.volume, 0)}</div>
-                    </div>
+                        <div className="ticker_actions">
+                            <div className="ticker_name_title" style={{ color: 'rgb( 44,232,156)' }}>{moneyFormat(getMaxProfitTrade?.PnL || 0)}</div>
+                            <div className="ticker_name_description">на сумму {moneyFormat(getMaxProfitTrade?.volume, 0)}</div>
+                        </div>
+                    </div>)}
                 </div>
             </div>
             <div className="widget">
                 <div className="widget_header">Top loss trade</div>
-                <div style={{padding: '0px 16px'}}>
-                    <p style={{ color: 'rgb( 255,117,132)' }}>{moneyFormat(getMaxLossTrade?.PnL || 0)}</p>
-                    <div>Symbol: {getMaxLossTrade?.symbol}</div>
-                    <div>Date: {moment(getMaxLossTrade?.openDate).format('DD.MM.YYYY HH:mm:ss')}</div>
-                    <div>Volume: {moneyFormat(getMaxLossTrade?.volume)}</div>
+                <div>
+                    {getMaxLossTrades.map(getMaxLossTrade => <div className="ticker-info">
+                        <div style={{display: 'flex'}}>
+                            <img className="ticker_logo" src={`https://storage.alorbroker.ru/icon/${getMaxLossTrade?.symbol}.png`} alt={getMaxLossTrade?.symbol}/>
+                            <div className="ticker_name">
+                                <div className="ticker_name_title">{getMaxLossTrade?.symbol}</div>
+                                <div className="ticker_name_description">
+                                    {moment(getMaxLossTrade?.openDate).format('DD.MM.YYYY HH:mm:ss')}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="ticker_actions">
+                            <div className="ticker_name_title" style={{ color: 'rgb( 255,117,132)' }}>{moneyFormat(getMaxLossTrade?.PnL || 0)}</div>
+                            <div className="ticker_name_description">на сумму {moneyFormat(getMaxLossTrade?.volume, 0)}</div>
+                        </div>
+                    </div>)}
                 </div>
             </div>
         </div>
