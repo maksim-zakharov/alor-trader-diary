@@ -30,8 +30,15 @@ body {
 .ticker-info {
     display: flex;
     padding: 4px 0;
-    min-width: 320px;
+    /*min-width: 320px;*/
     justify-content: space-between;
+}
+
+@media only screen and (min-width: 700px) {
+
+    .ticker-info {
+        min-width: 320px;
+    }
 }
 
 .ticker-info:first-child{
