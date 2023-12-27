@@ -1,5 +1,6 @@
 import { Positions, Side, Trade } from 'alor-api';
 import { avg, summ } from './App';
+import moment from 'moment/moment';
 
 export const digitsAfterDot = (num) => {
   if (!num) {
@@ -208,9 +209,31 @@ export const tradesToHistoryPositions = (trades: Trade[]) => {
   return { positions: batchPositions, totalPnL, totalFee };
 };
 
+export const momentRoundTime = (date: string, hoursRound: number) => {
+  const start = moment(date);
+  const remainder = start.hours() - (start.hours() % hoursRound);
+  return moment(start)
+      // .add(-remainder, "hours")
+      .set('hours', remainder)
+      .set('minutes', 0)
+      .set('seconds', 0)
+      .format("HH:mm");
+}
+
 export const durationLabels = {
   seconds: 'До 1 минуты',
   '5min': 'От 1 до 5 минут',
   '1hour': 'От 5 минут до 1 часа',
   'hours': 'Более часа',
+}
+
+export const timeLabels = {
+  '08:00': '08:00 - 10:00',
+  '10:00': '10:00 - 12:00',
+  '12:00': '12:00 - 14:00',
+  '14:00': '14:00 - 16:00',
+  '16:00': '16:00 - 18:00',
+  '18:00': '18:00 - 20:00',
+  '20:00': '20:00 - 22:00',
+  '22:00': '22:00 - 24:00',
 }

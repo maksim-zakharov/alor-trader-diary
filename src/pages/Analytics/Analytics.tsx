@@ -10,6 +10,8 @@ import ProfitIntervalWidget from "./widgets/ProfitIntervalWidget";
 import LossIntervalWidget from "./widgets/LossIntervalWidget";
 import MaxProfitTradesWidget from "./widgets/MaxProfitTradesWidget";
 import MaxLossTradesWidget from "./widgets/MaxLossTradesWidget";
+import LossTimeWidget from "./widgets/LossTimeWidget";
+import ProfitTimeWidget from "./widgets/ProfitTimeWidget";
 
 interface IProps{
     balanceSeriesData: any
@@ -193,6 +195,8 @@ const Analytics: FC<IProps> = ({data, api, dateFrom, isLoading}) => {
             <LossIntervalWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
             <MaxProfitTradesWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
             <MaxLossTradesWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
+            <ProfitTimeWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
+            <LossTimeWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
         </div>
         <div className="widget">
             <div className="widget_header">Symbols</div>
