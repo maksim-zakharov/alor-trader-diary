@@ -160,6 +160,33 @@ code {
     padding: 0 8px;
 }
 
+.dark-theme .ant-picker{
+    background-color: rgb(44,60,75);
+    color: rgb(140,167,190);
+    border: none;
+    padding: 0 8px;
+    height: 32px;
+}
+
+.dark-theme .ant-picker .ant-picker-suffix{
+    background-color: rgb(44,60,75);
+    color: rgb(140,167,190);
+}
+
+.dark-theme .ant-picker-dropdown .ant-picker-cell:hover:not(.ant-picker-cell-selected):not(.ant-picker-cell-range-start):not(.ant-picker-cell-range-end):not(.ant-picker-cell-range-hover-start):not(.ant-picker-cell-range-hover-end) .ant-picker-cell-inner{
+
+    background-color: rgb(60,84,105);
+}
+
+.dark-theme .ant-picker .ant-picker-clear{
+    background-color: rgb(44,60,75);
+    color: rgb(140,167,190);
+}
+
+.dark-theme .ant-picker .ant-picker-input >input, .dark-theme .ant-picker .ant-picker-clear{
+    color: rgb(140,167,190);
+}
+
 .ant-input:hover{
     background-color: rgb(51,70,87);
 }
@@ -248,6 +275,52 @@ code {
 
 .dark-theme .ant-drawer .ant-drawer-content{
     background-color: rgb(30,44,57);
+}
+
+.dark-theme .ant-picker-dropdown .ant-picker-panel{
+background-color: rgb(36,52,66);
+}
+
+.dark-theme .ant-picker-dropdown .ant-picker-header{
+    border-color: rgb(51,70,87);
+}
+
+.dark-theme .ant-picker-dropdown .ant-picker-date-panel .ant-picker-content th{
+    color: rgb(179,199,219);
+    font-weight: 600;
+}
+
+.dark-theme .ant-picker-dropdown .ant-picker-date-panel .ant-picker-body{
+    padding: 4px;
+}
+
+.dark-theme .ant-picker-dropdown .ant-picker-date-panel{
+    width: inherit;
+}
+
+.dark-theme .ant-picker-dropdown .ant-picker-cell.ant-picker-cell-in-view{
+    color: rgb(179,199,219);
+}
+
+.dark-theme .ant-picker-dropdown .ant-picker-cell{
+    color: rgb(112,139,164);
+}
+
+.ant-picker-dropdown .ant-picker-header, .ant-picker-dropdown .ant-picker-header button{
+    color: rgb(166,189,213);
+}
+
+.ant-picker-dropdown .ant-picker-panel-container{
+    box-shadow: none;
+}
+
+.ant-picker-dropdown .ant-picker-cell-in-view.ant-picker-cell-selected .ant-picker-cell-inner{
+    background-color: rgb(51,111,238);
+}
+
+.ant-picker-focused {
+    border: none;
+    box-shadow: none;
 }
 
 .ant-table-wrapper .ant-table.ant-table-small .ant-table-title, .ant-table-wrapper .ant-table.ant-table-small .ant-table-footer, .ant-table-wrapper .ant-table.ant-table-small .ant-table-cell, .ant-table-wrapper .ant-table.ant-table-small .ant-table-thead > tr > th, .ant-table-wrapper .ant-table.ant-table-small .ant-table-tbody > tr > th, .ant-table-wrapper .ant-table.ant-table-small .ant-table-tbody > tr > td, .ant-table-wrapper .ant-table.ant-table-small tfoot > tr > th, .ant-table-wrapper .ant-table.ant-table-small tfoot > tr > td {

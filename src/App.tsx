@@ -351,7 +351,7 @@ function App() {
             onSelect={onSelectMenu}
           />
           <Space>
-            <DatePicker value={currentDates} onChange={onChangeDate} />
+            <DatePicker value={currentDates} onChange={onChangeDate} style={{width: 120}} />
             <Switch
               defaultChecked={nightMode}
               checked={nightMode}
