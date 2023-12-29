@@ -17,13 +17,14 @@ import {
   SettingOutlined,
 } from '@ant-design/icons';
 import FormItem from 'antd/es/form/FormItem';
-import React, {ChangeEventHandler, memo, useEffect, useMemo, useState} from 'react';
+import React, {ChangeEventHandler, FC, memo, useEffect, useMemo, useState} from 'react';
 import { ColumnsType } from 'antd/es/table';
 import moment from 'moment/moment';
 import Chart from '../Chart';
 import { SwitchChangeEventHandler } from 'antd/es/switch';
 import { selectOptions } from '../App';
 import {moneyFormat, shortNumberFormat} from '../common/utils';
+import {AlorApi} from "alor-api";
 
 interface DataType {
   key: string;
@@ -56,11 +57,28 @@ const sharedOnCell = (_: DataType, index: number) => {
   return {};
 };
 
-const Diary = ({ data, trades, api, isLoading, summary }) => {
+interface IProps {
+  data: any;
+  trades?: any;
+  api: AlorApi;
+  isLoading: boolean;
+  summary: any;
+}
+
+const Diary: FC<IProps> = ({ data, trades, api, isLoading, summary }) => {
   const [settings, setSettings] = useState<{
     token: string;
     portfolio: string;
+    settlementAccount: string;
+    recipient: string;
+    loroAccount: string;
+    bankName: string;
+    amount: string;
+    bic: string;
   }>(JSON.parse(localStorage.getItem('settings') || '{}'));
+
+  const [operationId, setOperationId] = useState<string>('');
+  const [confirmationCode, setConfirmationCode] = useState<string>('');
 
   const [showSettings, setShowSettings] = useState(false);
   const [reasons, setReasons] = useState<{ [id: string]: string }>(
@@ -339,6 +357,45 @@ const Diary = ({ data, trades, api, isLoading, summary }) => {
 
   const netProfitPercent = useMemo(() => !summary ? 0 : data.totalPnL * 100 / (summary?.portfolioEvaluation - data.totalPnL), [data.totalPnL, summary?.portfolioEvaluation]);
 
+  const createOperation = async () => {
+    const agreementNumber = settings.portfolio.replace('D', '');
+
+    const operationResult = await api.clientInfo.createOperation(agreementNumber, {
+      account: settings.portfolio,
+      bic: settings.bic,
+      amount: Number(settings.amount),
+      all: false,
+      bankName: settings.bankName,
+      loroAccount: settings.loroAccount,
+      recipient: settings.recipient,
+      agree: true,
+      settlementAccount: settings.settlementAccount,
+      currency: "RUB",
+      subportfolioFrom: "MOEX"
+    })
+
+    const codeResponse = await api.clientInfo.getOperationCode({
+      operationId: operationResult.operationId.toString(),
+      agreementNumber
+    });
+
+    setOperationId(operationResult.operationId.toString());
+  }
+  const signOperation = async () => {
+    const agreementNumber = settings.portfolio.replace('D', '');
+
+    const result = await api.clientInfo.signOperation({
+      agreementNumber,
+      operationId,
+      confirmationCode
+    })
+
+    if(result.success){
+      setConfirmationCode('');
+      setOperationId('');
+    }
+  }
+
   return (
     <>
       <div
@@ -401,6 +458,48 @@ const Diary = ({ data, trades, api, isLoading, summary }) => {
                   placeholder="Portfolio"
                   {...settingsInputProps('portfolio')}
                 />
+              </FormItem>
+              <Divider/>
+              <FormItem label="recipient">
+                <Input placeholder="recipient" {...settingsInputProps('recipient')} />
+              </FormItem>
+              <FormItem label="bic">
+                <Input placeholder="bic" {...settingsInputProps('bic')} />
+              </FormItem>
+              <FormItem label="loroAccount">
+                <Input
+                    placeholder="loroAccount"
+                    {...settingsInputProps('loroAccount')}
+                />
+              </FormItem>
+              <FormItem label="bankName">
+                <Input
+                    placeholder="bankName"
+                    {...settingsInputProps('bankName')}
+                />
+              </FormItem>
+              <FormItem label="settlementAccount">
+                <Input
+                    placeholder="settlementAccount"
+                    {...settingsInputProps('settlementAccount')}
+                />
+              </FormItem>
+              <FormItem label="amount">
+                <Input
+                    placeholder="amount"
+                    {...settingsInputProps('amount')}
+                />
+              </FormItem>
+              {operationId && <FormItem label="confirmationCode">
+                <Input
+                    placeholder="confirmationCode"
+                    value={confirmationCode}
+                    onChange={e => setConfirmationCode(e.target.value)}
+                />
+              </FormItem>}
+              <FormItem>
+                {!operationId && <Button onClick={() => createOperation()}>Отправить код</Button>}
+                {operationId && <Button onClick={() => signOperation()}>Подтвердить код</Button>}
               </FormItem>
             </Form>
           </Drawer>
