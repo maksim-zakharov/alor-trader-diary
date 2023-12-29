@@ -148,6 +148,108 @@ code {
     font-weight: 500;
 }
 
+
+.dark-theme .ant-input{
+    background-color: rgb(44,60,75);
+    color: rgb(179,199,219);
+    border: none;
+    font-size: 13px;
+    font-weight: 400;
+    height: 32px;
+    border-radius: 4px;
+    padding: 0 8px;
+}
+
+.ant-input:hover{
+    background-color: rgb(51,70,87);
+}
+
+.ant-input-affix-wrapper:focus, .ant-input-affix-wrapper-focused{
+    box-shadow: none;
+}
+
+.dark-theme .ant-input::placeholder{
+    color: rgb(140,167,190)
+}
+
+.ant-drawer .ant-drawer-header{
+    border-bottom-color:  rgb(51,70,87);
+}
+
+.ant-drawer .ant-drawer-title{
+    color: rgb(166,189,213);
+}
+
+.ant-drawer .ant-drawer-close{
+    color: rgb(140,167,190);
+}
+
+.ant-divider-horizontal{
+    border-block-color: rgb(51,70,87);
+    margin: 12px 0;
+}
+
+.ant-drawer .ant-drawer-header{
+    padding: 8px 12px;
+}
+
+.ant-btn-primary{
+    background-color: rgb(51,111,238);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    padding: 8px 12px;
+    border: none;
+    line-height: 16px;
+}
+
+.ant-input-affix-wrapper{
+    padding: 0 8px;
+    border: none;
+    background-color: rgb(44,60,75);
+    color: rgb(140,167,190)
+}
+
+.ant-input-affix-wrapper:hover{
+    background-color: rgb(51,70,87);
+}
+
+.ant-btn-primary:not(:disabled):not(.ant-btn-disabled):hover{
+    background-color: rgb(56,121,242);
+}
+
+.ant-drawer-content-wrapper{
+    width: 320px !important;
+}
+
+.ant-drawer .ant-drawer-body{
+    padding: 8px 12px;
+}
+
+.ant-form-item{
+    margin-bottom: 0;
+}
+
+.ant-form-item + .ant-form-item {
+    margin-top: 12px;
+}
+
+.ant-form-vertical .ant-form-item-label{
+    margin-bottom: 4px;
+    padding: 0;
+}
+
+.ant-form-item .ant-form-item-label >label{
+    color: rgb(140,167,190);
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 20px;
+}
+
+.dark-theme .ant-drawer .ant-drawer-content{
+    background-color: rgb(30,44,57);
+}
+
 .ant-table-wrapper .ant-table.ant-table-small .ant-table-title, .ant-table-wrapper .ant-table.ant-table-small .ant-table-footer, .ant-table-wrapper .ant-table.ant-table-small .ant-table-cell, .ant-table-wrapper .ant-table.ant-table-small .ant-table-thead > tr > th, .ant-table-wrapper .ant-table.ant-table-small .ant-table-tbody > tr > th, .ant-table-wrapper .ant-table.ant-table-small .ant-table-tbody > tr > td, .ant-table-wrapper .ant-table.ant-table-small tfoot > tr > th, .ant-table-wrapper .ant-table.ant-table-small tfoot > tr > td {
     /*padding: 4px;*/
     padding: 1px 8px;

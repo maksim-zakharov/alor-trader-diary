@@ -449,7 +449,7 @@ const Diary: FC<IProps> = ({ data, trades, api, isLoading, summary }) => {
             onClose={() => setShowSettings(false)}
             open={showSettings}
           >
-            <Form>
+            <Form layout="vertical">
               <FormItem label="Alor Token">
                 <Input placeholder="Token" {...settingsInputProps('token')} />
               </FormItem>
@@ -460,46 +460,47 @@ const Diary: FC<IProps> = ({ data, trades, api, isLoading, summary }) => {
                 />
               </FormItem>
               <Divider/>
-              <FormItem label="recipient">
-                <Input placeholder="recipient" {...settingsInputProps('recipient')} />
+              <FormItem label="Получатель">
+                <Input placeholder="Получатель" {...settingsInputProps('recipient')} />
               </FormItem>
-              <FormItem label="bic">
-                <Input placeholder="bic" {...settingsInputProps('bic')} />
+              <FormItem label="БИК">
+                <Input placeholder="БИК" {...settingsInputProps('bic')} />
               </FormItem>
-              <FormItem label="loroAccount">
+              <FormItem label="Корр. счет">
                 <Input
-                    placeholder="loroAccount"
+                    placeholder="Корр. счет"
                     {...settingsInputProps('loroAccount')}
                 />
               </FormItem>
-              <FormItem label="bankName">
+              <FormItem label="Банк получателя">
                 <Input
-                    placeholder="bankName"
+                    placeholder="Банк получателя"
                     {...settingsInputProps('bankName')}
                 />
               </FormItem>
-              <FormItem label="settlementAccount">
+              <FormItem label="Номер счета">
                 <Input
-                    placeholder="settlementAccount"
+                    placeholder="Номер счета"
                     {...settingsInputProps('settlementAccount')}
                 />
               </FormItem>
-              <FormItem label="amount">
+              <FormItem label="Сумма">
                 <Input
-                    placeholder="amount"
+                    placeholder="Сумма"
                     {...settingsInputProps('amount')}
+                    suffix="₽"
                 />
               </FormItem>
-              {operationId && <FormItem label="confirmationCode">
+              {operationId && <FormItem label="Код подтверждения">
                 <Input
-                    placeholder="confirmationCode"
+                    placeholder="Код подтверждения"
                     value={confirmationCode}
                     onChange={e => setConfirmationCode(e.target.value)}
                 />
               </FormItem>}
               <FormItem>
-                {!operationId && <Button onClick={() => createOperation()}>Отправить код</Button>}
-                {operationId && <Button onClick={() => signOperation()}>Подтвердить код</Button>}
+                {!operationId && <Button onClick={() => createOperation()} type="primary" style={{width: '100%'}}>Отправить код</Button>}
+                {operationId && <Button onClick={() => signOperation()} type="primary" style={{width: '100%'}}>Подтвердить код</Button>}
               </FormItem>
             </Form>
           </Drawer>
