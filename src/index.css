@@ -174,7 +174,6 @@ code {
 }
 
 .dark-theme .ant-picker-dropdown .ant-picker-cell:hover:not(.ant-picker-cell-selected):not(.ant-picker-cell-range-start):not(.ant-picker-cell-range-end):not(.ant-picker-cell-range-hover-start):not(.ant-picker-cell-range-hover-end) .ant-picker-cell-inner{
-
     background-color: rgb(60,84,105);
 }
 
