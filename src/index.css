@@ -136,11 +136,11 @@ code {
 }
 
 .loss {
-    background-color: rgba(255, 117, 132, 0.2);
+    background-color: rgba(var(--table-loss-color), 0.2);
 }
 
 .profit {
-    background-color: rgba(44, 232, 156, 0.2);
+    background-color: rgba(var(--table-profit-color), 0.2);
 }
 
 .ant-statistic .ant-statistic-title{
@@ -459,7 +459,7 @@ font-weight: bold;
     border-radius: 1.5px;
     display: inline-block;
     vertical-align: middle;
-    background-color: rgba(51,70,87,1);
+    background-color: rgba(var(--pro-divider-bg),1);
 }
 
 .ant-list .ant-list-item:not(:last-child){
@@ -509,7 +509,7 @@ font-weight: bold;
     }
 
     .ant-table-wrapper .ant-table-tbody .ant-table-row >.ant-table-cell-row-hover {
-        background-color: rgba(179,199,219, 0.2);
+        background-color: rgba(var(--pro-input-color), 0.2);
     }
 
     .ant-table-wrapper .ant-table-tbody >tr >th, .ant-table-wrapper .ant-table-tbody >tr {
@@ -618,7 +618,7 @@ font-weight: bold;
     }
 
     .ant-select-item-option-selected:not(.ant-select-item-option-disabled){
-        background-color: rgba(179,199,219, 0.2);
+        background-color: rgba(var(--pro-input-color), 0.2);
     }
 }
 
