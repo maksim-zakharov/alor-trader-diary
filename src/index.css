@@ -1,3 +1,17 @@
+:root {
+    --pro-input-bg: 44,60,75;
+    --pro-input-color: 179,199,219;
+    --pro-icon-color: 140,167,190;
+    --pro-divider-bg: 51,70,87;
+    --pro-button-primary-bg: 51,111,238;
+    --pro-text-02: 166,189,213;
+    --pro-widget-body-bg: 30,44,57;
+    --pro-app-background-color: 23,35,46;
+    --table-loss-color: 255,117,132;
+    --table-profit-color: 44,232,156;
+    --pro-button-primary-hover-bg: 56,121,242;
+}
+
 body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -56,7 +70,7 @@ body {
 .ticker_actions{
     /*line-height: 20px;*/
     /*font-weight: 500;*/
-    /*color: rgba(179,199,219,1);*/
+    /*color: rgba(var(--pro-input-color),1);*/
     /*font-size: 13px;*/
     /*display: flex;*/
     /*flex-direction: column;*/
@@ -66,12 +80,12 @@ body {
 .ticker_name_title{
     line-height: 20px;
     font-weight: 500;
-    color: rgba(179,199,219,1);
+    color: rgba(var(--pro-input-color),1);
     font-size: 13px;
 }
 
 .ticker_name_description{
-    color: rgb(140,167,190);
+    color: rgba(var(--pro-icon-color),1);
     font-size: 12px;
     line-height: 1;
 }
@@ -85,7 +99,7 @@ code {
     margin: 1px;
     border-radius: 4px;
     overflow: hidden;
-    background-color: rgb(30,44,57);
+    background-color: rgba(var(--pro-widget-body-bg),1);
     padding: 16px;
     /*min-width: 348px;*/
 }
@@ -117,7 +131,7 @@ code {
     font-size: 15px;
     line-height: 20px;
     font-weight: 500;
-    background-color: rgb(30,44,57);
+    background-color: rgba(var(--pro-widget-body-bg),1);
     padding: 0 0 12px;
 }
 
@@ -150,8 +164,8 @@ code {
 
 
 .dark-theme .ant-input{
-    background-color: rgb(44,60,75);
-    color: rgb(179,199,219);
+    background-color: rgba(var(--pro-input-bg),1);
+    color: rgba(var(--pro-input-color),1);
     border: none;
     font-size: 13px;
     font-weight: 400;
@@ -161,16 +175,16 @@ code {
 }
 
 .dark-theme .ant-picker{
-    background-color: rgb(44,60,75);
-    color: rgb(140,167,190);
+    background-color: rgba(var(--pro-input-bg),1);
+    color: rgba(var(--pro-icon-color),1);
     border: none;
     padding: 0 8px;
     height: 32px;
 }
 
 .dark-theme .ant-picker .ant-picker-suffix{
-    background-color: rgb(44,60,75);
-    color: rgb(140,167,190);
+    background-color: rgba(var(--pro-input-bg),1);
+    color: rgba(var(--pro-icon-color),1);
 }
 
 .dark-theme .ant-picker-dropdown .ant-picker-cell:hover:not(.ant-picker-cell-selected):not(.ant-picker-cell-range-start):not(.ant-picker-cell-range-end):not(.ant-picker-cell-range-hover-start):not(.ant-picker-cell-range-hover-end) .ant-picker-cell-inner{
@@ -178,16 +192,16 @@ code {
 }
 
 .dark-theme .ant-picker .ant-picker-clear{
-    background-color: rgb(44,60,75);
-    color: rgb(140,167,190);
+    background-color: rgba(var(--pro-input-bg),1);
+    color: rgba(var(--pro-icon-color),1);
 }
 
 .dark-theme .ant-picker .ant-picker-input >input, .dark-theme .ant-picker .ant-picker-clear{
-    color: rgb(140,167,190);
+    color: rgba(var(--pro-icon-color),1);
 }
 
 .ant-input:hover{
-    background-color: rgb(51,70,87);
+    background-color: rgba(var(--pro-divider-bg),1);
 }
 
 .ant-input-affix-wrapper:focus, .ant-input-affix-wrapper-focused{
@@ -195,23 +209,23 @@ code {
 }
 
 .dark-theme .ant-input::placeholder{
-    color: rgb(140,167,190)
+    color: rgba(var(--pro-icon-color),1);
 }
 
 .ant-drawer .ant-drawer-header{
-    border-bottom-color:  rgb(51,70,87);
+    border-bottom-color:  rgba(var(--pro-divider-bg),1);
 }
 
 .ant-drawer .ant-drawer-title{
-    color: rgb(166,189,213);
+    color: rgba(var(--pro-text-02),1);
 }
 
 .ant-drawer .ant-drawer-close{
-    color: rgb(140,167,190);
+    color: rgba(var(--pro-icon-color),1);
 }
 
 .ant-divider-horizontal{
-    border-block-color: rgb(51,70,87);
+    border-block-color: rgba(var(--pro-divider-bg),1);
     margin: 12px 0;
 }
 
@@ -220,7 +234,7 @@ code {
 }
 
 .ant-btn-primary{
-    background-color: rgb(51,111,238);
+    background-color: rgba(var(--pro-button-primary-bg),1);
     border-radius: 4px;
     cursor: pointer;
     font-size: 13px;
@@ -232,16 +246,16 @@ code {
 .ant-input-affix-wrapper{
     padding: 0 8px;
     border: none;
-    background-color: rgb(44,60,75);
-    color: rgb(140,167,190)
+    background-color: rgba(var(--pro-input-bg),1);
+    color: rgba(var(--pro-icon-color),1);
 }
 
 .ant-input-affix-wrapper:hover{
-    background-color: rgb(51,70,87);
+    background-color: rgba(var(--pro-divider-bg),1);
 }
 
 .ant-btn-primary:not(:disabled):not(.ant-btn-disabled):hover{
-    background-color: rgb(56,121,242);
+    background-color: rgba(var(--pro-button-primary-hover-bg),1);
 }
 
 .ant-drawer-content-wrapper{
@@ -266,14 +280,14 @@ code {
 }
 
 .ant-form-item .ant-form-item-label >label{
-    color: rgb(140,167,190);
+    color: rgba(var(--pro-icon-color),1);
     font-size: 13px;
     font-weight: 400;
     line-height: 20px;
 }
 
 .dark-theme .ant-drawer .ant-drawer-content{
-    background-color: rgb(30,44,57);
+    background-color: rgba(var(--pro-widget-body-bg),1);
 }
 
 .dark-theme .ant-picker-dropdown .ant-picker-panel{
@@ -281,11 +295,11 @@ background-color: rgb(36,52,66);
 }
 
 .dark-theme .ant-picker-dropdown .ant-picker-header{
-    border-color: rgb(51,70,87);
+    border-color: rgba(var(--pro-divider-bg),1);
 }
 
 .dark-theme .ant-picker-dropdown .ant-picker-date-panel .ant-picker-content th{
-    color: rgb(179,199,219);
+    color: rgba(var(--pro-input-color),1);
     font-weight: 600;
 }
 
@@ -298,7 +312,7 @@ background-color: rgb(36,52,66);
 }
 
 .dark-theme .ant-picker-dropdown .ant-picker-cell.ant-picker-cell-in-view{
-    color: rgb(179,199,219);
+    color: rgba(var(--pro-input-color),1);
 }
 
 .dark-theme .ant-picker-dropdown .ant-picker-cell{
@@ -306,7 +320,7 @@ background-color: rgb(36,52,66);
 }
 
 .ant-picker-dropdown .ant-picker-header, .ant-picker-dropdown .ant-picker-header button{
-    color: rgb(166,189,213);
+    color: rgba(var(--pro-text-02),1);
 }
 
 .ant-picker-dropdown .ant-picker-panel-container{
@@ -314,7 +328,7 @@ background-color: rgb(36,52,66);
 }
 
 .ant-picker-dropdown .ant-picker-cell-in-view.ant-picker-cell-selected .ant-picker-cell-inner{
-    background-color: rgb(51,111,238);
+    background-color: rgba(var(--pro-button-primary-bg),1);
 }
 
 .ant-picker-focused {
@@ -329,7 +343,7 @@ background-color: rgb(36,52,66);
 }
 .ant-layout-header{
     background-color: transparent;
-    /*color: rgb(179,199,219);*/
+    /*color: rgba(var(--pro-input-color),1);*/
     color: #000;
     padding: 0 24px;
 }
@@ -377,39 +391,39 @@ a, .link-color {
 }
 
 .dark-theme .ant-layout {
-    background-color: rgb(23,35,46);
-    color: rgb(166,189,213);
+    background-color: rgba(var(--pro-app-background-color),1);
+    color: rgba(var(--pro-text-02),1);
 
 
 .ant-statistic .ant-statistic-title{
-    color: rgb(166,189,213);
+    color: rgba(var(--pro-text-02),1);
 }
 
 .ant-statistic .ant-statistic-content{
-    color: rgb(179,199,219);
+    color: rgba(var(--pro-input-color),1);
 }
 
     .ant-menu-dark.ant-menu-horizontal >.ant-menu-item-selected, :where(.css-dev-only-do-not-override-pr0fja).ant-menu-dark>.ant-menu.ant-menu-horizontal >.ant-menu-item-selected, :where(.css-dev-only-do-not-override-pr0fja).ant-menu-dark.ant-menu-horizontal >.ant-menu-submenu-selected, :where(.css-dev-only-do-not-override-pr0fja).ant-menu-dark>.ant-menu.ant-menu-horizontal >.ant-menu-submenu-selected{
 font-weight: bold;
-        color: rgb(179,199,219);
+        color: rgba(var(--pro-input-color),1);
     }
 
     .ant-statistic .ant-statistic-title{
-        color: rgb(166,189,213);
+        color: rgba(var(--pro-text-02),1);
     }
 
     .ant-btn-icon{
-        color: rgb(179,199,219);
+        color: rgba(var(--pro-input-color),1);
     }
 
     .ant-typography, div.ant-typography-h1, div.ant-typography-h1>textarea, .ant-typography h1{
 
-        color: rgb(179,199,219);
+        color: rgba(var(--pro-input-color),1);
     }
 
     .ant-list .ant-list-item{
 
-        color: rgb(140,167,190);
+        color: rgba(var(--pro-icon-color),1);
         font-size: 13px;
         line-height: 16px;
         font-weight: 400;
@@ -449,16 +463,16 @@ font-weight: bold;
 }
 
 .ant-list .ant-list-item:not(:last-child){
-    border-bottom: 1px solid rgb(51,70,87);
+    border-bottom: 1px solid rgba(var(--pro-divider-bg),1);
 }
 
     .ant-card-head-title{
 
-        color: rgb(179,199,219);
+        color: rgba(var(--pro-input-color),1);
     }
 
     .ant-card{
-        background-color: rgb(30,44,57);
+        background-color: rgba(var(--pro-widget-body-bg),1);
     }
 
     .ant-card-head {
@@ -468,29 +482,29 @@ font-weight: bold;
     }
 
     .ant-list .ant-list-item .ant-list-item-action > li{
-        color: rgb(179,199,219);
+        color: rgba(var(--pro-input-color),1);
     }
 
     .ant-list{
-        background-color: rgb(30,44,57);
+        background-color: rgba(var(--pro-widget-body-bg),1);
     }
 
     .ant-table, .ant-table-summary {
-        background-color: rgb(30,44,57);
+        background-color: rgba(var(--pro-widget-body-bg),1);
     }
 
     .ant-table-wrapper .ant-table-tbody >tr >th, .ant-table-wrapper .ant-table-tbody >tr >td, .ant-table-wrapper .ant-table-summary >tr >td{
-        border-bottom-color: rgb(23,35,46);
-        color: rgb(166,189,213);
+        border-bottom-color: rgba(var(--pro-app-background-color),1);
+        color: rgba(var(--pro-text-02),1);
 
         &.loss {
             background-color: rgba(135,32,44, 0.4);
-            color: rgb( 255,117,132)
+            color: rgba(var(--table-loss-color),1);
         }
 
         &.profit {
             background-color: rgba(21,120,85, 0.4);
-            color: rgb(44,232,156)
+            color: rgba(var(--table-profit-color),1);
         }
     }
 
@@ -503,84 +517,92 @@ font-weight: bold;
         background-color: initial;
         &.loss td{
             background-color: rgba(135,32,44, 0.4);
-            color: rgb( 255,117,132)
+            color: rgba(var(--table-loss-color),1);
         }
 
         &.profit td{
             background-color: rgba(21,120,85, 0.4);
-            color: rgb(44,232,156)
+            color: rgba(var(--table-profit-color),1);
         }
     }
 
     .ant-table-row-expand-icon {
-        background-color: rgb(44,60,75);
-        border-color: rgb(44,60,75);
+        background-color: rgba(var(--pro-input-bg),1);
+        border-color: rgba(var(--pro-input-bg),1);
     }
 
     .ant-table-wrapper .ant-table-thead >tr>th, .ant-table-wrapper .ant-table-thead >tr>td{
         background-color: rgb(36,52,66);
-        border-bottom-color: rgb(23,35,46);
-        color: rgb(179,199,219);
+        border-bottom-color: rgba(var(--pro-app-background-color),1);
+        color: rgba(var(--pro-input-color),1);
         font-size: 13px;
         line-height: 20px;
         height: 26px;
     }
 
     .ant-table-wrapper .ant-table-thead >tr>th:not(:last-child):not(.ant-table-selection-column):not(.ant-table-row-expand-icon-cell):not([colspan])::before, .ant-table-wrapper .ant-table-thead >tr>td:not(:last-child):not(.ant-table-selection-column):not(.ant-table-row-expand-icon-cell):not([colspan])::before{
-        background-color: rgb(23,35,46);
+        background-color: rgba(var(--pro-app-background-color),1);
     }
 
     .ant-input-affix-wrapper{
-        background-color: rgb(44,60,75);
-        border-color: rgb(44,60,75);
+        background-color: rgba(var(--pro-input-bg),1);
+        border-color: rgba(var(--pro-input-bg),1);
     }
 
     .ant-input{
-        background-color: rgb(44,60,75);
-        border-color: rgb(44,60,75);
-        color: rgb(179,199,219);
+        background-color: rgba(var(--pro-input-bg),1);
+        border-color: rgba(var(--pro-input-bg),1);
+        color: rgba(var(--pro-input-color),1);
 
         &::placeholder{
-            color: rgb(140,167,190);
+            color: rgba(var(--pro-icon-color),1);
 
         }
     }
 
+    .ant-select .ant-select-selection-placeholder{
+        color: rgba(var(--pro-icon-color),1);
+    }
+
+    .ant-select .ant-select-arrow{
+        color: rgba(var(--pro-icon-color),1);
+    }
+
     .ant-select:not(.ant-select-customize-input) .ant-select-selector{
-        background-color: rgb(44,60,75);
-        border-color: rgb(44,60,75);
-        color: rgb(179,199,219);
+        background-color: rgba(var(--pro-input-bg),1);
+        border-color: rgba(var(--pro-input-bg),1);
+        color: rgba(var(--pro-input-color),1);
 
         &::placeholder{
-            color: rgb(140,167,190);
+            color: rgba(var(--pro-icon-color),1);
 
         }
     }
 
     .ant-select-single.ant-select-sm:not(.ant-select-customize-input).ant-select-show-arrow .ant-select-selection-item, .ant-select-single.ant-select-sm:not(.ant-select-customize-input).ant-select-show-arrow .ant-select-selection-placeholder{
 
-        color: rgb(140,167,190);
+        color: rgba(var(--pro-icon-color),1);
     }
 
     .ant-switch.ant-switch-checked{
-        background-color: rgb(44,60,75);
+        background-color: rgba(var(--pro-input-bg),1);
     }
 
     .ant-switch .ant-switch-handle::before{
-        background-color: rgb(179,199,219);
+        background-color: rgba(var(--pro-input-color),1);
     }
 
     .ant-layout-footer{
-        background-color: rgb(30,44,57);
-        color: rgb(179,199,219);
+        background-color: rgba(var(--pro-widget-body-bg),1);
+        color: rgba(var(--pro-input-color),1);
     }
     .ant-layout-header{
-        background-color: rgb(30,44,57);
-        color: rgb(179,199,219);
+        background-color: rgba(var(--pro-widget-body-bg),1);
+        color: rgba(var(--pro-input-color),1);
     }
     .ant-menu{
-        background-color: rgb(30,44,57);
-        color: rgb(179,199,219);
+        background-color: rgba(var(--pro-widget-body-bg),1);
+        color: rgba(var(--pro-input-color),1);
     }
     .ant-select .ant-select-clear{
         background-color: transparent;
@@ -588,11 +610,11 @@ font-weight: bold;
 }
 
 .dark-theme .ant-select-dropdown{
-    background-color: rgb(30,44,57);
-    color: rgb(179,199,219);
+    background-color: rgba(var(--pro-widget-body-bg),1);
+    color: rgba(var(--pro-input-color),1);
 
      .ant-select-item{
-        color: rgb(179,199,219);
+        color: rgba(var(--pro-input-color),1);
     }
 
     .ant-select-item-option-selected:not(.ant-select-item-option-disabled){
@@ -606,10 +628,10 @@ font-weight: bold;
 }
 
 .cluster{
-    border:rgb(44,60,75) solid 1px;
+    border:rgba(var(--pro-input-bg),1) solid 1px;
     border-top: none;
     border-left: none;
-    color: rgb(140,167,190);
+    color: rgba(var(--pro-icon-color),1);
     font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,'Noto Sans',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol','Noto Color Emoji';
     padding-left: 3px;
     min-width: 40px;
@@ -627,9 +649,9 @@ font-weight: bold;
 }
 
 .position-price{
-    color: rgb(140,167,190);
+    color: rgba(var(--pro-icon-color),1);
 }
 
-html      .table-col:not(:first-child)   .table-row{border-left:none}html      .table-col   .table-row{box-sizing:border-box;border:rgb(44,60,75) 1px solid}html      .table-col   .table-row.hovered{background-color:#1890ff26}html      .table-col   .table-row:not(:first-child){border-top:none}html      .table-col   .table-row   .table-cell{padding-right:3px}html      .table-col   .table-row   .table-cell.trade-item.ask-side-item{background-color:#fa4f3826}html      .table-col   .table-row   .table-cell.trade-item.ask-side-item.best-row{background-color:#fa4f3880}html      .table-col   .table-row   .table-cell.trade-item.bid-side-item{background-color:#00db8b26}html      .table-col   .table-row   .table-cell.trade-item.bid-side-item.best-row{background-color:#00db8b80}html      .table-col   .table-row   .table-cell.spread-item{background-color:#00000012}html      .table-cell.current-position-range-item{border-right:#d9d9d9 3px solid}html      .table-cell.current-position-range-item.positive{border-right-color:#388e3c}html      .table-cell.current-position-range-item.negative{border-right-color:#fa4f38}html      #orders-panel   .table-cell{width:100%;height:100%}html      #orders-panel   .table-cell   .orders-indicator.bid{color:#008040}html      #orders-panel   .table-cell   .orders-indicator.ask{color:#e53119}html      #orders-panel   .table-cell   .orders-indicator.multiple:after{content:"*"}html      #orders-panel   .table-cell   .orders-indicator:hover{text-decoration:line-through}html.dark      .table-col:not(:first-child)   .table-row{border-left:none}html.dark      .table-col   .table-row{box-sizing:border-box;border:#272E3B 1px solid}html.dark      .table-col   .table-row.hovered{background-color:#1890ff26}html.dark      .table-col   .table-row:not(:first-child){border-top:none}html.dark      .table-col   .table-row   .table-cell{padding-right:3px}html.dark      .table-col   .table-row   .table-cell.trade-item.ask-side-item{background-color:#d1261b26}html.dark      .table-col   .table-row   .table-cell.trade-item.ask-side-item.best-row{background-color:#d1261b80}html.dark      .table-col   .table-row   .table-cell.trade-item.bid-side-item{background-color:#009b6326}html.dark      .table-col   .table-row   .table-cell.trade-item.bid-side-item.best-row{background-color:#009b6380}html.dark      .table-col   .table-row   .table-cell.spread-item{background-color:#ffffff12}html.dark      .table-cell.current-position-range-item{border-right:#272E3B 3px solid}html.dark      .table-cell.current-position-range-item.positive{border-right-color:#009b63}html.dark      .table-cell.current-position-range-item.negative{border-right-color:#d1261b}html.dark      #orders-panel   .table-cell{width:100%;height:100%}html.dark      #orders-panel   .table-cell   .orders-indicator.bid{color:#13db92}html.dark      #orders-panel   .table-cell   .orders-indicator.ask{color:#ff4500}html.dark      #orders-panel   .table-cell   .orders-indicator.multiple:after{content:"*"}html.dark      #orders-panel   .table-cell   .orders-indicator:hover{text-decoration:line-through}#table-body-container{display:flex;flex-direction:row;flex-wrap:nowrap}#table-body-container > div{flex:1}#table-body-container   #volume-panel   .table-cell{text-align:right}#table-body-container   #price-panel   .table-cell{padding-left:3px;text-align:right}#table-body-container   #orders-panel   .table-row   .table-cell{display:flex;justify-content:flex-end}#table-body-container   #orders-panel   .table-row   .table-cell   .orders-indicator{padding-left:3px;cursor:pointer;-webkit-user-select:none;user-select:none}#table-body-container   #orders-panel   .table-row   .table-cell:not(.best-row){background-color:transparent}
+html      .table-col:not(:first-child)   .table-row{border-left:none}html      .table-col   .table-row{box-sizing:border-box;border:rgba(var(--pro-input-bg),1) 1px solid}html      .table-col   .table-row.hovered{background-color:#1890ff26}html      .table-col   .table-row:not(:first-child){border-top:none}html      .table-col   .table-row   .table-cell{padding-right:3px}html      .table-col   .table-row   .table-cell.trade-item.ask-side-item{background-color:#fa4f3826}html      .table-col   .table-row   .table-cell.trade-item.ask-side-item.best-row{background-color:#fa4f3880}html      .table-col   .table-row   .table-cell.trade-item.bid-side-item{background-color:#00db8b26}html      .table-col   .table-row   .table-cell.trade-item.bid-side-item.best-row{background-color:#00db8b80}html      .table-col   .table-row   .table-cell.spread-item{background-color:#00000012}html      .table-cell.current-position-range-item{border-right:#d9d9d9 3px solid}html      .table-cell.current-position-range-item.positive{border-right-color:#388e3c}html      .table-cell.current-position-range-item.negative{border-right-color:#fa4f38}html      #orders-panel   .table-cell{width:100%;height:100%}html      #orders-panel   .table-cell   .orders-indicator.bid{color:#008040}html      #orders-panel   .table-cell   .orders-indicator.ask{color:#e53119}html      #orders-panel   .table-cell   .orders-indicator.multiple:after{content:"*"}html      #orders-panel   .table-cell   .orders-indicator:hover{text-decoration:line-through}html.dark      .table-col:not(:first-child)   .table-row{border-left:none}html.dark      .table-col   .table-row{box-sizing:border-box;border:#272E3B 1px solid}html.dark      .table-col   .table-row.hovered{background-color:#1890ff26}html.dark      .table-col   .table-row:not(:first-child){border-top:none}html.dark      .table-col   .table-row   .table-cell{padding-right:3px}html.dark      .table-col   .table-row   .table-cell.trade-item.ask-side-item{background-color:#d1261b26}html.dark      .table-col   .table-row   .table-cell.trade-item.ask-side-item.best-row{background-color:#d1261b80}html.dark      .table-col   .table-row   .table-cell.trade-item.bid-side-item{background-color:#009b6326}html.dark      .table-col   .table-row   .table-cell.trade-item.bid-side-item.best-row{background-color:#009b6380}html.dark      .table-col   .table-row   .table-cell.spread-item{background-color:#ffffff12}html.dark      .table-cell.current-position-range-item{border-right:#272E3B 3px solid}html.dark      .table-cell.current-position-range-item.positive{border-right-color:#009b63}html.dark      .table-cell.current-position-range-item.negative{border-right-color:#d1261b}html.dark      #orders-panel   .table-cell{width:100%;height:100%}html.dark      #orders-panel   .table-cell   .orders-indicator.bid{color:#13db92}html.dark      #orders-panel   .table-cell   .orders-indicator.ask{color:#ff4500}html.dark      #orders-panel   .table-cell   .orders-indicator.multiple:after{content:"*"}html.dark      #orders-panel   .table-cell   .orders-indicator:hover{text-decoration:line-through}#table-body-container{display:flex;flex-direction:row;flex-wrap:nowrap}#table-body-container > div{flex:1}#table-body-container   #volume-panel   .table-cell{text-align:right}#table-body-container   #price-panel   .table-cell{padding-left:3px;text-align:right}#table-body-container   #orders-panel   .table-row   .table-cell{display:flex;justify-content:flex-end}#table-body-container   #orders-panel   .table-row   .table-cell   .orders-indicator{padding-left:3px;cursor:pointer;-webkit-user-select:none;user-select:none}#table-body-container   #orders-panel   .table-row   .table-cell:not(.best-row){background-color:transparent}
 
-html      .container{color:#31363f}html      .container > div{border:rgb(44,60,75) solid 1px;border-radius:2px}html      .container > div.qty.positive, html      .container > div.loss-or-profit.positive{background-color:#00db8bb3}html      .container > div.qty.negative, html      .container > div.loss-or-profit.negative{background-color:#fa4f38b3}html.dark      .container{color:#e2e5e9}html.dark      .container > div{border:#272E3B solid 1px;border-radius:2px}html.dark      .container > div.qty.positive, html.dark      .container > div.loss-or-profit.positive{background-color:#009b63b3}html.dark      .container > div.qty.negative, html.dark      .container > div.loss-or-profit.negative{background-color:#d1261bb3}{width:100%}.container{width:100%;display:flex;flex-direction:row;flex-wrap:nowrap;gap:1px;}.container > div{flex:1;width:100%;text-align:center;font-size:larger;cursor:default}
+html      .container{color:#31363f}html      .container > div{border:rgba(var(--pro-input-bg),1) solid 1px;border-radius:2px}html      .container > div.qty.positive, html      .container > div.loss-or-profit.positive{background-color:#00db8bb3}html      .container > div.qty.negative, html      .container > div.loss-or-profit.negative{background-color:#fa4f38b3}html.dark      .container{color:#e2e5e9}html.dark      .container > div{border:#272E3B solid 1px;border-radius:2px}html.dark      .container > div.qty.positive, html.dark      .container > div.loss-or-profit.positive{background-color:#009b63b3}html.dark      .container > div.qty.negative, html.dark      .container > div.loss-or-profit.negative{background-color:#d1261bb3}{width:100%}.container{width:100%;display:flex;flex-direction:row;flex-wrap:nowrap;gap:1px;}.container > div{flex:1;width:100%;text-align:center;font-size:larger;cursor:default}
