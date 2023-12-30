@@ -145,8 +145,8 @@ const Analytics: FC<IProps> = ({data, api, dateFrom, isLoading}) => {
         },
         plotOptions: {
             column: {
-                negativeColor: "rgb(255,117,132)",
-                color: "rgb(19,193,123)",
+                negativeColor: "rgba(var(--table-loss-color),1)",
+                color: "rgba(var(--table-profit-color),1)",
                 // colors: {
                 //     ranges: [
                 //         {

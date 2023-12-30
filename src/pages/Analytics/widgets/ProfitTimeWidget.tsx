@@ -29,7 +29,7 @@ const ProfitTimeWidget = ({nonSummaryPositions, isLoading}) => {
                 dataSource={lossMap}
                 renderItem={(item: any) => (
                     <List.Item
-                        actions={[<div style={{color: 'rgb( 44,232,156)'}}>{moneyFormat(item[1].PnL)}</div>, <div>{item[1].count} trades</div>]}
+                        actions={[<div style={{color: 'rgba(var(--table-profit-color),1)'}}>{moneyFormat(item[1].PnL)}</div>, <div>{item[1].count} trades</div>]}
                     >
                         {timeLabels[item[0]]}
                     </List.Item>

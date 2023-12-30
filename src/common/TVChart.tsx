@@ -69,10 +69,10 @@ const TVChart: FC<IProps> = ({colors, seriesType, data, markers}) => {
             if(seriesType === 'candlestick'){
                 series = chart.addCandlestickSeries({
                     wickColor: '#000',
-                    downColor: 'rgb(255,117,132)',
-                    borderDownColor: 'rgb(255,117,132)',
-                    upColor: 'rgb(19,193,123)',
-                    borderUpColor: 'rgb(19,193,123)',
+                    downColor: 'rgba(var(--table-loss-color),1)',
+                    borderDownColor: 'rgba(var(--table-loss-color),1)',
+                    upColor: 'rgba(var(--table-profit-color),1)',
+                    borderUpColor: 'rgba(var(--table-profit-color),1)',
                 });
             }
 

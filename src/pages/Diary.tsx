@@ -428,7 +428,7 @@ const Diary: FC<IProps> = ({ data, trades, api, isLoading, summary }) => {
               precision={2}
               valueStyle={{
                 color:
-                    data.totalPnL > 0 ? 'rgb(44,232,156)' : 'rgb( 255,117,132)',
+                    data.totalPnL > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)',
               }}
           />
           <Statistic
@@ -436,7 +436,7 @@ const Diary: FC<IProps> = ({ data, trades, api, isLoading, summary }) => {
             loading={isLoading}
             value={moneyFormat(data.totalFee)}
             precision={2}
-            valueStyle={{ color: 'rgb( 255,117,132)' }}
+            valueStyle={{ color: 'rgba(var(--table-loss-color),1)' }}
           />
           <Button
             type="text"
