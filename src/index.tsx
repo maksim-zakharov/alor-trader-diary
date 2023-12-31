@@ -4,13 +4,30 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter, HashRouter } from 'react-router-dom';
+import 'moment/locale/ru'
+import moment from "moment/moment";  // without this line it didn't work
+import ru_RU from 'antd/es/locale/ru_RU';
+import {ConfigProvider} from "antd";
+
+import dayjs from "dayjs";
+import "dayjs/locale/ru";
+import updateLocale from "dayjs/plugin/updateLocale";
+
+dayjs.extend(updateLocale);
+dayjs.updateLocale("zh-cn", {
+    weekStart: 0
+});
+
+moment().locale('ru');
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 root.render(
   <React.StrictMode>
+      <ConfigProvider locale={ru_RU}>
     <HashRouter>
       <App />
     </HashRouter>
+      </ConfigProvider>
   </React.StrictMode>,
 );
 
