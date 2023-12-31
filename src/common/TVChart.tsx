@@ -7,6 +7,8 @@ import {
     Time,
     WhitespaceData
 } from "lightweight-charts";
+import {shortNumberFormat} from "./utils";
+import moment from 'moment';
 
 interface IProps{
     data:(CandlestickData<Time> | WhitespaceData<Time>)[];
@@ -39,6 +41,16 @@ const TVChart: FC<IProps> = ({colors, seriesType, data, markers}) => {
                 },
                 localization: {
                     locale: 'ru-RU',
+                    priceFormatter: shortNumberFormat,
+                    timeFormatter: function(businessDayOrTimestamp) {
+                        console.log(businessDayOrTimestamp);
+
+                        // if (LightweightCharts.isBusinessDay(businessDayOrTimestamp)) {
+                        //     return 'Format for business day';
+                        // }
+
+                        return moment(businessDayOrTimestamp).format("ll");
+                    },
                 },
                 leftPriceScale: {
                     visible: true,
