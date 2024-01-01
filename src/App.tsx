@@ -85,6 +85,16 @@ function App() {
   if (!dateFrom) {
     dateFrom = moment().startOf('week').format('YYYY-MM-DD');
   }
+  const [nightMode] = useState(
+      Boolean(localStorage.getItem('night') === 'true'),
+  );
+  useEffect(() => {
+    if (nightMode) {
+      document.body.className = 'dark-theme';
+    } else {
+      document.body.removeAttribute('class');
+    }
+  }, [nightMode]);
 
 
   const loadTrades = async ({
