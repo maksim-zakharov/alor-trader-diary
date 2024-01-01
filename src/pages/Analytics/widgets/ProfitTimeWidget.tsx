@@ -2,6 +2,8 @@ import {moneyFormat} from "../../../common/utils";
 import React, {useMemo} from "react";
 import {List, Skeleton} from "antd";
 import {momentRoundTime, timeLabels} from "../../../utils";
+import Spinner from "../../../common/Spinner";
+import NoResult from "../../../common/NoResult";
 
 const ProfitTimeWidget = ({nonSummaryPositions, isLoading}) => {
     const lossPositions =  useMemo(() => nonSummaryPositions.filter(p => p.PnL > 0), [nonSummaryPositions]);
@@ -21,9 +23,7 @@ const ProfitTimeWidget = ({nonSummaryPositions, isLoading}) => {
 
     return <div className="widget">
         <div className="widget_header">Profit by time of day</div>
-        {isLoading ? <Skeleton title={false} paragraph={{
-                rows: 4
-            }} /> :
+        {isLoading ? <Spinner/> : lossMap.length ?
             <List
                 itemLayout="horizontal"
                 dataSource={lossMap}
@@ -34,7 +34,7 @@ const ProfitTimeWidget = ({nonSummaryPositions, isLoading}) => {
                         {timeLabels[item[0]]}
                     </List.Item>
                 )}
-            />}
+            /> : <NoResult text="Нет данных"/>}
     </div>
 }
 

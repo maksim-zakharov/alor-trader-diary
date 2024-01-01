@@ -2,6 +2,8 @@ import {List, Skeleton} from "antd";
 import {moneyFormat} from "../../../common/utils";
 import React, {useMemo} from "react";
 import {durationLabels} from "../../../utils";
+import Spinner from "../../../common/Spinner";
+import NoResult from "../../../common/NoResult";
 
 const ProfitIntervalWidget = ({nonSummaryPositions, isLoading}) => {
     const profitPositions =  useMemo(() => nonSummaryPositions.filter(p => p.PnL > 0), [nonSummaryPositions]);
@@ -38,9 +40,7 @@ const ProfitIntervalWidget = ({nonSummaryPositions, isLoading}) => {
 
     return <div className="widget">
         <div className="widget_header">Profit intervals</div>
-        {isLoading ? <Skeleton title={false} paragraph={{
-                rows: 4
-            }} /> :
+        {isLoading ? <Spinner/> : profitMap.length ?
         <List
             itemLayout="horizontal"
             dataSource={profitMap}
@@ -51,7 +51,7 @@ const ProfitIntervalWidget = ({nonSummaryPositions, isLoading}) => {
                     {durationLabels[item[0]]}
                 </List.Item>
             )}
-        />}
+        />  : <NoResult text="Нет данных"/>}
     </div>
 }
 

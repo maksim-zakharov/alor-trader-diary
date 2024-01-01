@@ -2,15 +2,15 @@ import * as moment from "moment/moment";
 import {moneyFormat} from "../../../common/utils";
 import React, {useMemo} from "react";
 import {Skeleton} from "antd";
+import Spinner from "../../../common/Spinner";
+import NoResult from "../../../common/NoResult";
 
 const MaxLossTradesWidget = ({nonSummaryPositions, isLoading}) => {
     const getMaxLossTrades = useMemo(() => nonSummaryPositions.sort((a, b) => a.PnL - b.PnL).slice(0, 3), [nonSummaryPositions])
 
     return <div className="widget">
         <div className="widget_header">Top loss trades</div>
-        {isLoading ? <Skeleton title={false} paragraph={{
-            rows: 4
-        }} /> :<div>
+        {isLoading ? <Spinner/> : getMaxLossTrades.length ? <div>
             {getMaxLossTrades.map(getMaxLossTrade => <div className="ticker-info">
                 <div style={{display: 'flex'}}>
                     <img className="ticker_logo" src={`https://storage.alorbroker.ru/icon/${getMaxLossTrade?.symbol}.png`} alt={getMaxLossTrade?.symbol}/>
@@ -26,7 +26,7 @@ const MaxLossTradesWidget = ({nonSummaryPositions, isLoading}) => {
                     <div className="ticker_name_description">на сумму {moneyFormat(getMaxLossTrade?.volume, 0)}</div>
                 </div>
             </div>)}
-        </div>}
+        </div> : <NoResult text="Нет данных"/>}
     </div>
 }
 

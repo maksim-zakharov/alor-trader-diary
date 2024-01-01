@@ -12,6 +12,8 @@ import MaxProfitTradesWidget from "./widgets/MaxProfitTradesWidget";
 import MaxLossTradesWidget from "./widgets/MaxLossTradesWidget";
 import LossTimeWidget from "./widgets/LossTimeWidget";
 import ProfitTimeWidget from "./widgets/ProfitTimeWidget";
+import Spinner from "../../common/Spinner";
+import NoResult from "../../common/NoResult";
 
 interface IProps{
     balanceSeriesData: any
@@ -179,9 +181,9 @@ const Analytics: FC<IProps> = ({data, api, dateFrom, isLoading}) => {
     }
 
     return <>
-        <div className="widget">
+        <div className="widget" style={{height: 460, width: '100%'}}>
             <div className="widget_header">Equity</div>
-            <TVChart colors={nightMode && darkColors} seriesType="baseLine" data={balanceSeriesData}/>
+            {isLoading ? <Spinner/> :<TVChart colors={nightMode && darkColors} seriesType="baseLine" data={balanceSeriesData}/>}
         </div>
         {/*<div className="widget">*/}
         {/*    <div className="widget_header">Reasons</div>*/}
@@ -198,12 +200,13 @@ const Analytics: FC<IProps> = ({data, api, dateFrom, isLoading}) => {
             <ProfitTimeWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
             <LossTimeWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
         </div>
-        <div className="widget">
+        <div className="widget" style={{height: 460, width: '100%'}}>
             <div className="widget_header">Symbols</div>
+            {isLoading ? <Spinner/> : symbolCategories.length ?
             <HighchartsReact
                 highcharts={Highcharts}
                 options={symbolOptions}
-            />
+            /> : <NoResult text="Нет данных"/>}
         </div>
         </>
 }
