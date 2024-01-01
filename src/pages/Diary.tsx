@@ -1,10 +1,10 @@
 import {
-  Button, Divider,
+  Button, DatePicker, DatePickerProps, Divider,
   Drawer,
   Form,
   Input, message,
   Select,
-  SelectProps,
+  SelectProps, Space,
   Statistic,
   Switch,
   Table,
@@ -25,6 +25,8 @@ import { SwitchChangeEventHandler } from 'antd/es/switch';
 import { selectOptions } from '../App';
 import {moneyFormat, shortNumberFormat} from '../common/utils';
 import {AlorApi} from "alor-api";
+import * as days from "dayjs";
+import {useSearchParams} from "react-router-dom";
 
 interface DataType {
   key: string;
@@ -85,8 +87,8 @@ const Diary: FC<IProps> = ({ data, trades, api, isLoading, summary }) => {
     JSON.parse(localStorage.getItem('reasons') || '{}'),
   );
 
-  const [nightMode] = useState(
-    Boolean(localStorage.getItem('night') === 'true'),
+  const [nightMode, setNightMode] = useState(
+      Boolean(localStorage.getItem('night') === 'true'),
   );
 
   const [comments, setComments] = useState<{ [id: string]: string }>(
@@ -395,6 +397,31 @@ const Diary: FC<IProps> = ({ data, trades, api, isLoading, summary }) => {
       setOperationId('');
     }
   }
+  const [searchParams, setSearchParams] = useSearchParams();
+  let dateFrom = searchParams.get('dateFrom');
+
+  if (!dateFrom) {
+    dateFrom = moment().startOf('week').format('YYYY-MM-DD');
+  }
+  const currentDates: DatePickerProps['value'] = days(dateFrom);
+
+  useEffect(() => {
+    if (nightMode) {
+      document.body.className = 'dark-theme';
+    } else {
+      document.body.removeAttribute('class');
+    }
+  }, [nightMode]);
+  const onChangeDate: DatePickerProps['onChange'] = (dateFrom) => {
+    searchParams.set('dateFrom', dateFrom.format('YYYY-MM-DD'));
+    setSearchParams(searchParams);
+  };
+
+  const onChangeNightMode: SwitchChangeEventHandler = (e) => {
+    localStorage.setItem('night', String(e));
+    document.body.className = 'dark-theme';
+    setNightMode(e);
+  };
 
   return (
     <>
@@ -443,11 +470,18 @@ const Diary: FC<IProps> = ({ data, trades, api, isLoading, summary }) => {
             icon={<SettingOutlined />}
             onClick={(f) => setShowSettings(true)}
           />
+
+          <DatePicker value={currentDates} onChange={onChangeDate} style={{width: 120}} />
+          <Switch
+              defaultChecked={nightMode}
+              checked={nightMode}
+              onChange={onChangeNightMode}
+          />
           <Drawer
-            title="Settings"
-            placement="right"
-            onClose={() => setShowSettings(false)}
-            open={showSettings}
+              title="Settings"
+              placement="right"
+              onClose={() => setShowSettings(false)}
+              open={showSettings}
           >
             <Form layout="vertical">
               <FormItem label="Alor Token">
@@ -455,8 +489,8 @@ const Diary: FC<IProps> = ({ data, trades, api, isLoading, summary }) => {
               </FormItem>
               <FormItem label="Alor Portfolio">
                 <Input
-                  placeholder="Portfolio"
-                  {...settingsInputProps('portfolio')}
+                    placeholder="Portfolio"
+                    {...settingsInputProps('portfolio')}
                 />
               </FormItem>
               <Divider/>

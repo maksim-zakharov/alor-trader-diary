@@ -6,6 +6,7 @@
     --pro-button-primary-bg: 51,111,238;
     --pro-text-01: 179,199,219;
     --pro-text-02: 166,189,213;
+    --pro-base-03: 44,60,75;
     --pro-widget-body-bg: 30,44,57;
     --pro-app-background-color: 23,35,46;
     --table-loss-color: 255,117,132;
@@ -410,6 +411,7 @@ background-color: rgb(36,52,66);
     display: flex;
     align-items: center;
     justify-content: space-between;
+    height: inherit;
 }
 
 .body-content{
@@ -640,14 +642,28 @@ font-weight: bold;
     .ant-layout-footer{
         background-color: rgba(var(--pro-widget-body-bg),1);
         color: rgba(var(--pro-input-color),1);
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-top: 1px solid rgba(var(--pro-base-03),1);
+        padding: 0;
     }
     .ant-layout-header{
         background-color: rgba(var(--pro-widget-body-bg),1);
         color: rgba(var(--pro-input-color),1);
+        height: 32px;
+        border-bottom: 1px solid rgba(var(--pro-base-03),1);
+        box-sizing: content-box;
     }
     .ant-menu{
         background-color: rgba(var(--pro-widget-body-bg),1);
         color: rgba(var(--pro-input-color),1);
+        height: inherit;
+    }
+    .ant-menu-item{
+        display: flex;
+        align-items: center;
     }
     .ant-select .ant-select-clear{
         background-color: transparent;

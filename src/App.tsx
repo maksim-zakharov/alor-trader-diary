@@ -70,23 +70,7 @@ function App() {
   const [balanceSeriesData, setBalanceSeriesData] = useState< WhitespaceData<Time>[]>([]);
   const [summary, setSummary] = useState<Summary | undefined>(undefined);
 
-  const [nightMode, setNightMode] = useState(
-    Boolean(localStorage.getItem('night') === 'true'),
-  );
 
-  const onChangeNightMode: SwitchChangeEventHandler = (e) => {
-    localStorage.setItem('night', String(e));
-    document.body.className = 'dark-theme';
-    setNightMode(e);
-  };
-
-  useEffect(() => {
-    if (nightMode) {
-      document.body.className = 'dark-theme';
-    } else {
-      document.body.removeAttribute('class');
-    }
-  }, [nightMode]);
   const [positions, setPositions] = useState<Positions>([]);
   const [trades, setTrades] = useState<Trades>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -102,7 +86,6 @@ function App() {
     dateFrom = moment().startOf('week').format('YYYY-MM-DD');
   }
 
-  const currentDates: DatePickerProps['value'] = days(dateFrom);
 
   const loadTrades = async ({
     date,
@@ -333,11 +316,6 @@ function App() {
     navigate(to);
   };
 
-  const onChangeDate: DatePickerProps['onChange'] = (dateFrom) => {
-    searchParams.set('dateFrom', dateFrom.format('YYYY-MM-DD'));
-    setSearchParams(searchParams);
-  };
-
   return (
     <Layout>
       <Header style={{ display: 'flex', alignItems: 'center' }}>
@@ -350,14 +328,6 @@ function App() {
             items={menuItems}
             onSelect={onSelectMenu}
           />
-          <Space>
-            <DatePicker value={currentDates} onChange={onChangeDate} style={{width: 120}} />
-            <Switch
-              defaultChecked={nightMode}
-              checked={nightMode}
-              onChange={onChangeNightMode}
-            />
-          </Space>
         </div>
       </Header>
       <Content className="site-layout" style={{ minHeight: '100vh' }}>
