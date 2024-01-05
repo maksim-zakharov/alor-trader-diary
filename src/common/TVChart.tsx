@@ -86,7 +86,6 @@ const TVChart: FC<IProps> = ({colors, seriesType, digits, data, markers, formatT
 
             if(seriesType === 'candlestick'){
                 series = chart.addCandlestickSeries({
-                    wickColor: '#000',
                     downColor: 'rgb(157, 43, 56)',
                     borderDownColor: 'rgb(213, 54, 69)',
                     upColor: 'rgb(20, 131, 92)',
