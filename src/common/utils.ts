@@ -23,8 +23,9 @@ export const fillCanvas = (
   return canvas;
 };
 
-export const shortNumberFormat = (number: number) =>
+export const shortNumberFormat = (number: number,minimumFractionDigits = undefined, maximumFractionDigits = 1) =>
   Intl.NumberFormat('en', {
     notation: 'compact',
-    maximumFractionDigits: 1,
+      minimumFractionDigits,
+    maximumFractionDigits,
   }).format(number);

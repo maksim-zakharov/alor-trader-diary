@@ -143,7 +143,7 @@ const Diary: FC<IProps> = ({ data, trades, api, isLoading, summary }) => {
     const darkColors = {
       backgroundColor: 'rgb(30,44,57)',
       color: 'rgb(166,189,213)',
-      borderColor: 'rgb(44,60,75)',
+      borderColor: 'rgba(44,60,75, 0.5)',
     };
 
     return (

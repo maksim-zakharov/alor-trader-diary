@@ -2,7 +2,7 @@ import React, {CSSProperties, FC, useEffect, useRef} from "react";
 import {
     CandlestickData,
     ColorType,
-    createChart,
+    createChart, CrosshairMode, LineStyle,
     SeriesMarker,
     Time,
     WhitespaceData
@@ -16,9 +16,10 @@ interface IProps{
     colors?: Pick<CSSProperties, 'backgroundColor' | 'color' | 'borderColor'>
     seriesType: 'candlestick' | 'line' | 'baseLine',
     formatTime?: string
+    digits?: number
 }
 
-const TVChart: FC<IProps> = ({colors, seriesType, data, markers, formatTime}) => {
+const TVChart: FC<IProps> = ({colors, seriesType, digits, data, markers, formatTime}) => {
 
     const {
         backgroundColor = 'white', // 'rgb(30,44,57)
@@ -38,13 +39,12 @@ const TVChart: FC<IProps> = ({colors, seriesType, data, markers, formatTime}) =>
                 timeScale: {
                     visible: true,
                     timeVisible: true,
-                    secondsVisible: true
+                    secondsVisible: true,
                 },
                 localization: {
                     locale: 'ru-RU',
-                    priceFormatter: shortNumberFormat,
+                    priceFormatter: v => shortNumberFormat(v, digits, digits),
                     timeFormatter: formatTime && function(businessDayOrTimestamp) {
-                        console.log(businessDayOrTimestamp);
 
                         // if (LightweightCharts.isBusinessDay(businessDayOrTimestamp)) {
                         //     return 'Format for business day';
@@ -53,22 +53,27 @@ const TVChart: FC<IProps> = ({colors, seriesType, data, markers, formatTime}) =>
                         return moment(businessDayOrTimestamp).format(formatTime);
                     },
                 },
-                leftPriceScale: {
-                    visible: true,
+                crosshair: {
+                    mode: CrosshairMode.Normal,
                 },
                 rightPriceScale: {
-                    visible: false
+                    ticksVisible: true,
+                    visible: true,
+                },
+                leftPriceScale: {
+                    visible: false,
                 },
                 grid: {
                     vertLines: {
-                        color: borderColor
+                        color: borderColor,
                     },
 
                     horzLines: {
-                        color: borderColor
+                        color: borderColor,
                     }
                 },
                 layout: {
+                    // Фон
                     background: { type: ColorType.Solid, color: backgroundColor },
                     textColor: color,
                 },
@@ -82,10 +87,14 @@ const TVChart: FC<IProps> = ({colors, seriesType, data, markers, formatTime}) =>
             if(seriesType === 'candlestick'){
                 series = chart.addCandlestickSeries({
                     wickColor: '#000',
-                    downColor: 'rgba(255,117,132,1)',
-                    borderDownColor: 'rgba(255,117,132,1)',
-                    upColor: 'rgba(44,232,156,1)',
-                    borderUpColor: 'rgba(44,232,156,1)',
+                    downColor: 'rgb(157, 43, 56)',
+                    borderDownColor: 'rgb(213, 54, 69)',
+                    upColor: 'rgb(20, 131, 92)',
+                    borderUpColor: 'rgb(11, 176, 109)',
+                    wickUpColor: 'rgb(11, 176, 109)',
+                    wickDownColor: 'rgb(213, 54, 69)',
+                    lastValueVisible: false,
+                    priceLineVisible: false,
                 });
             }
 
@@ -111,7 +120,52 @@ const TVChart: FC<IProps> = ({colors, seriesType, data, markers, formatTime}) =>
             series?.setData(data);
 
             if(markers){
-                series?.setMarkers(markers);
+                const firstBuy: any = markers.find(p => p.position === 'belowBar');
+                const firstSell: any = markers.find(p => p.position === 'aboveBar');
+
+                series.createPriceLine({
+                    price: firstBuy.value,
+                    color: 'rgb(20, 131, 92)',
+                    lineWidth: 1,
+                    lineStyle: LineStyle.SparseDotted,
+                    axisLabelVisible: true,
+                    // title: 'maximum price',
+                });
+
+                series.createPriceLine({
+                    price: firstSell.value,
+                    color: 'rgb(157, 43, 56)',
+                    lineWidth: 1,
+                    lineStyle: LineStyle.SparseDotted,
+                    axisLabelVisible: true,
+                    // title: 'maximum price',
+                });
+
+                var buySeries = chart.addLineSeries({
+                    color: 'rgba(255, 255, 255, 0)', // hide or show the line by setting opacity
+                    lineVisible: false,
+                    lastValueVisible: false, // hide value from y axis
+                    priceLineVisible: false
+                });
+
+                const buyMarkers = markers.filter(p => p.position === 'belowBar')
+
+                buySeries.setData(Object.values(buyMarkers.reduce((acc, curr) => ({...acc, [curr.time as any]: curr}), {})));
+
+                buySeries.setMarkers(buyMarkers);
+
+                var sellSeries = chart.addLineSeries({
+                    color: 'rgba(255, 255, 255, 0)', // hide or show the line by setting opacity
+                    lineVisible: false,
+                    lastValueVisible: false, // hide value from y axis
+                    priceLineVisible: false
+                });
+
+                const sellMarkers = markers.filter(p => p.position === 'aboveBar')
+
+                sellSeries.setData(Object.values(sellMarkers.reduce((acc, curr) => ({...acc, [curr.time as any]: curr}), {})));
+
+                sellSeries.setMarkers(sellMarkers);
             }
 
             window.addEventListener('resize', handleResize);
@@ -122,7 +176,7 @@ const TVChart: FC<IProps> = ({colors, seriesType, data, markers, formatTime}) =>
                 chart.remove();
             };
         },
-        [data, backgroundColor, color, chartContainerRef.current, markers, seriesType]
+        [data, backgroundColor, color, chartContainerRef.current, markers, seriesType, digits]
     );
 
     return <div

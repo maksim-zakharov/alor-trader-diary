@@ -1,5 +1,5 @@
 import React, {CSSProperties, FC, useEffect, useMemo, useRef, useState} from 'react'
-import {AlorApi, fromTo, HistoryObject, Side, Timeframe} from "alor-api";
+import {AlorApi, fromTo, HistoryObject, Security, Side, Timeframe} from "alor-api";
 import {ColorType, createChart, SeriesMarker, Time, UTCTimestamp} from "lightweight-charts";
 import TVChart from "./common/TVChart";
 import {summ} from "./App";
@@ -23,31 +23,38 @@ const Chart: FC<IProps> = ({symbol, api, from, to, trades, colors = {}}) => {
     const currentTimeframe = Timeframe.Min5;
 
     const [data, setData] = useState<HistoryObject[]>([]);
+    const [security, setSecurity] = useState<Security | undefined>(undefined);
 
     const entriesTrades = Object.entries(trades.reduce((acc, curr) => {
         const time = new Date(curr.date).getTime() / 1000;
         const diff = time % currentTimeframe;
         const roundedTime = time - diff;
-        const price = curr.price
-        const key = `${roundedTime}_${price}_${curr.side}`;
+        const key = `${roundedTime}_${curr.side}`;
         if(!acc[key]){
             acc[key] = [];
         }
         acc[key].push({...curr, time: roundedTime - currentTimeframe as UTCTimestamp});
 
         return acc;
-    }, {})).map(([key, entries]: any) => ({...entries[0], qty: summ(entries.map(e => e.qty))}));
+    }, {})).map(([key, entries]: any) => ({...entries[0], qty: summ(entries.map(e => e.qty))})).sort((a, b) => Number(a.id) - Number(b.id));
 
-    console.log(entriesTrades)
+    const roundTime = (date: string) => {
+        const time = new Date(date).getTime() / 1000
+        const diff = time % currentTimeframe;
+        const roundedTime = time - diff;
+return timeToLocal(roundedTime) as UTCTimestamp
+    }
 
     const markers: SeriesMarker<Time>[] = useMemo(() => entriesTrades.map(t => ({
-        time: timeToLocal(new Date(t.date).getTime() / 1000) - currentTimeframe as UTCTimestamp,
+        time: roundTime(t.date),
         position: t.side === Side.Buy ? 'belowBar' : 'aboveBar',
         color: t.side === Side.Buy ? 'rgb(19,193,123)' : 'rgb(255,117,132)',
         shape: t.side === Side.Buy ? 'arrowUp' : 'arrowDown',
         // size: t.volume,
         id: t.id,
-        text: `${t.side === Side.Buy ? 'Buy' : 'Sell'} ${t.qty} lots by ${t.price}`
+        value: t.price,
+        size: 2
+        // text: `${t.side === Side.Buy ? 'Buy' : 'Sell'} ${t.qty} lots by ${t.price}`
     })), [entriesTrades])
 
     useEffect(() => {
@@ -63,9 +70,16 @@ const Chart: FC<IProps> = ({symbol, api, from, to, trades, colors = {}}) => {
             from: fromDate,
             to: toDate,
         }).then(r => setData(r.history)); // .map(c => [c.time, c.open, c.high, c.low, c.close])))
+
+        api.instruments.getSecurityByExchangeAndSymbol({
+            symbol,
+            exchange: "MOEX",
+        }).then(r => setSecurity(r));
     }, [symbol, api, from, to]);
 
-    return <TVChart seriesType="candlestick" markers={markers} data={data.map(d => ({...d, time: timeToLocal(d.time)})) as any[]} colors={colors}/>
+    const digits = useMemo(() => security ? `${security.minstep}`.split('.')[1].length : 1, [security]);
+
+    return <TVChart seriesType="candlestick" markers={markers} data={data.map(d => ({...d, time: timeToLocal(d.time)})) as any[]} digits={digits} colors={colors}/>
 }
 
 export default Chart;
