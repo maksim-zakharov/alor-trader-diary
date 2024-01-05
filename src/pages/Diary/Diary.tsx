@@ -20,13 +20,13 @@ import FormItem from 'antd/es/form/FormItem';
 import React, {ChangeEventHandler, FC, memo, useEffect, useMemo, useState} from 'react';
 import { ColumnsType } from 'antd/es/table';
 import moment from 'moment/moment';
-import Chart from '../Chart';
 import { SwitchChangeEventHandler } from 'antd/es/switch';
-import { selectOptions } from '../App';
-import {moneyFormat, shortNumberFormat} from '../common/utils';
+import { selectOptions } from '../../App';
+import {moneyFormat, shortNumberFormat} from '../../common/utils';
 import {AlorApi} from "alor-api";
 import * as days from "dayjs";
 import {useSearchParams} from "react-router-dom";
+import PositionDetails from "./components/PositionDetails";
 
 interface DataType {
   key: string;
@@ -103,71 +103,7 @@ const Diary: FC<IProps> = ({ data, trades, api, isLoading, summary }) => {
     localStorage.setItem('settings', JSON.stringify(settings));
   }, [settings]);
 
-  const expandedRowRender = (row: any) => {
-    const columns: TableColumnsType<ExpandedDataType> = [
-      {
-        title: 'Time',
-        dataIndex: 'date',
-        key: 'date',
-        render: (_, row) => moment(row.date).format('HH:mm:ss'),
-      },
-      {
-        title: 'Side',
-        dataIndex: 'side',
-        key: 'side',
-        render: (_, row) =>
-          // @ts-ignore
-          row.side === 'sell' ? <ArrowDownOutlined /> : <ArrowUpOutlined />,
-      },
-      { title: 'Quantity', dataIndex: 'qty', key: 'qty' },
-      {
-        title: 'Price',
-        dataIndex: 'price',
-        key: 'price',
-        render: (_, row) => moneyFormat(_),
-      },
-      {
-        title: 'Amount',
-        dataIndex: 'volume',
-        key: 'volume',
-        render: (_, row) => moneyFormat(_),
-      },
-      {
-        title: 'Fee',
-        dataIndex: 'commission',
-        key: 'commission',
-        render: (_, row) => moneyFormat(_),
-      },
-    ];
-
-    const darkColors = {
-      backgroundColor: 'rgb(30,44,57)',
-      color: 'rgb(166,189,213)',
-      borderColor: 'rgba(44,60,75, 0.5)',
-    };
-
-    return (
-      <div className="collapsed-row">
-        <Chart
-          colors={nightMode && darkColors}
-          trades={row.trades}
-          symbol={row.symbol}
-          api={api}
-          from={row.trades[0].date}
-          to={row.trades.slice(-1)[0].date}
-        />
-        <Table
-            className="collapsed-row-details"
-            style={{ gridColumnStart: 1, gridColumnEnd: 3 }}
-            columns={columns}
-            dataSource={row.trades.sort((a: any, b: any) =>
-                a.date.localeCompare(b.date),
-            )}
-            pagination={false}
-        />
-      </div>
-    );
-  };
+  const expandedRowRender = (row: any) => <PositionDetails trades={row.trades} symbol={row.symbol} api={api} nightMode={nightMode}/>;
   const selectProps = (position: any): SelectProps => {
     const onSelect: SelectProps['onSelect'] = (value) => {
       setReasons((prevState) => ({ ...prevState, [position.id]: value }));

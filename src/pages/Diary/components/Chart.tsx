@@ -1,8 +1,8 @@
 import React, {CSSProperties, FC, useEffect, useMemo, useRef, useState} from 'react'
 import {AlorApi, fromTo, HistoryObject, Security, Side, Timeframe} from "alor-api";
 import {ColorType, createChart, SeriesMarker, Time, UTCTimestamp} from "lightweight-charts";
-import TVChart from "./common/TVChart";
-import {summ} from "./App";
+import TVChart from "../../../common/TVChart";
+import {summ} from "../../../App";
 
 interface IProps{
     symbol: string;
@@ -11,6 +11,7 @@ interface IProps{
     to: string;
     trades: any[]
     colors?: Pick<CSSProperties, 'backgroundColor' | 'color' | 'borderColor'>
+    digits?: number
 }
 
 function timeToLocal(originalTime: number) {
@@ -18,12 +19,11 @@ function timeToLocal(originalTime: number) {
     return Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes(), d.getSeconds(), d.getMilliseconds()) / 1000;
 }
 
-const Chart: FC<IProps> = ({symbol, api, from, to, trades, colors = {}}) => {
+const Chart: FC<IProps> = ({symbol, digits, api, from, to, trades, colors = {}}) => {
 
     const currentTimeframe = Timeframe.Min5;
 
     const [data, setData] = useState<HistoryObject[]>([]);
-    const [security, setSecurity] = useState<Security | undefined>(undefined);
 
     const entriesTrades = Object.entries(trades.reduce((acc, curr) => {
         const time = new Date(curr.date).getTime() / 1000;
@@ -70,14 +70,7 @@ return timeToLocal(roundedTime) as UTCTimestamp
             from: fromDate,
             to: toDate,
         }).then(r => setData(r.history)); // .map(c => [c.time, c.open, c.high, c.low, c.close])))
-
-        api.instruments.getSecurityByExchangeAndSymbol({
-            symbol,
-            exchange: "MOEX",
-        }).then(r => setSecurity(r));
     }, [symbol, api, from, to]);
-
-    const digits = useMemo(() => security ? `${security.minstep}`.split('.')[1].length : 1, [security]);
 
     return <TVChart seriesType="candlestick" markers={markers} data={data.map(d => ({...d, time: timeToLocal(d.time)})) as any[]} digits={digits} colors={colors}/>
 }

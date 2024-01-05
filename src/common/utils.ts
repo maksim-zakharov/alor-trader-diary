@@ -2,11 +2,12 @@ export const random = (maxValue = 100) => {
   return Math.floor(Math.random() * maxValue);
 };
 
-export const moneyFormat = (money: number, maximumFractionDigits?: number) =>
+export const moneyFormat = (money: number, maximumFractionDigits = undefined, minimumFractionDigits = undefined) =>
   new Intl.NumberFormat('ru-RU', {
     style: 'currency',
     currency: 'RUB',
     maximumFractionDigits,
+      minimumFractionDigits
   }).format(money);
 
 export const fillCanvas = (
