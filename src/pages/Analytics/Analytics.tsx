@@ -183,7 +183,7 @@ const Analytics: FC<IProps> = ({data, api, dateFrom, isLoading}) => {
     return <>
         <div className="widget" style={{height: 460, width: '100%'}}>
             <div className="widget_header">Equity</div>
-            {isLoading ? <Spinner/> :<TVChart colors={nightMode && darkColors} seriesType="baseLine" data={balanceSeriesData}/>}
+            {isLoading ? <Spinner/> :<TVChart colors={nightMode && darkColors} seriesType="baseLine" data={balanceSeriesData} formatTime="ll"/>}
         </div>
         {/*<div className="widget">*/}
         {/*    <div className="widget_header">Reasons</div>*/}

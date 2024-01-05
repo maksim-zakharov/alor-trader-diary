@@ -55,6 +55,31 @@ body {
     justify-content: space-between;
 }
 
+.collapsed-row{
+    /*display: grid;*/
+    /*grid-template-columns: 400px auto;*/
+    gap: 8px;
+}
+
+.collapsed-row-details{
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    max-height: 300px;
+    padding: 4px;
+}
+
+@media only screen and (max-width: 700px) {
+    .collapsed-row{
+        /*.tv-lightweight-charts{*/
+        /*    width: 100%;*/
+        /*}*/
+        width: 100%;
+        max-width: 100%;
+        overflow: auto;
+    }
+}
+
 .src-modules-Orders-containers-styles-container-7-zlx {
     display: flex;
     height: 100%;

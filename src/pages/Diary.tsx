@@ -147,13 +147,7 @@ const Diary: FC<IProps> = ({ data, trades, api, isLoading, summary }) => {
     };
 
     return (
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '800px auto',
-          gap: '8px',
-        }}
-      >
+      <div className="collapsed-row">
         <Chart
           colors={nightMode && darkColors}
           trades={row.trades}
@@ -162,14 +156,14 @@ const Diary: FC<IProps> = ({ data, trades, api, isLoading, summary }) => {
           from={row.trades[0].date}
           to={row.trades.slice(-1)[0].date}
         />
-        <Input.TextArea placeholder="Add comment..." {...inputProps(row)} />
         <Table
-          style={{ gridColumnStart: 1, gridColumnEnd: 3 }}
-          columns={columns}
-          dataSource={row.trades.sort((a: any, b: any) =>
-            a.date.localeCompare(b.date),
-          )}
-          pagination={false}
+            className="collapsed-row-details"
+            style={{ gridColumnStart: 1, gridColumnEnd: 3 }}
+            columns={columns}
+            dataSource={row.trades.sort((a: any, b: any) =>
+                a.date.localeCompare(b.date),
+            )}
+            pagination={false}
         />
       </div>
     );

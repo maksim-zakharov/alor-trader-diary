@@ -14,10 +14,11 @@ interface IProps{
     data:(CandlestickData<Time> | WhitespaceData<Time>)[];
     markers?: SeriesMarker<Time>[];
     colors?: Pick<CSSProperties, 'backgroundColor' | 'color' | 'borderColor'>
-    seriesType: 'candlestick' | 'line' | 'baseLine'
+    seriesType: 'candlestick' | 'line' | 'baseLine',
+    formatTime?: string
 }
 
-const TVChart: FC<IProps> = ({colors, seriesType, data, markers}) => {
+const TVChart: FC<IProps> = ({colors, seriesType, data, markers, formatTime}) => {
 
     const {
         backgroundColor = 'white', // 'rgb(30,44,57)
@@ -42,14 +43,14 @@ const TVChart: FC<IProps> = ({colors, seriesType, data, markers}) => {
                 localization: {
                     locale: 'ru-RU',
                     priceFormatter: shortNumberFormat,
-                    timeFormatter: function(businessDayOrTimestamp) {
+                    timeFormatter: formatTime && function(businessDayOrTimestamp) {
                         console.log(businessDayOrTimestamp);
 
                         // if (LightweightCharts.isBusinessDay(businessDayOrTimestamp)) {
                         //     return 'Format for business day';
                         // }
 
-                        return moment(businessDayOrTimestamp).format("ll");
+                        return moment(businessDayOrTimestamp).format(formatTime);
                     },
                 },
                 leftPriceScale: {

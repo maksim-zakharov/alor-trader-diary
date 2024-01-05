@@ -1,7 +1,8 @@
 import React, {CSSProperties, FC, useEffect, useMemo, useRef, useState} from 'react'
-import {AlorApi, HistoryObject, Side, Timeframe} from "alor-api";
+import {AlorApi, fromTo, HistoryObject, Side, Timeframe} from "alor-api";
 import {ColorType, createChart, SeriesMarker, Time, UTCTimestamp} from "lightweight-charts";
 import TVChart from "./common/TVChart";
+import {summ} from "./App";
 
 interface IProps{
     symbol: string;
@@ -19,12 +20,27 @@ function timeToLocal(originalTime: number) {
 
 const Chart: FC<IProps> = ({symbol, api, from, to, trades, colors = {}}) => {
 
-    const currentTimeframe = Timeframe.Min5 * 2;
+    const currentTimeframe = Timeframe.Min5;
 
     const [data, setData] = useState<HistoryObject[]>([]);
 
+    const entriesTrades = Object.entries(trades.reduce((acc, curr) => {
+        const time = new Date(curr.date).getTime() / 1000;
+        const diff = time % currentTimeframe;
+        const roundedTime = time - diff;
+        const price = curr.price
+        const key = `${roundedTime}_${price}_${curr.side}`;
+        if(!acc[key]){
+            acc[key] = [];
+        }
+        acc[key].push({...curr, time: roundedTime - currentTimeframe as UTCTimestamp});
 
-    const markers: SeriesMarker<Time>[] = useMemo(() => trades.map(t => ({
+        return acc;
+    }, {})).map(([key, entries]: any) => ({...entries[0], qty: summ(entries.map(e => e.qty))}));
+
+    console.log(entriesTrades)
+
+    const markers: SeriesMarker<Time>[] = useMemo(() => entriesTrades.map(t => ({
         time: timeToLocal(new Date(t.date).getTime() / 1000) - currentTimeframe as UTCTimestamp,
         position: t.side === Side.Buy ? 'belowBar' : 'aboveBar',
         color: t.side === Side.Buy ? 'rgb(19,193,123)' : 'rgb(255,117,132)',
@@ -32,18 +48,20 @@ const Chart: FC<IProps> = ({symbol, api, from, to, trades, colors = {}}) => {
         // size: t.volume,
         id: t.id,
         text: `${t.side === Side.Buy ? 'Buy' : 'Sell'} ${t.qty} lots by ${t.price}`
-    })), [trades])
+    })), [entriesTrades])
 
     useEffect(() => {
-        const fromNum = new Date(from).getTime() / 1000 - currentTimeframe * 2;
-            let toNum = new Date(to).getTime() / 1000 + currentTimeframe * 9;
+        const {from: fromDate} = fromTo('-0.5d', new Date(from));
+        const {to: toDate} = fromTo('0.5d', new Date(to));
+        // const fromNum = new Date(from).getTime() / 1000 - currentTimeframe * 10;
+        //     let toNum = new Date(to).getTime() / 1000 + currentTimeframe * 9;
         api.instruments.getHistory({
             symbol,
             exchange: "MOEX",
             // @ts-ignore
             tf: currentTimeframe,
-            from: fromNum,
-            to: Math.floor(toNum),
+            from: fromDate,
+            to: toDate,
         }).then(r => setData(r.history)); // .map(c => [c.time, c.open, c.high, c.low, c.close])))
     }, [symbol, api, from, to]);
 
