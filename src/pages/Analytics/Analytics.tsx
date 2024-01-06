@@ -2,7 +2,7 @@ import React, {FC, useEffect, useMemo, useState} from "react";
 import {AlorApi} from "alor-api";
 import * as moment from "moment";
 import * as Highcharts from "highcharts";
-import {selectOptionsMap} from "../../App";
+import {selectOptionsMap, summ} from "../../App";
 import ProfitIntervalWidget from "./widgets/ProfitIntervalWidget";
 import LossIntervalWidget from "./widgets/LossIntervalWidget";
 import MaxProfitTradesWidget from "./widgets/MaxProfitTradesWidget";
@@ -11,6 +11,7 @@ import LossTimeWidget from "./widgets/LossTimeWidget";
 import ProfitTimeWidget from "./widgets/ProfitTimeWidget";
 import EquityWidget from "./widgets/EquityWidget";
 import SymbolsWidget from "./widgets/SymbolsWidget";
+import ReportWidget from "./widgets/ReportWidget";
 
 interface IProps{
     balanceSeriesData: any
@@ -44,6 +45,7 @@ const Analytics: FC<IProps> = ({data, api, dateFrom, isLoading}) => {
         }
     }, [api, dateFrom]);
 
+    const tradingDays = useMemo(() => data.positions.filter(p => p.type === 'summary'), [data.positions]);
     const nonSummaryPositions: any[] = useMemo(() => data.positions.filter(p => p.type !== 'summary'), [data.positions]);
 
     const reasonPnlMap: {[reason: string]: number} = useMemo(() => nonSummaryPositions.reduce((acc, curr) => ({...acc, [reasons[curr.id]]: (acc[reasons[curr.id]] || 0) +  curr.PnL  }), {} as {[reason: string]: number}), [nonSummaryPositions, reasons])
@@ -121,6 +123,7 @@ const Analytics: FC<IProps> = ({data, api, dateFrom, isLoading}) => {
             <MaxLossTradesWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
             <ProfitTimeWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
             <LossTimeWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
+            <ReportWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading} tradingDays={tradingDays}/>
         </div>
         <SymbolsWidget nightMode={nightMode} darkColors={darkColors} nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
         </>
