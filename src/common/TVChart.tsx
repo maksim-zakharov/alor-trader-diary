@@ -39,6 +39,7 @@ const TVChart: FC<IProps> = ({colors, seriesType, digits, data, markers, formatT
                 timeScale: {
                     visible: true,
                     timeVisible: true,
+                    rightOffset: 0,
                     secondsVisible: true,
                 },
                 localization: {
@@ -107,8 +108,10 @@ const TVChart: FC<IProps> = ({colors, seriesType, digits, data, markers, formatT
                 series = chart.addBaselineSeries({
                     // priceLineColor: 'rgb(51,111,238)',
                     // crosshairMarkerBackgroundColor: 'rgb(51,111,238)',
-                    topFillColor1: 'rgb(51,111,238, 0.7)',
-                    topFillColor2: 'rgba(51,111,238, 0.1)',
+                    lineWidth: 1,
+                    lineType: 2,
+                    topFillColor1: 'rgb(51,111,238, 0.8)',
+                    topFillColor2: 'rgba(51,111,238, 0.3)',
                     topLineColor: 'rgb(51,111,238)',
                     // bottomFillColor1: 'rgb(51,111,238)',
                     // bottomLineColor: 'rgb(51,111,238)',
