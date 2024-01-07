@@ -18,10 +18,11 @@ const ReportWidget = ({isLoading, nonSummaryPositions, tradingDays}) => {
     const averageTradesByDay = Math.round(nonSummaryPositions.length / tradingDays.length)
 
     const lossMap = [
-        {label: 'Profit Factor', value: profitFactor.toFixed(2)},
-        {label: 'Percent Profitable', value: `${(percentProfitable * 100).toFixed(2)}%`},
-        {label: 'Average Trade Net Profit', value: moneyFormat(averageTradeNetProfit)},
-        {label: 'Average Trades Per Day', value: averageTradesByDay},
+        {label: 'Profit Factor', value: <div>{profitFactor.toFixed(2)}</div>},
+        {label: 'Percent Profitable', value: <div>{`${(percentProfitable * 100).toFixed(2)}%`}</div>},
+        {label: 'Average Trade Net Profit', value: <div style={{color:
+                    averageTradeNetProfit > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>{moneyFormat(averageTradeNetProfit)}</div>},
+        {label: 'Average Trades Per Day', value: <div>{averageTradesByDay}</div>},
     ]
 
     return <div className="widget">
@@ -32,7 +33,7 @@ const ReportWidget = ({isLoading, nonSummaryPositions, tradingDays}) => {
                 dataSource={lossMap}
                 renderItem={(item: any) => (
                     <List.Item
-                        actions={[<div>{item.value}</div>]}
+                        actions={[item.value]}
                     >
                         {item.label}
                     </List.Item>
