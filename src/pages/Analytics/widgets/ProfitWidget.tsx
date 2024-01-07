@@ -41,8 +41,6 @@ const ProfitWidget = ({data, isLoading, colors, moneyMoves}) => {
         return result;
     }, [data, dayMoneyMovesMap]);
 
-    console.log(moneyMoves, data, _data, dayMoneyMovesMap)
-
     return <div className="widget" style={{height: 460, width: '100%'}}>
         <div className="widget_header">Profit</div>
         {isLoading ? <Spinner/> :<TVChart colors={colors} seriesType="baseLine" data={_data} formatTime="ll"/>}
