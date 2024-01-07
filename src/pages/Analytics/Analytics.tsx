@@ -12,6 +12,8 @@ import ProfitTimeWidget from "./widgets/ProfitTimeWidget";
 import EquityWidget from "./widgets/EquityWidget";
 import SymbolsWidget from "./widgets/SymbolsWidget";
 import ReportWidget from "./widgets/ReportWidget";
+import ProfitWidget from "./widgets/ProfitWidget";
+import {MoneyMove} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 
 interface IProps{
     balanceSeriesData: any
@@ -29,6 +31,8 @@ const Analytics: FC<IProps> = ({data, api, dateFrom, isLoading}) => {
 
     const [balanceSeriesData, setData] = useState([]);
 
+    const [moneyMoves, setMonetMoves] = useState<MoneyMove[]>([]);
+
     const darkColors = {
         backgroundColor: 'rgb(30,44,57)',
         color: 'rgb(166,189,213)',
@@ -36,13 +40,24 @@ const Analytics: FC<IProps> = ({data, api, dateFrom, isLoading}) => {
     }
 
     useEffect(() => {
-        if(api && settings.portfolio){
-            api.clientInfo.getEquityDynamics({
-                startDate: dateFrom,
-                endDate: moment().format('YYYY-MM-DD'),
-                portfolio: settings.portfolio?.replace('D', '')
-            }).then(res => setData(res.portfolioValues.map(v => ({time: moment(v.date).format('YYYY-MM-DD'), value: v.value}))))
+        if (!api || !settings.portfolio) {
+            return;
         }
+        const dateTo = moment().format('YYYY-MM-DD')
+
+        api.clientInfo.getEquityDynamics({
+            startDate: dateFrom,
+            endDate: dateTo,
+            portfolio: settings.portfolio?.replace('D', '')
+        }).then(res => setData(res.portfolioValues.map(v => ({
+            time: moment(v.date).format('YYYY-MM-DD'),
+            value: v.value
+        }))))
+
+        api.clientInfo.getMoneyMoves(81943, {
+            dateFrom,
+            dateTo
+        }).then(r => setMonetMoves(r))
     }, [api, dateFrom]);
 
     const tradingDays = useMemo(() => data.positions.filter(p => p.type === 'summary'), [data.positions]);
@@ -108,7 +123,7 @@ const Analytics: FC<IProps> = ({data, api, dateFrom, isLoading}) => {
     }
 
     return <>
-        <EquityWidget isLoading={isLoading} colors={nightMode && darkColors} data={balanceSeriesData}/>
+        <ProfitWidget isLoading={isLoading} colors={nightMode && darkColors} data={balanceSeriesData} moneyMoves={moneyMoves}/>
         {/*<div className="widget">*/}
         {/*    <div className="widget_header">Reasons</div>*/}
         {/*    <HighchartsReact*/}

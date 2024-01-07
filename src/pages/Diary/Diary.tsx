@@ -1,32 +1,31 @@
 import {
-  Button, DatePicker, DatePickerProps, Divider,
+  Button,
+  DatePicker,
+  DatePickerProps,
+  Divider,
   Drawer,
   Form,
-  Input, message,
+  Input,
+  message,
   Select,
-  SelectProps, Space,
+  SelectProps,
   Statistic,
   Switch,
   Table,
-  TableColumnsType,
-  Typography,
 } from 'antd';
-import {
-  ArrowDownOutlined,
-  ArrowUpOutlined,
-  SettingOutlined,
-} from '@ant-design/icons';
+import {ArrowDownOutlined, ArrowUpOutlined, SettingOutlined,} from '@ant-design/icons';
 import FormItem from 'antd/es/form/FormItem';
-import React, {ChangeEventHandler, FC, memo, useEffect, useMemo, useState} from 'react';
-import { ColumnsType } from 'antd/es/table';
+import React, {ChangeEventHandler, FC, useEffect, useMemo, useState} from 'react';
+import {ColumnsType} from 'antd/es/table';
 import moment from 'moment/moment';
-import { SwitchChangeEventHandler } from 'antd/es/switch';
-import { selectOptions } from '../../App';
+import {SwitchChangeEventHandler} from 'antd/es/switch';
+import {selectOptions} from '../../App';
 import {moneyFormat, shortNumberFormat} from '../../common/utils';
 import {AlorApi} from "alor-api";
 import * as days from "dayjs";
 import {useSearchParams} from "react-router-dom";
 import PositionDetails from "./components/PositionDetails";
+import {Currency} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 
 interface DataType {
   key: string;
@@ -302,7 +301,7 @@ const Diary: FC<IProps> = ({ data, trades, api, isLoading, summary }) => {
       recipient: settings.recipient,
       agree: true,
       settlementAccount: settings.settlementAccount,
-      currency: "RUB",
+      currency: Currency.RUB,
       subportfolioFrom: "MOEX"
     })
 
