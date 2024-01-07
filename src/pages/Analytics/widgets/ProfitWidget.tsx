@@ -13,7 +13,8 @@ const ProfitWidget = ({data, isLoading, colors, moneyMoves}) => {
 
         // Только те движения которые исполнены
         if(curr.status === Status.Resolved){
-            acc[date] += curr.sum;
+            // спорно TODO
+            acc[date] +=  curr.subType === "withdraw" ? -curr.sum : curr.sum;
         }
 
         return acc;
@@ -39,6 +40,8 @@ const ProfitWidget = ({data, isLoading, colors, moneyMoves}) => {
 
         return result;
     }, [data, dayMoneyMovesMap]);
+
+    console.log(moneyMoves, data, _data, dayMoneyMovesMap)
 
     return <div className="widget" style={{height: 460, width: '100%'}}>
         <div className="widget_header">Profit</div>
