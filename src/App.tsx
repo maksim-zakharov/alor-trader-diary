@@ -83,7 +83,7 @@ function App() {
   let dateFrom = searchParams.get('dateFrom');
 
   if (!dateFrom) {
-    dateFrom = moment().startOf('week').format('YYYY-MM-DD');
+    dateFrom = moment().startOf('month').format('YYYY-MM-DD');
   }
   const [nightMode] = useState(
       Boolean(localStorage.getItem('night') === 'true'),
