@@ -69,17 +69,6 @@ body {
     padding: 4px;
 }
 
-@media only screen and (max-width: 700px) {
-    .collapsed-row{
-        /*.tv-lightweight-charts{*/
-        /*    width: 100%;*/
-        /*}*/
-        width: 100%;
-        max-width: 100%;
-        overflow: auto;
-    }
-}
-
 .src-modules-Orders-containers-styles-container-7-zlx {
     display: flex;
     height: 100%;
@@ -115,7 +104,6 @@ body {
 }
 
 @media only screen and (min-width: 700px) {
-
     .ticker-info {
         min-width: 320px;
     }
@@ -188,9 +176,38 @@ code {
     margin-top: 0;
 }
 
+.double-list{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    .ant-divider.ant-divider-horizontal{
+        display: none;
+    }
+}
+
 @media only screen and (max-width: 700px) {
     .widget{
         width: 100%;
+    }
+    .collapsed-row{
+        /*.tv-lightweight-charts{*/
+        /*    width: 100%;*/
+        /*}*/
+        width: 100%;
+        max-width: 100%;
+        overflow: auto;
+    }
+
+    .double-list {
+        gap: 0;
+        .ant-divider.ant-divider-horizontal {
+            margin: 8px 0;
+            display: initial;
+        }
+
+        .ant-list{
+            width: 100%;
+        }
     }
 }
 

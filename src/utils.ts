@@ -1,6 +1,6 @@
 import { Positions, Side, Trade } from 'alor-api';
 import { avg, summ } from './App';
-import moment from 'moment/moment';
+import moment, {Moment} from 'moment/moment';
 
 export const digitsAfterDot = (num) => {
   if (!num) {
@@ -236,4 +236,19 @@ export const timeLabels = {
   '18:00': '18:00 - 20:00',
   '20:00': '20:00 - 22:00',
   '22:00': '22:00 - 24:00',
+}
+
+export function workday_count(startDate: Moment, endDate: Moment): number {
+// + 1 cause diff returns the difference between two moments, in this case the day itself should be included.
+
+  const totalDays: number = endDate.diff(moment(startDate), 'days') + 1;
+  const dayOfWeek = endDate.isoWeekday();
+  let totalWorkdays = 0;
+
+  for (let i = dayOfWeek; i < totalDays + dayOfWeek; i++) {
+    if (i % 7 !== 6 && i % 7 !== 0) {
+      totalWorkdays++;
+    }
+  }
+  return totalWorkdays;
 }

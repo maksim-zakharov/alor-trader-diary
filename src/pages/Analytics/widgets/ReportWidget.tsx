@@ -1,10 +1,11 @@
 import Spinner from "../../../common/Spinner";
-import {List} from "antd";
+import {Divider, List, Space} from "antd";
 import {moneyFormat} from "../../../common/utils";
-import {durationLabels} from "../../../utils";
+import {durationLabels, workday_count} from "../../../utils";
 import NoResult from "../../../common/NoResult";
 import React, {useMemo} from "react";
 import {summ} from "../../../App";
+import moment from "moment";
 
 const ReportWidget = ({isLoading, nonSummaryPositions, tradingDays}) => {
 
@@ -17,20 +18,35 @@ const ReportWidget = ({isLoading, nonSummaryPositions, tradingDays}) => {
     const averageTradeNetProfit = totalNetProfit / nonSummaryPositions.length;
     const averageTradesByDay = Math.round(nonSummaryPositions.length / tradingDays.length)
 
-    const lossMap = [
+    const workDaysCountInMonth = workday_count(moment().startOf('month'), moment().endOf('month'));
+    const workDaysCountInYear = workday_count(moment().startOf('year'), moment().endOf('year'));
+
+    console.log(workDaysCountInMonth, workDaysCountInYear)
+
+    const planingMonthlyProfit = averageTradeNetProfit * averageTradesByDay * workDaysCountInMonth;
+    const planingYearlyProfit = averageTradeNetProfit * averageTradesByDay * workDaysCountInYear;
+
+    const list1 = [
+        {label: 'Average Trades Per Day', value: <div>{averageTradesByDay}</div>},
         {label: 'Profit Factor', value: <div>{profitFactor.toFixed(2)}</div>},
         {label: 'Percent Profitable', value: <div>{`${(percentProfitable * 100).toFixed(2)}%`}</div>},
+    ]
+    const list2 = [
         {label: 'Average Trade Net Profit', value: <div style={{color:
                     averageTradeNetProfit > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>{moneyFormat(averageTradeNetProfit)}</div>},
-        {label: 'Average Trades Per Day', value: <div>{averageTradesByDay}</div>},
+        {label: 'Planing Monthly Profit', value: <div style={{color:
+                    planingMonthlyProfit > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>{moneyFormat(planingMonthlyProfit)}</div>},
+        {label: 'Planing Yearly Profit', value: <div style={{color:
+                    planingYearlyProfit > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>{moneyFormat(planingYearlyProfit)}</div>},
     ]
 
     return <div className="widget">
         <div className="widget_header">Total Report</div>
-        {isLoading ? <Spinner/> : lossMap.length ?
+        <div className="double-list">
             <List
                 itemLayout="horizontal"
-                dataSource={lossMap}
+                dataSource={list1}
+                split={true}
                 renderItem={(item: any) => (
                     <List.Item
                         actions={[item.value]}
@@ -38,7 +54,21 @@ const ReportWidget = ({isLoading, nonSummaryPositions, tradingDays}) => {
                         {item.label}
                     </List.Item>
                 )}
-            /> : <NoResult text="Нет данных"/>}
+            />
+            <Divider/>
+            <List
+                itemLayout="horizontal"
+                dataSource={list2}
+                split={true}
+                renderItem={(item: any) => (
+                    <List.Item
+                        actions={[item.value]}
+                    >
+                        {item.label}
+                    </List.Item>
+                )}
+            />
+        </div>
     </div>
 }
 
