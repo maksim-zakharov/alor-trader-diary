@@ -540,7 +540,7 @@ font-weight: bold;
     display: flex;
 }
 
-.ant-list .ant-list-item .ant-list-item-action>li:last-child:before {
+.ant-list .ant-list-item .ant-list-item-action>li+li:before {
     content: "";
     margin: 0 8px;
     width: 3px;

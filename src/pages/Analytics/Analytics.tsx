@@ -138,7 +138,7 @@ const Analytics: FC<IProps> = ({data, api, dateFrom, isLoading}) => {
             <MaxLossTradesWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
             <ProfitTimeWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
             <LossTimeWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
-            <ReportWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading} tradingDays={tradingDays}/>
+            <ReportWidget nonSummaryPositions={nonSummaryPositions} tradingDays={tradingDays} data={balanceSeriesData}/>
         </div>
         <SymbolsWidget nightMode={nightMode} darkColors={darkColors} nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
         </>

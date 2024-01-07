@@ -252,3 +252,28 @@ export function workday_count(startDate: Moment, endDate: Moment): number {
   }
   return totalWorkdays;
 }
+
+export const calculateDrawdown = (positions: { value: number }[]): number => {
+  if(!positions.length){
+    return 0;
+  }
+
+  let maxDrawdawn =0
+
+  let maxValue = positions[0].value;
+  for(let i = 1; i< positions.length; i++) {
+const position = positions[i];
+if(position.value < maxValue){
+  const drawdawn = (position.value - maxValue) / maxValue;
+  if(drawdawn < maxDrawdawn){
+    maxDrawdawn = drawdawn;
+  }
+  continue;
+} else {
+  maxValue = position.value
+}
+
+  }
+
+  return maxDrawdawn;
+}
