@@ -12,9 +12,9 @@ const ProfitWidget = ({data, isLoading, colors, moneyMoves}) => {
         }
 
         // Только те движения которые исполнены
-        if(curr.status === Status.Resolved){
+        if(curr.status === Status.Resolved && curr.title !== "Комиссия брокера"){
             // спорно TODO
-            acc[date] +=  curr.subType === "withdraw" ? -curr.sum : curr.sum;
+            acc[date] += curr.sum;
         }
 
         return acc;
