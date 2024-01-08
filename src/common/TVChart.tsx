@@ -1,13 +1,13 @@
-import React, {CSSProperties, FC, useEffect, useRef} from "react";
+import React, {CSSProperties, FC, useEffect, useMemo, useRef} from "react";
 import {
     CandlestickData,
     ColorType,
-    createChart, CrosshairMode, LineStyle,
+    createChart, CrosshairMode, LineStyle, PriceScaleMode,
     SeriesMarker,
     Time,
     WhitespaceData
 } from "lightweight-charts";
-import {shortNumberFormat} from "./utils";
+import {moneyFormat, shortNumberFormat} from "./utils";
 import moment from 'moment';
 
 interface IProps{
@@ -17,12 +17,12 @@ interface IProps{
     seriesType: 'candlestick' | 'line' | 'baseLine',
     formatTime?: string
     digits?: number
+    balance?: number
     shortNumber?: boolean;
 }
 
-const TVChart: FC<IProps> = ({colors, seriesType, shortNumber, digits, data, markers, formatTime}) => {
-
-    const {
+const TVChart: FC<IProps> = ({balance, colors, seriesType, shortNumber, digits, data, markers, formatTime}) => {
+const {
         backgroundColor = 'white', // 'rgb(30,44,57)
         color = 'black', // 'rgb(166,189,213)'
         borderColor = 'grey'
@@ -35,8 +35,18 @@ const TVChart: FC<IProps> = ({colors, seriesType, shortNumber, digits, data, mar
         minimumFractionDigits: digits,
     }).format(v);
 
+    const lastValue = useMemo(() => data.slice(-1)[0],[data]);
+
     if(shortNumber){
-        priceFormatter = v => shortNumberFormat(v, digits, digits);
+        priceFormatter = v => {
+            const format = shortNumberFormat(v, digits, digits);
+            // @ts-ignore
+            if(lastValue.value === v) {
+                // @ts-ignore
+                return `${format} (${(lastValue.value * 100 / balance).toFixed(2)}%)`
+            }
+            return format
+        };
     }
 
     useEffect(
