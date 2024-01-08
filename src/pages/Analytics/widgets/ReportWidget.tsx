@@ -27,6 +27,8 @@ const ReportWidget = ({nonSummaryPositions, tradingDays, data}) => {
 
     const drawdown = useMemo(() => calculateDrawdown(data), [data]);
 
+    const currentBalance = useMemo(() => (data || []).slice(-1)[0]?.value || 0, [data]);
+
     const list1 = [
         {label: 'Average Trades Per Day', value: <div>{averageTradesByDay}</div>},
         {label: 'Profit Factor', value: <div>{profitFactor.toFixed(2)}</div>},
@@ -35,13 +37,13 @@ const ReportWidget = ({nonSummaryPositions, tradingDays, data}) => {
     ]
     const list2 = [
         {label: 'Average Trade Net Profit', value: <div style={{color:
-                    averageTradeNetProfit > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>{moneyFormat(averageTradeNetProfit)}</div>},
+                    averageTradeNetProfit > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>{moneyFormat(averageTradeNetProfit)} ({(averageTradeNetProfit * 100 / currentBalance).toFixed(2)}%)</div>},
         {label: 'Average Day Net Profit', value: <div style={{color:
-                    averageDayNetProfit > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>{moneyFormat(averageDayNetProfit)}</div>},
+                    averageDayNetProfit > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>{moneyFormat(averageDayNetProfit)} ({(averageDayNetProfit * 100 / currentBalance).toFixed(2)}%)</div>},
         {label: 'Planing Monthly Profit', value: <div style={{color:
-                    planingMonthlyProfit > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>{moneyFormat(planingMonthlyProfit)}</div>},
+                    planingMonthlyProfit > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>{moneyFormat(planingMonthlyProfit)} ({(planingMonthlyProfit * 100 / currentBalance).toFixed(2)}%)</div>},
         {label: 'Planing Yearly Profit', value: <div style={{color:
-                    planingYearlyProfit > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>{moneyFormat(planingYearlyProfit)}</div>},
+                    planingYearlyProfit > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>{moneyFormat(planingYearlyProfit)} ({(planingYearlyProfit * 100 / currentBalance).toFixed(2)}%)</div>},
     ]
 
     return <div className="widget">
