@@ -17,9 +17,10 @@ interface IProps{
     seriesType: 'candlestick' | 'line' | 'baseLine',
     formatTime?: string
     digits?: number
+    shortNumber?: boolean;
 }
 
-const TVChart: FC<IProps> = ({colors, seriesType, digits, data, markers, formatTime}) => {
+const TVChart: FC<IProps> = ({colors, seriesType, shortNumber, digits, data, markers, formatTime}) => {
 
     const {
         backgroundColor = 'white', // 'rgb(30,44,57)
@@ -28,6 +29,15 @@ const TVChart: FC<IProps> = ({colors, seriesType, digits, data, markers, formatT
     } = (colors || {})
 
     const chartContainerRef = useRef<any>();
+
+    let priceFormatter = v => new Intl.NumberFormat('en', {
+        maximumFractionDigits: digits,
+        minimumFractionDigits: digits,
+    }).format(v);
+
+    if(shortNumber){
+        priceFormatter = v => shortNumberFormat(v, digits, digits);
+    }
 
     useEffect(
         () => {
@@ -44,7 +54,7 @@ const TVChart: FC<IProps> = ({colors, seriesType, digits, data, markers, formatT
                 },
                 localization: {
                     locale: 'ru-RU',
-                    priceFormatter: v => shortNumberFormat(v, digits, digits),
+                    priceFormatter,
                     timeFormatter: formatTime && function(businessDayOrTimestamp) {
 
                         // if (LightweightCharts.isBusinessDay(businessDayOrTimestamp)) {
