@@ -9,7 +9,7 @@ import {fromTo, Security} from "alor-api";
 const PositionDetails = ({nightMode, trades, api, symbol}) => {
     const [security, setSecurity] = useState<Security | undefined>(undefined);
 
-    const digits = useMemo(() => security ? `${security.minstep}`.split('.')[1].length : 1, [security]);
+    const digits = useMemo(() => security ? `${security.minstep}`.split('.')[1]?.length : 0, [security]);
 
     const columns: TableColumnsType<any> = [
         {
