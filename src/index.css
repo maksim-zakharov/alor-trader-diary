@@ -6,7 +6,11 @@
     --pro-button-primary-bg: 51,111,238;
     --pro-text-01: 179,199,219;
     --pro-text-02: 166,189,213;
+    --pro-base-02: 36,52,66;
     --pro-base-03: 44,60,75;
+    --pro-base-04: 51,70,87;
+    --pro-black: 0,0,0;
+    --pro-elevation-shadow-2: 0 0 8px rgba(var(--pro-black),0.24);
     --pro-widget-body-bg: 30,44,57;
     --pro-app-background-color: 23,35,46;
     --table-loss-color: 255,117,132;

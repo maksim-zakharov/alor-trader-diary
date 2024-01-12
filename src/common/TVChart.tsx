@@ -137,6 +137,103 @@ const {
                     // bottomLineColor: 'rgb(51,111,238)',
                     // bottomFillColor2: 'rgb(51,111,238)',
                 })
+
+                const toolTip: any = document.createElement('div');
+                toolTip.style = `background-color: rgba(var(--pro-base-02),1); 
+    box-shadow: var(--pro-elevation-shadow-2);
+        flex-direction: column;
+        align-items: center;
+        width: 160px;
+    border-radius: 4px; position: absolute; display: none; padding: 8px; box-sizing: border-box; font-size: 12px; text-align: left; z-index: 1000; top: 12px; left: 12px; pointer-events: none; font-family: -apple-system, BlinkMacSystemFont, 'Trebuchet MS', Roboto, Ubuntu, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;`;
+                // toolTip.style.background = 'white';
+                toolTip.style.color = 'black';
+                // toolTip.style.borderColor = '#2962FF';
+
+                const title: any = document.createElement('div');
+                title.style = `padding: 4px;
+    background-color: rgba(var(--pro-base-04),1);
+    border-radius: 2px;
+    color: rgba(var(--pro-text-01),1);
+    word-wrap: break-word;
+    font-size: 13px;
+    line-height: 16px;
+    font-weight: 500;
+    width: 100%;
+    letter-spacing: 0;
+    text-align: center;
+    margin: -4px -4px 0;`
+
+                toolTip.appendChild(title);
+
+                const tooltipContent: any = document.createElement('div');
+                tooltipContent.style = `margin-top: 8px;     display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    white-space: nowrap;
+    word-wrap: break-word;
+    font-size: 13px;
+    letter-spacing: 0;
+    line-height: 16px;
+    font-feature-settings: "tnum";
+    color: rgba(var(--pro-text-01),1);
+    line-height: 13px;
+    font-weight: 500;
+    text-align: center;
+    letter-spacing: 0;`
+
+                toolTip.appendChild(tooltipContent);
+
+                chartContainerRef!.current.appendChild(toolTip);
+                // update tooltip
+                chart.subscribeCrosshairMove(param => {
+                    if (
+                        param.point === undefined ||
+                        !param.time ||
+                        param.point.x < 0 ||
+                        param.point.x > chartContainerRef!.current.clientWidth ||
+                        param.point.y < 0 ||
+                        param.point.y > chartContainerRef!.current.clientHeight
+                    ) {
+                        toolTip.style.display = 'none';
+                    } else {
+                        const toolTipWidth = 80;
+                        const toolTipHeight = 80;
+                        const toolTipMargin = 15;
+                        // time will be in the same format that we supplied to setData.
+                        // thus it will be YYYY-MM-DD
+                        const dateStr = param.time;
+                        toolTip.style.display = 'flex';
+                        const data = param.seriesData.get(series);
+                        // @ts-ignore
+                        const price = data.value !== undefined ? data.value : data.close;
+                        title.innerHTML = moment(dateStr).format('LL, ddd').replaceAll(' г.', ''); // '15 ноября 2023, ср'
+                        tooltipContent.innerHTML = moneyFormat(price)
+                        price > 0 ?
+                        tooltipContent.style.color = `rgba(var(--table-profit-color),1)` : tooltipContent.style.color = `rgba(var(--table-loss-color),1)`
+
+                        const coordinate = series.priceToCoordinate(price);
+                        let shiftedCoordinate = param.point.x - 50;
+                        if (coordinate === null) {
+                            return;
+                        }
+                        shiftedCoordinate = Math.max(
+                            0,
+                            Math.min(chartContainerRef!.current.clientWidth - toolTipWidth, shiftedCoordinate)
+                        );
+                        const coordinateY =
+                            coordinate - toolTipHeight - toolTipMargin > 0
+                                ? coordinate - toolTipHeight - toolTipMargin
+                                : Math.max(
+                                    0,
+                                    Math.min(
+                                        chartContainerRef!.current.clientHeight - toolTipHeight - toolTipMargin,
+                                        coordinate + toolTipMargin
+                                    )
+                                );
+                        toolTip.style.left = shiftedCoordinate + 'px';
+                        toolTip.style.top = coordinateY + 'px';
+                    }
+                });
             }
 
             series?.setData(data);
@@ -202,6 +299,7 @@ const {
     );
 
     return <div
+        style={{position: 'relative'}}
         ref={chartContainerRef}
     />
 }
