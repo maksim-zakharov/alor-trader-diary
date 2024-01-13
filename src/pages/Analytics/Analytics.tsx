@@ -31,6 +31,8 @@ const Analytics: FC<IProps> = ({data, api, dateFrom, isLoading}) => {
 
     const [balanceSeriesData, setData] = useState([]);
 
+    const balanceSeriesDataWithoutFirst = useMemo(() => balanceSeriesData.slice(1), [balanceSeriesData]);
+
     const [moneyMoves, setMonetMoves] = useState<MoneyMove[]>([]);
 
     const darkColors = {
@@ -46,7 +48,7 @@ const Analytics: FC<IProps> = ({data, api, dateFrom, isLoading}) => {
         const dateTo = moment().format('YYYY-MM-DD')
 
         api.clientInfo.getEquityDynamics({
-            startDate: dateFrom,
+            startDate: moment(dateFrom).add('days', -1).format('YYYY-MM-DD'),
             endDate: dateTo,
             portfolio: settings.portfolio?.replace('D', '')
         }).then(res => setData(res.portfolioValues.map(v => ({
@@ -123,7 +125,7 @@ const Analytics: FC<IProps> = ({data, api, dateFrom, isLoading}) => {
     }
 
     return <>
-        <ProfitWidget isLoading={isLoading} colors={nightMode && darkColors} data={balanceSeriesData} moneyMoves={moneyMoves}/>
+        <ProfitWidget isLoading={isLoading} colors={nightMode && darkColors} data={balanceSeriesDataWithoutFirst} initBalance={balanceSeriesData[0]?.value || 0} moneyMoves={moneyMoves}/>
         {/*<div className="widget">*/}
         {/*    <div className="widget_header">Reasons</div>*/}
         {/*    <HighchartsReact*/}
@@ -138,7 +140,7 @@ const Analytics: FC<IProps> = ({data, api, dateFrom, isLoading}) => {
             <MaxLossTradesWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
             <ProfitTimeWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
             <LossTimeWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
-            <ReportWidget nonSummaryPositions={nonSummaryPositions} tradingDays={tradingDays} data={balanceSeriesData}/>
+            <ReportWidget nonSummaryPositions={nonSummaryPositions} tradingDays={tradingDays} data={balanceSeriesDataWithoutFirst}/>
         </div>
         <SymbolsWidget nightMode={nightMode} darkColors={darkColors} nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
         </>

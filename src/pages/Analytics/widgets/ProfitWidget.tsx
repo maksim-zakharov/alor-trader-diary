@@ -4,7 +4,8 @@ import React, {useMemo} from "react";
 import moment from 'moment/moment';
 import {Status} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 
-const ProfitWidget = ({data, isLoading, colors, moneyMoves}) => {
+const ProfitWidget = ({data, isLoading, colors, moneyMoves, initBalance}) => {
+    console.log(initBalance)
     const dayMoneyMovesMap = useMemo(() => moneyMoves.reduce((acc, curr) => {
         const date = moment(curr.date).format('YYYY-MM-DD');
         if(!acc[date]){
@@ -22,15 +23,15 @@ const ProfitWidget = ({data, isLoading, colors, moneyMoves}) => {
 
     const _data = useMemo(() => {
         let result = [];
-        let lastMoneyMove = 0;
+        let lastMoneyMove = initBalance;
 
         data.forEach((d, i) => {
             // Вычитаем результат первого дня чтобы отсчет начинался с 0
             if(i === 0){
-                lastMoneyMove += d.value;
+                // lastMoneyMove += d.value;
             }
 
-            if(dayMoneyMovesMap[d.time] && i > 0){
+            if(dayMoneyMovesMap[d.time]){
                 // Вычитаем очередное движение средств
                 lastMoneyMove += dayMoneyMovesMap[d.time];
             }
@@ -39,7 +40,7 @@ const ProfitWidget = ({data, isLoading, colors, moneyMoves}) => {
         })
 
         return result;
-    }, [data, dayMoneyMovesMap]);
+    }, [data, dayMoneyMovesMap, initBalance]);
 
     const balance = useMemo(() => data.slice(-1)[0]?.value || 0,[data]);
 
