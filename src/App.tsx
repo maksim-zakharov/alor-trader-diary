@@ -81,10 +81,14 @@ function App() {
   const currentMenuSelectedKey = location.pathname?.split('/')[1] || 'diary';
   const date = searchParams.get('date');
   let dateFrom = searchParams.get('dateFrom');
-
   if (!dateFrom) {
     dateFrom = moment().startOf('month').format('YYYY-MM-DD');
   }
+    let dateTo = searchParams.get('dateTo');
+    if (!dateTo) {
+        dateTo = moment().endOf('month').add(1, 'day').format('YYYY-MM-DD');
+    }
+
   const [nightMode] = useState(
       Boolean(localStorage.getItem('night') === 'true'),
   );
@@ -134,11 +138,11 @@ function App() {
       trades = trades.map((t) => ({
         ...t,
         // @ts-ignore
-        commission: !t.commission ? t.volume * 0.0005 : t.commission,
+        commission: !t.commission ? t.volume * 0.0004 : t.commission,
       }));
     }
 
-    return trades;
+    return trades.filter(t => moment(t.date).isBefore(moment(dateTo)));
   };
 
   const [settings, setSettings] = useState<{
