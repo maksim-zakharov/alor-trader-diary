@@ -330,7 +330,7 @@ const Diary: FC<IProps> = ({ data, trades, api, isLoading, summary }) => {
   let dateFrom = searchParams.get('dateFrom');
 
   if (!dateFrom) {
-    dateFrom = moment().startOf('week').format('YYYY-MM-DD');
+    dateFrom = moment().startOf('month').format('YYYY-MM-DD');
   }
   const currentDates: DatePickerProps['value'] = days(dateFrom);
 
