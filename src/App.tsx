@@ -290,7 +290,7 @@ function App() {
   }, [settings]);
 
   const menuItems: (MenuItemType & { element: ReactNode })[] = [
-    { key: 'diary', label: 'Diary', element: <Diary data={data} trades={trades} api={api} isLoading={isLoading} summary={summary} /> },
+    { key: 'diary', label: 'Diary', element: <Diary data={data} trades={trades} api={api} isLoading={isLoading} summary={summary} fullName={userInfo?.fullName} /> },
     {
       key: 'analytics',
       label: 'Analytics',

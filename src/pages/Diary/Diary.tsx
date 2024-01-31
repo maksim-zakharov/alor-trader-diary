@@ -64,9 +64,10 @@ interface IProps {
   api: AlorApi;
   isLoading: boolean;
   summary: any;
+  fullName?: string;
 }
 
-const Diary: FC<IProps> = ({ data, trades, api, isLoading, summary }) => {
+const Diary: FC<IProps> = ({ data, trades, api, isLoading, summary, fullName }) => {
   const [settings, setSettings] = useState<{
     token: string;
     portfolio: string;
@@ -282,7 +283,7 @@ const Diary: FC<IProps> = ({ data, trades, api, isLoading, summary }) => {
       defaultValue: settings[field],
       onChange,
       name: field,
-      id: field,
+      id: field
     };
   };
 
@@ -298,7 +299,7 @@ const Diary: FC<IProps> = ({ data, trades, api, isLoading, summary }) => {
       all: false,
       bankName: settings.bankName,
       loroAccount: settings.loroAccount,
-      recipient: settings.recipient,
+      recipient: fullName,
       agree: true,
       settlementAccount: settings.settlementAccount,
       currency: Currency.RUB,
@@ -424,7 +425,7 @@ const Diary: FC<IProps> = ({ data, trades, api, isLoading, summary }) => {
               </FormItem>
               <Divider/>
               <FormItem label="Получатель">
-                <Input placeholder="Получатель" {...settingsInputProps('recipient')} />
+                <Input placeholder="Получатель" disabled value={fullName} />
               </FormItem>
               <FormItem label="БИК">
                 <Input placeholder="БИК" {...settingsInputProps('bic')} />
