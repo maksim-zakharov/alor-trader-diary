@@ -21,9 +21,10 @@ interface IProps{
     api: AlorApi;
     dateFrom: any;
     isLoading: boolean;
+    clientId?: string;
 }
 
-const Analytics: FC<IProps> = ({data, api, dateFrom, isLoading}) => {
+const Analytics: FC<IProps> = ({data, api, dateFrom, isLoading, clientId}) => {
     const [settings, setSettings] = useState<{token: string, portfolio: string}>(JSON.parse(localStorage.getItem('settings') || '{}'));
     const [reasons, setReasons] = useState<{[id: string]: string}>(JSON.parse(localStorage.getItem('reasons') || '{}'));
 
@@ -56,11 +57,12 @@ const Analytics: FC<IProps> = ({data, api, dateFrom, isLoading}) => {
             value: v.value
         }))))
 
-        api.clientInfo.getMoneyMoves(81943, {
+        if(clientId)
+        api.clientInfo.getMoneyMoves(Number(clientId), {
             dateFrom,
             dateTo
         }).then(r => setMonetMoves(r))
-    }, [api, dateFrom]);
+    }, [api, dateFrom, clientId]);
 
     const tradingDays = useMemo(() => data.positions.filter(p => p.type === 'summary'), [data.positions]);
     const nonSummaryPositions: any[] = useMemo(() => data.positions.filter(p => p.type !== 'summary'), [data.positions]);

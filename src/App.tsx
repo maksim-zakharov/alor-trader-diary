@@ -1,14 +1,12 @@
 // import logo from './logo.svg';
 import './App.css';
 import {
-  DatePicker,
-  DatePickerProps,
   Layout,
   Menu,
   MenuProps,
   Select,
-  Space,
-  Switch, Typography,
+
+
 } from 'antd';
 import { Content, Footer, Header } from 'antd/es/layout/layout';
 import React, { ReactNode, useEffect, useMemo, useState } from 'react';
@@ -26,12 +24,11 @@ import {Exchange, Positions, Summary, Trade, Trades} from 'alor-api';
 import { MenuItemType } from 'antd/es/menu/hooks/useItems';
 import Diary from './pages/Diary/Diary';
 import Analytics from './pages/Analytics/Analytics';
-import * as days from 'dayjs';
 import { DefaultOptionType } from 'antd/es/select';
-import { SwitchChangeEventHandler } from 'antd/es/switch';
 import OrderbookWidget from './pages/Orderbook/OrderbookWidget';
 import { positionsToTrades, tradesToHistoryPositions } from './utils';
 import {Time, WhitespaceData} from "lightweight-charts";
+import {UserInfoResponse} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 
 export const avg = (numbers: number[]) =>
   !numbers.length ? 0 : summ(numbers) / numbers.length;
@@ -203,10 +200,13 @@ function App() {
     return data;
   }, [historyPositions]);
 
+  const [userInfo, setUserInfo] = useState<UserInfoResponse | undefined>(undefined);
+
   useEffect(() => {
     if (!api) {
       return;
     }
+
 
     api.clientInfo
       .getPositions({
@@ -220,7 +220,7 @@ function App() {
     loadTrades({
       date,
       dateFrom,
-    }).then(setTrades).finally(() => setIsLoading(false));
+    }).then(setTrades).then(() => api.clientInfo.getUserInfo().then(setUserInfo)).finally(() => setIsLoading(false));
   }, [api, dateFrom]);
 
   const loadData = async () => {
@@ -294,7 +294,7 @@ function App() {
     {
       key: 'analytics',
       label: 'Analytics',
-      element: <Analytics data={data} balanceSeriesData={balanceSeriesData} api={api} isLoading={isLoading} dateFrom={dateFrom} />,
+      element: <Analytics data={data} balanceSeriesData={balanceSeriesData} api={api} isLoading={isLoading} dateFrom={dateFrom} clientId={userInfo?.agreements[0].agreementNumber} />,
     },
     {
       key: 'orderbook',
