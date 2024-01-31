@@ -5,7 +5,6 @@ import moment from 'moment/moment';
 import {Status} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 
 const ProfitWidget = ({data, isLoading, colors, moneyMoves, initBalance}) => {
-    console.log(initBalance)
     const dayMoneyMovesMap = useMemo(() => moneyMoves.reduce((acc, curr) => {
         const date = moment(curr.date).format('YYYY-MM-DD');
         if(!acc[date]){
@@ -13,7 +12,7 @@ const ProfitWidget = ({data, isLoading, colors, moneyMoves, initBalance}) => {
         }
 
         // Только те движения которые исполнены
-        if(curr.status === Status.Resolved && curr.title !== "Комиссия брокера"){
+        if(curr.status === Status.Resolved && curr.subType === "input"){
             // спорно TODO
             acc[date] += curr.sum;
         }

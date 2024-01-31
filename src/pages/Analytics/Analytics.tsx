@@ -48,7 +48,7 @@ const Analytics: FC<IProps> = ({data, api, dateFrom, isLoading}) => {
         const dateTo = moment().format('YYYY-MM-DD')
 
         api.clientInfo.getEquityDynamics({
-            startDate: moment(dateFrom).add('days', -1).format('YYYY-MM-DD'),
+            startDate: moment(dateFrom).format('YYYY-MM-DD'),
             endDate: dateTo,
             portfolio: settings.portfolio?.replace('D', '')
         }).then(res => setData(res.portfolioValues.map(v => ({
