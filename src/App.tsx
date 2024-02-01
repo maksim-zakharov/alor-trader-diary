@@ -56,8 +56,31 @@ export const selectOptionsMap = selectOptions.reduce(
   (acc, curr) => ({ ...acc, [curr.value]: curr.label }),
   {},
 );
+function getWindowDimensions() {
+  const { innerWidth: width, innerHeight: height } = window;
+  return {
+    width,
+    height
+  };
+}
+
+function useWindowDimensions() {
+  const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
+
+  useEffect(() => {
+    function handleResize() {
+      setWindowDimensions(getWindowDimensions());
+    }
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return windowDimensions;
+}
 
 function App() {
+  const { height, width } = useWindowDimensions();
   const [symbols, setSymbols] = useState(
     localStorage.getItem('symbols')
       ? JSON.parse(localStorage.getItem('symbols'))
@@ -290,7 +313,7 @@ function App() {
   }, [settings]);
 
   const menuItems: (MenuItemType & { element: ReactNode })[] = [
-    { key: 'diary', label: 'Diary', element: <Diary data={data} trades={trades} api={api} isLoading={isLoading} summary={summary} fullName={userInfo?.fullName} /> },
+    { key: 'diary', label: 'Diary', element: <Diary isMobile={width < 400} data={data} trades={trades} api={api} isLoading={isLoading} summary={summary} fullName={userInfo?.fullName} /> },
     {
       key: 'analytics',
       label: 'Analytics',

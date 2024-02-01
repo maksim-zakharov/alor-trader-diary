@@ -65,9 +65,10 @@ interface IProps {
   isLoading: boolean;
   summary: any;
   fullName?: string;
+  isMobile: boolean
 }
 
-const Diary: FC<IProps> = ({ data, trades, api, isLoading, summary, fullName }) => {
+const Diary: FC<IProps> = ({ data, trades, api, isLoading, summary, fullName, isMobile }) => {
   const [settings, setSettings] = useState<{
     token: string;
     portfolio: string;
@@ -139,7 +140,8 @@ const Diary: FC<IProps> = ({ data, trades, api, isLoading, summary, fullName }) 
     message.info(`Тикер ${symbol} скопирован.`);
   };
 
-  const columns: ColumnsType<DataType> = [
+  const columns: ColumnsType<DataType> = useMemo(() =>
+          [
     {
       title: 'Symbol',
       dataIndex: 'symbol',
@@ -271,7 +273,11 @@ const Diary: FC<IProps> = ({ data, trades, api, isLoading, summary, fullName }) 
           />
         ),
     },
-  ];
+  ].filter(c => !isMobile || !['comment', 'reason', 'side', 'PnLPercent', 'Fee'].includes(c.dataIndex)) as any[]
+      , [isMobile]);
+
+
+
   const settingsInputProps = (field: string) => {
     const onChange = (e: any) => {
       const value = e.target.value;
@@ -370,6 +376,7 @@ const Diary: FC<IProps> = ({ data, trades, api, isLoading, summary, fullName }) 
             gap: '32px',
             justifyContent: 'space-between',
             alignItems: 'center',
+            flexWrap: 'wrap'
           }}
         >
           <Statistic
