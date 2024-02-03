@@ -13,7 +13,7 @@ import {
     Switch,
     Table,
 } from 'antd';
-import {ArrowDownOutlined, ArrowUpOutlined, SettingOutlined,} from '@ant-design/icons';
+import {ArrowDownOutlined, ArrowUpOutlined, SettingOutlined, RetweetOutlined} from '@ant-design/icons';
 import FormItem from 'antd/es/form/FormItem';
 import React, {ChangeEventHandler, FC, useEffect, useMemo, useState} from 'react';
 import {ColumnsType} from 'antd/es/table';
@@ -147,6 +147,28 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
         message.info(`Тикер ${symbol} скопирован.`);
     };
 
+    const [hidenMap, setHidenMap] = useState({});
+
+    const renderVolume = (row) => {
+        if(row.type === 'summary'){
+            return;
+        }
+
+        const changeVolumeView = () => {
+            setHidenMap(prevState => ({...prevState, [row.id]: !!!prevState[row.id] }))
+        }
+
+        if(!hidenMap[row.id]){
+            return <>
+                {shortNumberFormat(row.openVolume, 0, 2)} / {shortNumberFormat(row.closeVolume, 0, 2)} <RetweetOutlined style={{cursor: 'pointer'}} onClick={changeVolumeView} />
+            </>
+        }
+
+        return <>
+            {moneyFormat(row.openVolume, 0)} / {moneyFormat(row.closeVolume, 0)} <RetweetOutlined style={{cursor: 'pointer'}} onClick={changeVolumeView} />
+            </>
+    }
+
     const columns: ColumnsType<DataType> = useMemo(() =>
             [
                 {
@@ -238,7 +260,7 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
                     key: 'volume',
                     align: 'center',
                     // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
-                    render: (_, row: any) => row.type !== 'summary' && moneyFormat(_, 0),
+                    render: (_, row: any, index) => renderVolume(row),
                 },
                 {
                     title: 'Fee',
@@ -246,7 +268,7 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
                     key: 'Fee',
                     align: 'center',
                     // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
-                    render: (_, row) => moneyFormat(_),
+                    render: (_, row) => `${moneyFormat(_)} ${row.type !== 'summary' ? `(${(_ * 100/ (row.openVolume + row.closeVolume)).toFixed(2)}%)` : ''}`,
                 },
                 {
                     title: 'Reason',
@@ -283,7 +305,7 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
                         ),
                 },
             ].filter(c => !isMobile || !['comment', 'reason', 'side', 'PnLPercent', 'Fee'].includes(c.dataIndex)) as any[]
-        , [isMobile]);
+        , [isMobile, hidenMap]);
 
 
     const settingsInputProps = (field: string) => {

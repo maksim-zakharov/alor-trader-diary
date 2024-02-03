@@ -91,14 +91,6 @@ export const tradesToHistoryPositions = (trades: Trade[]) => {
                     delete currentPositionsMap[trade.symbol].commQty;
                     delete currentPositionsMap[trade.symbol].lastSide;
 
-                    const totalDiffVolume = currentPositionsMap[
-                        trade.symbol
-                        ].trades.reduce(
-                        (acc, curr) =>
-                            curr.side === Side.Buy ? acc - curr.volume : acc + curr.volume,
-                        0,
-                    );
-
                     const totalCommission = summ(
                         currentPositionsMap[trade.symbol].trades.map((t) => t.commission),
                     );
@@ -115,6 +107,10 @@ export const tradesToHistoryPositions = (trades: Trade[]) => {
                             .filter((c) => c.side === Side.Sell)
                             .map((t) => t.volume),
                     );
+                    // @ts-ignore
+                    currentPositionsMap[trade.symbol].openVolume = trade.side === Side.Buy ? buyVolume : sellVolume
+                    // @ts-ignore
+                    currentPositionsMap[trade.symbol].closeVolume = trade.side === Side.Buy ? sellVolume :  buyVolume
 
                     currentPositionsMap[trade.symbol].PnL =
                         sellVolume - buyVolume - Math.abs(totalCommission);
@@ -145,14 +141,6 @@ export const tradesToHistoryPositions = (trades: Trade[]) => {
                     trade.qtyUnits += currentPositionsMap[trade.symbol].commQty;
 
                     currentPositionsMap[trade.symbol].trades.unshift(trade);
-
-                    const totalDiffVolume = currentPositionsMap[
-                        trade.symbol
-                        ].trades.reduce(
-                        (acc, curr) =>
-                            curr.side === Side.Buy ? acc - curr.volume : acc + curr.volume,
-                        0,
-                    );
 
                     const totalCommission = summ(
                         currentPositionsMap[trade.symbol].trades.map((t) => t.commission),
