@@ -15,26 +15,23 @@ import ReportWidget from "./widgets/ReportWidget";
 import ProfitWidget from "./widgets/ProfitWidget";
 import {MoneyMove} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 
-interface IProps{
+interface IProps {
     balanceSeriesData: any
     data: any;
     api: AlorApi;
     dateFrom: any;
     isLoading: boolean;
-    clientId?: string;
+    moneyMoves: MoneyMove[];
 }
 
-const Analytics: FC<IProps> = ({data, api, dateFrom, isLoading, clientId}) => {
-    const [settings, setSettings] = useState<{token: string, portfolio: string}>(JSON.parse(localStorage.getItem('settings') || '{}'));
-    const [reasons, setReasons] = useState<{[id: string]: string}>(JSON.parse(localStorage.getItem('reasons') || '{}'));
+const Analytics: FC<IProps> = ({data, api, dateFrom, isLoading, moneyMoves, balanceSeriesData}) => {
+    const [reasons, setReasons] = useState<{
+        [id: string]: string
+    }>(JSON.parse(localStorage.getItem('reasons') || '{}'));
 
     const [nightMode] = useState(Boolean(localStorage.getItem('night') === 'true'));
 
-    const [balanceSeriesData, setData] = useState([]);
-
     const balanceSeriesDataWithoutFirst = useMemo(() => balanceSeriesData.slice(1), [balanceSeriesData]);
-
-    const [moneyMoves, setMonetMoves] = useState<MoneyMove[]>([]);
 
     const darkColors = {
         backgroundColor: 'rgb(30,44,57)',
@@ -42,32 +39,13 @@ const Analytics: FC<IProps> = ({data, api, dateFrom, isLoading, clientId}) => {
         borderColor: 'rgb(44,60,75)'
     }
 
-    useEffect(() => {
-        if (!api || !settings.portfolio) {
-            return;
-        }
-        const dateTo = moment().format('YYYY-MM-DD')
-
-        api.clientInfo.getEquityDynamics({
-            startDate: moment(dateFrom).format('YYYY-MM-DD'),
-            endDate: dateTo,
-            portfolio: settings.portfolio?.replace('D', '')
-        }).then(res => setData(res.portfolioValues.map(v => ({
-            time: moment(v.date).format('YYYY-MM-DD'),
-            value: v.value
-        }))))
-
-        if(clientId)
-        api.clientInfo.getMoneyMoves(Number(clientId), {
-            dateFrom,
-            dateTo
-        }).then(r => setMonetMoves(r))
-    }, [api, dateFrom, clientId]);
-
     const tradingDays = useMemo(() => data.positions.filter(p => p.type === 'summary'), [data.positions]);
     const nonSummaryPositions: any[] = useMemo(() => data.positions.filter(p => p.type !== 'summary'), [data.positions]);
 
-    const reasonPnlMap: {[reason: string]: number} = useMemo(() => nonSummaryPositions.reduce((acc, curr) => ({...acc, [reasons[curr.id]]: (acc[reasons[curr.id]] || 0) +  curr.PnL  }), {} as {[reason: string]: number}), [nonSummaryPositions, reasons])
+    const reasonPnlMap: { [reason: string]: number } = useMemo(() => nonSummaryPositions.reduce((acc, curr) => ({
+        ...acc,
+        [reasons[curr.id]]: (acc[reasons[curr.id]] || 0) + curr.PnL
+    }), {} as { [reason: string]: number }), [nonSummaryPositions, reasons])
 
     const reasonCategories = useMemo(() => Object.entries(reasonPnlMap).sort((a, b) => a[1] - b[1]), [reasonPnlMap])
 
@@ -127,7 +105,8 @@ const Analytics: FC<IProps> = ({data, api, dateFrom, isLoading, clientId}) => {
     }
 
     return <>
-        <ProfitWidget isLoading={isLoading} colors={nightMode && darkColors} data={balanceSeriesDataWithoutFirst} initBalance={balanceSeriesData[0]?.value || 0} moneyMoves={moneyMoves}/>
+        <ProfitWidget isLoading={isLoading} colors={nightMode && darkColors} data={balanceSeriesDataWithoutFirst}
+                      initBalance={balanceSeriesData[0]?.value || 0} moneyMoves={moneyMoves}/>
         {/*<div className="widget">*/}
         {/*    <div className="widget_header">Reasons</div>*/}
         {/*    <HighchartsReact*/}
@@ -142,10 +121,12 @@ const Analytics: FC<IProps> = ({data, api, dateFrom, isLoading, clientId}) => {
             <MaxLossTradesWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
             <ProfitTimeWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
             <LossTimeWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
-            <ReportWidget nonSummaryPositions={nonSummaryPositions} tradingDays={tradingDays} data={balanceSeriesDataWithoutFirst}/>
+            <ReportWidget nonSummaryPositions={nonSummaryPositions} tradingDays={tradingDays}
+                          data={balanceSeriesDataWithoutFirst}/>
         </div>
-        <SymbolsWidget nightMode={nightMode} darkColors={darkColors} nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
-        </>
+        <SymbolsWidget nightMode={nightMode} darkColors={darkColors} nonSummaryPositions={nonSummaryPositions}
+                       isLoading={isLoading}/>
+    </>
 }
 
 export default Analytics;
