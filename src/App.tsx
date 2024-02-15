@@ -254,16 +254,49 @@ function App() {
         return r;
     })
 
+    const getEquityDynamics = (dateFrom: string, dateTo: string) => api.clientInfo.getEquityDynamics({
+        startDate: moment(dateFrom).format('YYYY-MM-DD'),
+        endDate: dateTo,
+        portfolio: settings.portfolio?.replace('D', '')
+    }).then(results => {
+        const lastValue = results.portfolioValues.slice(-1)[0];
+        // Если последнее значение есть и оно не сегодняшний день и мы запросили за текущий день тоже
+        if(lastValue && moment(lastValue.date).isBefore(moment()) && moment(dateTo).isAfter(moment())){
+            results.portfolioValues.push({date: moment().format('YYYY-MM-DD'), value: summary.portfolioEvaluation } as any)
+        }
+        setEquityDynamics(results);
+
+        return results;
+    })
+
+    const getSummary = async () => {
+        const summary = await api.clientInfo.getSummary({
+            exchange: Exchange.MOEX,
+            portfolio: settings.portfolio,
+            format: 'Simple'
+        })
+
+        const summaryData = data.positions.filter(p => p.type === 'summary')
+
+        const result = [{time: moment().format('YYYY-MM-DD'), value: summary.portfolioEvaluation}];
+        summaryData.forEach((d) => result.unshift({time: d.openDate, value: result[0].value - d.PnL}))
+
+        // setBalanceSeriesData(result)
+        setSummary(summary)
+    }
+
     useEffect(() => {
-        if (!api) {
+        if (api && settings.portfolio) {
+            getSummary();
+        }
+    }, [api, settings.portfolio, data.positions])
+
+    useEffect(() => {
+        if (!api && !summary) {
             return;
         }
 
-        api.clientInfo.getEquityDynamics({
-            startDate: moment(dateFrom).format('YYYY-MM-DD'),
-            endDate: dateTo,
-            portfolio: settings.portfolio?.replace('D', '')
-        }).then(setEquityDynamics);
+        getEquityDynamics(dateFrom, dateTo);
 
         if (userInfo?.agreements[0].agreementNumber)
             api.clientInfo.getMoneyMoves(Number(userInfo?.agreements[0].agreementNumber), {
@@ -287,29 +320,7 @@ function App() {
             .then(() => getUserInfo())
             .then((userInfo) => getMoneyMoves(Number(userInfo?.agreements[0].agreementNumber)))
                 .finally(() => setIsLoading(false));
-    }, [api, dateFrom]);
-
-    const loadData = async () => {
-        const summary = await api.clientInfo.getSummary({
-            exchange: Exchange.MOEX,
-            portfolio: settings.portfolio,
-            format: 'Simple'
-        })
-
-        const summaryData = data.positions.filter(p => p.type === 'summary')
-
-        const result = [{time: moment().format('YYYY-MM-DD'), value: summary.portfolioEvaluation}];
-        summaryData.forEach((d) => result.unshift({time: d.openDate, value: result[0].value - d.PnL}))
-
-        // setBalanceSeriesData(result)
-        setSummary(summary)
-    }
-
-    useEffect(() => {
-        if (api && settings.portfolio) {
-            loadData();
-        }
-    }, [api, settings.portfolio, data.positions])
+    }, [api, dateFrom, summary]);
 
     useEffect(() => {
         if (!api) {
