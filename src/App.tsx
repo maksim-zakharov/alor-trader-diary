@@ -240,8 +240,22 @@ function App() {
     const [equityDynamics, setEquityDynamics] = useState<EquityDynamicsResponse>()
     const [moneyMoves, setMonetMoves] = useState<MoneyMove[]>([]);
 
+    const getUserInfo = () => api.clientInfo.getUserInfo()
+        .then(userInfo => {
+            setUserInfo(userInfo)
+        return userInfo;
+        })
+
+    const getMoneyMoves = (agreementNumber: number) => api.clientInfo.getMoneyMoves(agreementNumber, {
+        dateFrom,
+        dateTo
+    }).then(r => {
+        setMonetMoves(r)
+        return r;
+    })
+
     useEffect(() => {
-        if (!api || !userInfo) {
+        if (!api) {
             return;
         }
 
@@ -269,8 +283,11 @@ function App() {
         loadTrades({
             date,
             dateFrom,
-        }).then(setTrades).then(() => api.clientInfo.getUserInfo().then(setUserInfo)).finally(() => setIsLoading(false));
-    }, [api, dateFrom, userInfo?.agreements[0].agreementNumber]);
+        }).then(setTrades)
+            .then(() => getUserInfo())
+            .then(() => getMoneyMoves(Number(userInfo?.agreements[0].agreementNumber)))
+                .finally(() => setIsLoading(false));
+    }, [api, dateFrom]);
 
     const loadData = async () => {
         const summary = await api.clientInfo.getSummary({
