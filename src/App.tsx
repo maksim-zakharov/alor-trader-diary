@@ -276,10 +276,10 @@ function App() {
             format: 'Simple'
         })
 
-        const summaryData = data.positions.filter(p => p.type === 'summary')
-
-        const result = [{time: moment().format('YYYY-MM-DD'), value: summary.portfolioEvaluation}];
-        summaryData.forEach((d) => result.unshift({time: d.openDate, value: result[0].value - d.PnL}))
+        // const summaryData = data.positions.filter(p => p.type === 'summary')
+        //
+        // const result = [{time: moment().format('YYYY-MM-DD'), value: summary.portfolioEvaluation}];
+        // summaryData.forEach((d) => result.unshift({time: d.openDate, value: result[0].value - d.PnL}))
 
         // setBalanceSeriesData(result)
         setSummary(summary)
@@ -289,7 +289,7 @@ function App() {
         if (api && settings.portfolio) {
             getSummary();
         }
-    }, [api, settings.portfolio, data.positions])
+    }, [api, settings.portfolio])
 
     useEffect(() => {
         if (!api && !summary) {
