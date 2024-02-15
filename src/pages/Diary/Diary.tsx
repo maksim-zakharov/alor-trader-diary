@@ -418,7 +418,7 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
                     <Statistic
                         title="Net Profit"
                         loading={isLoading}
-                        value={`${moneyFormat(equityDynamics?.profitablity || data.totalPnL)} (${shortNumberFormat(equityDynamics?.profitablityPct || netProfitPercent)}%)`}
+                        value={`${moneyFormat(data.totalPnL)} (${shortNumberFormat(netProfitPercent)}%)`}
                         precision={2}
                         valueStyle={{
                             color:
@@ -428,7 +428,7 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
                     <Statistic
                         title="Total Fee"
                         loading={isLoading}
-                        value={moneyFormat(moneyMovesCommission || data.totalFee)}
+                        value={moneyFormat(data.totalFee)}
                         precision={2}
                         valueStyle={{color: 'rgba(var(--table-loss-color),1)'}}
                     />
