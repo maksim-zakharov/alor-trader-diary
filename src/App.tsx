@@ -181,13 +181,21 @@ function App() {
         [positions],
     );
 
+    // const historyPositions = useMemo(() => {
+    //     const allTrades = [...trades, ...startedTrades];
+    //
+    //     allTrades.reverse();
+    //
+    //     return tradesToHistoryPositions(allTrades);
+    // }, [startedTrades, trades]);
+
     const historyPositions = useMemo(() => {
-        const allTrades = [...trades, ...startedTrades];
+        const allTrades = [...trades];
 
         allTrades.reverse();
 
         return tradesToHistoryPositions(allTrades);
-    }, [startedTrades, trades]);
+    }, [trades]);
 
     const data = useMemo(() => {
         const data = historyPositions;
@@ -233,7 +241,7 @@ function App() {
     const [moneyMoves, setMonetMoves] = useState<MoneyMove[]>([]);
 
     useEffect(() => {
-        if (!api) {
+        if (!api || !userInfo) {
             return;
         }
 
@@ -249,13 +257,13 @@ function App() {
                 dateTo
             }).then(r => setMonetMoves(r))
 
-        api.clientInfo
-            .getPositions({
-                exchange: 'MOEX',
-                portfolio: settings.portfolio,
-                withoutCurrency: true,
-            })
-            .then(setPositions);
+        // api.clientInfo
+        //     .getPositions({
+        //         exchange: 'MOEX',
+        //         portfolio: settings.portfolio,
+        //         withoutCurrency: true,
+        //     })
+        //     .then(setPositions);
 
         setIsLoading(true);
         loadTrades({
@@ -291,31 +299,32 @@ function App() {
             return;
         }
 
-        api.onAuthCallback = () => {
-            api.subscriptions.positions(
-                {
-                    portfolio: settings.portfolio,
-                    exchange: Exchange.MOEX,
-                },
-                (positions) =>
-                    setPositions((prevState) =>
-                        prevState.map((p) =>
-                            p.symbol === positions.symbol ? positions : p,
-                        ),
-                    ),
-            );
-
-            api.subscriptions.trades(
-                {
-                    portfolio: settings.portfolio,
-                    exchange: Exchange.MOEX,
-                },
-                (trades) =>
-                    setTrades((prevState) =>
-                        prevState.map((p) => (p.id === trades.id ? trades : p)),
-                    ),
-            );
-        };
+        // без вебсокетов
+        // api.onAuthCallback = () => {
+        //     api.subscriptions.positions(
+        //         {
+        //             portfolio: settings.portfolio,
+        //             exchange: Exchange.MOEX,
+        //         },
+        //         (positions) =>
+        //             setPositions((prevState) =>
+        //                 prevState.map((p) =>
+        //                     p.symbol === positions.symbol ? positions : p,
+        //                 ),
+        //             ),
+        //     );
+        //
+        //     api.subscriptions.trades(
+        //         {
+        //             portfolio: settings.portfolio,
+        //             exchange: Exchange.MOEX,
+        //         },
+        //         (trades) =>
+        //             setTrades((prevState) =>
+        //                 prevState.map((p) => (p.id === trades.id ? trades : p)),
+        //             ),
+        //     );
+        // };
 
         if (!api.accessToken) {
             api.refresh();
