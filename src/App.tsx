@@ -285,7 +285,7 @@ function App() {
             dateFrom,
         }).then(setTrades)
             .then(() => getUserInfo())
-            .then(() => getMoneyMoves(Number(userInfo?.agreements[0].agreementNumber)))
+            .then((userInfo) => getMoneyMoves(Number(userInfo?.agreements[0].agreementNumber)))
                 .finally(() => setIsLoading(false));
     }, [api, dateFrom]);
 
