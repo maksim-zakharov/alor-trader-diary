@@ -292,7 +292,7 @@ function App() {
     }, [api, settings.portfolio])
 
     useEffect(() => {
-        if (!api && !summary) {
+        if (!api || !summary) {
             return;
         }
 

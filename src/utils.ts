@@ -47,6 +47,35 @@ export const positionsToTrades = (positions: Positions) =>
             }) as Trade,
     );
 
+
+export const calculatePositionPart = (trades, trade) => {
+
+    const Fee = summ(
+        trades.map((t) => t.commission),
+    );
+
+    const buyVolume = summ(
+        trades
+            .filter((c) => c.side === Side.Buy)
+            .map((t) => t.volume),
+    );
+    const sellVolume = summ(
+        trades
+            .filter((c) => c.side === Side.Sell)
+            .map((t) => t.volume),
+    );
+    const openVolume = trade.side === Side.Buy ? buyVolume : sellVolume
+    const closeVolume = trade.side === Side.Buy ? sellVolume : buyVolume
+
+    const PnL =
+        closeVolume - openVolume - Math.abs(Fee);
+    const PnLPercent =
+        (closeVolume - Math.abs(Fee)) / openVolume -
+        1;
+
+    return {Fee, openVolume, closeVolume, PnL, PnLPercent};
+}
+
 export const tradesToHistoryPositions = (trades: Trade[]) => {
     const batchPositions: any = [];
     const currentPositionsMap: { [symbol: string]: any } = {};
@@ -91,34 +120,7 @@ export const tradesToHistoryPositions = (trades: Trade[]) => {
                     delete currentPositionsMap[trade.symbol].commQty;
                     delete currentPositionsMap[trade.symbol].lastSide;
 
-                    const totalCommission = summ(
-                        currentPositionsMap[trade.symbol].trades.map((t) => t.commission),
-                    );
-
-                    currentPositionsMap[trade.symbol].Fee = totalCommission;
-
-                    const buyVolume = summ(
-                        currentPositionsMap[trade.symbol].trades
-                            .filter((c) => c.side === Side.Buy)
-                            .map((t) => t.volume),
-                    );
-                    const sellVolume = summ(
-                        currentPositionsMap[trade.symbol].trades
-                            .filter((c) => c.side === Side.Sell)
-                            .map((t) => t.volume),
-                    );
-                    // @ts-ignore
-                    currentPositionsMap[trade.symbol].openVolume = trade.side === Side.Buy ? buyVolume : sellVolume
-                    // @ts-ignore
-                    currentPositionsMap[trade.symbol].closeVolume = trade.side === Side.Buy ? sellVolume :  buyVolume
-
-                    currentPositionsMap[trade.symbol].PnL =
-                        sellVolume - buyVolume - Math.abs(totalCommission);
-                    currentPositionsMap[trade.symbol].PnLPercent =
-                        (sellVolume - Math.abs(totalCommission)) / buyVolume -
-                        1;
-
-                    batchPositions.push({...currentPositionsMap[trade.symbol]});
+                    batchPositions.push({...currentPositionsMap[trade.symbol], ...calculatePositionPart(currentPositionsMap[trade.symbol].trades, trade)});
                     delete currentPositionsMap[trade.symbol];
                 }
                 // Если объем в минус - перевернуться
@@ -142,33 +144,10 @@ export const tradesToHistoryPositions = (trades: Trade[]) => {
 
                     currentPositionsMap[trade.symbol].trades.unshift(trade);
 
-                    const totalCommission = summ(
-                        currentPositionsMap[trade.symbol].trades.map((t) => t.commission),
-                    );
-
-                    currentPositionsMap[trade.symbol].Fee = totalCommission;
-
-                    const buyVolume = summ(
-                        currentPositionsMap[trade.symbol].trades
-                            .filter((c) => c.side === Side.Buy)
-                            .map((t) => t.volume),
-                    );
-                    const sellVolume = summ(
-                        currentPositionsMap[trade.symbol].trades
-                            .filter((c) => c.side === Side.Sell)
-                            .map((t) => t.volume),
-                    );
-
-                    currentPositionsMap[trade.symbol].PnL =
-                        sellVolume - buyVolume - Math.abs(totalCommission);
-                    currentPositionsMap[trade.symbol].PnLPercent =
-                        (sellVolume - currentPositionsMap[trade.symbol].Fee) / buyVolume -
-                        1;
-
                     const {commQty, lastSide, ...newPosition} =
                         currentPositionsMap[trade.symbol];
 
-                    batchPositions.push({...newPosition});
+                    batchPositions.push({...newPosition, ...calculatePositionPart(currentPositionsMap[trade.symbol].trades, trade)});
 
                     // @ts-ignore
                     trade.volume = diffVolume;
@@ -246,7 +225,7 @@ export const calculateDrawdown = (positions: { value: number }[]): number => {
         return 0;
     }
 
-    return maxDrawdown_(positions.map(p => p.value), 0, positions.length-1)[0];
+    return maxDrawdown_(positions.map(p => p.value), 0, positions.length - 1)[0];
 }
 
 function maxDrawdown_(equityCurve, idxStart, idxEnd) {
@@ -258,7 +237,7 @@ function maxDrawdown_(equityCurve, idxStart, idxEnd) {
     var idxEndMaxDd = -1;
 
     // Loop over all the values to compute the maximum drawdown
-    for (var i=idxStart; i<idxEnd+1; ++i) {
+    for (var i = idxStart; i < idxEnd + 1; ++i) {
         if (equityCurve[i] > highWaterMark) {
             highWaterMark = equityCurve[i];
             idxHighWaterMark = i;
