@@ -115,7 +115,7 @@ export const tradesToHistoryPositions = (trades: Trade[]) => {
                     currentPositionsMap[trade.symbol].PnL =
                         sellVolume - buyVolume - Math.abs(totalCommission);
                     currentPositionsMap[trade.symbol].PnLPercent =
-                        (sellVolume - currentPositionsMap[trade.symbol].Fee) / buyVolume -
+                        (sellVolume - Math.abs(totalCommission)) / buyVolume -
                         1;
 
                     batchPositions.push({...currentPositionsMap[trade.symbol]});
