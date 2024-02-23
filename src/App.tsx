@@ -181,13 +181,21 @@ function App() {
         [positions],
     );
 
+    // const historyPositions = useMemo(() => {
+    //     const allTrades = [...trades, ...startedTrades];
+    //
+    //     allTrades.reverse();
+    //
+    //     return tradesToHistoryPositions(allTrades);
+    // }, [startedTrades, trades]);
+
     const historyPositions = useMemo(() => {
-        const allTrades = [...trades, ...startedTrades];
+        const allTrades = [...trades];
 
         allTrades.reverse();
 
         return tradesToHistoryPositions(allTrades);
-    }, [startedTrades, trades]);
+    }, [trades]);
 
     const data = useMemo(() => {
         const data = historyPositions;
@@ -232,49 +240,46 @@ function App() {
     const [equityDynamics, setEquityDynamics] = useState<EquityDynamicsResponse>()
     const [moneyMoves, setMonetMoves] = useState<MoneyMove[]>([]);
 
-    useEffect(() => {
-        if (!api) {
-            return;
+    const getUserInfo = () => api.clientInfo.getUserInfo()
+        .then(userInfo => {
+            setUserInfo(userInfo)
+        return userInfo;
+        })
+
+    const getMoneyMoves = (agreementNumber: number) => api.clientInfo.getMoneyMoves(agreementNumber, {
+        dateFrom,
+        dateTo
+    }).then(r => {
+        setMonetMoves(r)
+        return r;
+    })
+
+    const getEquityDynamics = (dateFrom: string, dateTo: string) => api.clientInfo.getEquityDynamics({
+        startDate: moment(dateFrom).format('YYYY-MM-DD'),
+        endDate: dateTo,
+        portfolio: settings.portfolio?.replace('D', '')
+    }).then(results => {
+        const lastValue = results.portfolioValues.slice(-1)[0];
+        // Если последнее значение есть и оно не сегодняшний день и мы запросили за текущий день тоже
+        if(lastValue && moment(lastValue.date).isBefore(moment()) && moment(dateTo).isAfter(moment())){
+            results.portfolioValues.push({date: moment().format('YYYY-MM-DD'), value: summary.portfolioEvaluation } as any)
         }
+        setEquityDynamics(results);
 
-        api.clientInfo.getEquityDynamics({
-            startDate: moment(dateFrom).format('YYYY-MM-DD'),
-            endDate: dateTo,
-            portfolio: settings.portfolio?.replace('D', '')
-        }).then(setEquityDynamics);
+        return results;
+    })
 
-        if (userInfo?.agreements[0].agreementNumber)
-            api.clientInfo.getMoneyMoves(Number(userInfo?.agreements[0].agreementNumber), {
-                dateFrom,
-                dateTo
-            }).then(r => setMonetMoves(r))
-
-        api.clientInfo
-            .getPositions({
-                exchange: 'MOEX',
-                portfolio: settings.portfolio,
-                withoutCurrency: true,
-            })
-            .then(setPositions);
-
-        setIsLoading(true);
-        loadTrades({
-            date,
-            dateFrom,
-        }).then(setTrades).then(() => api.clientInfo.getUserInfo().then(setUserInfo)).finally(() => setIsLoading(false));
-    }, [api, dateFrom, userInfo?.agreements[0].agreementNumber]);
-
-    const loadData = async () => {
+    const getSummary = async () => {
         const summary = await api.clientInfo.getSummary({
             exchange: Exchange.MOEX,
             portfolio: settings.portfolio,
             format: 'Simple'
         })
 
-        const summaryData = data.positions.filter(p => p.type === 'summary')
-
-        const result = [{time: moment().format('YYYY-MM-DD'), value: summary.portfolioEvaluation}];
-        summaryData.forEach((d) => result.unshift({time: d.openDate, value: result[0].value - d.PnL}))
+        // const summaryData = data.positions.filter(p => p.type === 'summary')
+        //
+        // const result = [{time: moment().format('YYYY-MM-DD'), value: summary.portfolioEvaluation}];
+        // summaryData.forEach((d) => result.unshift({time: d.openDate, value: result[0].value - d.PnL}))
 
         // setBalanceSeriesData(result)
         setSummary(summary)
@@ -282,40 +287,72 @@ function App() {
 
     useEffect(() => {
         if (api && settings.portfolio) {
-            loadData();
+            getSummary();
         }
-    }, [api, settings.portfolio, data.positions])
+    }, [api, settings.portfolio])
+
+    useEffect(() => {
+        if (!api && !summary) {
+            return;
+        }
+
+        getEquityDynamics(dateFrom, dateTo);
+
+        if (userInfo?.agreements[0].agreementNumber)
+            api.clientInfo.getMoneyMoves(Number(userInfo?.agreements[0].agreementNumber), {
+                dateFrom,
+                dateTo
+            }).then(r => setMonetMoves(r))
+
+        // api.clientInfo
+        //     .getPositions({
+        //         exchange: 'MOEX',
+        //         portfolio: settings.portfolio,
+        //         withoutCurrency: true,
+        //     })
+        //     .then(setPositions);
+
+        setIsLoading(true);
+        loadTrades({
+            date,
+            dateFrom,
+        }).then(setTrades)
+            .then(() => getUserInfo())
+            .then((userInfo) => getMoneyMoves(Number(userInfo?.agreements[0].agreementNumber)))
+                .finally(() => setIsLoading(false));
+    }, [api, dateFrom, summary]);
 
     useEffect(() => {
         if (!api) {
             return;
         }
 
-        api.onAuthCallback = () => {
-            api.subscriptions.positions(
-                {
-                    portfolio: settings.portfolio,
-                    exchange: Exchange.MOEX,
-                },
-                (positions) =>
-                    setPositions((prevState) =>
-                        prevState.map((p) =>
-                            p.symbol === positions.symbol ? positions : p,
-                        ),
-                    ),
-            );
-
-            api.subscriptions.trades(
-                {
-                    portfolio: settings.portfolio,
-                    exchange: Exchange.MOEX,
-                },
-                (trades) =>
-                    setTrades((prevState) =>
-                        prevState.map((p) => (p.id === trades.id ? trades : p)),
-                    ),
-            );
-        };
+        // без вебсокетов
+        // api.onAuthCallback = () => {
+        //     api.subscriptions.positions(
+        //         {
+        //             portfolio: settings.portfolio,
+        //             exchange: Exchange.MOEX,
+        //         },
+        //         (positions) =>
+        //             setPositions((prevState) =>
+        //                 prevState.map((p) =>
+        //                     p.symbol === positions.symbol ? positions : p,
+        //                 ),
+        //             ),
+        //     );
+        //
+        //     api.subscriptions.trades(
+        //         {
+        //             portfolio: settings.portfolio,
+        //             exchange: Exchange.MOEX,
+        //         },
+        //         (trades) =>
+        //             setTrades((prevState) =>
+        //                 prevState.map((p) => (p.id === trades.id ? trades : p)),
+        //             ),
+        //     );
+        // };
 
         if (!api.accessToken) {
             api.refresh();
