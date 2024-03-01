@@ -14,6 +14,8 @@ import SymbolsWidget from "./widgets/SymbolsWidget";
 import ReportWidget from "./widgets/ReportWidget";
 import ProfitWidget from "./widgets/ProfitWidget";
 import {MoneyMove} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
+import ProfitWeekdayWidget from "./widgets/ProfitWeekdayWidget";
+import LossWeekdayWidget from "./widgets/LossWeekdayWidget";
 
 interface IProps {
     balanceSeriesData: any
@@ -121,6 +123,8 @@ const Analytics: FC<IProps> = ({data, api, dateFrom, isLoading, moneyMoves, bala
             <MaxLossTradesWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
             <ProfitTimeWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
             <LossTimeWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
+            <ProfitWeekdayWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
+            <LossWeekdayWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
             <ReportWidget nonSummaryPositions={nonSummaryPositions} tradingDays={tradingDays}
                           data={balanceSeriesDataWithoutFirst}/>
         </div>
