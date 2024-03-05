@@ -268,7 +268,7 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
                     key: 'Fee',
                     align: 'center',
                     // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
-                    render: (_, row) => `${moneyFormat(_)} ${row.type !== 'summary' ? `(${(_ * 100/ (row.openVolume + row.closeVolume)).toFixed(2)}%)` : ''}`,
+                    render: (_, row) => `${moneyFormat(_)} ${row.type !== 'summary' ? `(${(_ * 100/ (row.openVolume + row.closeVolume)).toFixed(3)}%)` : ''}`,
                 },
                 {
                     title: 'Reason',
