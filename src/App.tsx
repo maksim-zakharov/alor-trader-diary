@@ -188,7 +188,9 @@ function App() {
             trades = trades.map((t) => ({
                 ...t,
                 // @ts-ignore
-                commission: !t.commission ? calculateCommission(dayVolumes[moment(t.date).format('YYYY-MM-DD')])  * t.volume : t.commission,
+                commission: calculateCommission(dayVolumes[moment(t.date).format('YYYY-MM-DD')])  * t.volume,
+                // // @ts-ignore
+                // commission: !t.commission ? calculateCommission(dayVolumes[moment(t.date).format('YYYY-MM-DD')])  * t.volume : t.commission,
             }));
         }
 
