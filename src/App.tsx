@@ -160,22 +160,35 @@ function App() {
                     moment(date).add(1, 'day').isAfter(moment(t.date)),
                 );
 
-            let commission = 0.0004;
-            // @ts-ignore
-            const totalVolume = summ(trades.map(t => t.volume));
-            switch (totalVolume){
-                case totalVolume < 1000000: commission = 0.0008; break;
-                case totalVolume >= 1000000 && totalVolume < 10000000: commission = 0.00025; break;
-                case totalVolume >= 10000000 && totalVolume < 30000000: commission = 0.0002; break;
-                case totalVolume >= 30000000 && totalVolume < 50000000: commission = 0.00015; break;
-                case totalVolume >= 50000000: commission = 0.0001; break;
-                default: break;
+            const calculateCommission = (totalVolume: number): number => {
+                let commission = 0.0004;
+                switch (true){
+                    case totalVolume < 1000000: commission = 0.0008; break;
+                    case totalVolume >= 1000000 && totalVolume < 10000000: commission = 0.00025; break;
+                    case totalVolume >= 10000000 && totalVolume < 30000000: commission = 0.0002; break;
+                    case totalVolume >= 30000000 && totalVolume < 50000000: commission = 0.00015; break;
+                    case totalVolume >= 50000000: commission = 0.0001; break;
+                    default: break;
+                }
+
+                return commission;
             }
+
+            const dayVolumes = trades.reduce((acc, curr) => {
+                const day = moment(curr.date).format('YYYY-MM-DD');
+                if(!acc[day]){
+                    acc[day] = 0;
+                }
+                // @ts-ignore
+                acc[day] += curr.volume;
+
+                return acc;
+            }, {});
 
             trades = trades.map((t) => ({
                 ...t,
                 // @ts-ignore
-                commission: !t.commission ? t.volume * commission : t.commission,
+                commission: !t.commission ? calculateCommission(dayVolumes[moment(t.date).format('YYYY-MM-DD')])  * t.volume : t.commission,
             }));
         }
 
@@ -219,6 +232,7 @@ function App() {
                 p.trades.filter((t) => t.side === p.side).map((t) => t.volume),
             ),
         }));
+
         const dayPositionsWithSummaryMap = {};
         for (let i = 0; i < data.positions.length; i++) {
             const currentDay = moment(data.positions[i].openDate).format(
@@ -228,12 +242,13 @@ function App() {
                 const currentDayPositions = data.positions.filter(
                     (p) => moment(p.openDate).format('YYYY-MM-DD') === currentDay,
                 );
+
                 dayPositionsWithSummaryMap[currentDay] = [
                     {
                         type: 'summary',
                         Fee: summ(currentDayPositions.map((p) => p.Fee)),
                         PnL: summ(currentDayPositions.map((p) => p.PnL)),
-                        openDate: currentDay,
+                        openDate: currentDay
                     },
                 ];
                 dayPositionsWithSummaryMap[currentDay].push(...currentDayPositions);
