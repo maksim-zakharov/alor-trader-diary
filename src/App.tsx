@@ -270,6 +270,9 @@ function App() {
         endDate: dateTo,
         portfolio: settings.portfolio?.replace('D', '')
     }).then(results => {
+        if(!results){
+            return results;
+        }
         const lastValue = results.portfolioValues.slice(-1)[0];
         // Если последнее значение есть и оно не сегодняшний день и мы запросили за текущий день тоже
         if(lastValue && moment(lastValue.date).isBefore(moment()) && moment(dateTo).isAfter(moment())){
