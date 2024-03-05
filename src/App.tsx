@@ -161,6 +161,7 @@ function App() {
                 );
 
             let commission = 0.0004;
+            // @ts-ignore
             const totalVolume = summ(trades.map(t => t.volume));
             switch (totalVolume){
                 case totalVolume < 1000000: commission = 0.0008; break;
