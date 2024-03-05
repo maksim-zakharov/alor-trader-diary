@@ -160,10 +160,21 @@ function App() {
                     moment(date).add(1, 'day').isAfter(moment(t.date)),
                 );
 
+            let commission = 0.0004;
+            const totalVolume = summ(trades.map(t => t.volume));
+            switch (totalVolume){
+                case totalVolume < 1000000: commission = 0.0008; break;
+                case totalVolume >= 1000000 && totalVolume < 10000000: commission = 0.00025; break;
+                case totalVolume >= 10000000 && totalVolume < 30000000: commission = 0.0002; break;
+                case totalVolume >= 30000000 && totalVolume < 50000000: commission = 0.00015; break;
+                case totalVolume >= 50000000: commission = 0.0001; break;
+                default: break;
+            }
+
             trades = trades.map((t) => ({
                 ...t,
                 // @ts-ignore
-                commission: !t.commission ? t.volume * 0.0004 : t.commission,
+                commission: !t.commission ? t.volume * commission : t.commission,
             }));
         }
 

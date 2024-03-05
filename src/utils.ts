@@ -21,7 +21,7 @@ export const roundPrice = (
         Math.round(price / minPriceIncrement) * minPriceIncrement;
     return +withIncrement.toFixed(digitsAfterDot(minPriceIncrement));
 };
-export const positionsToTrades = (positions: Positions) =>
+export const positionsToTrades = (positions: Positions, commission: number = 0.0005) =>
     positions.map(
         (p) =>
             ({
@@ -36,7 +36,7 @@ export const positionsToTrades = (positions: Positions) =>
                 side: p.qty > 0 ? Side.Sell : Side.Buy,
                 board: 'TQBR',
                 // @ts-ignore
-                commission: Math.abs(p.volume) * 0.0005,
+                commission: Math.abs(p.volume) * commission,
                 price: p.avgPrice,
                 // @ts-ignore
                 accruedInt: 0,
