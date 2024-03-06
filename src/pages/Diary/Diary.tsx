@@ -394,12 +394,28 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
             <div
                 style={{
                     display: 'flex',
-                    justifyContent: 'end',
+                    justifyContent: 'space-between',
                     alignItems: 'center',
                     marginBottom: '8px',
                     marginTop: '-16px'
                 }}
             >
+                <div
+                    style={{
+                        display: 'flex',
+                        gap: '32px',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        flexWrap: 'wrap'
+                    }}
+                >
+                    <Statistic
+                        title="Summary"
+                        loading={isLoading}
+                        value={moneyFormat(summary?.portfolioEvaluation || 0)}
+                        precision={2}
+                    />
+                </div>
                 <div
                     style={{
                         display: 'flex',
