@@ -412,7 +412,7 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
                     <Statistic
                         title="Summary"
                         loading={isLoading}
-                        value={moneyFormat(summary?.portfolioEvaluation || 0)}
+                        value={moneyFormat(summary?.portfolioLiquidationValue || 0)}
                         precision={2}
                     />
                 </div>
