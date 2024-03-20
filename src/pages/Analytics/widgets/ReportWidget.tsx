@@ -1,8 +1,6 @@
-import Spinner from "../../../common/Spinner";
-import {Divider, List, Space} from "antd";
+import {Divider, List} from "antd";
 import {moneyFormat} from "../../../common/utils";
-import {calculateDrawdown, durationLabels, workday_count} from "../../../utils";
-import NoResult from "../../../common/NoResult";
+import {calculateDrawdown, workday_count} from "../../../utils";
 import React, {useMemo} from "react";
 import {summ} from "../../../App";
 import moment from "moment";
@@ -35,15 +33,15 @@ const ReportWidget = ({nonSummaryPositions, tradingDays, data}) => {
         {label: 'Percent Profitable', value: <div>{`${(percentProfitable * 100).toFixed(2)}%`}</div>},
         {label: 'Maximum drawdown', value: <div>{`${(drawdown * 100).toFixed(2)}%`}</div>},
     ]
+
+    const renderProfit = (profit) => <div style={{color:
+            profit > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>{moneyFormat(profit)} ({(profit * 100 / currentBalance).toFixed(2)}%)</div>
+
     const list2 = [
-        {label: 'Average Trade Net Profit', value: <div style={{color:
-                    averageTradeNetProfit > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>{moneyFormat(averageTradeNetProfit)} ({(averageTradeNetProfit * 100 / currentBalance).toFixed(2)}%)</div>},
-        {label: 'Average Day Net Profit', value: <div style={{color:
-                    averageDayNetProfit > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>{moneyFormat(averageDayNetProfit)} ({(averageDayNetProfit * 100 / currentBalance).toFixed(2)}%)</div>},
-        {label: 'Planing Monthly Profit', value: <div style={{color:
-                    planingMonthlyProfit > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>{moneyFormat(planingMonthlyProfit)} ({(planingMonthlyProfit * 100 / currentBalance).toFixed(2)}%)</div>},
-        {label: 'Planing Yearly Profit', value: <div style={{color:
-                    planingYearlyProfit > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>{moneyFormat(planingYearlyProfit)} ({(planingYearlyProfit * 100 / currentBalance).toFixed(2)}%)</div>},
+        {label: 'Average Trade Net Profit', value: renderProfit(averageTradeNetProfit)},
+        {label: 'Average Day Net Profit', value: renderProfit(averageDayNetProfit)},
+        {label: 'Planing Monthly Profit', value: renderProfit(planingMonthlyProfit)},
+        {label: 'Planing Yearly Profit', value: renderProfit(planingYearlyProfit)},
     ]
 
     return <div className="widget">
