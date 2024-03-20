@@ -10,6 +10,8 @@ export const digitsAfterDot = (num) => {
     return `${num}`.split('.')?.[1]?.length || 0;
 };
 
+export const numberToPercent = (number) => (number * 100).toFixed(2)
+
 export const roundPrice = (
     price: number,
     minPriceIncrement?: number,

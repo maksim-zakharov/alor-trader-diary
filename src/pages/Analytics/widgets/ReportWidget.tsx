@@ -1,6 +1,6 @@
 import {Divider, List} from "antd";
 import {moneyFormat} from "../../../common/utils";
-import {calculateDrawdown, workday_count} from "../../../utils";
+import {calculateDrawdown, numberToPercent, workday_count} from "../../../utils";
 import React, {useMemo} from "react";
 import {summ} from "../../../App";
 import moment from "moment";
@@ -30,12 +30,12 @@ const ReportWidget = ({nonSummaryPositions, tradingDays, data}) => {
     const list1 = [
         {label: 'Average Trades Per Day', value: <div>{averageTradesByDay}</div>},
         {label: 'Profit Factor', value: <div>{profitFactor.toFixed(2)}</div>},
-        {label: 'Percent Profitable', value: <div>{`${(percentProfitable * 100).toFixed(2)}%`}</div>},
-        {label: 'Maximum drawdown', value: <div>{`${(drawdown * 100).toFixed(2)}%`}</div>},
+        {label: 'Percent Profitable', value: <div>{`${numberToPercent(percentProfitable)}%`}</div>},
+        {label: 'Maximum drawdown', value: <div>{`${numberToPercent(drawdown)}%`}</div>},
     ]
 
     const renderProfit = (profit) => <div style={{color:
-            profit > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>{moneyFormat(profit)} ({(profit * 100 / currentBalance).toFixed(2)}%)</div>
+            profit > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>{moneyFormat(profit)} ({numberToPercent(profit / currentBalance)}%)</div>
 
     const list2 = [
         {label: 'Average Trade Net Profit', value: renderProfit(averageTradeNetProfit)},

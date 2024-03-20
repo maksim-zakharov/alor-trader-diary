@@ -4,6 +4,7 @@ import React, {useMemo} from "react";
 import {Skeleton} from "antd";
 import Spinner from "../../../common/Spinner";
 import NoResult from "../../../common/NoResult";
+import {numberToPercent} from "../../../utils";
 
 const MaxProfitTradesWidget = ({nonSummaryPositions, isLoading}) => {
     const getMaxProfitTrades = useMemo(() => nonSummaryPositions.sort((a, b) => b.PnL - a.PnL).slice(0, 3), [nonSummaryPositions])
@@ -22,7 +23,7 @@ const MaxProfitTradesWidget = ({nonSummaryPositions, isLoading}) => {
                     </div>
                 </div>
                 <div className="ticker_actions">
-                    <div className="ticker_name_title" style={{ color: 'rgba(var(--table-profit-color),1)' }}>{moneyFormat(getMaxProfitTrade?.PnL || 0)} ({`${(getMaxProfitTrade?.PnLPercent * 100).toFixed(2)}%`})</div>
+                    <div className="ticker_name_title" style={{ color: 'rgba(var(--table-profit-color),1)' }}>{moneyFormat(getMaxProfitTrade?.PnL || 0)} ({`${numberToPercent(getMaxProfitTrade?.PnLPercent)}%`})</div>
                     <div className="ticker_name_description">на сумму {moneyFormat(getMaxProfitTrade?.volume, 0)}</div>
                 </div>
             </div>)}
