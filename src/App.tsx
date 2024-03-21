@@ -323,11 +323,11 @@ function App() {
 
         getEquityDynamics(dateFrom, dateTo);
 
-        if (userInfo?.agreements[0].agreementNumber)
-            api.clientInfo.getMoneyMoves(Number(userInfo?.agreements[0].agreementNumber), {
-                dateFrom,
-                dateTo
-            }).then(r => setMonetMoves(r))
+        // if (userInfo?.agreements[0].agreementNumber)
+        //     api.clientInfo.getMoneyMoves(Number(userInfo?.agreements[0].agreementNumber), {
+        //         dateFrom,
+        //         dateTo
+        //     }).then(r => setMonetMoves(r))
 
         // api.clientInfo
         //     .getPositions({
@@ -337,16 +337,15 @@ function App() {
         //     })
         //     .then(setPositions);
 
-        const fondPortfolio = (userInfo?.agreements[0].portfolios || []).find(p => p.marketType === 'FOND');
 
         setIsLoading(true);
-        loadTrades({
-            tariffPlan: fondPortfolio?.tariffPlan,
+        getUserInfo().then(userInfo => loadTrades({
+            tariffPlan: (userInfo?.agreements[0].portfolios || []).find(p => p.marketType === 'FOND')?.tariffPlan,
             date,
             dateFrom,
         }).then(setTrades)
-            .then(() => getUserInfo())
-            .then((userInfo) => getMoneyMoves(Number(userInfo?.agreements[0].agreementNumber)))
+            .then(() => getMoneyMoves(Number(userInfo?.agreements[0].agreementNumber))))
+
                 .finally(() => setIsLoading(false));
     }, [api, dateFrom, summary]);
 
