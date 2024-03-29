@@ -5,7 +5,7 @@ import React, {useMemo} from "react";
 import {summ} from "../../../App";
 import moment from "moment";
 
-const ReportWidget = ({nonSummaryPositions, tradingDays, data}) => {
+const ReportWidget = ({nonSummaryPositions, tradingDays, data, summaryPositions}) => {
 
     const totalNetProfit = summ(nonSummaryPositions.map(t => t.PnL));
     const profitTrades = nonSummaryPositions.filter(t => t.PnL > 0);
@@ -19,6 +19,8 @@ const ReportWidget = ({nonSummaryPositions, tradingDays, data}) => {
 
     const workDaysCountInMonth = workday_count(moment().startOf('month'), moment().endOf('month'));
     const workDaysCountInYear = workday_count(moment().startOf('year'), moment().endOf('year'));
+    console.log(workDaysCountInMonth, workDaysCountInYear)
+    // console.log(summ(summaryPositions.map(p => p.PnL)))
 
     const planingMonthlyProfit = averageTradeNetProfit * averageTradesByDay * workDaysCountInMonth;
     const planingYearlyProfit = averageTradeNetProfit * averageTradesByDay * workDaysCountInYear;
