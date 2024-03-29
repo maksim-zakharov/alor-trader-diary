@@ -290,7 +290,7 @@ function App() {
             results.portfolioValues.push({date: moment().format('YYYY-MM-DD'), value: summary.portfolioEvaluation } as any)
         }
 
-        console.log(results.portfolioValues.map((el, index, items) => index === 0 ? el : ({...el, value: el.value - items[index - 1].value})))
+        // console.log(results.portfolioValues.map((el, index, items) => index === 0 ? el : ({...el, value: el.value - items[index - 1].value})))
 
         setEquityDynamics(results);
 

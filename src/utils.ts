@@ -62,7 +62,7 @@ export const getCommissionByPlanAndTotalVolume = (plan: string, totalVolume: num
     const func = map[plan] || calculateCommission;
 
     // Почему то алор считает пока так по динамик эквити
-    return 0.00045; // func(totalVolume);
+    return 0.00046; // func(totalVolume);
 }
 
 export const numberToPercent = (number) => (number * 100).toFixed(2)

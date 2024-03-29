@@ -126,7 +126,7 @@ const Analytics: FC<IProps> = ({data, api, dateFrom, isLoading, moneyMoves, bala
             <LossTimeWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
             <ProfitWeekdayWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
             <LossWeekdayWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
-            <ReportWidget nonSummaryPositions={nonSummaryPositions} summaryPositions={summaryPositions} tradingDays={tradingDays}
+            <ReportWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading} tradingDays={tradingDays}
                           data={balanceSeriesDataWithoutFirst}/>
         </div>
         <SymbolsWidget nightMode={nightMode} darkColors={darkColors} nonSummaryPositions={nonSummaryPositions}
