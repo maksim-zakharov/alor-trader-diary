@@ -277,7 +277,7 @@ function App() {
     })
 
     const getEquityDynamics = (dateFrom: string, dateTo: string) => api.clientInfo.getEquityDynamics({
-        startDate: moment(dateFrom).format('YYYY-MM-DD'),
+        startDate: moment(dateFrom).add(-1, 'day').format('YYYY-MM-DD'),
         endDate: dateTo,
         portfolio: settings.portfolio?.replace('D', '')
     }).then(results => {
