@@ -331,7 +331,7 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
         const operationResult = await api.clientInfo.createOperation(agreementNumber, {
             account: settings.portfolio,
             bic: settings.bic,
-            amount: Number(settings.amount),
+            amount: Number((settings.amount || "").replaceAll(" ", '')),
             all: false,
             bankName: settings.bankName,
             loroAccount: settings.loroAccount,
