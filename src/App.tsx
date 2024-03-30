@@ -26,7 +26,12 @@ import Diary from './pages/Diary/Diary';
 import Analytics from './pages/Analytics/Analytics';
 import {DefaultOptionType} from 'antd/es/select';
 import OrderbookWidget from './pages/Orderbook/OrderbookWidget';
-import {positionsToTrades, tradesToHistoryPositions} from './utils';
+import {
+    calculateCommission,
+    getCommissionByPlanAndTotalVolume,
+    positionsToTrades,
+    tradesToHistoryPositions
+} from './utils';
 import {Time, WhitespaceData} from "lightweight-charts";
 import {
     EquityDynamicsResponse,
@@ -127,9 +132,11 @@ function App() {
 
 
     const loadTrades = async ({
+                                  tariffPlan,
                                   date,
                                   dateFrom,
                               }: {
+        tariffPlan?: string;
         date?: string;
         dateFrom?: string;
     }) => {
@@ -160,20 +167,6 @@ function App() {
                     moment(date).add(1, 'day').isAfter(moment(t.date)),
                 );
 
-            const calculateCommission = (totalVolume: number): number => {
-                let commission = 0.0004;
-                switch (true){
-                    case totalVolume < 1000000: commission = 0.0008; break;
-                    case totalVolume >= 1000000 && totalVolume < 10000000: commission = 0.00025; break;
-                    case totalVolume >= 10000000 && totalVolume < 30000000: commission = 0.0002; break;
-                    case totalVolume >= 30000000 && totalVolume < 50000000: commission = 0.00015; break;
-                    case totalVolume >= 50000000: commission = 0.0001; break;
-                    default: break;
-                }
-
-                return commission;
-            }
-
             const dayVolumes = trades.reduce((acc, curr) => {
                 const day = moment(curr.date).format('YYYY-MM-DD');
                 if(!acc[day]){
@@ -185,12 +178,12 @@ function App() {
                 return acc;
             }, {});
 
+            console.log('tariffPlan', tariffPlan);
+
             trades = trades.map((t) => ({
                 ...t,
                 // @ts-ignore
-                commission: calculateCommission(dayVolumes[moment(t.date).format('YYYY-MM-DD')])  * t.volume,
-                // // @ts-ignore
-                // commission: !t.commission ? calculateCommission(dayVolumes[moment(t.date).format('YYYY-MM-DD')])  * t.volume : t.commission,
+                commission: getCommissionByPlanAndTotalVolume(tariffPlan, dayVolumes[moment(t.date).format('YYYY-MM-DD')]) * t.volume,
             }));
         }
 
@@ -284,7 +277,7 @@ function App() {
     })
 
     const getEquityDynamics = (dateFrom: string, dateTo: string) => api.clientInfo.getEquityDynamics({
-        startDate: moment(dateFrom).format('YYYY-MM-DD'),
+        startDate: moment(dateFrom).add(-1, 'day').format('YYYY-MM-DD'),
         endDate: dateTo,
         portfolio: settings.portfolio?.replace('D', '')
     }).then(results => {
@@ -296,6 +289,9 @@ function App() {
         if(lastValue && moment(lastValue.date).isBefore(moment()) && moment(dateTo).isAfter(moment())){
             results.portfolioValues.push({date: moment().format('YYYY-MM-DD'), value: summary.portfolioEvaluation } as any)
         }
+
+        // console.log(results.portfolioValues.map((el, index, items) => index === 0 ? el : ({...el, value: el.value - items[index - 1].value})))
+
         setEquityDynamics(results);
 
         return results;
@@ -330,11 +326,11 @@ function App() {
 
         getEquityDynamics(dateFrom, dateTo);
 
-        if (userInfo?.agreements[0].agreementNumber)
-            api.clientInfo.getMoneyMoves(Number(userInfo?.agreements[0].agreementNumber), {
-                dateFrom,
-                dateTo
-            }).then(r => setMonetMoves(r))
+        // if (userInfo?.agreements[0].agreementNumber)
+        //     api.clientInfo.getMoneyMoves(Number(userInfo?.agreements[0].agreementNumber), {
+        //         dateFrom,
+        //         dateTo
+        //     }).then(r => setMonetMoves(r))
 
         // api.clientInfo
         //     .getPositions({
@@ -344,13 +340,15 @@ function App() {
         //     })
         //     .then(setPositions);
 
+
         setIsLoading(true);
-        loadTrades({
+        getUserInfo().then(userInfo => loadTrades({
+            tariffPlan: (userInfo?.agreements[0].portfolios || []).find(p => p.marketType === 'FOND')?.tariffPlan,
             date,
             dateFrom,
         }).then(setTrades)
-            .then(() => getUserInfo())
-            .then((userInfo) => getMoneyMoves(Number(userInfo?.agreements[0].agreementNumber)))
+            .then(() => getMoneyMoves(Number(userInfo?.agreements[0].agreementNumber))))
+
                 .finally(() => setIsLoading(false));
     }, [api, dateFrom, summary]);
 

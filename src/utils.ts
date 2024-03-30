@@ -10,6 +10,63 @@ export const digitsAfterDot = (num) => {
     return `${num}`.split('.')?.[1]?.length || 0;
 };
 
+
+// Активный
+export const calculateCommission = (totalVolume: number): number => {
+    let commission = 0.0008;
+    switch (true){
+        case totalVolume < 1000000: commission = 0.0008; break;
+        case totalVolume >= 1000000 && totalVolume < 10000000: commission = 0.00025; break;
+        case totalVolume >= 10000000 && totalVolume < 30000000: commission = 0.0002; break;
+        case totalVolume >= 30000000 && totalVolume < 50000000: commission = 0.00015; break;
+        case totalVolume >= 50000000: commission = 0.0001; break;
+        default: break;
+    }
+
+    return commission;
+}
+// Профессионал
+const calculateCommission1 = (totalVolume: number): number => {
+    let commission = 0.0004;
+    switch (true){
+        case totalVolume < 500000: commission = 0.0004; break;
+        case totalVolume >= 500000 && totalVolume < 1000000: commission = 0.00035; break;
+        case totalVolume >= 1000000 && totalVolume < 10000000: commission = 0.0003; break;
+        case totalVolume >= 10000000: commission = 0.00025; break;
+        default: break;
+    }
+
+    return commission;
+}
+// Ассистент
+const calculateCommission2 = (totalVolume: number): number => {
+    let commission = 0.002;
+
+    return commission;
+}
+// Единый
+const calculateCommission3 = (totalVolume: number): number => {
+    let commission = 0.001;
+
+    return commission;
+}
+
+export const getCommissionByPlanAndTotalVolume = (plan: string, totalVolume: number) => {
+    const map = {
+        'Активный': calculateCommission,
+        'Профессионал': calculateCommission1,
+        'Ассистент': calculateCommission2,
+        'Единый': calculateCommission3
+    }
+
+    const func = map[plan] || calculateCommission;
+
+    // Почему то алор считает пока так по динамик эквити
+    return 0.00046; // func(totalVolume / 2);
+}
+
+export const numberToPercent = (number) => (number * 100).toFixed(2)
+
 export const roundPrice = (
     price: number,
     minPriceIncrement?: number,

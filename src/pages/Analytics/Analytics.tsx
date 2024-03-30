@@ -43,6 +43,7 @@ const Analytics: FC<IProps> = ({data, api, dateFrom, isLoading, moneyMoves, bala
 
     const tradingDays = useMemo(() => data.positions.filter(p => p.type === 'summary'), [data.positions]);
     const nonSummaryPositions: any[] = useMemo(() => data.positions.filter(p => p.type !== 'summary'), [data.positions]);
+    const summaryPositions: any[] = useMemo(() => data.positions.filter(p => p.type === 'summary'), [data.positions]);
 
     const reasonPnlMap: { [reason: string]: number } = useMemo(() => nonSummaryPositions.reduce((acc, curr) => ({
         ...acc,
@@ -125,7 +126,7 @@ const Analytics: FC<IProps> = ({data, api, dateFrom, isLoading, moneyMoves, bala
             <LossTimeWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
             <ProfitWeekdayWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
             <LossWeekdayWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
-            <ReportWidget nonSummaryPositions={nonSummaryPositions} tradingDays={tradingDays}
+            <ReportWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading} tradingDays={tradingDays}
                           data={balanceSeriesDataWithoutFirst}/>
         </div>
         <SymbolsWidget nightMode={nightMode} darkColors={darkColors} nonSummaryPositions={nonSummaryPositions}

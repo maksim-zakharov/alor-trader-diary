@@ -26,6 +26,7 @@ import * as days from "dayjs";
 import {useSearchParams} from "react-router-dom";
 import PositionDetails from "./components/PositionDetails";
 import {Currency, EquityDynamicsResponse, MoneyMove} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
+import {numberToPercent} from "../../utils";
 
 interface DataType {
     key: string;
@@ -232,7 +233,7 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
                     // onCell: (record: any, rowIndex) => ({className: record.PnLPercent > 0 ? 'profit' : 'loss'}),
                     // render: (_, row) => moneyFormat(_)
                     render: (val: number, row: any) =>
-                        row.type !== 'summary' && `${(val * 100).toFixed(2)}%`,
+                        row.type !== 'summary' && `${numberToPercent(val)}%`,
                 },
                 {
                     title: 'PnL',

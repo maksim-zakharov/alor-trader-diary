@@ -1,13 +1,12 @@
-import Spinner from "../../../common/Spinner";
-import {Divider, List, Space} from "antd";
+import {Divider, List} from "antd";
 import {moneyFormat} from "../../../common/utils";
-import {calculateDrawdown, durationLabels, workday_count} from "../../../utils";
-import NoResult from "../../../common/NoResult";
+import {calculateDrawdown, numberToPercent, workday_count} from "../../../utils";
 import React, {useMemo} from "react";
 import {summ} from "../../../App";
 import moment from "moment";
+import Spinner from "../../../common/Spinner";
 
-const ReportWidget = ({nonSummaryPositions, tradingDays, data}) => {
+const ReportWidget = ({nonSummaryPositions, tradingDays, data, isLoading}) => {
 
     const totalNetProfit = summ(nonSummaryPositions.map(t => t.PnL));
     const profitTrades = nonSummaryPositions.filter(t => t.PnL > 0);
@@ -32,23 +31,24 @@ const ReportWidget = ({nonSummaryPositions, tradingDays, data}) => {
     const list1 = [
         {label: 'Average Trades Per Day', value: <div>{averageTradesByDay}</div>},
         {label: 'Profit Factor', value: <div>{profitFactor.toFixed(2)}</div>},
-        {label: 'Percent Profitable', value: <div>{`${(percentProfitable * 100).toFixed(2)}%`}</div>},
-        {label: 'Maximum drawdown', value: <div>{`${(drawdown * 100).toFixed(2)}%`}</div>},
+        {label: 'Percent Profitable', value: <div>{`${numberToPercent(percentProfitable)}%`}</div>},
+        {label: 'Maximum drawdown', value: <div>{`${numberToPercent(drawdown)}%`}</div>},
     ]
+
+    const renderProfit = (profit) => <div style={{color:
+            profit > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>{moneyFormat(profit)} ({numberToPercent(profit / currentBalance)}%)</div>
+
     const list2 = [
-        {label: 'Average Trade Net Profit', value: <div style={{color:
-                    averageTradeNetProfit > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>{moneyFormat(averageTradeNetProfit)} ({(averageTradeNetProfit * 100 / currentBalance).toFixed(2)}%)</div>},
-        {label: 'Average Day Net Profit', value: <div style={{color:
-                    averageDayNetProfit > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>{moneyFormat(averageDayNetProfit)} ({(averageDayNetProfit * 100 / currentBalance).toFixed(2)}%)</div>},
-        {label: 'Planing Monthly Profit', value: <div style={{color:
-                    planingMonthlyProfit > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>{moneyFormat(planingMonthlyProfit)} ({(planingMonthlyProfit * 100 / currentBalance).toFixed(2)}%)</div>},
-        {label: 'Planing Yearly Profit', value: <div style={{color:
-                    planingYearlyProfit > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>{moneyFormat(planingYearlyProfit)} ({(planingYearlyProfit * 100 / currentBalance).toFixed(2)}%)</div>},
+        {label: 'Average Trade Net Profit', value: renderProfit(averageTradeNetProfit)},
+        {label: 'Average Day Net Profit', value: renderProfit(averageDayNetProfit)},
+        {label: 'Planing Monthly Profit', value: renderProfit(planingMonthlyProfit)},
+        {label: 'Planing Yearly Profit', value: renderProfit(planingYearlyProfit)},
     ]
 
     return <div className="widget">
         <div className="widget_header">Total Report</div>
-        <div className="double-list">
+        {isLoading ? <Spinner/> :
+            <div className="double-list">
             <List
                 itemLayout="horizontal"
                 dataSource={list1}
@@ -74,7 +74,7 @@ const ReportWidget = ({nonSummaryPositions, tradingDays, data}) => {
                     </List.Item>
                 )}
             />
-        </div>
+        </div>}
     </div>
 }
 

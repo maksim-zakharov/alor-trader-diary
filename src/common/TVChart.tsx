@@ -9,6 +9,7 @@ import {
 } from "lightweight-charts";
 import {moneyFormat, shortNumberFormat} from "./utils";
 import moment from 'moment';
+import {numberToPercent} from "../utils";
 
 interface IProps{
     data:(CandlestickData<Time> | WhitespaceData<Time>)[];
@@ -43,7 +44,7 @@ const {
             // @ts-ignore
             if(lastValue.value === v) {
                 // @ts-ignore
-                return `${format} (${(lastValue.value * 100 / balance).toFixed(2)}%)`
+                return `${format} (${numberToPercent(lastValue.value / balance)}%)`
             }
             return format
         };
