@@ -65,7 +65,7 @@ export const getCommissionByPlanAndTotalVolume = (plan: string, totalVolume: num
     return 0.00046; // func(totalVolume / 2);
 }
 
-export const numberToPercent = (number) => (number * 100).toFixed(2)
+export const numberToPercent = (number) => ((number || 0) * 100).toFixed(2)
 
 export const roundPrice = (
     price: number,

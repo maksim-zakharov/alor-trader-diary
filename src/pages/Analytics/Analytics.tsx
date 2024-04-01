@@ -43,7 +43,6 @@ const Analytics: FC<IProps> = ({data, api, dateFrom, isLoading, moneyMoves, bala
 
     const tradingDays = useMemo(() => data.positions.filter(p => p.type === 'summary'), [data.positions]);
     const nonSummaryPositions: any[] = useMemo(() => data.positions.filter(p => p.type !== 'summary'), [data.positions]);
-    const summaryPositions: any[] = useMemo(() => data.positions.filter(p => p.type === 'summary'), [data.positions]);
 
     const reasonPnlMap: { [reason: string]: number } = useMemo(() => nonSummaryPositions.reduce((acc, curr) => ({
         ...acc,
