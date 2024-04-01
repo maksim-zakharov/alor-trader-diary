@@ -8,21 +8,21 @@ import Spinner from "../../../common/Spinner";
 
 const ReportWidget = ({nonSummaryPositions, tradingDays, data, isLoading}) => {
 
-    const totalNetProfit = summ(nonSummaryPositions.map(t => t.PnL));
-    const profitTrades = nonSummaryPositions.filter(t => t.PnL > 0);
-    const totalProfit = summ(profitTrades.map(t => t.PnL));
+    const totalNetProfit = summ(nonSummaryPositions.map(t => t.PnL)) || 0;
+    const profitTrades = nonSummaryPositions.filter(t => t.PnL > 0) || 0;
+    const totalProfit = summ(profitTrades.map(t => t.PnL)) || 0;
 
-    const profitFactor = totalProfit / summ(nonSummaryPositions.filter(t => t.PnL <= 0).map(t => -t.PnL));
-    const percentProfitable = profitTrades.length / nonSummaryPositions.length;
-    const averageTradeNetProfit = totalNetProfit / nonSummaryPositions.length;
-    const averageTradesByDay = Math.round(nonSummaryPositions.length / tradingDays.length)
-    const averageDayNetProfit = averageTradeNetProfit * averageTradesByDay;
+    const profitFactor = totalProfit / summ(nonSummaryPositions.filter(t => t.PnL <= 0).map(t => -t.PnL)) || 0;
+    const percentProfitable = profitTrades.length / nonSummaryPositions.length || 0;
+    const averageTradeNetProfit = totalNetProfit / nonSummaryPositions.length || 0;
+    const averageTradesByDay = Math.round(nonSummaryPositions.length / tradingDays.length) || 0
+    const averageDayNetProfit = averageTradeNetProfit * averageTradesByDay || 0;
 
     const workDaysCountInMonth = workday_count(moment().startOf('month'), moment().endOf('month'));
     const workDaysCountInYear = workday_count(moment().startOf('year'), moment().endOf('year'));
 
-    const planingMonthlyProfit = averageTradeNetProfit * averageTradesByDay * workDaysCountInMonth;
-    const planingYearlyProfit = averageTradeNetProfit * averageTradesByDay * workDaysCountInYear;
+    const planingMonthlyProfit = averageTradeNetProfit * averageTradesByDay * workDaysCountInMonth || 0;
+    const planingYearlyProfit = averageTradeNetProfit * averageTradesByDay * workDaysCountInYear || 0;
 
     const drawdown = useMemo(() => calculateDrawdown(data), [data]);
 
