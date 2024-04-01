@@ -282,6 +282,7 @@ function App() {
         portfolio: settings.portfolio?.replace('D', '')
     }).then(results => {
         if(!results){
+            setEquityDynamics({portfolioValues: [{date: moment().format('YYYY-MM-DD'), value: summary.portfolioEvaluation } as any]} as any);
             return results;
         }
         const lastValue = results.portfolioValues.slice(-1)[0];
