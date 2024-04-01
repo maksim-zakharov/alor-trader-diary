@@ -7,7 +7,7 @@ import NoResult from "../../../common/NoResult";
 import {numberToPercent} from "../../../utils";
 
 const MaxLossTradesWidget = ({nonSummaryPositions, isLoading}) => {
-    const getMaxLossTrades = useMemo(() => nonSummaryPositions.sort((a, b) => a.PnL - b.PnL).slice(0, 3), [nonSummaryPositions])
+    const getMaxLossTrades = useMemo(() => nonSummaryPositions.sort((a, b) => a.PnL - b.PnL).slice(0, 3).filter(p => p.PnL <= 0), [nonSummaryPositions])
 
     return <div className="widget">
         <div className="widget_header">Top loss trades</div>
