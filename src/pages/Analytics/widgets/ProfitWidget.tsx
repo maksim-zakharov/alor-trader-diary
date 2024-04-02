@@ -31,8 +31,12 @@ const ProfitWidget = ({data, isLoading, colors, moneyMoves, initBalance}) => {
             }
 
             // Изза багов Алора иногда бывает резкий 0 в балансе
-            if(i > 0 && d.value === 0){
+            if(d.value === 0){
+                if(i > 0)
                 d.value = data[i - 1].value;
+                else if(data.length > 1){
+                    d.value = data[1].value;
+                }
             }
 
             if(dayMoneyMovesMap[d.time]){
