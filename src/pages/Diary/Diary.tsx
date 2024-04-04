@@ -377,16 +377,21 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
     const createOperation = async () => {
         const agreementNumber = settings.portfolio.replace('D', '');
 
+        const account = accounts.find(a => a.settlementAccount === selectedAccount) || settings;
+        if(!account.settlementAccount){
+            return;
+        }
+
         const operationResult = await api.clientInfo.createOperation(agreementNumber, {
             account: settings.portfolio,
-            bic: settings.bic,
+            bic: account.bic,
             amount: Number((settings.amount || "").replaceAll(" ", '')),
             all: false,
-            bankName: settings.bankName,
-            loroAccount: settings.loroAccount,
+            bankName: account.bankName,
+            loroAccount: account.loroAccount,
             recipient: fullName,
             agree: true,
-            settlementAccount: settings.settlementAccount,
+            settlementAccount: account.settlementAccount,
             currency: Currency.RUB,
             subportfolioFrom: "MOEX"
         })
