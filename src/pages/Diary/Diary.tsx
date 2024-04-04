@@ -523,7 +523,10 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
         }
 
         return <>
-            {(accounts.length || settings['settlementAccount']) && <Divider/>}
+            {(accounts.length || settings['settlementAccount']) && <>
+                <Divider/>
+                <Typography.Text>Выберите банковский счет</Typography.Text>
+            </>}
             {settings['settlementAccount'] && showForm !== settings['settlementAccount'] &&
                 <AccountCard key={settings['settlementAccount']} bankName={settings['bankName']}
                              onSelect={onSelect}
