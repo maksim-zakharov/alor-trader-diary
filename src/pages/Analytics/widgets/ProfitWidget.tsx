@@ -12,7 +12,7 @@ const ProfitWidget = ({data, isLoading, colors, moneyMoves, initBalance}) => {
         }
 
         // Только те движения которые исполнены
-        if(curr.status === Status.Resolved && curr.subType === "input"){
+        if(curr.status === Status.Resolved && (curr.subType === "input" || curr.title === 'Вывод денежных средств')){
             // спорно TODO
             acc[date] += curr.sum;
         }
