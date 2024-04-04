@@ -1,19 +1,19 @@
 import {
-    Button,
+    Button, Card,
     DatePicker,
     DatePickerProps,
     Divider,
     Drawer,
     Form,
     Input,
-    message,
+    message, Popconfirm,
     Select,
-    SelectProps,
+    SelectProps, Space,
     Statistic,
     Switch,
-    Table,
+    Table, Typography,
 } from 'antd';
-import {ArrowDownOutlined, ArrowUpOutlined, SettingOutlined, RetweetOutlined} from '@ant-design/icons';
+import {ArrowDownOutlined, ArrowUpOutlined, SettingOutlined, RetweetOutlined, EditOutlined, DeleteOutlined} from '@ant-design/icons';
 import FormItem from 'antd/es/form/FormItem';
 import React, {ChangeEventHandler, FC, useEffect, useMemo, useState} from 'react';
 import {ColumnsType} from 'antd/es/table';
@@ -72,6 +72,28 @@ interface IProps {
     moneyMoves: MoneyMove[];
 }
 
+const AccountCard: FC<any> = ({bankName, settlementAccount, onEditAccount, confirmDeleteAccount, onSelect, selected}) => {
+
+    const DeleteButton: FC<any> = ({settlementAccount}: { settlementAccount: string }) => <Popconfirm
+        title="Удаление счета"
+        description="Вы уверены что хотите удалить счет?"
+        onConfirm={() => confirmDeleteAccount(settlementAccount)}
+        okText="Да"
+        cancelText="Нет"
+    >
+        <Button icon={<DeleteOutlined />} type="link" danger></Button>
+    </Popconfirm>
+
+    const className = useMemo(() => selected ? 'AccountCard selected' : 'AccountCard',[selected]);
+
+    return <Card className={className} title={bankName} onClick={() => onSelect(settlementAccount)} extra={<Space><Button icon={<EditOutlined key="edit"/>}
+                                                                                onClick={() => onEditAccount(settlementAccount)}
+                                                                                type="link"></Button><DeleteButton
+        settlementAccount={settlementAccount}/></Space>}>
+        {settlementAccount}
+    </Card>
+}
+
 const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, moneyMoves, isMobile, equityDynamics}) => {
     const [settings, setSettings] = useState<{
         token: string;
@@ -86,6 +108,7 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
 
     const moneyMovesCommission = useMemo(() => summ(moneyMoves.filter(m => m.title === "Комиссия брокера").map(m => m.sum)), [moneyMoves]);
 
+    const [showForm, setShowForm] = useState<boolean | string>(false);
 
     const [operationId, setOperationId] = useState<string>('');
     const [confirmationCode, setConfirmationCode] = useState<string>('');
@@ -102,6 +125,14 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
     const [comments, setComments] = useState<{ [id: string]: string }>(
         JSON.parse(localStorage.getItem('state') || '{}'),
     );
+
+    const [formState, setFormState] = useState<any>({});
+
+    const [accounts, setAccounts] = useState(
+        JSON.parse(localStorage.getItem('accounts') || '[]'),
+    );
+
+    const [selectedAccount, onSelect] = useState<string>('');
 
     useEffect(() => {
         localStorage.setItem('state', JSON.stringify(comments));
@@ -151,23 +182,25 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
     const [hidenMap, setHidenMap] = useState({});
 
     const renderVolume = (row) => {
-        if(row.type === 'summary'){
+        if (row.type === 'summary') {
             return;
         }
 
         const changeVolumeView = () => {
-            setHidenMap(prevState => ({...prevState, [row.id]: !!!prevState[row.id] }))
+            setHidenMap(prevState => ({...prevState, [row.id]: !!!prevState[row.id]}))
         }
 
-        if(!hidenMap[row.id]){
+        if (!hidenMap[row.id]) {
             return <>
-                {shortNumberFormat(row.openVolume, 0, 2)} / {shortNumberFormat(row.closeVolume, 0, 2)} <RetweetOutlined style={{cursor: 'pointer'}} onClick={changeVolumeView} />
+                {shortNumberFormat(row.openVolume, 0, 2)} / {shortNumberFormat(row.closeVolume, 0, 2)} <RetweetOutlined
+                style={{cursor: 'pointer'}} onClick={changeVolumeView}/>
             </>
         }
 
         return <>
-            {moneyFormat(row.openVolume, 0)} / {moneyFormat(row.closeVolume, 0)} <RetweetOutlined style={{cursor: 'pointer'}} onClick={changeVolumeView} />
-            </>
+            {moneyFormat(row.openVolume, 0)} / {moneyFormat(row.closeVolume, 0)} <RetweetOutlined
+            style={{cursor: 'pointer'}} onClick={changeVolumeView}/>
+        </>
     }
 
     const columns: ColumnsType<DataType> = useMemo(() =>
@@ -269,7 +302,7 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
                     key: 'Fee',
                     align: 'center',
                     // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
-                    render: (_, row) => `${moneyFormat(_)} ${row.type !== 'summary' ? `(${(_ * 100/ (row.openVolume + row.closeVolume)).toFixed(3)}%)` : ''}`,
+                    render: (_, row) => `${moneyFormat(_)} ${row.type !== 'summary' ? `(${(_ * 100 / (row.openVolume + row.closeVolume)).toFixed(3)}%)` : ''}`,
                 },
                 {
                     title: 'Reason',
@@ -318,6 +351,21 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
         return {
             value: settings[field],
             defaultValue: settings[field],
+            onChange,
+            name: field,
+            id: field
+        };
+    };
+
+    const settingsFormProps = (field: string) => {
+        const onChange = (e: any) => {
+            const value = e.target.value;
+            setFormState((prevState) => ({...prevState, [field]: value}));
+        };
+
+        return {
+            value: formState[field],
+            defaultValue: formState[field],
             onChange,
             name: field,
             id: field
@@ -389,6 +437,53 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
         document.body.className = 'dark-theme';
         setNightMode(e);
     };
+
+    const confirmDeleteAccount = (settlementAccount: string) => {
+        // @deprecate
+        if (settings['settlementAccount'] === settlementAccount) {
+
+            setSettings((state: any) => {
+                const {token, portfolio, amount, ...prevState} = state;
+
+                return {token, portfolio, amount} as any
+            });
+        }
+
+    }
+
+    const saveAccount = () => {
+        let edited = false;
+        for (let i = 0; i < accounts.length; i++) {
+            if (accounts[i].settlementAccount === formState.settlementAccount) {
+                accounts[i] = formState;
+                edited = true;
+            }
+        }
+        if (!edited) {
+            accounts.push(formState)
+        }
+        setAccounts(accounts);
+        localStorage.setItem('accounts', JSON.stringify(accounts));
+        cancelEditAccount();
+    }
+
+    const onEditAccount = (settlementAccount: string) => {
+        // @deprecate
+        if (settings['settlementAccount'] === settlementAccount) {
+            setFormState(settings)
+            setShowForm(settings['settlementAccount']);
+        } else {
+            const account = accounts.find(a => a.settlementAccount === settlementAccount) || {};
+
+            setFormState(account)
+            setShowForm(account['settlementAccount']);
+        }
+    }
+
+    const cancelEditAccount = () => {
+        setFormState({})
+        setShowForm(false);
+    }
 
     return (
         <>
@@ -478,34 +573,61 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
                                 />
                             </FormItem>
                             <Divider/>
-                            <FormItem label="Получатель">
-                                <Input placeholder="Получатель" disabled value={fullName}/>
-                            </FormItem>
-                            <FormItem label="БИК">
-                                <Input placeholder="БИК" {...settingsInputProps('bic')} />
-                            </FormItem>
-                            <FormItem label="Корр. счет">
-                                <Input
-                                    placeholder="Корр. счет"
-                                    {...settingsInputProps('loroAccount')}
-                                />
-                            </FormItem>
-                            <FormItem label="Банк получателя">
-                                <Input
-                                    placeholder="Банк получателя"
-                                    {...settingsInputProps('bankName')}
-                                />
-                            </FormItem>
-                            <FormItem label="Номер счета">
-                                <Input
-                                    placeholder="Номер счета"
-                                    {...settingsInputProps('settlementAccount')}
-                                />
-                            </FormItem>
-                            <FormItem label="Сумма">
+                            {settings['settlementAccount'] && showForm !== settings['settlementAccount'] &&
+                                <AccountCard key={settings['settlementAccount']} bankName={settings['bankName']}
+                                             onSelect={onSelect}
+                                             selected={settings['settlementAccount'] === selectedAccount}
+                                             settlementAccount={settings['settlementAccount']}
+                                             onEditAccount={onEditAccount}
+                                             confirmDeleteAccount={confirmDeleteAccount}/>
+                            }
+                            {accounts.map(account => showForm !== account['settlementAccount'] && <AccountCard key={account['settlementAccount']}
+                                                                  bankName={account['bankName']}
+                                                                                                               selected={account['settlementAccount'] === selectedAccount}
+                                                                  settlementAccount={account['settlementAccount']}
+                                                                  onEditAccount={onEditAccount}
+                                                                                                               onSelect={onSelect}
+                                                                  confirmDeleteAccount={confirmDeleteAccount}/>)}
+                            {showForm && <>
+                                <Divider/>
+                                <FormItem label="Получатель">
+                                    <Input placeholder="Получатель" disabled value={fullName}/>
+                                </FormItem>
+                                <FormItem label="БИК">
+                                    <Input placeholder="БИК" {...settingsFormProps('bic')} />
+                                </FormItem>
+                                <FormItem label="Корр. счет">
+                                    <Input
+                                        placeholder="Корр. счет"
+                                        {...settingsFormProps('loroAccount')}
+                                    />
+                                </FormItem>
+                                <FormItem label="Банк получатель">
+                                    <Input
+                                        placeholder="Банк получатель"
+                                        {...settingsFormProps('bankName')}
+                                    />
+                                </FormItem>
+                                <FormItem label="Номер счета">
+                                    <Input
+                                        placeholder="Номер счета"
+                                        {...settingsFormProps('settlementAccount')}
+                                    />
+                                </FormItem>
+                            </>}
+                            {!showForm && <Button onClick={() => setShowForm(true)} type="primary"
+                                                  style={{width: '100%', marginTop: '12px'}}>Добавить счет</Button>}
+                            {showForm && <>
+                                <Button onClick={() => saveAccount()} type="primary"
+                                        style={{width: '100%', marginTop: '12px'}}>Сохранить</Button>
+                                <Button onClick={() => cancelEditAccount()}
+                                        style={{width: '100%', marginTop: '12px'}}>Отменить</Button>
+                            </>}
+                            <FormItem label="Сумма" style={{width: '100%', marginTop: '12px'}}>
                                 <Input
                                     placeholder="Сумма"
-                                    {...settingsInputProps('amount')}
+                                    {...settingsFormProps('amount')}
+                                    disabled={!selectedAccount}
                                     suffix="₽"
                                 />
                             </FormItem>
@@ -517,11 +639,13 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
                                 />
                             </FormItem>}
                             <FormItem>
-                                {!operationId &&
-                                    <Button onClick={() => createOperation()} type="primary" style={{width: '100%'}}>Отправить
+                                {!operationId &&  selectedAccount &&
+                                    <Button onClick={() => createOperation()} type="primary"
+                                            style={{width: '100%', marginTop: '12px'}}>Отправить
                                         код</Button>}
                                 {operationId &&
-                                    <Button onClick={() => signOperation()} type="primary" style={{width: '100%'}}>Подтвердить
+                                    <Button onClick={() => signOperation()} type="primary"
+                                            style={{width: '100%', marginTop: '12px'}}>Подтвердить
                                         код</Button>}
                             </FormItem>
                         </Form>
