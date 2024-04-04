@@ -121,11 +121,15 @@ export const calculatePositionPart = (trades, trade) => {
             .filter((c) => c.side === Side.Sell)
             .map((t) => t.volume),
     );
+
+
     const openVolume = trade.side === Side.Buy ? buyVolume : sellVolume
     const closeVolume = trade.side === Side.Buy ? sellVolume : buyVolume
 
+    const multi = trade.side === Side.Buy ? 1 : -1;
+
     const PnL =
-        closeVolume - openVolume - Math.abs(Fee);
+        (closeVolume - openVolume) * multi - Math.abs(Fee);
     const PnLPercent =
         (closeVolume - Math.abs(Fee)) / openVolume -
         1;
