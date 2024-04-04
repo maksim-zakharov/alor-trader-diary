@@ -13,7 +13,14 @@ import {
     Switch,
     Table, Typography,
 } from 'antd';
-import {ArrowDownOutlined, ArrowUpOutlined, SettingOutlined, RetweetOutlined, EditOutlined, DeleteOutlined} from '@ant-design/icons';
+import {
+    ArrowDownOutlined,
+    ArrowUpOutlined,
+    SettingOutlined,
+    RetweetOutlined,
+    EditOutlined,
+    DeleteOutlined
+} from '@ant-design/icons';
 import FormItem from 'antd/es/form/FormItem';
 import React, {ChangeEventHandler, FC, useEffect, useMemo, useState} from 'react';
 import {ColumnsType} from 'antd/es/table';
@@ -27,6 +34,7 @@ import {useSearchParams} from "react-router-dom";
 import PositionDetails from "./components/PositionDetails";
 import {Currency, EquityDynamicsResponse, MoneyMove} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 import {numberToPercent} from "../../utils";
+import NoResult from "../../common/NoResult";
 
 interface DataType {
     key: string;
@@ -72,7 +80,14 @@ interface IProps {
     moneyMoves: MoneyMove[];
 }
 
-const AccountCard: FC<any> = ({bankName, settlementAccount, onEditAccount, confirmDeleteAccount, onSelect, selected}) => {
+const AccountCard: FC<any> = ({
+                                  bankName,
+                                  settlementAccount,
+                                  onEditAccount,
+                                  confirmDeleteAccount,
+                                  onSelect,
+                                  selected
+                              }) => {
 
     const DeleteButton: FC<any> = ({settlementAccount}: { settlementAccount: string }) => <Popconfirm
         title="Удаление счета"
@@ -81,15 +96,16 @@ const AccountCard: FC<any> = ({bankName, settlementAccount, onEditAccount, confi
         okText="Да"
         cancelText="Нет"
     >
-        <Button icon={<DeleteOutlined />} type="link" danger></Button>
+        <Button icon={<DeleteOutlined/>} type="link" danger></Button>
     </Popconfirm>
 
-    const className = useMemo(() => selected ? 'AccountCard selected' : 'AccountCard',[selected]);
+    const className = useMemo(() => selected ? 'AccountCard selected' : 'AccountCard', [selected]);
 
-    return <Card className={className} title={bankName} onClick={() => onSelect(settlementAccount)} extra={<Space><Button icon={<EditOutlined key="edit"/>}
-                                                                                onClick={() => onEditAccount(settlementAccount)}
-                                                                                type="link"></Button><DeleteButton
-        settlementAccount={settlementAccount}/></Space>}>
+    return <Card className={className} title={bankName} onClick={() => onSelect(settlementAccount)}
+                 extra={<Space><Button icon={<EditOutlined key="edit"/>}
+                                       onClick={() => onEditAccount(settlementAccount)}
+                                       type="link"></Button><DeleteButton
+                     settlementAccount={settlementAccount}/></Space>}>
         {settlementAccount}
     </Card>
 }
@@ -378,7 +394,7 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
         const agreementNumber = settings.portfolio.replace('D', '');
 
         const account = accounts.find(a => a.settlementAccount === selectedAccount) || settings;
-        if(!account.settlementAccount){
+        if (!account.settlementAccount) {
             return;
         }
 
@@ -452,6 +468,10 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
 
                 return {token, portfolio, amount} as any
             });
+        } else {
+            setAccounts(accounts.filter(a => a.settlementAccount !== settlementAccount));
+            localStorage.setItem('accounts', JSON.stringify(accounts.filter(a => a.settlementAccount !== settlementAccount)));
+            cancelEditAccount();
         }
 
     }
@@ -488,6 +508,39 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
     const cancelEditAccount = () => {
         setFormState({})
         setShowForm(false);
+        setOperationId('');
+        onSelect('');
+    }
+
+    const AccountList = () => {
+        if(!accounts.length && !settings['settlementAccount'] && !showForm){
+            return <div style={{
+                marginTop: "20px",
+                paddingTop: "20px",
+                display: "inline-block",
+                textAlign: "center"
+            }}><NoResult text={"Счета для вывода средств отсутствуют"}/></div>
+        }
+
+        return <>
+            {(accounts.length || settings['settlementAccount']) && <Divider/>}
+            {settings['settlementAccount'] && showForm !== settings['settlementAccount'] &&
+                <AccountCard key={settings['settlementAccount']} bankName={settings['bankName']}
+                             onSelect={onSelect}
+                             selected={settings['settlementAccount'] === selectedAccount}
+                             settlementAccount={settings['settlementAccount']}
+                             onEditAccount={onEditAccount}
+                             confirmDeleteAccount={confirmDeleteAccount}/>
+            }
+            {accounts.map(account => showForm !== account['settlementAccount'] &&
+                <AccountCard key={account['settlementAccount']}
+                             bankName={account['bankName']}
+                             selected={account['settlementAccount'] === selectedAccount}
+                             settlementAccount={account['settlementAccount']}
+                             onEditAccount={onEditAccount}
+                             onSelect={onSelect}
+                             confirmDeleteAccount={confirmDeleteAccount}/>)}
+        </>
     }
 
     return (
@@ -577,22 +630,7 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
                                     {...settingsInputProps('portfolio')}
                                 />
                             </FormItem>
-                            <Divider/>
-                            {settings['settlementAccount'] && showForm !== settings['settlementAccount'] &&
-                                <AccountCard key={settings['settlementAccount']} bankName={settings['bankName']}
-                                             onSelect={onSelect}
-                                             selected={settings['settlementAccount'] === selectedAccount}
-                                             settlementAccount={settings['settlementAccount']}
-                                             onEditAccount={onEditAccount}
-                                             confirmDeleteAccount={confirmDeleteAccount}/>
-                            }
-                            {accounts.map(account => showForm !== account['settlementAccount'] && <AccountCard key={account['settlementAccount']}
-                                                                  bankName={account['bankName']}
-                                                                                                               selected={account['settlementAccount'] === selectedAccount}
-                                                                  settlementAccount={account['settlementAccount']}
-                                                                  onEditAccount={onEditAccount}
-                                                                                                               onSelect={onSelect}
-                                                                  confirmDeleteAccount={confirmDeleteAccount}/>)}
+                            <AccountList/>
                             {showForm && <>
                                 <Divider/>
                                 <FormItem label="Получатель">
@@ -628,14 +666,14 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
                                 <Button onClick={() => cancelEditAccount()}
                                         style={{width: '100%', marginTop: '12px'}}>Отменить</Button>
                             </>}
-                            <FormItem label="Сумма" style={{width: '100%', marginTop: '12px'}}>
+                            {selectedAccount && <FormItem label="Сумма" style={{width: '100%', marginTop: '12px'}}>
                                 <Input
                                     placeholder="Сумма"
                                     {...settingsFormProps('amount')}
                                     disabled={!selectedAccount}
                                     suffix="₽"
                                 />
-                            </FormItem>
+                            </FormItem>}
                             {operationId && <FormItem label="Код подтверждения">
                                 <Input
                                     placeholder="Код подтверждения"
@@ -644,7 +682,7 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
                                 />
                             </FormItem>}
                             <FormItem>
-                                {!operationId &&  selectedAccount &&
+                                {!operationId && selectedAccount &&
                                     <Button onClick={() => createOperation()} type="primary"
                                             style={{width: '100%', marginTop: '12px'}}>Отправить
                                         код</Button>}
