@@ -818,7 +818,7 @@ a, .link-color {
     color: rgba(var(--pro-icon-color), 1);
 }
 
-.ant-typography{
+.ant-typography {
     color: rgba(var(--pro-icon-color), 1);
 }
 
@@ -828,11 +828,11 @@ a, .link-color {
     border-color: rgba(var(--pro-divider-bg), 1);
     cursor: pointer;
 
-    &.selected{
+    &.selected {
         background-color: rgba(var(--pro-input-bg), 1);
     }
 
-    &:hover{
+    &:hover {
         background-color: rgba(var(--pro-input-bg), 1);
     }
 
@@ -847,6 +847,81 @@ a, .link-color {
         padding: 0 8px 8px;
         color: rgba(var(--pro-icon-color), 1);
     }
+}
+
+.MonthRenderTitle {
+    color: rgba(var(--pro-input-color), 1);
+    font-size: 20px;
+    line-height: 20px;
+    text-transform: capitalize;
+    margin-bottom: 16px;
+}
+
+.MonthRenderCard {
+    .ant-card-head {
+        padding: 8px 8px !important;
+        background-color: rgb(36, 52, 66);
+        border-bottom-color: rgba(var(--pro-app-background-color), 1);
+        color: rgba(var(--pro-input-color), 1);
+        font-size: 16px;
+        line-height: 20px;
+    }
+
+    .ant-card-body {
+        padding: 0 8px 8px;
+    }
+
+    .ant-descriptions .ant-descriptions-row > th {
+        padding-bottom: 0px;
+    }
+
+    .ant-descriptions .ant-descriptions-row > td {
+        padding-bottom: 0;
+    }
+
+    .ant-descriptions .ant-descriptions-item-label {
+        color: rgba(var(--pro-icon-color), 1);
+        font-size: 13px;
+        font-weight: 400;
+        line-height: 20px;
+    }
+
+    .ant-descriptions .ant-descriptions-item-container .ant-descriptions-item-content {
+        color: rgba(var(--pro-input-color), 1);
+        border: none;
+        font-size: 13px;
+        font-weight: 400;
+    }
+}
+
+.MonthRenderTimeline {
+    margin-top: 24px;
+
+    .ant-row + .ant-row {
+        margin-top: 16px;
+    }
+}
+
+.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled), .ant-radio-button-wrapper{
+    background-color: rgba(var(--pro-input-bg), 1);
+    border: none;
+    color: rgba(var(--pro-input-color), 1);
+}
+
+.ant-radio-button-wrapper{
+    color: rgba(var(--pro-icon-color), 0.5);
+}
+
+.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled){
+    color: rgba(var(--pro-input-color), 1);
+}
+
+.ant-radio-button-wrapper:first-child{
+    border: none;
+}
+
+.ant-radio-button-wrapper:not(:first-child)::before{
+    background: transparent;
 }
 
 html .table-col:not(:first-child) .table-row {

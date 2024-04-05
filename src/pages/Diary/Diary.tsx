@@ -1,17 +1,17 @@
 import {
-    Button, Card,
+    Button, Card, Col,
     DatePicker,
-    DatePickerProps,
+    DatePickerProps, Descriptions,
     Divider,
     Drawer,
     Form,
     Input,
-    message, Popconfirm,
+    message, Popconfirm, Radio, Row,
     Select,
     SelectProps, Space,
     Statistic,
     Switch,
-    Table, Typography,
+    Table, Timeline, Typography,
 } from 'antd';
 import {
     ArrowDownOutlined,
@@ -19,7 +19,9 @@ import {
     SettingOutlined,
     RetweetOutlined,
     EditOutlined,
-    DeleteOutlined
+    DeleteOutlined,
+    AppstoreOutlined,
+    TableOutlined
 } from '@ant-design/icons';
 import FormItem from 'antd/es/form/FormItem';
 import React, {ChangeEventHandler, FC, useEffect, useMemo, useState} from 'react';
@@ -513,7 +515,7 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
     }
 
     const AccountList = () => {
-        if(!accounts.length && !settings['settlementAccount'] && !showForm){
+        if (!accounts.length && !settings['settlementAccount'] && !showForm) {
             return <div style={{
                 marginTop: "20px",
                 paddingTop: "20px",
@@ -545,6 +547,84 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
                              confirmDeleteAccount={confirmDeleteAccount}/>)}
         </>
     }
+
+    const weeks = useMemo(() => {
+        const result = new Map<number, any>([]);
+        const nonSummary = data.positions.filter(p => p.type !== 'summary');
+        for (let i = 0; i < nonSummary.length; i++) {
+            const row = nonSummary[i];
+            const weekNumber = moment(row.openDate).week();
+            let week = result.get(weekNumber);
+            if (!week) {
+                week = {
+                    trades: []
+                };
+            }
+            week.trades.push(row);
+            result.set(weekNumber, week);
+        }
+
+        return Array.from(result).map(([key, value]) => [key, {
+            ...value,
+            month: moment(value.trades[0].openDate).month(),
+            winRate: value.trades.filter(t => t.PnL >= 0).length / value.trades.length,
+            PnL: summ(value.trades.map(t => t.PnL)),
+            volume: summ(value.trades.map(t => t.openVolume + t.closeVolume)),
+            tradesCount: value.trades.length,
+            from: moment(value.trades[0].openDate).startOf('week').format('ll'),
+            to: moment(value.trades[0].openDate).endOf('week').format('ll')
+        }]);
+    }, [data.positions]);
+
+    const months = useMemo(() => Array.from(new Set(weeks.map(([key, value]) => value.month))), [weeks]);
+
+    const MonthRender = ({month}) => {
+        const weeksByMonth = useMemo(() => weeks.filter(([_, week]) => week.month === month), [month, weeks]);
+
+        const weeksRows = useMemo(() => {
+            const rows = [];
+            for(let i = 0; i < weeksByMonth.length; i+=3){
+                const row = weeksByMonth.slice(i, i + 3);
+                rows.push(row)
+            }
+
+            return rows;
+        }, [weeksByMonth]);
+
+        const title = useMemo(() => moment(weeksByMonth[0][1].trades[0].openDate).startOf('week').format('MMMM'), [month])
+
+        return <>
+            <div className="MonthRenderTitle">{title}</div>
+            {weeksRows.map(row => <Row gutter={16}>
+                {row.map(([weekNumber, week]) => <Col span={8}>
+                    <Card title={`${week.from} - ${week.to}`} bordered={false} className="MonthRenderCard">
+                        <Descriptions column={4} layout="vertical">
+                            <Descriptions.Item label="Чистая прибыль">
+                                <div
+                                    style={{color: week.PnL > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>{moneyFormat(week.PnL)}</div>
+                            </Descriptions.Item>
+                            <Descriptions.Item label="Сделок">
+                                {week.tradesCount}
+                            </Descriptions.Item>
+                            <Descriptions.Item label="Объем">
+                                {moneyFormat(week.volume, 0)}
+                            </Descriptions.Item>
+                            <Descriptions.Item label="Процент побед">
+                                {numberToPercent(week.winRate)}%
+                            </Descriptions.Item>
+                        </Descriptions>
+                    </Card>
+                </Col>)}
+            </Row>)}
+        </>
+    }
+
+    const [view, setView] = useState('table');
+
+    const options = [
+        { label: <TableOutlined />, value: 'table' },
+        { label: <AppstoreOutlined />, value: 'week' },
+    ];
 
     return (
         <>
@@ -617,6 +697,8 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
                         checked={nightMode}
                         onChange={onChangeNightMode}
                     />
+
+                    <Radio.Group options={options} onChange={e => setView(e.target.value)} value={view} optionType="button" />
                     <Drawer
                         title="Settings"
                         placement="right"
@@ -698,7 +780,16 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
                     </Drawer>
                 </div>
             </div>
-            <Table
+            {view === 'week' && <Timeline
+                className="MonthRenderTimeline"
+                items={
+
+                    months.map(month => ({
+                        children: <MonthRender month={month}/>,
+                        color: 'rgba(var(--pro-input-color), 1)'
+                    }))}
+            />}
+            {view === 'table' && <Table
                 onRow={(row: any) =>
                     row.type === 'summary' && {
                         className: row.PnL > 0 ? 'profit' : 'loss',
@@ -715,7 +806,7 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
                     defaultExpandedRowKeys: ['0'],
                     rowExpandable: (row) => row.type !== 'summary',
                 }}
-            />
+            />}
         </>
     );
 };
