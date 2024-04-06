@@ -653,6 +653,23 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
         {label: <AppstoreOutlined/>, value: 'week'},
     ];
 
+    const Summary = () => <div
+        style={{
+            display: 'flex',
+            gap: '32px',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap'
+        }}
+    >
+        <Statistic
+            title="Summary"
+            loading={isLoading}
+            value={moneyFormat(summary?.portfolioLiquidationValue || 0)}
+            precision={2}
+        />
+    </div>
+
     return (
         <>
             <div
@@ -661,25 +678,12 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     marginBottom: '8px',
-                    marginTop: '-16px'
+                    marginTop: '-16px',
+                    flexWrap: 'wrap',
+                    gap: '16px'
                 }}
             >
-                <div
-                    style={{
-                        display: 'flex',
-                        gap: '32px',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        flexWrap: 'wrap'
-                    }}
-                >
-                    <Statistic
-                        title="Summary"
-                        loading={isLoading}
-                        value={moneyFormat(summary?.portfolioLiquidationValue || 0)}
-                        precision={2}
-                    />
-                </div>
+                <Summary/>
                 <div
                     style={{
                         display: 'flex',
