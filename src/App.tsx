@@ -402,7 +402,7 @@ function App() {
         {
             key: 'diary',
             label: 'Diary',
-            element: <Diary isMobile={width < 400} moneyMoves={moneyMoves || []} equityDynamics={equityDynamics}
+            element: <Diary isMobile={width < 400 ? 1 : width < 1200 ? Math.round(width / 410) : 0} moneyMoves={moneyMoves || []} equityDynamics={equityDynamics}
                             data={data} trades={trades} api={api} isLoading={isLoading} summary={summary}
                             fullName={userInfo?.fullName}/>
         },

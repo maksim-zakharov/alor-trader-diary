@@ -77,7 +77,7 @@ interface IProps {
     isLoading: boolean;
     summary: any;
     fullName?: string;
-    isMobile: boolean
+    isMobile: number
     equityDynamics?: EquityDynamicsResponse
     moneyMoves: MoneyMove[];
 }
@@ -584,7 +584,7 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
 
         const weeksRows = useMemo(() => {
             const rows = [];
-            const offset = isMobile ? 1 : 3
+            const offset = isMobile || 3; //  ? 1 : 3
             for (let i = 0; i < weeksByMonth.length; i += offset) {
                 const row = weeksByMonth.slice(i, i + offset);
                 rows.push(row)
@@ -598,7 +598,7 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
         return <>
             <div className="MonthRenderTitle">{title}</div>
             {weeksRows.map(row => <Row gutter={16}>
-                {row.map(([weekNumber, week]) => <Col span={isMobile ? 24 : 8}>
+                {row.map(([weekNumber, week]) => <Col span={isMobile ? 24 /isMobile : 8}>
                     <Card title={`${week.from} - ${week.to}`} bordered={false}
                           className={`MonthRenderCard ${week.PnL > 0 ? 'profit' : 'loss'}`}>
                         <Descriptions column={isMobile ? 2 : 4} layout="vertical">
