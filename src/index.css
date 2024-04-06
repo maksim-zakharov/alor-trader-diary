@@ -204,7 +204,7 @@ code {
     }
 
     .Diary{
-        padding: 16px;
+        padding: 0; /* 16px; */
     }
 
     .collapsed-row {
