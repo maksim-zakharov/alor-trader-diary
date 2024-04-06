@@ -671,7 +671,7 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
     </div>
 
     return (
-        <>
+        <div className="Diary">
             <div
                 style={{
                     display: 'flex',
@@ -833,7 +833,7 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
                     rowExpandable: (row) => row.type !== 'summary',
                 }}
             />}
-        </>
+        </div>
     );
 };
 

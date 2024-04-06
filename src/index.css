@@ -196,6 +196,14 @@ code {
         width: 100%;
     }
 
+    .body-content{
+        padding: 0 !important;
+    }
+
+    .Diary{
+        padding: 16px;
+    }
+
     .collapsed-row {
         /*.tv-lightweight-charts{*/
         /*    width: 100%;*/
