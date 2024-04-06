@@ -597,7 +597,7 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
             <div className="MonthRenderTitle">{title}</div>
             {weeksRows.map(row => <Row gutter={16}>
                 {row.map(([weekNumber, week]) => <Col span={8}>
-                    <Card title={`${week.from} - ${week.to}`} bordered={false} className="MonthRenderCard">
+                    <Card title={`${week.from} - ${week.to}`} bordered={false} className={`MonthRenderCard ${week.PnL > 0 ? 'profit' : 'loss'}`}>
                         <Descriptions column={4} layout="vertical">
                             <Descriptions.Item label="Чистая прибыль">
                                 <div

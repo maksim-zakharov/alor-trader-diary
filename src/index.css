@@ -867,6 +867,14 @@ a, .link-color {
         line-height: 20px;
     }
 
+    &.profit .ant-card-head{
+        border-top: 1px solid rgba(var(--table-profit-color), 1);
+    }
+
+    &.loss .ant-card-head{
+        border-top: 1px solid rgba(var(--table-loss-color), 1);
+    }
+
     .ant-card-body {
         padding: 0 8px 8px;
     }
