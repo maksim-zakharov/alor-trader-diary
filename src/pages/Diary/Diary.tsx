@@ -619,7 +619,13 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
         </>
     }
 
-    const [view, setView] = useState('table');
+    const [view, setView] = useState(searchParams.get('view') || 'table');
+
+    const onChangeView = (view: string) => {
+        searchParams.set('view', view);
+        setSearchParams(searchParams);
+        setView(view)
+    }
 
     const options = [
         { label: <TableOutlined />, value: 'table' },
@@ -698,7 +704,7 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
                         onChange={onChangeNightMode}
                     />
 
-                    <Radio.Group options={options} onChange={e => setView(e.target.value)} value={view} optionType="button" />
+                    <Radio.Group options={options} onChange={e => onChangeView(e.target.value)} value={view} optionType="button" />
                     <Drawer
                         title="Settings"
                         placement="right"
