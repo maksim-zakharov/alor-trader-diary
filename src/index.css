@@ -194,10 +194,13 @@ code {
 @media only screen and (max-width: 700px) {
     .widget {
         width: 100%;
+        padding: 16px 20px;
+        border-radius: 20px;
+        margin-top: 16px;
     }
 
     .body-content{
-        padding: 0 !important;
+        padding: 0 16px 16px !important;
     }
 
     .Diary{
