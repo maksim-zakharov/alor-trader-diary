@@ -867,7 +867,7 @@ a, .link-color {
 
 .MonthRenderCard {
     .ant-card-head {
-        padding: 8px 8px !important;
+        padding: 8px 12px !important;
         background-color: rgb(36, 52, 66);
         border-bottom-color: rgba(var(--pro-app-background-color), 1);
         color: rgba(var(--pro-input-color), 1);
@@ -884,7 +884,7 @@ a, .link-color {
     }
 
     .ant-card-body {
-        padding: 0 8px 8px;
+        padding: 8px 12px 12px;
     }
 
     .ant-descriptions .ant-descriptions-row > th {
