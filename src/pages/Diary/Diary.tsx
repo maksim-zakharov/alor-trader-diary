@@ -567,6 +567,7 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
         return Array.from(result).map(([key, value]) => [key, {
             ...value,
             month: moment(value.trades[0].openDate).month(),
+            year: moment(value.trades[0].openDate).year(),
             winRate: value.trades.filter(t => t.PnL >= 0).length / value.trades.length,
             PnL: summ(value.trades.map(t => t.PnL)),
             volume: summ(value.trades.map(t => t.openVolume + t.closeVolume)),
@@ -576,14 +577,14 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
         }]);
     }, [data.positions]);
 
-    const months = useMemo(() => Array.from(new Set(weeks.map(([key, value]) => value.month))), [weeks]);
+    const years = useMemo(() => Array.from(new Set(weeks.map(([key, value]) => value.year))), [weeks]);
 
-    const MonthRender = ({month}) => {
-        const weeksByMonth = useMemo(() => weeks.filter(([_, week]) => week.month === month), [month, weeks]);
+    const MonthRender = ({month, year}) => {
+        const weeksByMonth = useMemo(() => weeks.filter(([_, week]) => week.month === month && week.year === year), [month, weeks]);
 
         const weeksRows = useMemo(() => {
             const rows = [];
-            for(let i = 0; i < weeksByMonth.length; i+=3){
+            for (let i = 0; i < weeksByMonth.length; i += 3) {
                 const row = weeksByMonth.slice(i, i + 3);
                 rows.push(row)
             }
@@ -597,7 +598,8 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
             <div className="MonthRenderTitle">{title}</div>
             {weeksRows.map(row => <Row gutter={16}>
                 {row.map(([weekNumber, week]) => <Col span={8}>
-                    <Card title={`${week.from} - ${week.to}`} bordered={false} className={`MonthRenderCard ${week.PnL > 0 ? 'profit' : 'loss'}`}>
+                    <Card title={`${week.from} - ${week.to}`} bordered={false}
+                          className={`MonthRenderCard ${week.PnL > 0 ? 'profit' : 'loss'}`}>
                         <Descriptions column={4} layout="vertical">
                             <Descriptions.Item label="Чистая прибыль">
                                 <div
@@ -619,6 +621,24 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
         </>
     }
 
+    const YearRender: FC<any> = ({year}) => {
+        const months = useMemo(() => Array.from(new Set(weeks.filter(([_, w]) => w.year === year).map(([key, value]) => value.month))), [weeks]);
+        return <>
+            <div style={{
+                fontSize: '48px',
+                fontWeight: 'bold'
+            }}>{year}</div>
+            <Timeline
+                className="MonthRenderTimeline"
+                items={
+                    months.map(month => ({
+                        children: <MonthRender month={month} year={year}/>,
+                        color: 'rgba(var(--pro-input-color), 1)'
+                    }))}
+            />
+        </>
+    }
+
     const [view, setView] = useState(searchParams.get('view') || 'table');
 
     const onChangeView = (view: string) => {
@@ -628,8 +648,8 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
     }
 
     const options = [
-        { label: <TableOutlined />, value: 'table' },
-        { label: <AppstoreOutlined />, value: 'week' },
+        {label: <TableOutlined/>, value: 'table'},
+        {label: <AppstoreOutlined/>, value: 'week'},
     ];
 
     return (
@@ -704,7 +724,8 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
                         onChange={onChangeNightMode}
                     />
 
-                    <Radio.Group options={options} onChange={e => onChangeView(e.target.value)} value={view} optionType="button" />
+                    <Radio.Group options={options} onChange={e => onChangeView(e.target.value)} value={view}
+                                 optionType="button"/>
                     <Drawer
                         title="Settings"
                         placement="right"
@@ -786,15 +807,9 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
                     </Drawer>
                 </div>
             </div>
-            {view === 'week' && <Timeline
-                className="MonthRenderTimeline"
-                items={
-
-                    months.map(month => ({
-                        children: <MonthRender month={month}/>,
-                        color: 'rgba(var(--pro-input-color), 1)'
-                    }))}
-            />}
+            {view === 'week' && <>
+                {years.map(year => <YearRender year={year}/>)}
+            </>}
             {view === 'table' && <Table
                 onRow={(row: any) =>
                     row.type === 'summary' && {
