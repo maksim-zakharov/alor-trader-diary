@@ -35,7 +35,7 @@ import * as days from "dayjs";
 import {useSearchParams} from "react-router-dom";
 import PositionDetails from "./components/PositionDetails";
 import {Currency, EquityDynamicsResponse, MoneyMove} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
-import {numberToPercent} from "../../utils";
+import {isMobile, numberToPercent} from "../../utils";
 import NoResult from "../../common/NoResult";
 
 interface DataType {
@@ -584,23 +584,24 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
 
         const weeksRows = useMemo(() => {
             const rows = [];
-            for (let i = 0; i < weeksByMonth.length; i += 3) {
-                const row = weeksByMonth.slice(i, i + 3);
+            const offset = isMobile ? 1 : 3
+            for (let i = 0; i < weeksByMonth.length; i += offset) {
+                const row = weeksByMonth.slice(i, i + offset);
                 rows.push(row)
             }
 
             return rows;
-        }, [weeksByMonth]);
+        }, [weeksByMonth, isMobile]);
 
         const title = useMemo(() => moment(weeksByMonth[0][1].trades[0].openDate).startOf('week').format('MMMM'), [month])
 
         return <>
             <div className="MonthRenderTitle">{title}</div>
             {weeksRows.map(row => <Row gutter={16}>
-                {row.map(([weekNumber, week]) => <Col span={8}>
+                {row.map(([weekNumber, week]) => <Col span={isMobile ? 24 : 8}>
                     <Card title={`${week.from} - ${week.to}`} bordered={false}
                           className={`MonthRenderCard ${week.PnL > 0 ? 'profit' : 'loss'}`}>
-                        <Descriptions column={4} layout="vertical">
+                        <Descriptions column={isMobile ? 2 : 4} layout="vertical">
                             <Descriptions.Item label="Чистая прибыль">
                                 <div
                                     style={{color: week.PnL > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>{moneyFormat(week.PnL)}</div>
