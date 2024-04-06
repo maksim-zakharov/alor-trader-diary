@@ -924,6 +924,10 @@ a, .link-color {
     background: transparent;
 }
 
+.ant-timeline .ant-timeline-item-tail {
+    border-inline-start: 2px solid rgba(var(--pro-input-color), 0.2);
+}
+
 html .table-col:not(:first-child) .table-row {
     border-left: none
 }
