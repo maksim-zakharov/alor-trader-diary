@@ -234,7 +234,7 @@ code {
     align-items: center;
 }
 
-.ant-layout-content{
+.ant-layout-content {
     background-color: rgba(var(--pro-app-background-color), 1);
     color: rgba(var(--pro-text-02), 1);
 }
@@ -245,6 +245,7 @@ code {
     line-height: 24px;
     margin-left: 8px;
     font-size: 12px;
+
     input {
         position: absolute;
         opacity: 0;
@@ -297,13 +298,15 @@ code {
         margin-top: 16px;
     }
 
-    .dark-theme .ant-layout .ant-layout-header{
+    .dark-theme .ant-layout .ant-layout-header {
         padding: 0;
         height: 48px !important;
     }
-    .dark-theme .ant-layout .ant-menu{
+
+    .dark-theme .ant-layout .ant-menu {
         font-size: 16px;
-        .ant-menu-item{
+
+        .ant-menu-item {
             padding-right: 0;
         }
     }
@@ -532,7 +535,7 @@ code {
 }
 
 .dark-theme .ant-picker-dropdown .ant-picker-date-panel {
-    width: inherit;
+    /*width: inherit;*/
 }
 
 .dark-theme .ant-picker-dropdown .ant-picker-cell.ant-picker-cell-in-view {
@@ -553,6 +556,14 @@ code {
 
 .ant-picker-dropdown .ant-picker-cell-in-view.ant-picker-cell-selected .ant-picker-cell-inner {
     background-color: rgba(var(--pro-button-primary-bg), 1);
+}
+
+.ant-picker-dropdown .ant-picker-footer {
+    background-color: rgb(36, 52, 66);
+}
+
+.ant-picker-dropdown .ant-picker-panel-container {
+    background-color: rgb(36, 52, 66);
 }
 
 .ant-picker-focused {
