@@ -21,7 +21,9 @@ import {
     EditOutlined,
     DeleteOutlined,
     AppstoreOutlined,
-    TableOutlined
+    TableOutlined,
+    MoonOutlined,
+    SunOutlined
 } from '@ant-design/icons';
 import FormItem from 'antd/es/form/FormItem';
 import React, {ChangeEventHandler, FC, useEffect, useMemo, useState} from 'react';
@@ -37,6 +39,7 @@ import PositionDetails from "./components/PositionDetails";
 import {Currency, EquityDynamicsResponse, MoneyMove} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 import {isMobile, numberToPercent} from "../../utils";
 import NoResult from "../../common/NoResult";
+import dayjs from "dayjs";
 
 interface DataType {
     key: string;
@@ -450,12 +453,12 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
             document.body.removeAttribute('class');
         }
     }, [nightMode]);
-    const onChangeDate: DatePickerProps['onChange'] = (dateFrom) => {
+    const onChangeDate = (dateFrom) => {
         searchParams.set('dateFrom', dateFrom.format('YYYY-MM-DD'));
         setSearchParams(searchParams);
     };
 
-    const onChangeNightMode: SwitchChangeEventHandler = (e) => {
+    const onChangeNightMode = (e) => {
         localStorage.setItem('night', String(e));
         document.body.className = 'dark-theme';
         setNightMode(e);
@@ -598,7 +601,7 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
         return <>
             <div className="MonthRenderTitle">{title}</div>
             {weeksRows.map(row => <Row gutter={16}>
-                {row.map(([weekNumber, week]) => <Col span={isMobile ? 24 /isMobile : 8}>
+                {row.map(([weekNumber, week]) => <Col span={isMobile ? 24 / isMobile : 8}>
                     <Card title={`${week.from} - ${week.to}`} bordered={false}
                           className={`MonthRenderCard ${week.PnL > 0 ? 'profit' : 'loss'}`}>
                         <Descriptions column={isMobile ? 2 : 4} layout="vertical">
@@ -670,148 +673,187 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
         />
     </div>
 
-    return (
-        <div className="Diary">
-            <div
-                style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: '8px',
-                    marginTop: '-16px',
-                    flexWrap: 'wrap',
-                    gap: '16px'
-                }}
-            >
-                <Summary/>
-                <div
-                    style={{
-                        display: 'flex',
-                        gap: '32px',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        flexWrap: 'wrap'
-                    }}
-                >
-                    <Statistic
-                        title="Trades"
-                        loading={isLoading}
-                        value={`${data.positions.filter(p => p.type !== 'summary').length} trades`}
-                        precision={2}
-                    />
-                    <Statistic
-                        title="Net Profit"
-                        loading={isLoading}
-                        value={`${moneyFormat(data.totalPnL)} (${shortNumberFormat(netProfitPercent)}%)`}
-                        precision={2}
-                        valueStyle={{
-                            color:
-                                data.totalPnL > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)',
-                        }}
-                    />
-                    <Statistic
-                        title="Total Fee"
-                        loading={isLoading}
-                        value={moneyFormat(data.totalFee)}
-                        precision={2}
-                        valueStyle={{color: 'rgba(var(--table-loss-color),1)'}}
-                    />
-                    <Button
-                        type="text"
-                        icon={<SettingOutlined/>}
-                        onClick={(f) => setShowSettings(true)}
-                    />
+    const MobileDatepicker = () => <div className="MobileDatepicker">
+        <label htmlFor="mobile-date">от {dateFrom}</label>
+        <input type="date" id="mobile-date" value={dateFrom}
+               onChange={date => onChangeDate(dayjs(date.target.value, 'YYYY-MM-DD'))}/>
+    </div>
 
-                    <DatePicker value={currentDates} onChange={onChangeDate} style={{width: 120}}/>
-                    <Switch
-                        defaultChecked={nightMode}
-                        checked={nightMode}
-                        onChange={onChangeNightMode}
-                    />
-
-                    <Radio.Group options={options} onChange={e => onChangeView(e.target.value)} value={view}
-                                 optionType="button"/>
-                    <Drawer
-                        title="Settings"
-                        placement="right"
-                        onClose={() => setShowSettings(false)}
-                        open={showSettings}
-                    >
-                        <Form layout="vertical">
-                            <FormItem label="Alor Token">
-                                <Input placeholder="Token" {...settingsInputProps('token')} />
-                            </FormItem>
-                            <FormItem label="Alor Portfolio">
-                                <Input
-                                    placeholder="Portfolio"
-                                    {...settingsInputProps('portfolio')}
-                                />
-                            </FormItem>
-                            <AccountList/>
-                            {showForm && <>
-                                <Divider/>
-                                <FormItem label="Получатель">
-                                    <Input placeholder="Получатель" disabled value={fullName}/>
-                                </FormItem>
-                                <FormItem label="БИК">
-                                    <Input placeholder="БИК" {...settingsFormProps('bic')} />
-                                </FormItem>
-                                <FormItem label="Корр. счет">
-                                    <Input
-                                        placeholder="Корр. счет"
-                                        {...settingsFormProps('loroAccount')}
-                                    />
-                                </FormItem>
-                                <FormItem label="Банк получатель">
-                                    <Input
-                                        placeholder="Банк получатель"
-                                        {...settingsFormProps('bankName')}
-                                    />
-                                </FormItem>
-                                <FormItem label="Номер счета">
-                                    <Input
-                                        placeholder="Номер счета"
-                                        {...settingsFormProps('settlementAccount')}
-                                    />
-                                </FormItem>
-                            </>}
-                            {!showForm && <Button onClick={() => setShowForm(true)} type="primary"
-                                                  style={{width: '100%', marginTop: '12px'}}>Добавить счет</Button>}
-                            {showForm && <>
-                                <Button onClick={() => saveAccount()} type="primary"
-                                        style={{width: '100%', marginTop: '12px'}}>Сохранить</Button>
-                                <Button onClick={() => cancelEditAccount()}
-                                        style={{width: '100%', marginTop: '12px'}}>Отменить</Button>
-                            </>}
-                            {selectedAccount && <FormItem label="Сумма" style={{width: '100%', marginTop: '12px'}}>
-                                <Input
-                                    placeholder="Сумма"
-                                    {...settingsFormProps('amount')}
-                                    disabled={!selectedAccount}
-                                    suffix="₽"
-                                />
-                            </FormItem>}
-                            {operationId && <FormItem label="Код подтверждения">
-                                <Input
-                                    placeholder="Код подтверждения"
-                                    value={confirmationCode}
-                                    onChange={e => setConfirmationCode(e.target.value)}
-                                />
-                            </FormItem>}
-                            <FormItem>
-                                {!operationId && selectedAccount &&
-                                    <Button onClick={() => createOperation()} type="primary"
-                                            style={{width: '100%', marginTop: '12px'}}>Отправить
-                                        код</Button>}
-                                {operationId &&
-                                    <Button onClick={() => signOperation()} type="primary"
-                                            style={{width: '100%', marginTop: '12px'}}>Подтвердить
-                                        код</Button>}
-                            </FormItem>
-                        </Form>
-                    </Drawer>
+    const MobileSummary = () => <div className="MobileSummary widget">
+        <div style={{display: 'flex', alignItems: 'end'}}>
+            <div>
+                <div style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold'
+                }}>{moneyFormat(summary?.portfolioLiquidationValue || 0)}</div>
+                <div style={{
+                    display: 'inline-flex',
+                    alignItems: 'end'
+                }}>
+                    <div
+                        className={`result ${data.totalPnL > 0 ? 'profit' : 'loss'}`}>{data.totalPnL > 0 ? '+' : ''}{moneyFormat(data.totalPnL)}
+                        <span className='percent'>{shortNumberFormat(netProfitPercent)}%</span>
+                    </div>
+                    <MobileDatepicker/>
                 </div>
             </div>
+        </div>
+        <div className="button-group">
+            <Button
+                type="text"
+                icon={<SettingOutlined/>}
+                className="vertical-button"
+                onClick={(f) => setShowSettings(true)}
+            >Настройки</Button>
+            <Button
+                type="text"
+                icon={nightMode ? <SunOutlined /> : <MoonOutlined />}
+                className="vertical-button"
+                onClick={() => onChangeNightMode(!nightMode)}
+            >Тема</Button>
+
+            <Radio.Group options={options} onChange={e => onChangeView(e.target.value)} value={view} size="large"
+                         optionType="button"/>
+        </div>
+    </div>
+
+    const InfoPanelDesktop = () => <div
+        className="InfoPanelDesktop"
+    >
+        <Summary/>
+        <div
+            style={{
+                display: 'flex',
+                gap: '32px',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap'
+            }}
+        >
+            <Statistic
+                title="Trades"
+                loading={isLoading}
+                value={`${data.positions.filter(p => p.type !== 'summary').length} trades`}
+                precision={2}
+            />
+            <Statistic
+                title="Net Profit"
+                loading={isLoading}
+                value={`${moneyFormat(data.totalPnL)} (${shortNumberFormat(netProfitPercent)}%)`}
+                precision={2}
+                valueStyle={{
+                    color:
+                        data.totalPnL > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)',
+                }}
+            />
+            <Statistic
+                title="Total Fee"
+                loading={isLoading}
+                value={moneyFormat(data.totalFee)}
+                precision={2}
+                valueStyle={{color: 'rgba(var(--table-loss-color),1)'}}
+            />
+            <Button
+                type="text"
+                icon={<SettingOutlined/>}
+                onClick={(f) => setShowSettings(true)}
+            />
+
+            <DatePicker value={currentDates} onChange={onChangeDate} style={{width: 120}}/>
+            <Switch
+                defaultChecked={nightMode}
+                checked={nightMode}
+                onChange={onChangeNightMode}
+            />
+
+            <Radio.Group options={options} onChange={e => onChangeView(e.target.value)} value={view}
+                         optionType="button"/>
+            <Drawer
+                title="Settings"
+                placement="right"
+                onClose={() => setShowSettings(false)}
+                open={showSettings}
+            >
+                <Form layout="vertical">
+                    <FormItem label="Alor Token">
+                        <Input placeholder="Token" {...settingsInputProps('token')} />
+                    </FormItem>
+                    <FormItem label="Alor Portfolio">
+                        <Input
+                            placeholder="Portfolio"
+                            {...settingsInputProps('portfolio')}
+                        />
+                    </FormItem>
+                    <AccountList/>
+                    {showForm && <>
+                        <Divider/>
+                        <FormItem label="Получатель">
+                            <Input placeholder="Получатель" disabled value={fullName}/>
+                        </FormItem>
+                        <FormItem label="БИК">
+                            <Input placeholder="БИК" {...settingsFormProps('bic')} />
+                        </FormItem>
+                        <FormItem label="Корр. счет">
+                            <Input
+                                placeholder="Корр. счет"
+                                {...settingsFormProps('loroAccount')}
+                            />
+                        </FormItem>
+                        <FormItem label="Банк получатель">
+                            <Input
+                                placeholder="Банк получатель"
+                                {...settingsFormProps('bankName')}
+                            />
+                        </FormItem>
+                        <FormItem label="Номер счета">
+                            <Input
+                                placeholder="Номер счета"
+                                {...settingsFormProps('settlementAccount')}
+                            />
+                        </FormItem>
+                    </>}
+                    {!showForm && <Button onClick={() => setShowForm(true)} type="primary"
+                                          style={{width: '100%', marginTop: '12px'}}>Добавить счет</Button>}
+                    {showForm && <>
+                        <Button onClick={() => saveAccount()} type="primary"
+                                style={{width: '100%', marginTop: '12px'}}>Сохранить</Button>
+                        <Button onClick={() => cancelEditAccount()}
+                                style={{width: '100%', marginTop: '12px'}}>Отменить</Button>
+                    </>}
+                    {selectedAccount && <FormItem label="Сумма" style={{width: '100%', marginTop: '12px'}}>
+                        <Input
+                            placeholder="Сумма"
+                            {...settingsFormProps('amount')}
+                            disabled={!selectedAccount}
+                            suffix="₽"
+                        />
+                    </FormItem>}
+                    {operationId && <FormItem label="Код подтверждения">
+                        <Input
+                            placeholder="Код подтверждения"
+                            value={confirmationCode}
+                            onChange={e => setConfirmationCode(e.target.value)}
+                        />
+                    </FormItem>}
+                    <FormItem>
+                        {!operationId && selectedAccount &&
+                            <Button onClick={() => createOperation()} type="primary"
+                                    style={{width: '100%', marginTop: '12px'}}>Отправить
+                                код</Button>}
+                        {operationId &&
+                            <Button onClick={() => signOperation()} type="primary"
+                                    style={{width: '100%', marginTop: '12px'}}>Подтвердить
+                                код</Button>}
+                    </FormItem>
+                </Form>
+            </Drawer>
+        </div>
+    </div>
+
+    return (
+        <div className="Diary">
+            <MobileSummary/>
+            <InfoPanelDesktop/>
             {view === 'week' && <>
                 {years.map(year => <YearRender year={year}/>)}
             </>}
