@@ -297,6 +297,17 @@ code {
         margin-top: 16px;
     }
 
+    .dark-theme .ant-layout .ant-layout-header{
+        padding: 0;
+        height: 48px !important;
+    }
+    .dark-theme .ant-layout .ant-menu{
+        font-size: 16px;
+        .ant-menu-item{
+            padding-right: 0;
+        }
+    }
+
     .MobileSummary {
         display: block;
     }
