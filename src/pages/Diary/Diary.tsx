@@ -142,9 +142,15 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
         JSON.parse(localStorage.getItem('reasons') || '{}'),
     );
 
-    const [nightMode, setNightMode] = useState(
-        Boolean(localStorage.getItem('night') === 'true'),
-    );
+    const [theme, setTheme] = useState(localStorage.getItem('theme') || 'system');
+
+    useEffect(() => {
+        if((theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches) || theme === 'dark'){
+            document.body.className = 'dark-theme';
+        } else {
+            document.body.removeAttribute('class');
+        }
+    }, [theme]);
 
     const [comments, setComments] = useState<{ [id: string]: string }>(
         JSON.parse(localStorage.getItem('state') || '{}'),
@@ -165,6 +171,8 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
     useEffect(() => {
         localStorage.setItem('settings', JSON.stringify(settings));
     }, [settings]);
+
+    const nightMode = useMemo(() => (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches) || theme === 'dark', [theme]);
 
     const expandedRowRender = (row: any) => <PositionDetails trades={row.trades} symbol={row.symbol} api={api}
                                                              nightMode={nightMode}/>;
@@ -452,22 +460,18 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
     }
     const currentDates: DatePickerProps['value'] = days(dateFrom);
 
-    useEffect(() => {
-        if (nightMode) {
-            document.body.className = 'dark-theme';
-        } else {
-            document.body.removeAttribute('class');
-        }
-    }, [nightMode]);
     const onChangeDate = (dateFrom) => {
         searchParams.set('dateFrom', dateFrom.format('YYYY-MM-DD'));
         setSearchParams(searchParams);
     };
 
     const onChangeNightMode = (e) => {
-        localStorage.setItem('night', String(e));
-        document.body.className = 'dark-theme';
-        setNightMode(e);
+        localStorage.setItem('theme', e);
+
+        if((e === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches) || e === 'dark'){
+            document.body.className = 'dark-theme';
+        }
+        setTheme(e);
     };
 
     const confirmDeleteAccount = (settlementAccount: string) => {
@@ -717,9 +721,9 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
             >Настройки</Button>
             <Button
                 type="text"
-                icon={nightMode ? <SunOutlined /> : <MoonOutlined />}
+                icon={nightMode ? <SunOutlined/> : <MoonOutlined/>}
                 className="vertical-button"
-                onClick={() => onChangeNightMode(!nightMode)}
+                onClick={() => onChangeNightMode(theme === 'system' ? 'light' : theme === 'light' ? 'dark' : 'system')}
             >Тема</Button>
 
             <Radio.Group options={options} onChange={e => onChangeView(e.target.value)} value={view} size="large"
@@ -770,11 +774,19 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
             />
 
             <DatePicker value={currentDates} onChange={onChangeDate} style={{width: 120}}/>
-            <Switch
-                defaultChecked={nightMode}
-                checked={nightMode}
-                onChange={onChangeNightMode}
-            />
+            <Select options={[
+                {
+                    label: 'Системная',
+                    value: 'system'
+                }, {
+                    label: 'Светлая',
+                    value: 'light'
+                }, {
+                    label: 'Темная',
+                    value: 'dark'
+                }
+            ]} value={theme} style={{width: 120}} onSelect={onChangeNightMode}/>
+
 
             <Radio.Group options={options} onChange={e => onChangeView(e.target.value)} value={view}
                          optionType="button"/>

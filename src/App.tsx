@@ -126,16 +126,15 @@ function App() {
         dateTo = moment().endOf('month').add(1, 'day').format('YYYY-MM-DD');
     }
 
-    const [nightMode] = useState(
-        Boolean(localStorage.getItem('night') === 'true'),
-    );
+    const [theme, setTheme] = useState(localStorage.getItem('theme') || 'system');
+
     useEffect(() => {
-        if (nightMode) {
+        if((theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches) || theme === 'dark'){
             document.body.className = 'dark-theme';
         } else {
             document.body.removeAttribute('class');
         }
-    }, [nightMode]);
+    }, [theme]);
 
 
     const loadTrades = async ({
