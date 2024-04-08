@@ -98,8 +98,15 @@ function App() {
             : [],
     );
 
-    const [summary, setSummary] = useState<Summary | undefined>(undefined);
+    const [visibilitychange, setVisibilitychange] = useState<boolean>(false);
 
+    useEffect(() => {
+        document.addEventListener("visibilitychange", function() {
+            setVisibilitychange(!document.hidden);
+        });
+    }, [])
+
+    const [summary, setSummary] = useState<Summary | undefined>(undefined);
 
     const [positions, setPositions] = useState<Positions>([]);
     const [trades, setTrades] = useState<Trades>([]);
@@ -321,7 +328,7 @@ function App() {
     }, [api, settings.portfolio])
 
     useEffect(() => {
-        if (!api || !summary) {
+        if (!api || !summary || !visibilitychange) {
             return;
         }
 
@@ -351,7 +358,7 @@ function App() {
             .then(() => getMoneyMoves(Number(userInfo?.agreements[0].agreementNumber))))
 
                 .finally(() => setIsLoading(false));
-    }, [api, dateFrom, summary]);
+    }, [api, dateFrom, summary, visibilitychange]);
 
     useEffect(() => {
         if (!api) {
