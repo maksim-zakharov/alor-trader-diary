@@ -1,6 +1,7 @@
 import {Positions, Side, Trade} from 'alor-api';
 import {avg, summ} from './App';
 import moment, {Moment} from 'moment/moment';
+import {UserInfoResponse} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 
 export const digitsAfterDot = (num) => {
     if (!num) {
@@ -330,3 +331,6 @@ function maxDrawdown_(equityCurve, idxStart, idxEnd) {
     // Return the computed values
     return [maxDd, idxStartMaxDd, idxEndMaxDd];
 }
+
+export const getCurrentTariffPlan = (userInfo: UserInfoResponse, marketType: string | 'FOND'): string | undefined =>  (userInfo?.agreements[0].portfolios || []).find(p => p.marketType === marketType)?.tariffPlan;
+export const getAgreementNumber = (userInfo: UserInfoResponse): number | undefined => Number(userInfo?.agreements[0].agreementNumber)

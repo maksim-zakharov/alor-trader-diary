@@ -27,8 +27,8 @@ import Analytics from './pages/Analytics/Analytics';
 import {DefaultOptionType} from 'antd/es/select';
 import OrderbookWidget from './pages/Orderbook/OrderbookWidget';
 import {
-    calculateCommission,
-    getCommissionByPlanAndTotalVolume,
+    calculateCommission, getAgreementNumber,
+    getCommissionByPlanAndTotalVolume, getCurrentTariffPlan,
     positionsToTrades,
     tradesToHistoryPositions
 } from './utils';
@@ -351,11 +351,11 @@ function App() {
 
         setIsLoading(true);
         getUserInfo().then(userInfo => loadTrades({
-            tariffPlan: (userInfo?.agreements[0].portfolios || []).find(p => p.marketType === 'FOND')?.tariffPlan,
+            tariffPlan: getCurrentTariffPlan(userInfo, 'FOND'),
             date,
             dateFrom,
         }).then(setTrades)
-            .then(() => getMoneyMoves(Number(userInfo?.agreements[0].agreementNumber))))
+            .then(() => getMoneyMoves(getAgreementNumber(userInfo))))
 
                 .finally(() => setIsLoading(false));
     }, [api, dateFrom, summary, visibilitychange]);
