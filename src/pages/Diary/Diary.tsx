@@ -131,8 +131,11 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
 
     const [showForm, setShowForm] = useState<boolean | string>(false);
 
-    const [operationId, setOperationId] = useState<string>('');
-    const [confirmationCode, setConfirmationCode] = useState<string>('');
+    const [{operationId, confirmationCode, amount}, setPaidInfo] = useState({
+        operationId: '',
+        confirmationCode: '',
+        amount: ''
+    })
 
     const [showSettings, setShowSettings] = useState(false);
     const [reasons, setReasons] = useState<{ [id: string]: string }>(
@@ -422,7 +425,7 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
             agreementNumber
         });
 
-        setOperationId(operationResult.operationId.toString());
+        setPaidInfo(prevState => ({...prevState, operationId: operationResult.operationId.toString()}))
     }
     const signOperation = async () => {
         const agreementNumber = settings.portfolio.replace('D', '');
@@ -434,8 +437,11 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
         })
 
         if (result.success) {
-            setConfirmationCode('');
-            setOperationId('');
+            setPaidInfo({
+                confirmationCode: '',
+                operationId: '',
+                amount: ''
+            })
         }
     }
     const [searchParams, setSearchParams] = useSearchParams();
@@ -513,8 +519,12 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
     const cancelEditAccount = () => {
         setFormState({})
         setShowForm(false);
-        setOperationId('');
         onSelect('');
+        setPaidInfo({
+            operationId: '',
+            confirmationCode: '',
+            amount: ''
+        })
     }
 
     const AccountList = () => {
@@ -823,7 +833,8 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
                     {selectedAccount && <FormItem label="Сумма" style={{width: '100%', marginTop: '12px'}}>
                         <Input
                             placeholder="Сумма"
-                            {...settingsFormProps('amount')}
+                            value={amount}
+                            onChange={e => setPaidInfo(prevState => ({...prevState, amount: e.target.value}))}
                             disabled={!selectedAccount}
                             suffix="₽"
                         />
@@ -832,7 +843,7 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
                         <Input
                             placeholder="Код подтверждения"
                             value={confirmationCode}
-                            onChange={e => setConfirmationCode(e.target.value)}
+                            onChange={e => setPaidInfo(prevState => ({...prevState, confirmationCode: e.target.value}))}
                         />
                     </FormItem>}
                     <FormItem>
