@@ -296,8 +296,6 @@ function App() {
             results.portfolioValues.push({date: moment().format('YYYY-MM-DD'), value: summary.portfolioEvaluation } as any)
         }
 
-        // console.log(results.portfolioValues.map((el, index, items) => index === 0 ? el : ({...el, value: el.value - items[index - 1].value})))
-
         setEquityDynamics(results);
 
         return results;
@@ -310,12 +308,6 @@ function App() {
             format: 'Simple'
         })
 
-        // const summaryData = data.positions.filter(p => p.type === 'summary')
-        //
-        // const result = [{time: moment().format('YYYY-MM-DD'), value: summary.portfolioEvaluation}];
-        // summaryData.forEach((d) => result.unshift({time: d.openDate, value: result[0].value - d.PnL}))
-
-        // setBalanceSeriesData(result)
         setSummary(summary)
     }
 
@@ -331,21 +323,6 @@ function App() {
         }
 
         getEquityDynamics(dateFrom, dateTo);
-
-        // if (userInfo?.agreements[0].agreementNumber)
-        //     api.clientInfo.getMoneyMoves(Number(userInfo?.agreements[0].agreementNumber), {
-        //         dateFrom,
-        //         dateTo
-        //     }).then(r => setMonetMoves(r))
-
-        // api.clientInfo
-        //     .getPositions({
-        //         exchange: 'MOEX',
-        //         portfolio: settings.portfolio,
-        //         withoutCurrency: true,
-        //     })
-        //     .then(setPositions);
-
 
         setIsLoading(true);
         getUserInfo().then(userInfo => loadTrades({

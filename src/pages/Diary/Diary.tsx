@@ -731,6 +731,22 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
         </div>
     </div>
 
+    const themeOptions =[
+        {
+            label: 'Системная',
+            value: 'system',
+            icon: <SettingOutlined />
+        }, {
+            label: `Светлая`,
+            value: 'light',
+            icon: <SunOutlined/>
+        }, {
+            label: `Темная`,
+            value: 'dark',
+            icon: <MoonOutlined/>
+        }
+    ]
+
     const InfoPanelDesktop = () => <div
         className="InfoPanelDesktop"
     >
@@ -774,18 +790,13 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
             />
 
             <DatePicker value={currentDates} onChange={onChangeDate} style={{width: 120}}/>
-            <Select options={[
-                {
-                    label: 'Системная',
-                    value: 'system'
-                }, {
-                    label: 'Светлая',
-                    value: 'light'
-                }, {
-                    label: 'Темная',
-                    value: 'dark'
-                }
-            ]} value={theme} style={{width: 120}} onSelect={onChangeNightMode}/>
+            <Select options={themeOptions} value={theme}
+                    optionRender={(option) => (
+                        <Space>
+                            {option.data.icon}
+                            <div>{option.data.label}</div>
+                        </Space>
+                    )} style={{width: 140}} onSelect={onChangeNightMode}/>
 
 
             <Radio.Group options={options} onChange={e => onChangeView(e.target.value)} value={view}
