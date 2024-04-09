@@ -98,7 +98,7 @@ function App() {
             : [],
     );
 
-    const [visibilitychange, setVisibilitychange] = useState<boolean>(false);
+    const [visibilitychange, setVisibilitychange] = useState<boolean>(true);
 
     useEffect(() => {
         document.addEventListener("visibilitychange", function() {
@@ -135,7 +135,6 @@ function App() {
             document.body.removeAttribute('class');
         }
     }, [theme]);
-
 
     const loadTrades = async ({
                                   tariffPlan,
