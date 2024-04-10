@@ -312,10 +312,10 @@ function App() {
     }
 
     useEffect(() => {
-        if (api && settings.portfolio) {
+        if (api && settings.portfolio && visibilitychange) {
             getSummary();
         }
-    }, [api, settings.portfolio])
+    }, [api, settings.portfolio, visibilitychange])
 
     useEffect(() => {
         if (!api || !summary || !visibilitychange) {
