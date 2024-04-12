@@ -20,7 +20,7 @@ const LossSectionWidget = ({nonSummaryPositions, isLoading, getListSectionBySymb
         acc[key].count++;
 
         return acc;
-    }, {} as {[key: string]: number})).sort((a: any, b: any) => b[1].PnL - a[1].PnL).slice(0, 5), [lossPositions]);
+    }, {} as {[key: string]: number})).sort((a: any, b: any) => a[1].PnL - b[1].PnL).slice(0, 5), [lossPositions]);
 
     return <div className="widget">
         <div className="widget_header">Loss by section</div>
