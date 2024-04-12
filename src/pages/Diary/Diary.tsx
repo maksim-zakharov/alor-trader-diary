@@ -270,7 +270,7 @@ const Diary: FC<IProps> = ({getListSectionBySymbol, data, trades, api, isLoading
                     title: 'Section',
                     dataIndex: 'symbol',
                     key: 'symbol',
-                    width: 110,
+                    width: 70,
                     align: 'center',
                     // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
                     render: (_, row) =>
@@ -282,7 +282,7 @@ const Diary: FC<IProps> = ({getListSectionBySymbol, data, trades, api, isLoading
                     title: 'Duration',
                     dataIndex: 'duration',
                     key: 'duration',
-                    width: 110,
+                    width: 130,
                     align: 'center',
                     // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
                     render: (_, row) =>
