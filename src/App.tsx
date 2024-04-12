@@ -390,7 +390,7 @@ function App() {
         {
             key: 'analytics',
             label: 'Analytics',
-            element: <Analytics data={data} balanceSeriesData={equityDynamics?.portfolioValues.map(v => ({
+            element: <Analytics getListSectionBySymbol={getListSectionBySymbol} data={data} balanceSeriesData={equityDynamics?.portfolioValues.map(v => ({
                 time: moment(v.date).format('YYYY-MM-DD'),
                 value: v.value
             })) || []} api={api} isLoading={isLoading} dateFrom={dateFrom} moneyMoves={moneyMoves || []}/>,

@@ -16,6 +16,8 @@ import ProfitWidget from "./widgets/ProfitWidget";
 import {MoneyMove} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 import ProfitWeekdayWidget from "./widgets/ProfitWeekdayWidget";
 import LossWeekdayWidget from "./widgets/LossWeekdayWidget";
+import ProfitSectionWidget from "./widgets/ProfitSectionWidget";
+import LossSectionWidget from "./widgets/LossSectionWidget";
 
 interface IProps {
     balanceSeriesData: any
@@ -24,9 +26,10 @@ interface IProps {
     dateFrom: any;
     isLoading: boolean;
     moneyMoves: MoneyMove[];
+    getListSectionBySymbol: any;
 }
 
-const Analytics: FC<IProps> = ({data, api, dateFrom, isLoading, moneyMoves, balanceSeriesData}) => {
+const Analytics: FC<IProps> = ({getListSectionBySymbol, data, api, dateFrom, isLoading, moneyMoves, balanceSeriesData}) => {
     const [reasons, setReasons] = useState<{
         [id: string]: string
     }>(JSON.parse(localStorage.getItem('reasons') || '{}'));
@@ -125,6 +128,8 @@ const Analytics: FC<IProps> = ({data, api, dateFrom, isLoading, moneyMoves, bala
             <LossTimeWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
             <ProfitWeekdayWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
             <LossWeekdayWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
+            <ProfitSectionWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading} getListSectionBySymbol={getListSectionBySymbol}/>
+            <LossSectionWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading} getListSectionBySymbol={getListSectionBySymbol}/>
             <ReportWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading} tradingDays={tradingDays}
                           data={balanceSeriesDataWithoutFirst}/>
         </div>
