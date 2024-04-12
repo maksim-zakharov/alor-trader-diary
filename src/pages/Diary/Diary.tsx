@@ -83,6 +83,7 @@ interface IProps {
     isMobile: number
     equityDynamics?: EquityDynamicsResponse
     moneyMoves: MoneyMove[];
+    getListSectionBySymbol: any;
 }
 
 const AccountCard: FC<any> = ({
@@ -115,7 +116,7 @@ const AccountCard: FC<any> = ({
     </Card>
 }
 
-const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, moneyMoves, isMobile, equityDynamics}) => {
+const Diary: FC<IProps> = ({getListSectionBySymbol, data, trades, api, isLoading, summary, fullName, moneyMoves, isMobile, equityDynamics}) => {
     const [settings, setSettings] = useState<{
         token: string;
         portfolio: string;
@@ -263,6 +264,18 @@ const Diary: FC<IProps> = ({data, trades, api, isLoading, summary, fullName, mon
                             moment(row.openDate).format('HH:mm:ss')
                             : // @ts-ignore
                             moment(row.openDate).format('DD.MM.YYYY'),
+                    // onCell: sharedOnCell,
+                },
+                {
+                    title: 'Section',
+                    dataIndex: 'symbol',
+                    key: 'symbol',
+                    width: 110,
+                    align: 'center',
+                    // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
+                    render: (_, row) =>
+                        // @ts-ignore
+                        row.type !== 'summary' && (getListSectionBySymbol(row.symbol) || 'Not found'),
                     // onCell: sharedOnCell,
                 },
                 {

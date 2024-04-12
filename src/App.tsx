@@ -5,8 +5,6 @@ import {
     Menu,
     MenuProps,
     Select,
-
-
 } from 'antd';
 import {Content, Footer, Header} from 'antd/es/layout/layout';
 import React, {ReactNode, useEffect, useMemo, useState} from 'react';
@@ -27,18 +25,17 @@ import Analytics from './pages/Analytics/Analytics';
 import {DefaultOptionType} from 'antd/es/select';
 import OrderbookWidget from './pages/Orderbook/OrderbookWidget';
 import {
-    calculateCommission, getAgreementNumber,
+    getAgreementNumber,
     getCommissionByPlanAndTotalVolume, getCurrentTariffPlan,
     positionsToTrades,
     tradesToHistoryPositions
 } from './utils';
-import {Time, WhitespaceData} from "lightweight-charts";
 import {
     EquityDynamicsResponse,
     MoneyMove,
     UserInfoResponse
 } from "alor-api/dist/services/ClientInfoService/ClientInfoService";
-import {sum} from "d3";
+import useListSecs from "./useListSecs";
 
 export const avg = (numbers: number[]) =>
     !numbers.length ? 0 : summ(numbers) / numbers.length;
@@ -97,6 +94,8 @@ function App() {
             ? JSON.parse(localStorage.getItem('symbols'))
             : [],
     );
+
+    const {getListSectionBySymbol} = useListSecs();
 
     const [visibilitychange, setVisibilitychange] = useState<boolean>(true);
 
@@ -384,7 +383,7 @@ function App() {
         {
             key: 'diary',
             label: 'Diary',
-            element: <Diary isMobile={width < 400 ? 1 : width < 1200 ? Math.round(width / 410) : 0} moneyMoves={moneyMoves || []} equityDynamics={equityDynamics}
+            element: <Diary getListSectionBySymbol={getListSectionBySymbol} isMobile={width < 400 ? 1 : width < 1200 ? Math.round(width / 410) : 0} moneyMoves={moneyMoves || []} equityDynamics={equityDynamics}
                             data={data} trades={trades} api={api} isLoading={isLoading} summary={summary}
                             fullName={userInfo?.fullName}/>
         },
