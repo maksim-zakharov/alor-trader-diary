@@ -54,7 +54,7 @@ body {
 
 .ticker-info {
     display: flex;
-    padding: 4px 0;
+    padding: 8px 0;
     /*min-width: 320px;*/
     justify-content: space-between;
 }
@@ -191,47 +191,101 @@ code {
     }
 }
 
+.DesktopPositions {
+    display: block;
+}
+
+.MobilePosition {
+    display: none;
+    margin-bottom: 16px;
+
+    .title-container{
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        margin-bottom: 8px;
+    }
+
+    .title{
+        font-size: 16px;
+        font-weight: bold;
+        line-height: 1;
+    }
+
+    .result {
+        font-size: 11px;
+        line-height: 16px;
+        background-color: rgba(21, 120, 85, 0.4);
+        width: fit-content;
+        padding: 2px 8px;
+        border-radius: 16px;
+
+        &.profit {
+            color: rgba(var(--table-profit-color), 1);
+            background-color: rgba(21, 120, 85, 0.4);
+
+            .percent:before {
+                background-color: rgba(var(--table-profit-color), 1);
+            }
+        }
+
+        &.loss {
+            color: rgba(var(--table-loss-color), 1);
+            background-color: rgba(209, 38, 27, 0.4);
+
+            .percent:before {
+                background-color: rgba(var(--table-loss-color), 1);
+            }
+        }
+    }
+}
+
 .MobileSummary {
     display: none;
     margin-bottom: 16px;
-}
 
-.MobileSummary .result {
-    font-size: 13px;
-    line-height: 20px;
-    background-color: rgba(21, 120, 85, 0.4);
-    width: fit-content;
-    padding: 2px 8px;
-    border-radius: 16px;
-    margin-top: 6px;
-}
+    .summary{
+        font-size: 24px;
+        font-weight: bold;
+    }
 
-.MobileSummary .result.profit {
-    color: rgba(var(--table-profit-color), 1);
-    background-color: rgba(21, 120, 85, 0.4);
-}
+    .result {
+        font-size: 13px;
+        line-height: 20px;
+        background-color: rgba(21, 120, 85, 0.4);
+        width: fit-content;
+        padding: 2px 8px;
+        border-radius: 16px;
+        margin-top: 6px;
 
-.MobileSummary .result.profit .percent:before {
-    background-color: rgba(var(--table-profit-color), 1);
-}
+        &.profit {
+            color: rgba(var(--table-profit-color), 1);
+            background-color: rgba(21, 120, 85, 0.4);
 
-.MobileSummary .result.loss {
-    color: rgba(var(--table-loss-color), 1);
-    background-color: rgba(209, 38, 27, 0.4);
-}
+            .percent:before {
+                background-color: rgba(var(--table-profit-color), 1);
+            }
+        }
 
-.MobileSummary .result.loss .percent:before {
-    background-color: rgba(var(--table-loss-color), 1);
-}
+        &.loss {
+            color: rgba(var(--table-loss-color), 1);
+            background-color: rgba(209, 38, 27, 0.4);
 
-.MobileSummary .button-group {
-    background-color: rgb(36, 52, 66);
-    padding: 16px 20px;
-    border-radius: 20px;
-    margin-top: 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+            .percent:before {
+                background-color: rgba(var(--table-loss-color), 1);
+            }
+        }
+    }
+
+    .button-group {
+         background-color: rgb(36, 52, 66);
+         padding: 16px 20px;
+         border-radius: 20px;
+         margin-top: 16px;
+         display: flex;
+         justify-content: space-between;
+         align-items: center;
+     }
 }
 
 .ant-layout-content {
@@ -319,6 +373,14 @@ code {
 
     .MobileSummary {
         display: block;
+    }
+
+    .MobilePosition {
+        display: block;
+    }
+
+    .DesktopPositions {
+        display: none;
     }
 
     .InfoPanelDesktop {

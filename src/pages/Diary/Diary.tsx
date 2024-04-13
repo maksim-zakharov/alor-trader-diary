@@ -116,7 +116,18 @@ const AccountCard: FC<any> = ({
     </Card>
 }
 
-const Diary: FC<IProps> = ({getListSectionBySymbol, data, trades, api, isLoading, summary, fullName, moneyMoves, isMobile, equityDynamics}) => {
+const Diary: FC<IProps> = ({
+                               getListSectionBySymbol,
+                               data,
+                               trades,
+                               api,
+                               isLoading,
+                               summary,
+                               fullName,
+                               moneyMoves,
+                               isMobile,
+                               equityDynamics
+                           }) => {
     const [settings, setSettings] = useState<{
         token: string;
         portfolio: string;
@@ -146,7 +157,7 @@ const Diary: FC<IProps> = ({getListSectionBySymbol, data, trades, api, isLoading
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'system');
 
     useEffect(() => {
-        if((theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches) || theme === 'dark'){
+        if ((theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches) || theme === 'dark') {
             document.body.className = 'dark-theme';
         } else {
             document.body.removeAttribute('class');
@@ -481,7 +492,7 @@ const Diary: FC<IProps> = ({getListSectionBySymbol, data, trades, api, isLoading
     const onChangeNightMode = (e) => {
         localStorage.setItem('theme', e);
 
-        if((e === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches) || e === 'dark'){
+        if ((e === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches) || e === 'dark') {
             document.body.className = 'dark-theme';
         }
         setTheme(e);
@@ -709,10 +720,7 @@ const Diary: FC<IProps> = ({getListSectionBySymbol, data, trades, api, isLoading
     const MobileSummary = () => <div className="MobileSummary widget">
         <div style={{display: 'flex', alignItems: 'end'}}>
             <div>
-                <div style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold'
-                }}>{moneyFormat(summary?.portfolioLiquidationValue || 0)}</div>
+                <div className="summary">{moneyFormat(summary?.portfolioLiquidationValue || 0)}</div>
                 <div style={{
                     display: 'inline-flex',
                     alignItems: 'end'
@@ -744,11 +752,52 @@ const Diary: FC<IProps> = ({getListSectionBySymbol, data, trades, api, isLoading
         </div>
     </div>
 
-    const themeOptions =[
+    const MobilePosition = ({positions}) => {
+        const summary = useMemo(() => positions.find(p => p.type === 'summary'), [positions]);
+        const dayPositions = useMemo(() => positions.filter(p => p.type !== 'summary'), [positions]);
+
+        return <div className="MobilePosition widget">
+            <div style={{display: 'flex', alignItems: 'end'}}>
+                <div className="title-container">
+                    <div className="title">{moment(summary.openDate).format('DD.MM.YYYY')}</div>
+                    <div style={{
+                        display: 'inline-flex',
+                        alignItems: 'end'
+                    }}>
+                        <div
+                            className={`result ${summary.PnL > 0 ? 'profit' : 'loss'}`}>{summary.PnL > 0 ? '+' : ''}{moneyFormat(summary.PnL)}
+                            {/*<span className='percent'>{shortNumberFormat(netProfitPercent)}%</span>*/}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {dayPositions.map(dp =>
+                <div className="ticker-info">
+                    <div style={{display: 'flex'}}>
+                        <img className="ticker_logo" src={`https://storage.alorbroker.ru/icon/${dp?.symbol}.png`}
+                             alt={dp?.symbol}/>
+                        <div className="ticker_name">
+                            <div className="ticker_name_title">{dp?.symbol}</div>
+                            <div className="ticker_name_description">
+                                {moment(dp?.openDate).format('HH:mm:ss')}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="ticker_actions">
+                        <div className="ticker_name_title"
+                             style={{color: dp?.PnL > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>{moneyFormat(dp?.PnL || 0)} ({`${numberToPercent(dp?.PnLPercent)}%`})
+                        </div>
+                        <div className="ticker_name_description">на сумму {moneyFormat(dp?.volume, 0)}</div>
+                    </div>
+                </div>)}
+        </div>
+    }
+
+    const themeOptions = [
         {
             label: 'Системная',
             value: 'system',
-            icon: <SettingOutlined />
+            icon: <SettingOutlined/>
         }, {
             label: `Светлая`,
             value: 'light',
@@ -897,6 +946,17 @@ const Diary: FC<IProps> = ({getListSectionBySymbol, data, trades, api, isLoading
         </div>
     </div>
 
+    const dayPositions = useMemo(() => Object.entries(data.positions.reduce((acc, curr) => {
+        const date = moment(curr.openDate).format('YYYY-MM-DD');
+        if (!acc[date]) {
+            acc[date] = [];
+        }
+
+        acc[date].push(curr);
+
+        return acc;
+    }, {})).map(p => p[1]), [data.positions]);
+
     return (
         <div className="Diary">
             <MobileSummary/>
@@ -904,24 +964,28 @@ const Diary: FC<IProps> = ({getListSectionBySymbol, data, trades, api, isLoading
             {view === 'week' && <>
                 {years.map(year => <YearRender year={year}/>)}
             </>}
-            {view === 'table' && <Table
-                onRow={(row: any) =>
-                    row.type === 'summary' && {
-                        className: row.PnL > 0 ? 'profit' : 'loss',
+            {view === 'table' && <>
+                {dayPositions.map(dp => <MobilePosition positions={dp}/>)}
+                <Table
+                    onRow={(row: any) =>
+                        row.type === 'summary' && {
+                            className: row.PnL > 0 ? 'profit' : 'loss',
+                        }
                     }
-                }
-                rowKey="id"
-                columns={columns}
-                loading={isLoading}
-                dataSource={data.positions}
-                size="small"
-                pagination={false}
-                expandable={{
-                    expandedRowRender,
-                    defaultExpandedRowKeys: ['0'],
-                    rowExpandable: (row) => row.type !== 'summary',
-                }}
-            />}
+                    className="DesktopPositions"
+                    rowKey="id"
+                    columns={columns}
+                    loading={isLoading}
+                    dataSource={data.positions}
+                    size="small"
+                    pagination={false}
+                    expandable={{
+                        expandedRowRender,
+                        defaultExpandedRowKeys: ['0'],
+                        rowExpandable: (row) => row.type !== 'summary',
+                    }}
+                />
+            </>}
         </div>
     );
 };
