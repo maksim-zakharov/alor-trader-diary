@@ -117,6 +117,27 @@ const {
                     lastValueVisible: false,
                     priceLineVisible: false,
                 });
+                series.priceScale().applyOptions({
+                    scaleMargins: {
+                        top: 0.1, // highest point of the series will be 10% away from the top
+                        bottom: 0.4, // lowest point will be 40% away from the bottom
+                    },
+                });
+
+                const volumeSeries = chart.addHistogramSeries({
+                    priceFormat: {
+                        type: 'volume',
+                    },
+                    priceScaleId: '', // set as an overlay by setting a blank priceScaleId
+                });
+                volumeSeries.priceScale().applyOptions({
+                    // set the positioning of the volume series
+                    scaleMargins: {
+                        top: 0.7, // highest point of the series will be 70% away from the top
+                        bottom: 0,
+                    },
+                });
+                volumeSeries?.setData(data.map((d: any) => ({ time: d.time, value: d.volume, color: d.open < d.close ? 'rgb(20, 131, 92)' : 'rgb(157, 43, 56)' })));
             }
 
             if(seriesType === 'line') {
