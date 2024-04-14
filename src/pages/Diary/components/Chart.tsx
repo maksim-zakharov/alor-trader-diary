@@ -12,6 +12,7 @@ interface IProps{
     trades: any[]
     colors?: Pick<CSSProperties, 'backgroundColor' | 'color' | 'borderColor'>
     digits?: number
+    security: Security;
 }
 
 function timeToLocal(originalTime: number) {
@@ -19,7 +20,7 @@ function timeToLocal(originalTime: number) {
     return Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes(), d.getSeconds(), d.getMilliseconds()) / 1000;
 }
 
-const Chart: FC<IProps> = ({symbol, digits, api, from, to, trades, colors = {}}) => {
+const Chart: FC<IProps> = ({security, symbol, digits, api, from, to, trades, colors = {}}) => {
 
     const currentTimeframe = Timeframe.Min5;
 
@@ -72,7 +73,7 @@ return timeToLocal(roundedTime) as UTCTimestamp
         }).then(r => setData(r.history)); // .map(c => [c.time, c.open, c.high, c.low, c.close])))
     }, [symbol, api, from, to]);
 
-    return <TVChart seriesType="candlestick" markers={markers} data={data.map(d => ({...d, time: timeToLocal(d.time)})) as any[]} digits={digits} colors={colors}/>
+    return <TVChart seriesType="candlestick" lotSize={security.lotsize} markers={markers} data={data.map(d => ({...d, time: timeToLocal(d.time)})) as any[]} digits={digits} colors={colors}/>
 }
 
 export default Chart;

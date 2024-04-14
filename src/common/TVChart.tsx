@@ -20,9 +20,10 @@ interface IProps{
     digits?: number
     balance?: number
     shortNumber?: boolean;
+    lotSize?: number
 }
 
-const TVChart: FC<IProps> = ({balance, colors, seriesType, shortNumber, digits, data, markers, formatTime}) => {
+const TVChart: FC<IProps> = ({lotSize, balance, colors, seriesType, shortNumber, digits, data, markers, formatTime}) => {
 const {
         backgroundColor = 'white', // 'rgb(30,44,57)
         color = 'black', // 'rgb(166,189,213)'
@@ -164,7 +165,7 @@ const {
                         // symbol ОТКР МАКС МИН ЗАКР ОБЪЕМ
                         const candle: any = timeCandleMap.get(data.time)
 
-                        toolTip.innerHTML = `ОТКР: ${candle.open} МАКС: ${candle.high} МИН: ${candle.low} ЗАКР: ${candle.close} ОБЪЕМ: ${shortNumberFormat(candle.volume)} ОБЪЕМ (деньги): ${moneyFormat(candle.volume * candle.close)}`;
+                        toolTip.innerHTML = `ОТКР: ${candle.open} МАКС: ${candle.high} МИН: ${candle.low} ЗАКР: ${candle.close} ОБЪЕМ: ${shortNumberFormat(candle.volume)} ОБЪЕМ (деньги): ${moneyFormat(candle.volume * candle.close * lotSize)}`;
 
                         toolTip.style.left = '12px';
                         toolTip.style.top = '12px';

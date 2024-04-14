@@ -72,6 +72,7 @@ const PositionDetails = ({nightMode, trades, api, symbol}) => {
             trades={trades}
             symbol={symbol}
             digits={digits}
+            security={security}
             api={api}
             from={trades[0].date}
             to={trades.slice(-1)[0].date}
