@@ -863,6 +863,24 @@ const Diary: FC<IProps> = ({
 
             <Radio.Group options={options} onChange={e => onChangeView(e.target.value)} value={view}
                          optionType="button"/>
+        </div>
+    </div>
+
+    const dayPositions = useMemo(() => Object.entries(data.positions.reduce((acc, curr) => {
+        const date = moment(curr.openDate).format('YYYY-MM-DD');
+        if (!acc[date]) {
+            acc[date] = [];
+        }
+
+        acc[date].push(curr);
+
+        return acc;
+    }, {})).map(p => p[1]), [data.positions]);
+
+    return (
+        <div className="Diary">
+            <MobileSummary/>
+            <InfoPanelDesktop/>
             <Drawer
                 title="Settings"
                 placement="right"
@@ -943,24 +961,6 @@ const Diary: FC<IProps> = ({
                     </FormItem>
                 </Form>
             </Drawer>
-        </div>
-    </div>
-
-    const dayPositions = useMemo(() => Object.entries(data.positions.reduce((acc, curr) => {
-        const date = moment(curr.openDate).format('YYYY-MM-DD');
-        if (!acc[date]) {
-            acc[date] = [];
-        }
-
-        acc[date].push(curr);
-
-        return acc;
-    }, {})).map(p => p[1]), [data.positions]);
-
-    return (
-        <div className="Diary">
-            <MobileSummary/>
-            <InfoPanelDesktop/>
             {view === 'week' && <>
                 {years.map(year => <YearRender year={year}/>)}
             </>}
