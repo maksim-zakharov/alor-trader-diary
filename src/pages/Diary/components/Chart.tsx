@@ -12,7 +12,7 @@ interface IProps{
     trades: any[]
     colors?: Pick<CSSProperties, 'backgroundColor' | 'color' | 'borderColor'>
     digits?: number
-    security: Security;
+    security?: Security;
 }
 
 function timeToLocal(originalTime: number) {
@@ -73,7 +73,7 @@ return timeToLocal(roundedTime) as UTCTimestamp
         }).then(r => setData(r.history)); // .map(c => [c.time, c.open, c.high, c.low, c.close])))
     }, [symbol, api, from, to]);
 
-    return <TVChart seriesType="candlestick" lotSize={security.lotsize} markers={markers} data={data.map(d => ({...d, time: timeToLocal(d.time)})) as any[]} digits={digits} colors={colors}/>
+    return <TVChart seriesType="candlestick" lotSize={security?.lotsize || 1} markers={markers} data={data.map(d => ({...d, time: timeToLocal(d.time)})) as any[]} digits={digits} colors={colors}/>
 }
 
 export default Chart;
