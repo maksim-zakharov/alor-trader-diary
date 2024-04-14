@@ -138,6 +138,38 @@ const {
                     },
                 });
                 volumeSeries?.setData(data.map((d: any) => ({ time: d.time, value: d.volume, color: d.open < d.close ? 'rgb(20, 131, 92)' : 'rgb(157, 43, 56)' })));
+
+                const timeCandleMap = new Map(data.map(d => [d.time, d]));
+
+                const toolTip: any = document.createElement('div');
+                toolTip.style =`position: absolute; display: none; z-index: 1000; top: 12px; left: 12px;`;
+                    chartContainerRef!.current.appendChild(toolTip);
+
+                // toolTip.innerHTML = '123'
+                // update tooltip
+                chart.subscribeCrosshairMove(param => {
+                    if (
+                        param.point === undefined ||
+                        !param.time ||
+                        param.point.x < 0 ||
+                        param.point.x > chartContainerRef!.current.clientWidth ||
+                        param.point.y < 0 ||
+                        param.point.y > chartContainerRef!.current.clientHeight
+                    ) {
+                        toolTip.style.display = 'none';
+                    } else {
+                        // time will be in the same format that we supplied to setData.
+                        toolTip.style.display = 'flex';
+                        const data = param.seriesData.get(series);
+                        // symbol ОТКР МАКС МИН ЗАКР ОБЪЕМ
+                        const candle: any = timeCandleMap.get(data.time)
+
+                        toolTip.innerHTML = `ОТКР: ${candle.open} МАКС: ${candle.high} МИН: ${candle.low} ЗАКР: ${candle.close} ОБЪЕМ: ${shortNumberFormat(candle.volume)} ОБЪЕМ (деньги): ${moneyFormat(candle.volume * candle.close)}`;
+
+                        toolTip.style.left = '12px';
+                        toolTip.style.top = '12px';
+                    }
+                });
             }
 
             if(seriesType === 'line') {
