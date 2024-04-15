@@ -280,7 +280,7 @@ limit: 10
         .then((o: any) => o.filter(o => ![Status.Overdue, Status.Refused].includes(o.status)))
         .then((ops: any) => setOperations(ops))
 
-    const lastWithdrawals = useMemo(() => Array.from(new Set(operations.map(o => o.data.amount))).sort((a, b) => b - a).slice(0, 3), [operations]);
+    const lastWithdrawals = useMemo(() => Array.from(new Set(operations.map(o => o.data.amount))).sort((a, b) => b - a).slice(0, 5).filter(a => a), [operations]);
 
     const getMoneyMoves = (agreementNumber: number) => api.clientInfo.getMoneyMoves(agreementNumber, {
         dateFrom,
