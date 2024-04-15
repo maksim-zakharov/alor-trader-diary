@@ -11,7 +11,7 @@ import {
     SelectProps, Space,
     Statistic,
     Switch,
-    Table, Timeline, Typography,
+    Table, Tag, Timeline, Typography,
 } from 'antd';
 import {
     ArrowDownOutlined,
@@ -84,6 +84,7 @@ interface IProps {
     equityDynamics?: EquityDynamicsResponse
     moneyMoves: MoneyMove[];
     getListSectionBySymbol: any;
+    lastWithdrawals: number[]
 }
 
 const AccountCard: FC<any> = ({
@@ -126,6 +127,7 @@ const Diary: FC<IProps> = ({
                                fullName,
                                moneyMoves,
                                isMobile,
+                               lastWithdrawals,
                                equityDynamics
                            }) => {
     const [settings, setSettings] = useState<{
@@ -941,6 +943,9 @@ const Diary: FC<IProps> = ({
                             disabled={!selectedAccount}
                             suffix="₽"
                         />
+                        {lastWithdrawals.length > 0 && <div className="tag-container">
+                            {lastWithdrawals.map(lw => <Tag onClick={() => setPaidInfo(prevState => ({...prevState, amount: lw.toString()}))}>{lw}</Tag>)}
+                        </div>}
                     </FormItem>}
                     {operationId && <FormItem label="Код подтверждения">
                         <Input

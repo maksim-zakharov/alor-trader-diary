@@ -31,8 +31,8 @@ import {
     tradesToHistoryPositions
 } from './utils';
 import {
-    EquityDynamicsResponse,
-    MoneyMove,
+    EquityDynamicsResponse, GetOperationsResponse,
+    MoneyMove, Status,
     UserInfoResponse
 } from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 import useListSecs from "./useListSecs";
@@ -272,6 +272,16 @@ function App() {
         return userInfo;
         })
 
+    const [operations, setOperations] = useState<GetOperationsResponse[]>([]);
+
+    const getOperations = () => api.clientInfo.getOperations(Number(settings.portfolio?.replace('D', '')), {
+limit: 10
+    })
+        .then((o: any) => o.filter(o => ![Status.Overdue, Status.Refused].includes(o.status)))
+        .then((ops: any) => setOperations(ops))
+
+    const lastWithdrawals = useMemo(() => Array.from(new Set(operations.map(o => o.data.amount))).sort((a, b) => b - a).slice(0, 3), [operations]);
+
     const getMoneyMoves = (agreementNumber: number) => api.clientInfo.getMoneyMoves(agreementNumber, {
         dateFrom,
         dateTo
@@ -322,6 +332,8 @@ function App() {
         }
 
         getEquityDynamics(dateFrom, dateTo);
+
+        getOperations();
 
         setIsLoading(true);
         getUserInfo().then(userInfo => loadTrades({
@@ -384,7 +396,7 @@ function App() {
             key: 'diary',
             label: 'Diary',
             element: <Diary getListSectionBySymbol={getListSectionBySymbol} isMobile={width < 400 ? 1 : width < 1200 ? Math.round(width / 410) : 0} moneyMoves={moneyMoves || []} equityDynamics={equityDynamics}
-                            data={data} trades={trades} api={api} isLoading={isLoading} summary={summary}
+                            data={data} trades={trades} api={api} isLoading={isLoading} summary={summary} lastWithdrawals={lastWithdrawals}
                             fullName={userInfo?.fullName}/>
         },
         {

@@ -240,6 +240,22 @@ code {
     }
 }
 
+.tag-container{
+    margin-top: 8px;
+}
+
+.ant-tag{
+    background-color: rgba(var(--pro-input-bg), 1);
+    color: rgba(var(--pro-input-color), 1);
+    border: none;
+    cursor: pointer;
+
+    &:hover{
+         background-color: rgba(var(--pro-button-primary-bg), 1);
+    color: #fff;
+     }
+}
+
 .MobileSummary {
     display: none;
     margin-bottom: 16px;
