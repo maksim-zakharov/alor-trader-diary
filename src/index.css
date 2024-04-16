@@ -888,30 +888,6 @@ a, .link-color {
         }
     }
 
-    .ant-select .ant-select-selection-placeholder {
-        color: rgba(var(--pro-icon-color), 1);
-    }
-
-    .ant-select .ant-select-arrow {
-        color: rgba(var(--pro-icon-color), 1);
-    }
-
-    .ant-select:not(.ant-select-customize-input) .ant-select-selector {
-        background-color: rgba(var(--pro-input-bg), 1);
-        border-color: rgba(var(--pro-input-bg), 1);
-        color: rgba(var(--pro-input-color), 1);
-
-        &::placeholder {
-            color: rgba(var(--pro-icon-color), 1);
-
-        }
-    }
-
-    .ant-select-single.ant-select-sm:not(.ant-select-customize-input).ant-select-show-arrow .ant-select-selection-item, .ant-select-single.ant-select-sm:not(.ant-select-customize-input).ant-select-show-arrow .ant-select-selection-placeholder {
-
-        color: rgba(var(--pro-icon-color), 1);
-    }
-
     .ant-switch.ant-switch-checked {
         background-color: rgba(var(--pro-input-bg), 1);
     }
@@ -948,10 +924,6 @@ a, .link-color {
     .ant-menu-item {
         display: flex;
         align-items: center;
-    }
-
-    .ant-select .ant-select-clear {
-        background-color: transparent;
     }
 }
 
@@ -1013,6 +985,36 @@ a, .link-color {
     .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
         background-color: rgba(var(--pro-input-color), 0.2);
     }
+}
+
+.dark-theme {
+    .ant-select .ant-select-selection-placeholder {
+        color: rgba(var(--pro-icon-color), 1);
+    }
+
+    .ant-select .ant-select-arrow {
+        color: rgba(var(--pro-icon-color), 1);
+    }
+
+    .ant-select:not(.ant-select-customize-input) .ant-select-selector {
+        background-color: rgba(var(--pro-input-bg), 1);
+        border-color: rgba(var(--pro-input-bg), 1);
+        color: rgba(var(--pro-input-color), 1);
+
+        &::placeholder {
+            color: rgba(var(--pro-icon-color), 1);
+
+        }
+    }
+}
+
+.ant-select-single.ant-select-sm:not(.ant-select-customize-input).ant-select-show-arrow .ant-select-selection-item, .ant-select-single.ant-select-sm:not(.ant-select-customize-input).ant-select-show-arrow .ant-select-selection-placeholder {
+
+    color: rgba(var(--pro-icon-color), 1);
+}
+
+.ant-select .ant-select-clear {
+    background-color: transparent;
 }
 
 .order-book-body {

@@ -742,12 +742,6 @@ const Diary: FC<IProps> = ({
                 className="vertical-button"
                 onClick={(f) => setShowSettings(true)}
             >Настройки</Button>
-            <Button
-                type="text"
-                icon={nightMode ? <SunOutlined/> : <MoonOutlined/>}
-                className="vertical-button"
-                onClick={() => onChangeNightMode(theme === 'system' ? 'light' : theme === 'light' ? 'dark' : 'system')}
-            >Тема</Button>
 
             <Radio.Group options={options} onChange={e => onChangeView(e.target.value)} value={view} size="large"
                          optionType="button"/>
@@ -854,13 +848,6 @@ const Diary: FC<IProps> = ({
             />
 
             <DatePicker value={currentDates} onChange={onChangeDate} style={{width: 120}}/>
-            <Select options={themeOptions} value={theme}
-                    optionRender={(option) => (
-                        <Space>
-                            {option.data.icon}
-                            <div>{option.data.label}</div>
-                        </Space>
-                    )} style={{width: 140}} onSelect={onChangeNightMode}/>
 
 
             <Radio.Group options={options} onChange={e => onChangeView(e.target.value)} value={view}
@@ -898,6 +885,15 @@ const Diary: FC<IProps> = ({
                             placeholder="Portfolio"
                             {...settingsInputProps('portfolio')}
                         />
+                    </FormItem>
+                    <FormItem label="Тема">
+                        <Select options={themeOptions} value={theme}
+                                optionRender={(option) => (
+                                    <Space>
+                                        {option.data.icon}
+                                        <div>{option.data.label}</div>
+                                    </Space>
+                                )} style={{width: '100%'}} onSelect={onChangeNightMode}/>
                     </FormItem>
                     <AccountList/>
                     {showForm && <>
