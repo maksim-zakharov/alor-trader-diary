@@ -141,6 +141,7 @@ body {
     font-weight: 500;
     color: rgba(var(--pro-input-color), 1);
     font-size: 13px;
+    max-width: 220px;
 }
 
 .ticker_name_description {
@@ -599,6 +600,18 @@ code {
 
 .dark-theme .ant-drawer .ant-drawer-content {
     background-color: rgba(var(--pro-widget-body-bg), 1);
+}
+
+.dark-theme .ant-modal .ant-modal-content {
+    background-color: rgba(var(--pro-widget-body-bg), 1);
+}
+
+.dark-theme .ant-modal .ant-modal-header {
+    background-color: rgba(var(--pro-widget-body-bg), 1);
+}
+
+.dark-theme .ant-modal-title {
+    color: rgba(var(--pro-text-02), 1);
 }
 
 .dark-theme .ant-picker-dropdown .ant-picker-panel {

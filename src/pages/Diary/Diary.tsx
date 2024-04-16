@@ -1,45 +1,62 @@
 import {
-    Button, Card, Col,
+    Button,
+    Card,
+    Col,
     DatePicker,
-    DatePickerProps, Descriptions,
+    DatePickerProps,
+    Descriptions,
     Divider,
     Drawer,
     Form,
     Input,
-    message, Popconfirm, Radio, Row,
+    message,
+    Modal,
+    Popconfirm,
+    Radio,
+    Row,
     Select,
-    SelectProps, Space,
+    SelectProps,
+    Space,
     Statistic,
-    Switch,
-    Table, Tag, Timeline, Typography,
+    Table,
+    Tag,
+    Timeline,
+    Typography,
 } from 'antd';
 import {
+    AppstoreOutlined,
     ArrowDownOutlined,
     ArrowUpOutlined,
-    SettingOutlined,
-    RetweetOutlined,
-    EditOutlined,
     DeleteOutlined,
-    AppstoreOutlined,
-    TableOutlined,
+    EditOutlined,
     MoonOutlined,
-    SunOutlined
+    RetweetOutlined,
+    ClockCircleOutlined,
+    SettingOutlined,
+    SunOutlined,
+    SwapOutlined,
+    TableOutlined
 } from '@ant-design/icons';
 import FormItem from 'antd/es/form/FormItem';
 import React, {ChangeEventHandler, FC, useEffect, useMemo, useState} from 'react';
 import {ColumnsType} from 'antd/es/table';
 import moment from 'moment/moment';
-import {SwitchChangeEventHandler} from 'antd/es/switch';
 import {selectOptions, summ} from '../../App';
 import {moneyFormat, shortNumberFormat} from '../../common/utils';
 import {AlorApi} from "alor-api";
 import * as days from "dayjs";
+import dayjs from "dayjs";
 import {useSearchParams} from "react-router-dom";
 import PositionDetails from "./components/PositionDetails";
-import {Currency, EquityDynamicsResponse, MoneyMove} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
-import {isMobile, numberToPercent} from "../../utils";
+import {
+    Currency,
+    EquityDynamicsResponse,
+    GetOperationsResponse,
+    MoneyMove,
+    Status
+} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
+import {numberToPercent} from "../../utils";
 import NoResult from "../../common/NoResult";
-import dayjs from "dayjs";
 
 interface DataType {
     key: string;
@@ -85,6 +102,7 @@ interface IProps {
     moneyMoves: MoneyMove[];
     getListSectionBySymbol: any;
     lastWithdrawals: number[]
+    operations: GetOperationsResponse[];
 }
 
 const AccountCard: FC<any> = ({
@@ -128,6 +146,7 @@ const Diary: FC<IProps> = ({
                                moneyMoves,
                                isMobile,
                                lastWithdrawals,
+                               operations,
                                equityDynamics
                            }) => {
     const [settings, setSettings] = useState<{
@@ -155,6 +174,8 @@ const Diary: FC<IProps> = ({
     const [reasons, setReasons] = useState<{ [id: string]: string }>(
         JSON.parse(localStorage.getItem('reasons') || '{}'),
     );
+
+    const [showOperationsModal, setShowOperationsModal] = useState(false);
 
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'system');
 
@@ -738,6 +759,13 @@ const Diary: FC<IProps> = ({
         <div className="button-group">
             <Button
                 type="text"
+                icon={<SwapOutlined/>}
+                className="vertical-button"
+                onClick={(f) => setShowOperationsModal(true)}
+            >Операции</Button>
+
+            <Button
+                type="text"
                 icon={<SettingOutlined/>}
                 className="vertical-button"
                 onClick={(f) => setShowSettings(true)}
@@ -866,10 +894,37 @@ const Diary: FC<IProps> = ({
         return acc;
     }, {})).map(p => p[1]), [data.positions]);
 
+    const moneyOperations = useMemo(() => operations.filter(o => ['money_input', 'money_withdrawal'].includes(o.subType)), [operations])
+
+    const withoutYear = (date) => {
+        const format = moment(date).format('LL');
+
+        return format.slice(0, format.length - 8);
+    }
+
     return (
         <div className="Diary">
             <MobileSummary/>
             <InfoPanelDesktop/>
+            <Modal title="Операции" open={showOperationsModal} footer={null}
+                   onCancel={() => setShowOperationsModal(false)}>
+                {moneyOperations.map(getMaxLossTrade =>
+                    <div className="ticker-info">
+                        <div style={{display: 'flex'}}>
+                            <div className="ticker_name">
+                                <div className="ticker_name_title">{getMaxLossTrade.title}</div>
+                                <div className="ticker_name_description">
+                                    {withoutYear(getMaxLossTrade.date)} {moment(getMaxLossTrade?.date).format('HH:mm:ss')}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="ticker_actions">
+                            <div className="ticker_name_title"
+                                 style={{color: [Status.Refused, Status.Overdue].includes(getMaxLossTrade.status) ? 'rgba(var(--table-loss-color),1)' : getMaxLossTrade.status === Status.Resolved ? 'rgba(var(--table-profit-color),1)' : undefined}}>{getMaxLossTrade.subType === 'money_input' ? '+' : '-'}{moneyFormat(getMaxLossTrade?.data?.amount || 0, 0)}{getMaxLossTrade.status === Status.executing && <ClockCircleOutlined style={{marginLeft: '4px'}} />}</div>
+                            <div className="ticker_name_description">{getMaxLossTrade?.data?.accountFrom}</div>
+                        </div>
+                    </div>)}
+            </Modal>
             <Drawer
                 title="Settings"
                 placement="right"
@@ -940,7 +995,10 @@ const Diary: FC<IProps> = ({
                             suffix="₽"
                         />
                         {lastWithdrawals.length > 0 && <div className="tag-container">
-                            {lastWithdrawals.map(lw => <Tag onClick={() => setPaidInfo(prevState => ({...prevState, amount: lw.toString()}))}>{lw}</Tag>)}
+                            {lastWithdrawals.map(lw => <Tag onClick={() => setPaidInfo(prevState => ({
+                                ...prevState,
+                                amount: lw.toString()
+                            }))}>{lw}</Tag>)}
                         </div>}
                     </FormItem>}
                     {operationId && <FormItem label="Код подтверждения">

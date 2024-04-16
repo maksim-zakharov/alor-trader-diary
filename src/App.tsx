@@ -275,12 +275,11 @@ function App() {
     const [operations, setOperations] = useState<GetOperationsResponse[]>([]);
 
     const getOperations = () => api.clientInfo.getOperations(Number(settings.portfolio?.replace('D', '')), {
-limit: 10
+// limit: 10
     })
-        .then((o: any) => o.filter(o => ![Status.Overdue, Status.Refused].includes(o.status)))
         .then((ops: any) => setOperations(ops))
 
-    const lastWithdrawals = useMemo(() => Array.from(new Set(operations.map(o => o.data.amount))).sort((a, b) => b - a).slice(0, 5).filter(a => a), [operations]);
+    const lastWithdrawals = useMemo(() => Array.from(new Set(operations.filter(o => ![Status.Overdue, Status.Refused].includes(o.status)).map(o => o.data.amount))).sort((a, b) => b - a).slice(0, 5).filter(a => a), [operations]);
 
     const getMoneyMoves = (agreementNumber: number) => api.clientInfo.getMoneyMoves(agreementNumber, {
         dateFrom,
@@ -396,7 +395,7 @@ limit: 10
             key: 'diary',
             label: 'Diary',
             element: <Diary getListSectionBySymbol={getListSectionBySymbol} isMobile={width < 400 ? 1 : width < 1200 ? Math.round(width / 410) : 0} moneyMoves={moneyMoves || []} equityDynamics={equityDynamics}
-                            data={data} trades={trades} api={api} isLoading={isLoading} summary={summary} lastWithdrawals={lastWithdrawals}
+                            data={data} trades={trades} api={api} isLoading={isLoading} summary={summary} lastWithdrawals={lastWithdrawals} operations={operations}
                             fullName={userInfo?.fullName}/>
         },
         {
