@@ -874,6 +874,12 @@ const Diary: FC<IProps> = ({
                 icon={<SettingOutlined/>}
                 onClick={(f) => setShowSettings(true)}
             />
+            <Button
+                type="text"
+                icon={<SwapOutlined/>}
+                className="vertical-button"
+                onClick={(f) => setShowOperationsModal(true)}
+            >Операции</Button>
 
             <DatePicker value={currentDates} onChange={onChangeDate} style={{width: 120}}/>
 
