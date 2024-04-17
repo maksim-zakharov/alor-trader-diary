@@ -140,6 +140,7 @@ function App() {
         switch (settings.commissionType){
             case 'tariff': return getCommissionByPlanAndTotalVolume(plan, totalVolume);
             case 'taker': return getCommissionByPlanAndTotalVolume(plan, totalVolume, true);
+            case undefined: return getCommissionByPlanAndTotalVolume(plan, totalVolume);
             default: return Number(settings.commissionType) || 0;
         }
     }
