@@ -21,6 +21,15 @@
     --pro-progress-head-color: var(--pro-icon-color);
     --pro-icons-marker-1: 60, 84, 105;
     --pro-icons-marker-2: 30, 44, 57;
+    --pro-text-color: var(--pro-text-01);
+
+    --scrollbar-width: 10px;
+    --scrollbars-bg-color: 0, 0, 0;
+    --scrollbars-bg-opacity: 0;
+    --scrollbars-thumb-color: var(--pro-text-color);
+    --scrollbars-thumb-opacity: 0.2;
+    --scrollbars-thumb-hover-opacity: 0.32;
+    --scrollbars-thumb-active-opacity: 0.56;
 }
 
 body {
@@ -543,6 +552,11 @@ code {
 .ant-divider-horizontal {
     border-block-color: rgba(var(--pro-divider-bg), 1);
     margin: 12px 0;
+}
+
+.ant-modal-body{
+    max-height: 80vh;
+    overflow: auto;
 }
 
 .ant-drawer .ant-drawer-header {
@@ -1421,4 +1435,35 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
     text-align: center;
     font-size: larger;
     cursor: default
+}
+
+/* width */
+::-webkit-scrollbar {
+    width: var(--scrollbar-width);
+    height: var(--scrollbar-width);
+    background: rgba(var(--scrollbars-bg-color), var(--scrollbars-bg-opacity));
+    cursor: pointer;
+}
+
+/* Track */
+/*::-webkit-scrollbar-track {*/
+/*    background: #f1f1f1;*/
+/*}*/
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    /*visibility: hidden;*/
+    border: 2px solid transparent;
+    background-color: rgba(var(--scrollbars-thumb-color), var(--scrollbars-thumb-opacity));
+    background-clip: padding-box;
+    border-radius: 5px;
+    cursor: pointer;
+    -webkit-transition: background-color .2s ease-in;
+    transition: background-color .2s ease-in;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    /*visibility: visible;*/
+    background-color: rgba(var(--scrollbars-thumb-color), var(--scrollbars-thumb-hover-opacity));
 }
