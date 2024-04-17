@@ -741,7 +741,8 @@ const Diary: FC<IProps> = ({
     </div>
 
     const MobileSummary = () => <div className="MobileSummary widget">
-        <div style={{display: 'flex', alignItems: 'end'}}>
+        <div style={{display: 'flex',     alignItems: 'baseline',
+            justifyContent: 'space-between'}}>
             <div>
                 <div className="summary">{moneyFormat(summary?.portfolioLiquidationValue || 0)}</div>
                 <div style={{
@@ -755,6 +756,13 @@ const Diary: FC<IProps> = ({
                     <MobileDatepicker/>
                 </div>
             </div>
+
+            <Button
+                type="text"
+                icon={<SettingOutlined/>}
+                className="vertical-button"
+                onClick={(f) => setShowSettings(true)}
+            />
         </div>
         <div className="button-group">
             <Button
@@ -763,13 +771,6 @@ const Diary: FC<IProps> = ({
                 className="vertical-button"
                 onClick={(f) => setShowOperationsModal(true)}
             >Операции</Button>
-
-            <Button
-                type="text"
-                icon={<SettingOutlined/>}
-                className="vertical-button"
-                onClick={(f) => setShowSettings(true)}
-            >Настройки</Button>
 
             <Radio.Group options={options} onChange={e => onChangeView(e.target.value)} value={view} size="large"
                          optionType="button"/>
