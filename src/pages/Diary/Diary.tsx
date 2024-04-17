@@ -35,6 +35,7 @@ import {
     SettingOutlined,
     SunOutlined,
     SwapOutlined,
+    LogoutOutlined,
     TableOutlined
 } from '@ant-design/icons';
 import FormItem from 'antd/es/form/FormItem';
@@ -176,6 +177,7 @@ const Diary: FC<IProps> = ({
     );
 
     const [showOperationsModal, setShowOperationsModal] = useState(false);
+    const [showPayModal, setShowPayModal] = useState(false);
 
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'system');
 
@@ -772,6 +774,13 @@ const Diary: FC<IProps> = ({
                 onClick={(f) => setShowOperationsModal(true)}
             >Операции</Button>
 
+            <Button
+                type="text"
+                icon={<LogoutOutlined />}
+                className="vertical-button"
+                onClick={(f) => setShowPayModal(true)}
+            >Вывести</Button>
+
             <Radio.Group options={options} onChange={e => onChangeView(e.target.value)} value={view} size="large"
                          optionType="button"/>
         </div>
@@ -882,6 +891,13 @@ const Diary: FC<IProps> = ({
                 onClick={(f) => setShowOperationsModal(true)}
             >Операции</Button>
 
+            <Button
+                type="text"
+                icon={<LogoutOutlined />}
+                className="vertical-button"
+                onClick={(f) => setShowPayModal(true)}
+            >Вывести</Button>
+
             <DatePicker value={currentDates} onChange={onChangeDate} style={{width: 120}}/>
 
 
@@ -913,50 +929,9 @@ const Diary: FC<IProps> = ({
         <div className="Diary">
             <MobileSummary/>
             <InfoPanelDesktop/>
-            <Modal title="Операции" open={showOperationsModal} footer={null}
-                   onCancel={() => setShowOperationsModal(false)}>
-                {moneyOperations.map(getMaxLossTrade =>
-                    <div className="ticker-info">
-                        <div style={{display: 'flex'}}>
-                            <div className="ticker_name">
-                                <div className="ticker_name_title">{getMaxLossTrade.title}</div>
-                                <div className="ticker_name_description">
-                                    {withoutYear(getMaxLossTrade.date)} {moment(getMaxLossTrade?.date).format('HH:mm:ss')}
-                                </div>
-                            </div>
-                        </div>
-                        <div className="ticker_actions">
-                            <div className="ticker_name_title"
-                                 style={{color: [Status.Refused, Status.Overdue].includes(getMaxLossTrade.status) ? 'rgba(var(--table-loss-color),1)' : getMaxLossTrade.status === Status.Resolved ? 'rgba(var(--table-profit-color),1)' : undefined}}>{getMaxLossTrade.subType === 'money_input' ? '+' : '-'}{moneyFormat(getMaxLossTrade?.data?.amount || 0, 0)}{getMaxLossTrade.status === Status.executing && <ClockCircleOutlined style={{marginLeft: '4px'}} />}</div>
-                            <div className="ticker_name_description">{getMaxLossTrade?.data?.accountFrom}</div>
-                        </div>
-                    </div>)}
-            </Modal>
-            <Drawer
-                title="Settings"
-                placement="right"
-                onClose={() => setShowSettings(false)}
-                open={showSettings}
-            >
+            <Modal title="Вывод средств" open={showPayModal} footer={null}
+                   onCancel={() => setShowPayModal(false)}>
                 <Form layout="vertical">
-                    <FormItem label="Alor Token">
-                        <Input placeholder="Token" {...settingsInputProps('token')} />
-                    </FormItem>
-                    <FormItem label="Alor Portfolio">
-                        <Input
-                            placeholder="Portfolio"
-                            {...settingsInputProps('portfolio')}
-                        />
-                    </FormItem>
-                    <FormItem label="Тема">
-                        <Select options={themeOptions} value={theme}
-                                optionRender={(option) => (
-                                    <Space>
-                                        {option.data.icon}
-                                        <div>{option.data.label}</div>
-                                    </Space>
-                                )} style={{width: '100%'}} onSelect={onChangeNightMode}/>
-                    </FormItem>
                     <AccountList/>
                     {showForm && <>
                         <Divider/>
@@ -1024,6 +999,52 @@ const Diary: FC<IProps> = ({
                             <Button onClick={() => signOperation()} type="primary"
                                     style={{width: '100%', marginTop: '12px'}}>Подтвердить
                                 код</Button>}
+                    </FormItem>
+                </Form>
+            </Modal>
+            <Modal title="Операции" open={showOperationsModal} footer={null}
+                   onCancel={() => setShowOperationsModal(false)}>
+                {moneyOperations.map(getMaxLossTrade =>
+                    <div className="ticker-info">
+                        <div style={{display: 'flex'}}>
+                            <div className="ticker_name">
+                                <div className="ticker_name_title">{getMaxLossTrade.title}</div>
+                                <div className="ticker_name_description">
+                                    {withoutYear(getMaxLossTrade.date)} {moment(getMaxLossTrade?.date).format('HH:mm:ss')}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="ticker_actions">
+                            <div className="ticker_name_title"
+                                 style={{color: [Status.Refused, Status.Overdue].includes(getMaxLossTrade.status) ? 'rgba(var(--table-loss-color),1)' : getMaxLossTrade.status === Status.Resolved ? 'rgba(var(--table-profit-color),1)' : undefined}}>{getMaxLossTrade.subType === 'money_input' ? '+' : '-'}{moneyFormat(getMaxLossTrade?.data?.amount || 0, 0)}{getMaxLossTrade.status === Status.executing && <ClockCircleOutlined style={{marginLeft: '4px'}} />}</div>
+                            <div className="ticker_name_description">{getMaxLossTrade?.data?.accountFrom}</div>
+                        </div>
+                    </div>)}
+            </Modal>
+            <Drawer
+                title="Settings"
+                placement="right"
+                onClose={() => setShowSettings(false)}
+                open={showSettings}
+            >
+                <Form layout="vertical">
+                    <FormItem label="Alor Token">
+                        <Input placeholder="Token" {...settingsInputProps('token')} />
+                    </FormItem>
+                    <FormItem label="Alor Portfolio">
+                        <Input
+                            placeholder="Portfolio"
+                            {...settingsInputProps('portfolio')}
+                        />
+                    </FormItem>
+                    <FormItem label="Тема">
+                        <Select options={themeOptions} value={theme}
+                                optionRender={(option) => (
+                                    <Space>
+                                        {option.data.icon}
+                                        <div>{option.data.label}</div>
+                                    </Space>
+                                )} style={{width: '100%'}} onSelect={onChangeNightMode}/>
                     </FormItem>
                 </Form>
             </Drawer>
