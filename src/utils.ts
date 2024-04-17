@@ -64,6 +64,7 @@ export const getCommissionByPlanAndTotalVolume = (plan: string, totalVolume: num
 
     let commission = func(totalVolume);
 
+    // https://www.moex.com/s1197
     if(taker) {
         // биржевой сбор (платится за маркет заявки)
         const kliringFee = 0.0001275;
