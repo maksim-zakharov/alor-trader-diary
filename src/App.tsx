@@ -135,6 +135,15 @@ function App() {
         }
     }, [theme]);
 
+    const calculateCommission = (plan: string, totalVolume: number) => {
+
+        switch (settings.commissionType){
+            case 'tariff': return getCommissionByPlanAndTotalVolume(plan, totalVolume);
+            case 'taker': return getCommissionByPlanAndTotalVolume(plan, totalVolume, true);
+            default: return Number(settings.commissionType) || 0;
+        }
+    }
+
     const loadTrades = async ({
                                   tariffPlan,
                                   date,
@@ -187,7 +196,7 @@ function App() {
             trades = trades.map((t) => ({
                 ...t,
                 // @ts-ignore
-                commission: getCommissionByPlanAndTotalVolume(tariffPlan, dayVolumes[moment(t.date).format('YYYY-MM-DD')]) * t.volume,
+                commission: calculateCommission(tariffPlan, dayVolumes[moment(t.date).format('YYYY-MM-DD')]) * t.volume,
             }));
         }
 
@@ -197,6 +206,7 @@ function App() {
     const [settings, setSettings] = useState<{
         token: string;
         portfolio: string;
+        commissionType: string;
     }>(JSON.parse(localStorage.getItem('settings') || '{}'));
     const api = useApi(settings.token);
 

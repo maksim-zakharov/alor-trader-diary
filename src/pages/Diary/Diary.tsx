@@ -925,6 +925,11 @@ const Diary: FC<IProps> = ({
         return format.slice(0, format.length - 8);
     }
 
+    const commissionOptions: any[] = [
+        {label: 'По тарифу', value: 'tariff'},
+        {label: 'Тейкер', value: 'taker'},
+    ]
+
     return (
         <div className="Diary">
             <MobileSummary/>
@@ -1035,6 +1040,32 @@ const Diary: FC<IProps> = ({
                         <Input
                             placeholder="Portfolio"
                             {...settingsInputProps('portfolio')}
+                        />
+                    </FormItem>
+                    <FormItem label="Тип расчета комиссии">
+                        <Select
+                            style={{ width: '100%' }}
+                            placeholder="Комиссия"
+                            value={settingsInputProps('commissionType').value}
+                            onChange={val => setSettings((prevState) => ({...prevState, ['commissionType']: val}))}
+                            dropdownRender={(menu) => (
+                                <>
+                                    {menu}
+                                    <Divider style={{ margin: '8px 0' }} />
+
+                                    <Form layout="vertical">
+                                        <FormItem label="Комиссия">
+                                            <Input
+                                                placeholder="Введите комиссию"
+                                                value={settingsInputProps('commissionType').value}
+                                                onChange={settingsInputProps('commissionType').onChange}
+                                                onKeyDown={(e) => e.stopPropagation()}
+                                            />
+                                        </FormItem>
+                                    </Form>
+                                </>
+                            )}
+                            options={commissionOptions}
                         />
                     </FormItem>
                     <FormItem label="Тема">

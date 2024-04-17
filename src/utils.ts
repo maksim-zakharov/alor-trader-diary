@@ -52,7 +52,7 @@ const calculateCommission3 = (totalVolume: number): number => {
     return commission;
 }
 
-export const getCommissionByPlanAndTotalVolume = (plan: string, totalVolume: number) => {
+export const getCommissionByPlanAndTotalVolume = (plan: string, totalVolume: number, taker?: boolean) => {
     const map = {
         'Активный': calculateCommission,
         'Профессионал': calculateCommission1,
@@ -62,8 +62,18 @@ export const getCommissionByPlanAndTotalVolume = (plan: string, totalVolume: num
 
     const func = map[plan] || calculateCommission;
 
-    // Почему то алор считает пока так по динамик эквити
-    return 0.00046; // func(totalVolume / 2);
+    let commission = func(totalVolume);
+
+    if(taker) {
+        // биржевой сбор (платится за маркет заявки)
+        const kliringFee = 0.0001275;
+        // мейкер тейкер moex (платится за маркет заявки)
+        const marketFee = 0.0001725;
+
+        commission += kliringFee + marketFee;
+    }
+
+    return commission;
 }
 
 export const numberToPercent = (number) => ((number || 0) * 100).toFixed(2)
