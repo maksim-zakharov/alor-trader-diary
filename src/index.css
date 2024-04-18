@@ -339,7 +339,7 @@ code {
     left: 0;
 }
 
-.MobileSummary .vertical-button {
+.vertical-button {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1466,4 +1466,13 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
 ::-webkit-scrollbar-thumb:hover {
     /*visibility: visible;*/
     background-color: rgba(var(--scrollbars-thumb-color), var(--scrollbars-thumb-hover-opacity));
+}
+
+.dark-theme {
+    .ant-result .ant-result-title {
+        color: rgba(var(--pro-input-color), 1);
+    }
+    .ant-result .ant-result-subtitle {
+        color: rgba(var(--pro-icon-color), 1);
+    }
 }

@@ -12,7 +12,7 @@ import {
     message,
     Modal,
     Popconfirm,
-    Radio,
+    Radio, Result,
     Row,
     Select,
     SelectProps,
@@ -33,6 +33,7 @@ import {
     RetweetOutlined,
     ClockCircleOutlined,
     SettingOutlined,
+    ReloadOutlined,
     SunOutlined,
     SwapOutlined,
     LogoutOutlined,
@@ -166,10 +167,11 @@ const Diary: FC<IProps> = ({
 
     const [showForm, setShowForm] = useState<boolean | string>(false);
 
-    const [{operationId, confirmationCode, amount}, setPaidInfo] = useState({
+    const [{operationId, confirmationCode, amount, success}, setPaidInfo] = useState({
         operationId: '',
         confirmationCode: '',
-        amount: ''
+        amount: '',
+        success: false
     })
 
     const [showSettings, setShowSettings] = useState(false);
@@ -498,10 +500,17 @@ const Diary: FC<IProps> = ({
             setPaidInfo({
                 confirmationCode: '',
                 operationId: '',
-                amount: ''
+                amount: '',
+                success: true
             })
         }
     }
+    const sendAgain = () => setPaidInfo({
+        confirmationCode: '',
+        operationId: '',
+        amount: '',
+        success: false
+    })
     const [searchParams, setSearchParams] = useSearchParams();
     let dateFrom = searchParams.get('dateFrom');
 
@@ -574,10 +583,12 @@ const Diary: FC<IProps> = ({
         setFormState({})
         setShowForm(false);
         onSelect('');
+        setShowPayModal(false);
         setPaidInfo({
             operationId: '',
             confirmationCode: '',
-            amount: ''
+            amount: '',
+            success: false
         })
     }
 
@@ -936,8 +947,8 @@ const Diary: FC<IProps> = ({
             <MobileSummary/>
             <InfoPanelDesktop/>
             <Modal title="Вывод средств" open={showPayModal} footer={null}
-                   onCancel={() => setShowPayModal(false)}>
-                <Form layout="vertical">
+                   onCancel={() => cancelEditAccount()}>
+                {!success && <Form layout="vertical">
                     <AccountList/>
                     {showForm && <>
                         <Divider/>
@@ -1006,7 +1017,19 @@ const Diary: FC<IProps> = ({
                                     style={{width: '100%', marginTop: '12px'}}>Подтвердить
                                 код</Button>}
                     </FormItem>
-                </Form>
+                </Form>}
+                {success && <Result
+                    style={{padding: '16px'}}
+                    status="success"
+                    title="Деньги отправлены"
+                    subTitle={`На банковский счет: ${selectedAccount.match(/.{1,4}/g).join(' ')}`}
+                    extra={[
+                        <Button key="console">
+                            Распоряжение
+                        </Button>,
+                        <Button type="primary" key="buy" onClick={() => sendAgain()} icon={<ReloadOutlined />} >Отправить снова</Button>,
+                    ]}
+                />}
             </Modal>
             <Modal title="Операции" open={showOperationsModal} footer={null}
                    onCancel={() => setShowOperationsModal(false)}>
