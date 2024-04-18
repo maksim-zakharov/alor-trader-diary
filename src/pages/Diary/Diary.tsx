@@ -56,8 +56,9 @@ import {
     MoneyMove,
     Status
 } from "alor-api/dist/services/ClientInfoService/ClientInfoService";
-import {numberToPercent} from "../../utils";
+import {humanize, numberToPercent} from "../../utils";
 import NoResult from "../../common/NoResult";
+import * as humanizeDuration from 'humanize-duration';
 
 interface DataType {
     key: string;
@@ -323,7 +324,7 @@ const Diary: FC<IProps> = ({
                     // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
                     render: (_, row) =>
                         // @ts-ignore
-                        row.type !== 'summary' && moment.duration(_, 'seconds').humanize(),
+                        row.type !== 'summary' && humanize(moment.duration(_, 'seconds')),
                     // onCell: sharedOnCell,
                 },
                 {

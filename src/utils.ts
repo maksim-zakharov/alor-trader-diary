@@ -2,6 +2,7 @@ import {Positions, Side, Trade} from 'alor-api';
 import {avg, summ} from './App';
 import moment, {Moment} from 'moment/moment';
 import {UserInfoResponse} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
+import * as humanizeDuration from "humanize-duration";
 
 export const digitsAfterDot = (num) => {
     if (!num) {
@@ -147,6 +148,16 @@ export const calculatePositionPart = (trades, trade) => {
         1;
 
     return {Fee, openVolume, closeVolume, PnL, PnLPercent};
+}
+
+export const humanize = (duration: moment.Duration) => {
+    const numberDuration = (duration as any) as number;
+
+    if(numberDuration >= 60000){
+        return duration.humanize();
+    } else {
+        return humanizeDuration(numberDuration, { language: "ru" });
+    }
 }
 
 export const isMobile = () => {
