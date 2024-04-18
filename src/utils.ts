@@ -154,7 +154,14 @@ export const humanize = (duration: moment.Duration) => {
     const numberDuration = (duration as any) as number;
 
     if(numberDuration >= 60000){
-        return duration.humanize();
+        let hum = duration.humanize();
+        if(hum === 'минута'){
+            hum = '1 минута';
+        }
+        if(hum === 'час'){
+            hum = '1 час';
+        }
+        return hum;
     } else {
         return humanizeDuration(numberDuration, { language: "ru" });
     }
