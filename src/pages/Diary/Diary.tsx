@@ -161,7 +161,7 @@ const Diary: FC<IProps> = ({
         bankName: string;
         amount: string;
         bic: string;
-    }>(JSON.parse(localStorage.getItem('settings') || '{}'));
+    }>(JSON.parse(localStorage.getItem('settings') || '{summaryType: "brokerSummary"}'));
 
     const moneyMovesCommission = useMemo(() => summ(moneyMoves.filter(m => m.title === "Комиссия брокера").map(m => m.sum)), [moneyMoves]);
 
@@ -731,6 +731,19 @@ const Diary: FC<IProps> = ({
         {label: <AppstoreOutlined/>, value: 'week'},
     ];
 
+    const todayPnL = useMemo(() => data.positions.find(row => row.type === 'summary' && moment(row.openDate).format('DD.MM.YYYY') === moment().format('DD.MM.YYYY'))?.PnL || 0, [data.positions]);
+
+    const summaryValue = useMemo(() => {
+        if(!summary){
+            return 0;
+        }
+        if(!settings['summaryType'] || settings['summaryType'] === 'brokerSummary'){
+            return summary.portfolioLiquidationValue || 0;
+        }
+
+        return summary.buyingPowerAtMorning + todayPnL;
+    }, [summary, settings['summaryType'], todayPnL]);
+
     const Summary = () => <div
         style={{
             display: 'flex',
@@ -743,7 +756,7 @@ const Diary: FC<IProps> = ({
         <Statistic
             title="Summary"
             loading={isLoading}
-            value={moneyFormat(summary?.portfolioLiquidationValue || 0)}
+            value={moneyFormat(summaryValue)}
             precision={2}
         />
     </div>
@@ -758,7 +771,7 @@ const Diary: FC<IProps> = ({
         <div style={{display: 'flex',     alignItems: 'baseline',
             justifyContent: 'space-between'}}>
             <div>
-                <div className="summary">{moneyFormat(summary?.portfolioLiquidationValue || 0)}</div>
+                <div className="summary">{moneyFormat(summaryValue)}</div>
                 <div style={{
                     display: 'inline-flex',
                     alignItems: 'end'
@@ -942,6 +955,11 @@ const Diary: FC<IProps> = ({
         {label: 'Тейкер', value: 'taker'},
     ]
 
+    const summaryOptions: any[] = [
+        {label: 'От брокера', value: 'brokerSummary'},
+        {label: 'Средства утром + прибыль', value: 'buyMorningPowerPlusPnL'},
+    ]
+
     return (
         <div className="Diary">
             <MobileSummary/>
@@ -1066,7 +1084,7 @@ const Diary: FC<IProps> = ({
                             {...settingsInputProps('portfolio')}
                         />
                     </FormItem>
-                    <FormItem label="Тип расчета комиссии">
+                    <FormItem label="Расчет комиссии">
                         <Select
                             style={{ width: '100%' }}
                             placeholder="Комиссия"
@@ -1100,6 +1118,11 @@ const Diary: FC<IProps> = ({
                                         <div>{option.data.label}</div>
                                     </Space>
                                 )} style={{width: '100%'}} onSelect={onChangeNightMode}/>
+                    </FormItem>
+                    <FormItem label="Расчет текущих средств">
+                        <Select options={summaryOptions} style={{width: '100%'}}
+                                value={settingsInputProps('summaryType').value || 'brokerSummary'}
+                                onChange={val => setSettings((prevState) => ({...prevState, ['summaryType']: val}))}/>
                     </FormItem>
                 </Form>
             </Drawer>
