@@ -335,20 +335,20 @@ export const calculateDrawdown = (positions: { value: number }[]): number => {
 
 function maxDrawdown_(equityCurve, idxStart, idxEnd) {
     // Initialisations
-    var highWaterMark = -Infinity;
-    var maxDd = -Infinity;
-    var idxHighWaterMark = -1;
-    var idxStartMaxDd = -1;
-    var idxEndMaxDd = -1;
+    let highWaterMark = -Infinity;
+    let maxDd = -Infinity;
+    let idxHighWaterMark = -1;
+    let idxStartMaxDd = -1;
+    let idxEndMaxDd = -1;
 
     // Loop over all the values to compute the maximum drawdown
-    for (var i = idxStart; i < idxEnd + 1; ++i) {
+    for (let i = idxStart; i < idxEnd + 1; ++i) {
         if (equityCurve[i] > highWaterMark) {
             highWaterMark = equityCurve[i];
             idxHighWaterMark = i;
         }
 
-        var dd = (highWaterMark - equityCurve[i]) / highWaterMark;
+        const dd = (highWaterMark - equityCurve[i]) / highWaterMark;
 
         if (dd > maxDd) {
             maxDd = dd;
@@ -360,6 +360,20 @@ function maxDrawdown_(equityCurve, idxStart, idxEnd) {
     // Return the computed values
     return [maxDd, idxStartMaxDd, idxEndMaxDd];
 }
+
+export const enumerateDaysBetweenDates = (startDate, endDate) => {
+
+    const currDate = moment(startDate).startOf('day');
+    const lastDate = moment(endDate).startOf('day');
+
+    const dates = [currDate.clone().format('YYYY-MM-DD')];
+
+    while (currDate.add(1, 'days').diff(lastDate) <= 0) {
+        dates.push(currDate.clone().format('YYYY-MM-DD'));
+    }
+
+    return dates;
+};
 
 export const getCurrentTariffPlan = (userInfo: UserInfoResponse, marketType: string | 'FOND'): string | undefined =>  (userInfo?.agreements[0].portfolios || []).find(p => p.marketType === marketType)?.tariffPlan;
 export const getAgreementNumber = (userInfo: UserInfoResponse): number | undefined => Number(userInfo?.agreements[0].agreementNumber)

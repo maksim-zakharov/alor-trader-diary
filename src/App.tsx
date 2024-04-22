@@ -285,12 +285,14 @@ function App() {
 
     const [operations, setOperations] = useState<GetOperationsResponse[]>([]);
 
+    const activeOperations = useMemo(() => operations.filter(o => ![Status.Overdue, Status.Refused].includes(o.status)), [operations]);
+
     const getOperations = () => api.clientInfo.getOperations(Number(settings.portfolio?.replace('D', '')), {
 // limit: 10
     })
         .then((ops: any) => setOperations(ops))
 
-    const lastWithdrawals = useMemo(() => Array.from(new Set(operations.filter(o => ![Status.Overdue, Status.Refused].includes(o.status)).map(o => o.data.amount))).sort((a, b) => b - a).slice(0, 5).filter(a => a), [operations]);
+    const lastWithdrawals = useMemo(() => Array.from(new Set(activeOperations.map(o => o.data.amount))).sort((a, b) => b - a).slice(0, 5).filter(a => a), [activeOperations]);
 
     const getMoneyMoves = (agreementNumber: number) => api.clientInfo.getMoneyMoves(agreementNumber, {
         dateFrom,
@@ -412,7 +414,7 @@ function App() {
         {
             key: 'analytics',
             label: 'Analytics',
-            element: <Analytics getListSectionBySymbol={getListSectionBySymbol} data={data} balanceSeriesData={equityDynamics?.portfolioValues.map(v => ({
+            element: <Analytics activeOperations={activeOperations} getListSectionBySymbol={getListSectionBySymbol} data={data} balanceSeriesData={equityDynamics?.portfolioValues.map(v => ({
                 time: moment(v.date).format('YYYY-MM-DD'),
                 value: v.value
             })) || []} api={api} isLoading={isLoading} dateFrom={dateFrom} moneyMoves={moneyMoves || []}/>,

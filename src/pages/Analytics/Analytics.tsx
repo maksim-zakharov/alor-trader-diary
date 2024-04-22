@@ -13,7 +13,7 @@ import EquityWidget from "./widgets/EquityWidget";
 import SymbolsWidget from "./widgets/SymbolsWidget";
 import ReportWidget from "./widgets/ReportWidget";
 import ProfitWidget from "./widgets/ProfitWidget";
-import {MoneyMove} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
+import {GetOperationsResponse, MoneyMove} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 import ProfitWeekdayWidget from "./widgets/ProfitWeekdayWidget";
 import LossWeekdayWidget from "./widgets/LossWeekdayWidget";
 import ProfitSectionWidget from "./widgets/ProfitSectionWidget";
@@ -27,9 +27,10 @@ interface IProps {
     isLoading: boolean;
     moneyMoves: MoneyMove[];
     getListSectionBySymbol: any;
+    activeOperations: GetOperationsResponse[];
 }
 
-const Analytics: FC<IProps> = ({getListSectionBySymbol, data, api, dateFrom, isLoading, moneyMoves, balanceSeriesData}) => {
+const Analytics: FC<IProps> = ({activeOperations, getListSectionBySymbol, data, api, dateFrom, isLoading, moneyMoves, balanceSeriesData}) => {
     const [reasons, setReasons] = useState<{
         [id: string]: string
     }>(JSON.parse(localStorage.getItem('reasons') || '{}'));
@@ -110,7 +111,7 @@ const Analytics: FC<IProps> = ({getListSectionBySymbol, data, api, dateFrom, isL
     }
 
     return <>
-        <ProfitWidget isLoading={isLoading} colors={nightMode && darkColors} data={balanceSeriesDataWithoutFirst}
+        <ProfitWidget activeOperations={activeOperations} isLoading={isLoading} colors={nightMode && darkColors} data={balanceSeriesDataWithoutFirst}
                       initBalance={balanceSeriesData[0]?.value || 0} moneyMoves={moneyMoves}/>
         {/*<div className="widget">*/}
         {/*    <div className="widget_header">Reasons</div>*/}
