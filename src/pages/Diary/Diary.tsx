@@ -66,6 +66,7 @@ import {
 import {humanize, numberToPercent} from "../../utils";
 import NoResult from "../../common/NoResult";
 import * as humanizeDuration from 'humanize-duration';
+import TickerImg from "../../common/TickerImg";
 
 interface DataType {
     key: string;
@@ -827,13 +828,6 @@ const Diary: FC<IProps> = ({
         </div>
     </div>
 
-    const TickerImg = ({symbol}) => <img className="ticker_logo" src={`https://invest-brands.cdn-tinkoff.ru/${getIsinBySymbol(symbol)}x160.png`}
-                                         onError={({ currentTarget }) => {
-                                             currentTarget.onerror = null; // prevents looping
-                                             currentTarget.src=`https://storage.alorbroker.ru/icon/${symbol}.png`;
-                                         }}
-                                 alt={symbol}/>
-
     const MobilePosition = ({positions}) => {
         const summary = useMemo(() => positions.find(p => p.type === 'summary'), [positions]);
         const dayPositions = useMemo(() => positions.filter(p => p.type !== 'summary'), [positions]);
@@ -856,7 +850,7 @@ const Diary: FC<IProps> = ({
             {dayPositions.map(dp =>
                 <div className="ticker-info">
                     <div style={{display: 'flex'}}>
-                        <TickerImg symbol={dp?.symbol}/>
+                        <TickerImg getIsinBySymbol={getIsinBySymbol} symbol={dp?.symbol}/>
                         <div className="ticker_name">
                             <div className="ticker_name_title">{dp?.symbol}</div>
                             <div className="ticker_name_description">
