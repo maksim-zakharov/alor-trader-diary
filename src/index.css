@@ -32,6 +32,12 @@
     --scrollbars-thumb-active-opacity: 0.56;
 }
 
+.custom-icon svg{
+    width: 32px;
+    height: 32px;
+    margin-right: 8px;
+}
+
 body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',

@@ -33,12 +33,18 @@ import {
     RetweetOutlined,
     ClockCircleOutlined,
     SettingOutlined,
+    EyeOutlined,
+    EyeInvisibleOutlined,
     ReloadOutlined,
     SunOutlined,
     SwapOutlined,
     LogoutOutlined,
     TableOutlined
 } from '@ant-design/icons';
+
+import MoneyInputIcon  from '../../assets/money-input';
+import MoneyOutputIcon  from '../../assets/money-output';
+
 import FormItem from 'antd/es/form/FormItem';
 import React, {ChangeEventHandler, FC, useEffect, useMemo, useState} from 'react';
 import {ColumnsType} from 'antd/es/table';
@@ -771,7 +777,7 @@ const Diary: FC<IProps> = ({
         <div style={{display: 'flex',     alignItems: 'baseline',
             justifyContent: 'space-between'}}>
             <div>
-                <div className="summary">{moneyFormat(summaryValue)}</div>
+                <div className="summary">{settings['hideSummary'] ? '••••' : moneyFormat(summaryValue)}</div>
                 <div style={{
                     display: 'inline-flex',
                     alignItems: 'end'
@@ -784,12 +790,20 @@ const Diary: FC<IProps> = ({
                 </div>
             </div>
 
-            <Button
-                type="text"
-                icon={<SettingOutlined/>}
-                className="vertical-button"
-                onClick={(f) => setShowSettings(true)}
-            />
+            <Space>
+                <Button
+                    type="text"
+                    icon={settings['hideSummary']? <EyeOutlined/> :<EyeInvisibleOutlined/>}
+                    className="vertical-button"
+                    onClick={(f) => setSettings((prevState) => ({...prevState, ['hideSummary']: !prevState['hideSummary']}))}
+                />
+                <Button
+                    type="text"
+                    icon={<SettingOutlined/>}
+                    className="vertical-button"
+                    onClick={(f) => setShowSettings(true)}
+                />
+            </Space>
         </div>
         <div className="button-group">
             <Button
@@ -1054,8 +1068,9 @@ const Diary: FC<IProps> = ({
                 {moneyOperations.map(getMaxLossTrade =>
                     <div className="ticker-info">
                         <div style={{display: 'flex'}}>
+                            {getMaxLossTrade.subType === 'money_withdrawal' ? <MoneyOutputIcon/> : <MoneyInputIcon/>}
                             <div className="ticker_name">
-                                <div className="ticker_name_title">{getMaxLossTrade.title}</div>
+                                <div className="ticker_name_title">{getMaxLossTrade.subType === 'money_withdrawal' ? 'Вывод с брокерского счета' : 'Пополнение брокерского счета'}</div>
                                 <div className="ticker_name_description">
                                     {withoutYear(getMaxLossTrade.date)} {moment(getMaxLossTrade?.date).format('HH:mm:ss')}
                                 </div>
