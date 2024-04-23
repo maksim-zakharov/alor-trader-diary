@@ -27,10 +27,11 @@ interface IProps {
     isLoading: boolean;
     moneyMoves: MoneyMove[];
     getListSectionBySymbol: any;
+    getIsinBySymbol: any;
     activeOperations: GetOperationsResponse[];
 }
 
-const Analytics: FC<IProps> = ({activeOperations, getListSectionBySymbol, data, api, dateFrom, isLoading, moneyMoves, balanceSeriesData}) => {
+const Analytics: FC<IProps> = ({activeOperations, getIsinBySymbol, getListSectionBySymbol, data, api, dateFrom, isLoading, moneyMoves, balanceSeriesData}) => {
     const [reasons, setReasons] = useState<{
         [id: string]: string
     }>(JSON.parse(localStorage.getItem('reasons') || '{}'));
@@ -123,8 +124,8 @@ const Analytics: FC<IProps> = ({activeOperations, getListSectionBySymbol, data, 
         <div style={{display: 'flex', flexWrap: 'wrap', margin: '0 -1px'}}>
             <ProfitIntervalWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
             <LossIntervalWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
-            <MaxProfitTradesWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
-            <MaxLossTradesWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
+            <MaxProfitTradesWidget getIsinBySymbol={getIsinBySymbol} nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
+            <MaxLossTradesWidget getIsinBySymbol={getIsinBySymbol} nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
             <ProfitTimeWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
             <LossTimeWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
             <ProfitWeekdayWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>

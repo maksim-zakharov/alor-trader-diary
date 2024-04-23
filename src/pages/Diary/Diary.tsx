@@ -110,6 +110,7 @@ interface IProps {
     equityDynamics?: EquityDynamicsResponse
     moneyMoves: MoneyMove[];
     getListSectionBySymbol: any;
+    getIsinBySymbol: any;
     lastWithdrawals: number[]
     operations: GetOperationsResponse[];
 }
@@ -151,6 +152,7 @@ const Diary: FC<IProps> = ({
                                api,
                                isLoading,
                                summary,
+                               getIsinBySymbol,
                                fullName,
                                moneyMoves,
                                isMobile,
@@ -825,6 +827,13 @@ const Diary: FC<IProps> = ({
         </div>
     </div>
 
+    const TickerImg = ({symbol}) => <img className="ticker_logo" src={`https://invest-brands.cdn-tinkoff.ru/${getIsinBySymbol(symbol)}x160.png`}
+                                         onError={({ currentTarget }) => {
+                                             currentTarget.onerror = null; // prevents looping
+                                             currentTarget.src=`https://storage.alorbroker.ru/icon/${symbol}.png`;
+                                         }}
+                                 alt={symbol}/>
+
     const MobilePosition = ({positions}) => {
         const summary = useMemo(() => positions.find(p => p.type === 'summary'), [positions]);
         const dayPositions = useMemo(() => positions.filter(p => p.type !== 'summary'), [positions]);
@@ -847,8 +856,7 @@ const Diary: FC<IProps> = ({
             {dayPositions.map(dp =>
                 <div className="ticker-info">
                     <div style={{display: 'flex'}}>
-                        <img className="ticker_logo" src={`https://storage.alorbroker.ru/icon/${dp?.symbol}.png`}
-                             alt={dp?.symbol}/>
+                        <TickerImg symbol={dp?.symbol}/>
                         <div className="ticker_name">
                             <div className="ticker_name_title">{dp?.symbol}</div>
                             <div className="ticker_name_description">

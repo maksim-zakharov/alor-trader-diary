@@ -6,15 +6,22 @@ import Spinner from "../../../common/Spinner";
 import NoResult from "../../../common/NoResult";
 import {numberToPercent} from "../../../utils";
 
-const MaxProfitTradesWidget = ({nonSummaryPositions, isLoading}) => {
+const MaxProfitTradesWidget = ({nonSummaryPositions, isLoading, getIsinBySymbol}) => {
     const getMaxProfitTrades = useMemo(() => nonSummaryPositions.sort((a, b) => b.PnL - a.PnL).slice(0, 3).filter(p => p.PnL >= 0), [nonSummaryPositions])
+
+    const TickerImg = ({symbol}) => <img className="ticker_logo" src={`https://invest-brands.cdn-tinkoff.ru/${getIsinBySymbol(symbol)}x160.png`}
+                                         onError={({ currentTarget }) => {
+                                             currentTarget.onerror = null; // prevents looping
+                                             currentTarget.src=`https://storage.alorbroker.ru/icon/${symbol}.png`;
+                                         }}
+                                         alt={symbol}/>
 
     return <div className="widget">
         <div className="widget_header">Top profit trades</div>
         {isLoading ? <Spinner/> : getMaxProfitTrades.length ? <div>
             {getMaxProfitTrades.map(getMaxProfitTrade => <div className="ticker-info">
                 <div style={{display: 'flex'}}>
-                    <img className="ticker_logo" src={`https://storage.alorbroker.ru/icon/${getMaxProfitTrade?.symbol}.png`} alt={getMaxProfitTrade?.symbol}/>
+                    <TickerImg symbol={getMaxProfitTrade?.symbol}/>
                     <div className="ticker_name">
                         <div className="ticker_name_title">{getMaxProfitTrade?.symbol}</div>
                         <div className="ticker_name_description">

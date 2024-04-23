@@ -95,7 +95,7 @@ function App() {
             : [],
     );
 
-    const {getListSectionBySymbol} = useListSecs();
+    const {getListSectionBySymbol, getIsinBySymbol} = useListSecs();
 
     const [visibilitychange, setVisibilitychange] = useState<boolean>(true);
 
@@ -407,14 +407,14 @@ function App() {
         {
             key: 'diary',
             label: 'Diary',
-            element: <Diary getListSectionBySymbol={getListSectionBySymbol} isMobile={width < 400 ? 1 : width < 1200 ? Math.round(width / 410) : 0} moneyMoves={moneyMoves || []} equityDynamics={equityDynamics}
+            element: <Diary getIsinBySymbol={getIsinBySymbol} getListSectionBySymbol={getListSectionBySymbol} isMobile={width < 400 ? 1 : width < 1200 ? Math.round(width / 410) : 0} moneyMoves={moneyMoves || []} equityDynamics={equityDynamics}
                             data={data} trades={trades} api={api} isLoading={isLoading} summary={summary} lastWithdrawals={lastWithdrawals} operations={operations}
                             fullName={userInfo?.fullName}/>
         },
         {
             key: 'analytics',
             label: 'Analytics',
-            element: <Analytics activeOperations={activeOperations} getListSectionBySymbol={getListSectionBySymbol} data={data} balanceSeriesData={equityDynamics?.portfolioValues.map(v => ({
+            element: <Analytics activeOperations={activeOperations} getIsinBySymbol={getIsinBySymbol} getListSectionBySymbol={getListSectionBySymbol} data={data} balanceSeriesData={equityDynamics?.portfolioValues.map(v => ({
                 time: moment(v.date).format('YYYY-MM-DD'),
                 value: v.value
             })) || []} api={api} isLoading={isLoading} dateFrom={dateFrom} moneyMoves={moneyMoves || []}/>,
