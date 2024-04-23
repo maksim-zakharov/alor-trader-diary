@@ -308,13 +308,13 @@ function App() {
         portfolio: settings.portfolio?.replace('D', '')
     }).then(results => {
         if(!results){
-            setEquityDynamics({portfolioValues: [{date: moment().format('YYYY-MM-DD'), value: summary.portfolioEvaluation } as any]} as any);
+            setEquityDynamics({portfolioValues: [{date: moment().format('YYYY-MM-DD'), value: summary.portfolioLiquidationValue } as any]} as any);
             return results;
         }
         const lastValue = results.portfolioValues.slice(-1)[0];
         // Если последнее значение есть и оно не сегодняшний день и мы запросили за текущий день тоже
         if(lastValue && moment(lastValue.date).isBefore(moment()) && moment(dateTo).isAfter(moment())){
-            results.portfolioValues.push({date: moment().format('YYYY-MM-DD'), value: summary.portfolioEvaluation } as any)
+            results.portfolioValues.push({date: moment().format('YYYY-MM-DD'), value: summary.portfolioLiquidationValue } as any)
         }
 
         setEquityDynamics(results);
