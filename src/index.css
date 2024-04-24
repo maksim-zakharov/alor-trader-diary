@@ -32,6 +32,10 @@
     --scrollbars-thumb-active-opacity: 0.56;
 }
 
+.custom-icon{
+    display: flex;
+}
+
 .custom-icon svg{
     width: 32px;
     height: 32px;
