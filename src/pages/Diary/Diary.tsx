@@ -756,7 +756,7 @@ const Diary: FC<IProps> = ({
     const Summary = () => <div
         style={{
             display: 'flex',
-            gap: '32px',
+            gap: '16px',
             justifyContent: 'space-between',
             alignItems: 'center',
             flexWrap: 'wrap'
@@ -928,14 +928,12 @@ const Diary: FC<IProps> = ({
             <Button
                 type="text"
                 icon={<SwapOutlined/>}
-                className="vertical-button"
                 onClick={(f) => setShowOperationsModal(true)}
             >Операции</Button>
 
             <Button
                 type="text"
                 icon={<LogoutOutlined />}
-                className="vertical-button"
                 onClick={(f) => setShowPayModal(true)}
             >Вывести</Button>
 
