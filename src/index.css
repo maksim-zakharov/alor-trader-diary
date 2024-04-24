@@ -183,6 +183,7 @@ code {
 .ant-skeleton .ant-skeleton-content .ant-skeleton-title {
     background-color: rgba(179, 199, 219, 0.1);
     margin-top: 0;
+    margin-bottom: 0;
 }
 
 .ant-skeleton .ant-skeleton-content .ant-skeleton-paragraph > li {
@@ -638,6 +639,10 @@ code {
     .ant-btn-text{
         color: rgba(var(--pro-input-color), 1);
     }
+}
+
+.ant-statistic .ant-statistic-skeleton{
+    padding-top: 4px;
 }
 
 .dark-theme .ant-modal .ant-modal-header {
