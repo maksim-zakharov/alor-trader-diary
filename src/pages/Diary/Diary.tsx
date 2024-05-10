@@ -465,9 +465,13 @@ const Diary: FC<IProps> = ({
         };
     };
 
+    const [error, setError] = useState(undefined);
+
     const netProfitPercent = useMemo(() => !summary ? 0 : data.totalPnL * 100 / (summary?.portfolioEvaluation - data.totalPnL), [data.totalPnL, summary?.portfolioEvaluation]);
 
     const createOperation = async () => {
+        setError(undefined);
+
         const agreementNumber = settings.portfolio.replace('D', '');
 
         const account = accounts.find(a => a.settlementAccount === selectedAccount) || settings;
@@ -488,6 +492,11 @@ const Diary: FC<IProps> = ({
             currency: Currency.RUB,
             subportfolioFrom: "MOEX"
         })
+
+        if(operationResult.errorMessage){
+            setError(operationResult.errorMessage);
+            return;
+        }
 
         const codeResponse = await api.clientInfo.getOperationCode({
             operationId: operationResult.operationId.toString(),
@@ -607,7 +616,8 @@ const Diary: FC<IProps> = ({
                 marginTop: "20px",
                 paddingTop: "20px",
                 display: "inline-block",
-                textAlign: "center"
+                textAlign: "center",
+                width: '100%'
             }}><NoResult text={"Счета для вывода средств отсутствуют"}/></div>
         }
 
@@ -1017,21 +1027,23 @@ const Diary: FC<IProps> = ({
                         <Button onClick={() => cancelEditAccount()}
                                 style={{width: '100%', marginTop: '12px'}}>Отменить</Button>
                     </>}
-                    {selectedAccount && <FormItem label="Сумма" style={{width: '100%', marginTop: '12px'}}>
-                        <Input
-                            placeholder="Сумма"
-                            value={amount}
-                            onChange={e => setPaidInfo(prevState => ({...prevState, amount: e.target.value}))}
-                            disabled={!selectedAccount}
-                            suffix="₽"
-                        />
+                    {selectedAccount && <>
+                        <FormItem label="Сумма" style={{width: '100%', marginTop: '12px'}} help={error} status={error ? 'error' : undefined}>
+                            <Input
+                                placeholder="Сумма"
+                                value={amount}
+                                onChange={e => setPaidInfo(prevState => ({...prevState, amount: e.target.value}))}
+                                disabled={!selectedAccount}
+                                suffix="₽"
+                            />
+                        </FormItem>
                         {lastWithdrawals.length > 0 && <div className="tag-container">
                             {lastWithdrawals.map(lw => <Tag onClick={() => setPaidInfo(prevState => ({
                                 ...prevState,
                                 amount: lw.toString()
                             }))}>{lw}</Tag>)}
                         </div>}
-                    </FormItem>}
+                    </> }
                     {operationId && <FormItem label="Код подтверждения">
                         <Input
                             placeholder="Код подтверждения"
