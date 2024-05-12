@@ -33,12 +33,21 @@
         k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
       (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
 
-      ym(97256590, "init", {
+      const id = 97256590;
+
+      ym(id, "init", {
         clickmap:true,
         trackLinks:true,
         accurateTrackBounce:true,
         webvisor:true
       });
+
+      let displayMode = 'browser';
+      const mqStandAlone = '(display-mode: standalone)';
+      if (navigator.standalone || window.matchMedia(mqStandAlone).matches) {
+        displayMode = 'standalone';
+      }
+      ym(id, 'params', {displayMode})
     </script>
     <noscript><div><img src="https://mc.yandex.ru/watch/97256590" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
     <!-- /Yandex.Metrika counter -->
