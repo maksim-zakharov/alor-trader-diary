@@ -60,7 +60,7 @@ const ProfitWidget = ({activeOperations, data, isLoading, colors, moneyMoves, in
         }
 
         return acc;
-    }, moneyMovesMap), [activeOperations, moneyMovesMap]);
+    }, {}), [activeOperations, moneyMovesMap]);
 
     const test = useMemo(() => {
         const firstDate = (moneyMoves.length < 1 ? moment() : moment(moneyMoves.slice(-1)[0].date)).format('YYYY-MM-DD');
