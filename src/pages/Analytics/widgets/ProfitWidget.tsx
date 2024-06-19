@@ -73,14 +73,14 @@ const ProfitWidget = ({activeOperations, data, isLoading, colors, moneyMoves, in
             const prevDate = items[prevIndex];
             const currDate = items[i];
             const prevValue = i === 0 ? 0 : (acc[prevDate] || 0)
-            const currValue = (dayMoneyMovesMap[currDate] || 0);
+            const currValue = (moneyMovesMap[currDate] || 0);
 
             acc[curr] = prevValue + currValue;
 
             return acc;
         }, {})
 
-    }, [dayMoneyMovesMap, moneyMoves]);
+    }, [moneyMovesMap, moneyMoves]);
 
     const _data = useMemo(() => {
         let result = [];
