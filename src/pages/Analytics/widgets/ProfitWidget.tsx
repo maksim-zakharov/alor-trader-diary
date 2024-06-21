@@ -6,6 +6,34 @@ import {Status} from "alor-api/dist/services/ClientInfoService/ClientInfoService
 import {enumerateDaysBetweenDates} from "../../../utils";
 
 const ProfitWidget = ({activeOperations, data, isLoading, colors, moneyMoves, initBalance}) => {
+    const moneyMovesMap = useMemo(() => moneyMoves.filter(mM =>  !['Комиссия брокера', "Комиссия депозитария"].includes(mM.title)).reduce((acc, curr) => {
+        if(!curr.sum){
+            return acc;
+        }
+
+        const date = moment(curr.date).format('YYYY-MM-DD');
+        if(!acc[date]){
+            acc[date] = 0;
+        }
+
+        let multi = 1;
+
+        if(curr.subType === 'withdrawal'){
+            multi = -1;
+        }
+        if(curr.subType === 'input') {
+            multi = 1;
+        }
+
+        // Только те движения которые исполнены
+        if(curr.status === Status.Resolved || curr.status === Status.executing){
+            // спорно TODO
+            acc[date] += curr.sum * multi;
+        }
+
+        return acc;
+    }, {}), [moneyMoves]);
+
     const dayMoneyMovesMap = useMemo(() => activeOperations.reduce((acc, curr) => {
         if(!curr.data.amount){
             return acc;
@@ -32,7 +60,7 @@ const ProfitWidget = ({activeOperations, data, isLoading, colors, moneyMoves, in
         }
 
         return acc;
-    }, {}), [activeOperations]);
+    }, {}), [activeOperations, moneyMovesMap]);
 
     const test = useMemo(() => {
         const firstDate = (moneyMoves.length < 1 ? moment() : moment(moneyMoves.slice(-1)[0].date)).format('YYYY-MM-DD');
@@ -45,14 +73,14 @@ const ProfitWidget = ({activeOperations, data, isLoading, colors, moneyMoves, in
             const prevDate = items[prevIndex];
             const currDate = items[i];
             const prevValue = i === 0 ? 0 : (acc[prevDate] || 0)
-            const currValue = (dayMoneyMovesMap[currDate] || 0);
+            const currValue = (moneyMovesMap[currDate] || 0);
 
             acc[curr] = prevValue + currValue;
 
             return acc;
         }, {})
 
-    }, [dayMoneyMovesMap, moneyMoves]);
+    }, [moneyMovesMap, moneyMoves]);
 
     const _data = useMemo(() => {
         let result = [];
