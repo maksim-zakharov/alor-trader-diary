@@ -1076,7 +1076,7 @@ const Diary: FC<IProps> = ({
                 />}
             </Modal>
             <Modal title="Операции" open={showOperationsModal} footer={null}
-                   onCancel={() => setShowOperationsModal(false)}>
+                   onCancel={() => setShowOperationsModal(false)} className="operation-modal">
                 {moneyOperations.map(getMaxLossTrade =>
                     <div className="ticker-info">
                         <div style={{display: 'flex'}}>

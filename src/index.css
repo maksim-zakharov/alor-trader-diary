@@ -32,11 +32,11 @@
     --scrollbars-thumb-active-opacity: 0.56;
 }
 
-.custom-icon{
+.custom-icon {
     display: flex;
 }
 
-.custom-icon svg{
+.custom-icon svg {
     width: 32px;
     height: 32px;
     margin-right: 8px;
@@ -220,14 +220,14 @@ code {
     display: none;
     margin-bottom: 16px;
 
-    .title-container{
+    .title-container {
         display: flex;
         justify-content: space-between;
         width: 100%;
         margin-bottom: 8px;
     }
 
-    .title{
+    .title {
         font-size: 16px;
         font-weight: bold;
         line-height: 1;
@@ -261,27 +261,27 @@ code {
     }
 }
 
-.tag-container{
+.tag-container {
     margin-top: 8px;
 }
 
-.ant-tag{
+.ant-tag {
     background-color: rgba(var(--pro-input-bg), 1);
     color: rgba(var(--pro-input-color), 1);
     border: none;
     cursor: pointer;
 
-    &:hover{
-         background-color: rgba(var(--pro-button-primary-bg), 1);
-    color: #fff;
-     }
+    &:hover {
+        background-color: rgba(var(--pro-button-primary-bg), 1);
+        color: #fff;
+    }
 }
 
 .MobileSummary {
     display: none;
     margin-bottom: 16px;
 
-    .summary{
+    .summary {
         font-size: 24px;
         font-weight: bold;
     }
@@ -315,14 +315,14 @@ code {
     }
 
     .button-group {
-         background-color: rgb(36, 52, 66);
-         padding: 16px 20px;
-         border-radius: 20px;
-         margin-top: 16px;
-         display: flex;
-         justify-content: space-between;
-         align-items: center;
-     }
+        background-color: rgb(36, 52, 66);
+        padding: 16px 20px;
+        border-radius: 20px;
+        margin-top: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 }
 
 .ant-layout-content {
@@ -344,7 +344,7 @@ code {
     }
 }
 
-#mobile-date{
+#mobile-date {
     position: absolute;
     opacity: 0;
     left: 0;
@@ -400,7 +400,7 @@ code {
         height: 48px !important;
     }
 
-    .ant-modal .ant-modal-content{
+    .ant-modal .ant-modal-content {
         padding: 16px;
     }
 
@@ -569,7 +569,7 @@ code {
     margin: 12px 0;
 }
 
-.ant-modal-body{
+.ant-modal-body {
     max-height: 80vh;
     overflow: auto;
 }
@@ -640,13 +640,13 @@ code {
 }
 
 .dark-theme {
-    .ant-btn-text{
+    .ant-btn-text {
         color: rgba(var(--pro-input-color), 1);
         line-height: 16px;
     }
 }
 
-.ant-statistic .ant-statistic-skeleton{
+.ant-statistic .ant-statistic-skeleton {
     padding-top: 4px;
 }
 
@@ -1494,11 +1494,33 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
     .ant-result .ant-result-title {
         color: rgba(var(--pro-input-color), 1);
     }
+
     .ant-result .ant-result-subtitle {
         color: rgba(var(--pro-icon-color), 1);
     }
 }
 
-.ant-form-item-row[status="error"] .ant-form-item-explain{
+.ant-form-item-row[status="error"] .ant-form-item-explain {
     color: rgba(var(--table-loss-color), 1);
+}
+
+.operation-modal {
+
+    .ant-modal-content {
+        padding: 8px 12px;
+    }
+
+    .ticker-info {
+        background: rgba(var(--pro-base-02), 1);
+        padding: 8px 12px;
+        border-radius: 8px;
+
+        &:not(:first-child) {
+            margin-top: 8px;
+        }
+    }
+
+    .ticker_name_description{
+        line-height: 16px;
+    }
 }
