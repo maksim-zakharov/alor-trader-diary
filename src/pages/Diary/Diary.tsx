@@ -170,7 +170,7 @@ const Diary: FC<IProps> = ({
         bankName: string;
         amount: string;
         bic: string;
-    }>(JSON.parse(localStorage.getItem('settings') || '{summaryType: "brokerSummary"}'));
+    }>(JSON.parse(localStorage.getItem('settings') || '{ "summaryType": "brokerSummary"}'));
 
     const moneyMovesCommission = useMemo(() => summ(moneyMoves.filter(m => m.title === "Комиссия брокера").map(m => m.sum)), [moneyMoves]);
 
