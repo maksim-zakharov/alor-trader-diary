@@ -39,7 +39,7 @@ const ProfitIntervalWidget = ({nonSummaryPositions, isLoading}) => {
     }, {} as {[key: string]: number})).sort((a, b) => b[1].count - a[1].count), [profitPositions]);
 
     return <div className="widget">
-        <div className="widget_header">Profit intervals</div>
+        <div className="widget_header">Прибыльные интервалы</div>
         {isLoading ? <Spinner/> : profitMap.length ?
         <List
             itemLayout="horizontal"

@@ -101,7 +101,7 @@ const SymbolsWidget = ({nightMode, darkColors, nonSummaryPositions, isLoading}) 
     }
 
     return <div className="widget" style={{height: 460, width: '100%'}}>
-        <div className="widget_header">Symbols</div>
+        <div className="widget_header">По инструментам</div>
         {isLoading ? <Spinner/> : symbolCategories.length ?
             <HighchartsReact
                 highcharts={Highcharts}

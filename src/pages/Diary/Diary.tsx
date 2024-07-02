@@ -776,7 +776,7 @@ const Diary: FC<IProps> = ({
         }}
     >
         <Statistic
-            title="Summary"
+            title="Баланс"
             loading={isLoading}
             value={moneyFormat(summaryValue)}
             precision={2}
@@ -911,13 +911,13 @@ const Diary: FC<IProps> = ({
             }}
         >
             <Statistic
-                title="Trades"
+                title="Сделок"
                 loading={isLoading}
                 value={`${data.positions.filter(p => p.type !== 'summary').length} trades`}
                 precision={2}
             />
             <Statistic
-                title="Net Profit"
+                title="Чистая прибыль"
                 loading={isLoading}
                 value={`${moneyFormat(data.totalPnL)} (${shortNumberFormat(netProfitPercent)}%)`}
                 precision={2}
@@ -927,7 +927,7 @@ const Diary: FC<IProps> = ({
                 }}
             />
             <Statistic
-                title="Total Fee"
+                title="Общ. комиссия"
                 loading={isLoading}
                 value={moneyFormat(data.totalFee)}
                 precision={2}
@@ -1099,7 +1099,7 @@ const Diary: FC<IProps> = ({
                     </div>)}
             </Modal>
             <Drawer
-                title="Settings"
+                title="Настройки"
                 placement="right"
                 onClose={() => setShowSettings(false)}
                 open={showSettings}

@@ -115,7 +115,7 @@ const ProfitWidget = ({activeOperations, data, isLoading, colors, moneyMoves, in
     const balance = useMemo(() => data.slice(-1)[0]?.value || 0,[data]);
 
     return <div className="widget" style={{height: 460, width: '100%'}}>
-        <div className="widget_header">Profit</div>
+        <div className="widget_header">Прибыль</div>
         {isLoading ? <Spinner/> :<TVChart colors={colors} seriesType="baseLine" shortNumber={true} balance={balance} data={_data} formatTime="ll"/>}
     </div>
 }

@@ -1513,6 +1513,19 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
     color: rgba(var(--table-loss-color), 1);
 }
 
+.header-support-link{
+    display: flex;
+    align-items: center;
+    color: rgba(var(--pro-controls-label-color), 1);
+    padding: 16px;
+
+    svg{
+        width: 16px;
+        height: 16px;
+        fill: rgba(var(--pro-icon-color), 1);
+    }
+}
+
 .operation-modal {
 
     .ant-modal-content {

@@ -29,24 +29,24 @@ const ReportWidget = ({nonSummaryPositions, tradingDays, data, isLoading}) => {
     const currentBalance = useMemo(() => (data || []).slice(-1)[0]?.value || 0, [data]);
 
     const list1 = [
-        {label: 'Average Trades Per Day', value: <div>{averageTradesByDay}</div>},
+        {label: 'Ср. количество сделок в день', value: <div>{averageTradesByDay}</div>},
         {label: 'Profit Factor', value: <div>{profitFactor.toFixed(2)}</div>},
         {label: 'Percent Profitable', value: <div>{`${numberToPercent(percentProfitable)}%`}</div>},
-        {label: 'Maximum drawdown', value: <div>{`${numberToPercent(drawdown)}%`}</div>},
+        {label: 'Максимальная просадка', value: <div>{`${numberToPercent(drawdown)}%`}</div>},
     ]
 
     const renderProfit = (profit) => <div style={{color:
             profit > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>{moneyFormat(profit)} ({numberToPercent(profit / currentBalance)}%)</div>
 
     const list2 = [
-        {label: 'Average Trade Net Profit', value: renderProfit(averageTradeNetProfit)},
-        {label: 'Average Day Net Profit', value: renderProfit(averageDayNetProfit)},
-        {label: 'Planing Monthly Profit', value: renderProfit(planingMonthlyProfit)},
-        {label: 'Planing Yearly Profit', value: renderProfit(planingYearlyProfit)},
+        {label: 'Ср. прибыль на сделку', value: renderProfit(averageTradeNetProfit)},
+        {label: 'Ср. прибыль в день', value: renderProfit(averageDayNetProfit)},
+        {label: 'Плановая месячная прибыль', value: renderProfit(planingMonthlyProfit)},
+        {label: 'Плановая годовая прибыль', value: renderProfit(planingYearlyProfit)},
     ]
 
     return <div className="widget">
-        <div className="widget_header">Total Report</div>
+        <div className="widget_header">Общий отчет</div>
         {isLoading ? <Spinner/> :
             <div className="double-list">
             <List

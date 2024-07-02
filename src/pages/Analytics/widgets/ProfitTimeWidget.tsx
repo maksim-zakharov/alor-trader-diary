@@ -22,7 +22,7 @@ const ProfitTimeWidget = ({nonSummaryPositions, isLoading}) => {
     }, {} as {[key: string]: number})).sort((a: any, b: any) => b[1].PnL - a[1].PnL).slice(0, 4), [lossPositions]);
 
     return <div className="widget">
-        <div className="widget_header">Profit by time of day</div>
+        <div className="widget_header">Прибыль по времени дня</div>
         {isLoading ? <Spinner/> : lossMap.length ?
             <List
                 itemLayout="horizontal"

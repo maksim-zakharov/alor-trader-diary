@@ -8,6 +8,7 @@ import {
 } from 'antd';
 import {Content, Footer, Header} from 'antd/es/layout/layout';
 import React, {ReactNode, useEffect, useMemo, useState} from 'react';
+import QuestionCircleIcon  from './assets/question-circle';
 import moment from 'moment';
 import {
     Navigate,
@@ -406,14 +407,14 @@ function App() {
     const menuItems: (MenuItemType & { element: ReactNode })[] = [
         {
             key: 'diary',
-            label: 'Diary',
+            label: 'Дневник',
             element: <Diary getIsinBySymbol={getIsinBySymbol} getListSectionBySymbol={getListSectionBySymbol} isMobile={width < 400 ? 1 : width < 1200 ? Math.round(width / 410) : 0} moneyMoves={moneyMoves || []} equityDynamics={equityDynamics}
                             data={data} trades={trades} api={api} isLoading={isLoading} summary={summary} lastWithdrawals={lastWithdrawals} operations={operations}
                             fullName={userInfo?.fullName}/>
         },
         {
             key: 'analytics',
-            label: 'Analytics',
+            label: 'Аналитика',
             element: <Analytics activeOperations={activeOperations} getIsinBySymbol={getIsinBySymbol} getListSectionBySymbol={getListSectionBySymbol} data={data} balanceSeriesData={equityDynamics?.portfolioValues.map(v => ({
                 time: moment(v.date).format('YYYY-MM-DD'),
                 value: v.value
@@ -465,6 +466,7 @@ function App() {
                         items={menuItems}
                         onSelect={onSelectMenu}
                     />
+                    <a className="header-support-link" href="https://t.me/+8KsjwdNHVzIwNDQy" target="_blank"><QuestionCircleIcon/> Поддержка</a>
                 </div>
             </Header>
             <Content className="site-layout" style={{minHeight: '100vh'}}>
