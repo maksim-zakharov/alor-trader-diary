@@ -690,10 +690,12 @@ const Diary: FC<IProps> = ({
             return rows;
         }, [weeksByMonth, isMobile]);
 
-        const title = useMemo(() => moment(weeksByMonth[0][1].trades[0].openDate).startOf('week').format('MMMM'), [month])
+        const title = useMemo(() => moment(weeksByMonth[0][1].trades[0].openDate).startOf('week').format('MMMM'), [month]);
+
+        const monthTotalResult = useMemo(()  => summ(weeksByMonth.map(([_, week]) => week.PnL)), [weeksByMonth]);
 
         return <>
-            <div className="MonthRenderTitle">{title}</div>
+            <div className="MonthRenderTitle">{title}<span style={{color: monthTotalResult > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>{moneyFormat(monthTotalResult)}</span></div>
             {weeksRows.map(row => <Row gutter={16}>
                 {row.map(([weekNumber, week]) => <Col span={isMobile ? 24 / isMobile : 8}>
                     <Card title={`${week.from} - ${week.to}`} bordered={false}
@@ -721,6 +723,7 @@ const Diary: FC<IProps> = ({
 
     const YearRender: FC<any> = ({year}) => {
         const months = useMemo(() => Array.from(new Set(weeks.filter(([_, w]) => w.year === year).map(([key, value]) => value.month))), [weeks]);
+
         return <>
             <div style={{
                 fontSize: '48px',
