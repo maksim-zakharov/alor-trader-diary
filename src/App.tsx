@@ -8,7 +8,7 @@ import {
 } from 'antd';
 import {Content, Footer, Header} from 'antd/es/layout/layout';
 import React, {ReactNode, useEffect, useMemo, useState} from 'react';
-import QuestionCircleIcon  from './assets/question-circle';
+// import QuestionCircleIcon  from './assets/question-circle';
 import moment from 'moment';
 import {
     Navigate,
@@ -466,7 +466,7 @@ function App() {
                         items={menuItems}
                         onSelect={onSelectMenu}
                     />
-                    <a className="header-support-link" href="https://t.me/+8KsjwdNHVzIwNDQy" target="_blank"><QuestionCircleIcon/> Поддержка</a>
+                    <a className="header-support-link" href="https://t.me/+8KsjwdNHVzIwNDQy" target="_blank"> Поддержка</a>
                 </div>
             </Header>
             <Content className="site-layout" style={{minHeight: '100vh'}}>
