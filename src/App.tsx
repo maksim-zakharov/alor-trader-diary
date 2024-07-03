@@ -82,12 +82,17 @@ function useWindowDimensions() {
 function App() {
     const navigate = useNavigate();
     const location = useLocation();
+    const [settings, setSettings] = useState<{
+        token: string;
+        portfolio: string;
+        commissionType: string;
+    }>(JSON.parse(localStorage.getItem('settings') || '{}'));
 
     useEffect(() => {
-        if(location.pathname.endsWith('/login')){
+        if(settings.token && location.pathname.endsWith('/login')){
             navigate('/')
         }
-    }, [location.pathname]);
+    }, [location.pathname, settings.token]);
 
     const {height, width} = useWindowDimensions();
     const [symbols, setSymbols] = useState(
@@ -207,11 +212,6 @@ function App() {
         return trades.filter(t => moment(t.date).isBefore(moment(dateTo)));
     };
 
-    const [settings, setSettings] = useState<{
-        token: string;
-        portfolio: string;
-        commissionType: string;
-    }>(JSON.parse(localStorage.getItem('settings') || '{}'));
     const api = useApi(settings.token);
 
     useEffect(() => {
