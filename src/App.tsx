@@ -27,7 +27,7 @@ import {
     UserInfoResponse
 } from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 import useListSecs from "./useListSecs";
-import LoginPage from "./pages/LoginPage";
+import LoginPage from "./pages/LoginPage/LoginPage";
 
 export const avg = (numbers: number[]) =>
     !numbers.length ? 0 : summ(numbers) / numbers.length;
