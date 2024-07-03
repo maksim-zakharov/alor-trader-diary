@@ -80,6 +80,15 @@ function useWindowDimensions() {
 }
 
 function App() {
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        if(location.pathname.endsWith('/login')){
+            navigate('/')
+        }
+    }, [location.pathname]);
+
     const {height, width} = useWindowDimensions();
     const [symbols, setSymbols] = useState(
         localStorage.getItem('symbols')
@@ -103,8 +112,6 @@ function App() {
     const [trades, setTrades] = useState<Trades>([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    const navigate = useNavigate();
-    const location = useLocation();
     const [searchParams, setSearchParams] = useSearchParams();
     const currentMenuSelectedKey = location.pathname?.split('/')[1] || 'diary';
     const date = searchParams.get('date');
