@@ -89,7 +89,7 @@ function App() {
     }>(JSON.parse(localStorage.getItem('settings') || '{}'));
 
     useEffect(() => {
-        if(settings.token && location.pathname.endsWith('/login')){
+        if (settings.token && location.pathname.endsWith('/login')) {
             navigate('/')
         }
     }, [location.pathname, settings.token]);
@@ -209,7 +209,7 @@ function App() {
             }));
         }
 
-        return trades.filter(t => moment(t.date).isBefore(moment(dateTo)));
+        setTrades(trades.filter(t => moment(t.date).isBefore(moment(dateTo))));
     };
 
     const api = useApi(settings.token);
@@ -301,7 +301,7 @@ function App() {
 
     const activeOperations = useMemo(() => operations.filter(o => ![Status.Overdue, Status.Refused].includes(o.status)), [operations]);
 
-    const getOperations = () => api.clientInfo.getOperations(Number(settings.portfolio?.replace('D', '')), {
+    const getOperations = (userInfo) => api.clientInfo.getOperations(Number(userInfo?.agreements[0]?.agreementNumber), {
 // limit: 10
     })
         .then((ops: any) => setOperations(ops))
@@ -316,10 +316,11 @@ function App() {
         return r;
     })
 
-    const getEquityDynamics = (dateFrom: string, dateTo: string) => api.clientInfo.getEquityDynamics({
+    const getEquityDynamics = (dateFrom: string, dateTo: string, agreementNumber: string) => api.clientInfo.getEquityDynamics({
         startDate: moment(dateFrom).add(-1, 'day').format('YYYY-MM-DD'),
         endDate: dateTo,
-        portfolio: settings.portfolio?.replace('D', '')
+        portfolio: settings.portfolio,
+        agreementNumber
     }).then(results => {
         if (!results) {
             setEquityDynamics({
@@ -365,17 +366,17 @@ function App() {
             return;
         }
 
-        getEquityDynamics(dateFrom, dateTo);
-
-        getOperations();
+        setIsLoading(true);
 
         setIsLoading(true);
         getUserInfo().then(userInfo => loadTrades({
             tariffPlan: getCurrentTariffPlan(userInfo, 'FOND'),
             date,
             dateFrom,
-        }).then(setTrades)
+        }).then(() => getEquityDynamics(dateFrom, dateTo, getAgreementNumber(userInfo)?.toString())
+            .then(() => getOperations(userInfo))
             .then(() => getMoneyMoves(getAgreementNumber(userInfo))))
+        )
 
             .finally(() => setIsLoading(false));
     }, [api, dateFrom, summary, visibilitychange]);
@@ -430,6 +431,7 @@ function App() {
             key: 'diary',
             label: 'Дневник',
             element: <Diary getIsinBySymbol={getIsinBySymbol} getListSectionBySymbol={getListSectionBySymbol}
+                            userInfo={userInfo}
                             isMobile={width < 400 ? 1 : width < 1200 ? Math.round(width / 410) : 0}
                             moneyMoves={moneyMoves || []} equityDynamics={equityDynamics}
                             data={data} trades={trades} api={api} isLoading={isLoading} summary={summary}

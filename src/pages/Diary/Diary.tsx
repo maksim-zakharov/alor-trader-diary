@@ -61,7 +61,7 @@ import {
     EquityDynamicsResponse,
     GetOperationsResponse,
     MoneyMove,
-    Status
+    Status, UserInfoResponse
 } from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 import {humanize, numberToPercent} from "../../utils";
 import NoResult from "../../common/NoResult";
@@ -114,6 +114,7 @@ interface IProps {
     getIsinBySymbol: any;
     lastWithdrawals: number[]
     operations: GetOperationsResponse[];
+    userInfo: UserInfoResponse;
 }
 
 const AccountCard: FC<any> = ({
@@ -159,6 +160,7 @@ const Diary: FC<IProps> = ({
                                isMobile,
                                lastWithdrawals,
                                operations,
+                               userInfo,
                                equityDynamics
                            }) => {
     const [settings, setSettings] = useState<{
@@ -437,7 +439,7 @@ const Diary: FC<IProps> = ({
 
     const settingsInputProps = (field: string) => {
         const onChange = (e: any) => {
-            const value = e.target.value;
+            const value = e.target ? e.target.value : e;
             setSettings((prevState) => ({...prevState, [field]: value}));
         };
 
@@ -1109,10 +1111,17 @@ const Diary: FC<IProps> = ({
                         <Input placeholder="Token" {...settingsInputProps('token')} />
                     </FormItem>
                     <FormItem label="Alor Portfolio">
-                        <Input
-                            placeholder="Portfolio"
+                        <Select
                             {...settingsInputProps('portfolio')}
-                        />
+                                placeholder="Выберите портфель"
+                                options={userInfo?.agreements?.[0]?.portfolios?.map(p => ({
+                                    label: `${p.accountNumber} (${p.service})`,
+                                    value: p.accountNumber
+                                })) || []}/>
+                        {/*<Input*/}
+                        {/*    placeholder="Portfolio"*/}
+                        {/*    {...settingsInputProps('portfolio')}*/}
+                        {/*/>*/}
                     </FormItem>
                     <FormItem label="Расчет комиссии">
                         <Select
