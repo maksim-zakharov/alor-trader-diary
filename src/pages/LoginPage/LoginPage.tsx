@@ -8,6 +8,7 @@ import {useNavigate} from "react-router-dom";
 import FormItem from "antd/es/form/FormItem";
 
 const LoginPage = () => {
+    const navigate = useNavigate();
     const [token, setToken] = React.useState<string | null>(null);
     const [userInfo, setUserInfo] = React.useState<UserInfoResponse>(null);
     const [error, setError] = useState();
@@ -69,7 +70,8 @@ const LoginPage = () => {
     }
 
     const login = () => {
-        window.location.href = '/';
+        navigate('/')
+        window.location.reload();
     }
 
     return <div className="LoginPage">
