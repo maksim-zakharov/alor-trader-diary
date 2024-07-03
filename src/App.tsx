@@ -11,6 +11,7 @@ import {Exchange, Positions, Summary, Trade, Trades} from 'alor-api';
 import {MenuItemType} from 'antd/es/menu/hooks/useItems';
 import Diary from './pages/Diary/Diary';
 import Analytics from './pages/Analytics/Analytics';
+import LoginPage from "./pages/LoginPage/LoginPage";
 import {DefaultOptionType} from 'antd/es/select';
 import {
     getAgreementNumber,
@@ -27,7 +28,6 @@ import {
     UserInfoResponse
 } from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 import useListSecs from "./useListSecs";
-import LoginPage from "./pages/LoginPage/LoginPage";
 
 export const avg = (numbers: number[]) =>
     !numbers.length ? 0 : summ(numbers) / numbers.length;
