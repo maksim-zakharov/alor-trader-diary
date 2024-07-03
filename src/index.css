@@ -503,7 +503,7 @@ code {
     background-color: rgba(var(--pro-input-bg), 1);
     color: rgba(var(--pro-input-color), 1);
     border: none;
-    font-size: 13px;
+    font-size: 16px;
     font-weight: 400;
     height: 32px;
     border-radius: 4px;
@@ -605,6 +605,13 @@ code {
 
 .ant-drawer-content-wrapper {
     width: 320px !important;
+}
+
+
+@media only screen and (max-width: 700px) {
+    .ant-drawer-content-wrapper{
+        width: 100% !important;
+    }
 }
 
 .ant-drawer .ant-drawer-body {

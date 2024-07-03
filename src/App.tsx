@@ -129,7 +129,7 @@ function App() {
         dateTo = moment().endOf('month').add(1, 'day').format('YYYY-MM-DD');
     }
 
-    const [theme, setTheme] = useState(localStorage.getItem('theme') || 'system');
+    const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
 
     useEffect(() => {
         if ((theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches) || theme === 'dark') {

@@ -191,7 +191,7 @@ const Diary: FC<IProps> = ({
     const [showOperationsModal, setShowOperationsModal] = useState(false);
     const [showPayModal, setShowPayModal] = useState(false);
 
-    const [theme, setTheme] = useState(localStorage.getItem('theme') || 'system');
+    const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
 
     useEffect(() => {
         if ((theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches) || theme === 'dark') {
@@ -1140,15 +1140,15 @@ const Diary: FC<IProps> = ({
                             options={commissionOptions}
                         />
                     </FormItem>
-                    <FormItem label="Тема">
-                        <Select options={themeOptions} value={theme}
-                                optionRender={(option) => (
-                                    <Space>
-                                        {option.data.icon}
-                                        <div>{option.data.label}</div>
-                                    </Space>
-                                )} style={{width: '100%'}} onSelect={onChangeNightMode}/>
-                    </FormItem>
+                    {/*<FormItem label="Тема">*/}
+                    {/*    <Select options={themeOptions} value={theme}*/}
+                    {/*            optionRender={(option) => (*/}
+                    {/*                <Space>*/}
+                    {/*                    {option.data.icon}*/}
+                    {/*                    <div>{option.data.label}</div>*/}
+                    {/*                </Space>*/}
+                    {/*            )} style={{width: '100%'}} onSelect={onChangeNightMode}/>*/}
+                    {/*</FormItem>*/}
                     <FormItem label="Расчет текущих средств">
                         <Select options={summaryOptions} style={{width: '100%'}}
                                 value={settingsInputProps('summaryType').value || 'brokerSummary'}

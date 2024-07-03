@@ -13,6 +13,14 @@
         border-radius: 20px;
     }
 
+    .ant-card-body{
+        padding: 24px 16px;
+    }
+
+    .ant-input{
+        font-size: 16px;
+    }
+
     .ant-card-head{
         text-align: center;
         font-size: 24px;
