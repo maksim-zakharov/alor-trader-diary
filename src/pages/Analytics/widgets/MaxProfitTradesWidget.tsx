@@ -11,7 +11,7 @@ const MaxProfitTradesWidget = ({nonSummaryPositions, isLoading, getIsinBySymbol}
     const getMaxProfitTrades = useMemo(() => nonSummaryPositions.sort((a, b) => b.PnL - a.PnL).slice(0, 3).filter(p => p.PnL >= 0), [nonSummaryPositions])
 
     return <div className="widget">
-        <div className="widget_header">Top profit trades</div>
+        <div className="widget_header">Топ прибыльных сделок</div>
         {isLoading ? <Spinner/> : getMaxProfitTrades.length ? <div>
             {getMaxProfitTrades.map(getMaxProfitTrade => <div className="ticker-info">
                 <div style={{display: 'flex'}}>

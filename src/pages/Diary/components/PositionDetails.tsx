@@ -13,14 +13,14 @@ const PositionDetails = ({nightMode, trades, api, symbol}) => {
 
     const columns: TableColumnsType<any> = [
         {
-            title: 'Time',
+            title: 'Время',
             dataIndex: 'date',
             key: 'date',
             align: 'center',
             render: (_, row) => moment(row.date).format('HH:mm:ss'),
         },
         {
-            title: 'Side',
+            title: 'Направление',
             dataIndex: 'side',
             key: 'side',
             align: 'center',
@@ -28,24 +28,24 @@ const PositionDetails = ({nightMode, trades, api, symbol}) => {
                 // @ts-ignore
                 row.side === 'sell' ? <ArrowDownOutlined /> : <ArrowUpOutlined />,
         },
-        { title: 'Quantity', dataIndex: 'qty',
+        { title: 'Количество', dataIndex: 'qty',
             align: 'center',key: 'qty' },
         {
-            title: 'Price',
+            title: 'Цена',
             dataIndex: 'price',
             key: 'price',
             align: 'center',
             render: (_, row) => moneyFormat(_, digits, digits),
         },
         {
-            title: 'Amount',
+            title: 'Объем',
             dataIndex: 'volume',
             key: 'volume',
             align: 'center',
             render: (_, row) => moneyFormat(_),
         },
         {
-            title: 'Fee',
+            title: 'Комиссия',
             dataIndex: 'commission',
             key: 'commission',
             align: 'center',

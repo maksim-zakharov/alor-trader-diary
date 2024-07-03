@@ -22,7 +22,7 @@ const LossTimeWidget = ({nonSummaryPositions, isLoading}) => {
     }, {} as {[key: string]: number})).sort((a: any, b: any) => a[1].PnL - b[1].PnL).slice(0, 4), [lossPositions]);
 
     return <div className="widget">
-        <div className="widget_header">Loss by time of day</div>
+        <div className="widget_header">Убыток по времени дня</div>
         {isLoading ? <Spinner/> : lossMap.length ?
             <List
                 itemLayout="horizontal"

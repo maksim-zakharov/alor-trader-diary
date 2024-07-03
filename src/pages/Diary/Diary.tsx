@@ -287,7 +287,7 @@ const Diary: FC<IProps> = ({
     const columns: ColumnsType<DataType> = useMemo(() =>
             [
                 {
-                    title: 'Symbol',
+                    title: 'Тикер',
                     dataIndex: 'symbol',
                     key: 'symbol',
                     width: 60,
@@ -299,10 +299,10 @@ const Diary: FC<IProps> = ({
                               style={{cursor: 'pointer'}}>${row.symbol}</span>,
                 },
                 {
-                    title: 'Time',
+                    title: 'Время открытия',
                     dataIndex: 'openDate',
                     key: 'openDate',
-                    width: 100,
+                    width: 160,
                     align: 'center',
                     // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
                     render: (_, row) =>
@@ -315,7 +315,7 @@ const Diary: FC<IProps> = ({
                     // onCell: sharedOnCell,
                 },
                 {
-                    title: 'Section',
+                    title: 'Эшелон',
                     dataIndex: 'symbol',
                     key: 'symbol',
                     width: 70,
@@ -327,7 +327,7 @@ const Diary: FC<IProps> = ({
                     // onCell: sharedOnCell,
                 },
                 {
-                    title: 'Duration',
+                    title: 'Длительность',
                     dataIndex: 'duration',
                     key: 'duration',
                     width: 130,
@@ -382,7 +382,7 @@ const Diary: FC<IProps> = ({
                     // }),
                 },
                 {
-                    title: 'Volume',
+                    title: 'Объем',
                     dataIndex: 'volume',
                     key: 'volume',
                     align: 'center',
@@ -390,7 +390,7 @@ const Diary: FC<IProps> = ({
                     render: (_, row: any, index) => renderVolume(row),
                 },
                 {
-                    title: 'Fee',
+                    title: 'Комиссия',
                     dataIndex: 'Fee',
                     key: 'Fee',
                     align: 'center',
@@ -398,7 +398,7 @@ const Diary: FC<IProps> = ({
                     render: (_, row) => `${moneyFormat(_)} ${row.type !== 'summary' ? `(${(_ * 100 / (row.openVolume + row.closeVolume)).toFixed(3)}%)` : ''}`,
                 },
                 {
-                    title: 'Reason',
+                    title: 'Причина',
                     dataIndex: 'reason',
                     key: 'reason',
                     width: 200,
@@ -410,13 +410,13 @@ const Diary: FC<IProps> = ({
                                 size="small"
                                 style={{width: '180px'}}
                                 allowClear
-                                placeholder="Select reason..."
+                                placeholder="Выберите причину..."
                                 {...selectProps(row)}
                             />
                         ),
                 },
                 {
-                    title: 'Comment',
+                    title: 'Комментарий',
                     dataIndex: 'comment',
                     key: 'comment',
                     // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
@@ -426,7 +426,7 @@ const Diary: FC<IProps> = ({
                                 key={`${row.id}-comment-input`}
                                 size="small"
                                 allowClear
-                                placeholder="Add comment..."
+                                placeholder="Добавьте комментарий..."
                                 {...inputProps(row)}
                             />
                         ),

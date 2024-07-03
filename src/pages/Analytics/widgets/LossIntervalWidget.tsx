@@ -39,7 +39,7 @@ const LossIntervalWidget = ({nonSummaryPositions, isLoading}) => {
     }, {} as {[key: string]: number})).sort((a, b) => b[1].count - a[1].count), [lossPositions]);
 
     return <div className="widget">
-        <div className="widget_header">Loss intervals</div>
+        <div className="widget_header">Убыточные интервалы</div>
         {isLoading ? <Spinner/> : lossMap.length ?
         <List
             itemLayout="horizontal"
