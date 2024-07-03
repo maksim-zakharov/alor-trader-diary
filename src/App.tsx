@@ -1,42 +1,33 @@
 // import logo from './logo.svg';
 import './App.css';
-import {
-    Layout,
-    Menu,
-    MenuProps,
-    Select,
-} from 'antd';
+import {Layout, Menu, MenuProps,} from 'antd';
 import {Content, Footer, Header} from 'antd/es/layout/layout';
 import React, {ReactNode, useEffect, useMemo, useState} from 'react';
 // import QuestionCircleIcon  from './assets/question-circle';
 import moment from 'moment';
-import {
-    Navigate,
-    Route,
-    Routes,
-    useLocation,
-    useNavigate,
-    useSearchParams,
-} from 'react-router-dom';
+import {Navigate, Route, Routes, useLocation, useNavigate, useSearchParams,} from 'react-router-dom';
 import {useApi} from './useApi';
 import {Exchange, Positions, Summary, Trade, Trades} from 'alor-api';
 import {MenuItemType} from 'antd/es/menu/hooks/useItems';
 import Diary from './pages/Diary/Diary';
 import Analytics from './pages/Analytics/Analytics';
 import {DefaultOptionType} from 'antd/es/select';
-import OrderbookWidget from './pages/Orderbook/OrderbookWidget';
 import {
     getAgreementNumber,
-    getCommissionByPlanAndTotalVolume, getCurrentTariffPlan,
+    getCommissionByPlanAndTotalVolume,
+    getCurrentTariffPlan,
     positionsToTrades,
     tradesToHistoryPositions
 } from './utils';
 import {
-    EquityDynamicsResponse, GetOperationsResponse,
-    MoneyMove, Status,
+    EquityDynamicsResponse,
+    GetOperationsResponse,
+    MoneyMove,
+    Status,
     UserInfoResponse
 } from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 import useListSecs from "./useListSecs";
+import LoginPage from "./pages/LoginPage";
 
 export const avg = (numbers: number[]) =>
     !numbers.length ? 0 : summ(numbers) / numbers.length;
@@ -101,7 +92,7 @@ function App() {
     const [visibilitychange, setVisibilitychange] = useState<boolean>(true);
 
     useEffect(() => {
-        document.addEventListener("visibilitychange", function() {
+        document.addEventListener("visibilitychange", function () {
             setVisibilitychange(!document.hidden);
         });
     }, [])
@@ -129,7 +120,7 @@ function App() {
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'system');
 
     useEffect(() => {
-        if((theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches) || theme === 'dark'){
+        if ((theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches) || theme === 'dark') {
             document.body.className = 'dark-theme';
         } else {
             document.body.removeAttribute('class');
@@ -138,11 +129,15 @@ function App() {
 
     const calculateCommission = (plan: string, totalVolume: number) => {
 
-        switch (settings.commissionType){
-            case 'tariff': return getCommissionByPlanAndTotalVolume(plan, totalVolume);
-            case 'taker': return getCommissionByPlanAndTotalVolume(plan, totalVolume, true);
-            case undefined: return getCommissionByPlanAndTotalVolume(plan, totalVolume);
-            default: return Number(settings.commissionType) || 0;
+        switch (settings.commissionType) {
+            case 'tariff':
+                return getCommissionByPlanAndTotalVolume(plan, totalVolume);
+            case 'taker':
+                return getCommissionByPlanAndTotalVolume(plan, totalVolume, true);
+            case undefined:
+                return getCommissionByPlanAndTotalVolume(plan, totalVolume);
+            default:
+                return Number(settings.commissionType) || 0;
         }
     }
 
@@ -184,7 +179,7 @@ function App() {
 
             const dayVolumes = trades.reduce((acc, curr) => {
                 const day = moment(curr.date).format('YYYY-MM-DD');
-                if(!acc[day]){
+                if (!acc[day]) {
                     acc[day] = 0;
                 }
                 // @ts-ignore
@@ -211,6 +206,17 @@ function App() {
         commissionType: string;
     }>(JSON.parse(localStorage.getItem('settings') || '{}'));
     const api = useApi(settings.token);
+
+    useEffect(() => {
+        // Если токена нет - редирект на логин
+        if (!settings.token) {
+            navigate('/login');
+        } else
+            // Если портфолио нет - редирект на страницу выбора логина
+        if (!settings.portfolio) {
+
+        }
+    }, []);
 
     const startedTrades = useMemo(
         () => positionsToTrades(positions),
@@ -281,7 +287,7 @@ function App() {
     const getUserInfo = () => api.clientInfo.getUserInfo()
         .then(userInfo => {
             setUserInfo(userInfo)
-        return userInfo;
+            return userInfo;
         })
 
     const [operations, setOperations] = useState<GetOperationsResponse[]>([]);
@@ -308,14 +314,22 @@ function App() {
         endDate: dateTo,
         portfolio: settings.portfolio?.replace('D', '')
     }).then(results => {
-        if(!results){
-            setEquityDynamics({portfolioValues: [{date: moment().format('YYYY-MM-DD'), value: summary.portfolioLiquidationValue } as any]} as any);
+        if (!results) {
+            setEquityDynamics({
+                portfolioValues: [{
+                    date: moment().format('YYYY-MM-DD'),
+                    value: summary.portfolioLiquidationValue
+                } as any]
+            } as any);
             return results;
         }
         const lastValue = results.portfolioValues.slice(-1)[0];
         // Если последнее значение есть и оно не сегодняшний день и мы запросили за текущий день тоже
-        if(lastValue && moment(lastValue.date).isBefore(moment()) && moment(dateTo).isAfter(moment())){
-            results.portfolioValues.push({date: moment().format('YYYY-MM-DD'), value: summary.portfolioLiquidationValue } as any)
+        if (lastValue && moment(lastValue.date).isBefore(moment()) && moment(dateTo).isAfter(moment())) {
+            results.portfolioValues.push({
+                date: moment().format('YYYY-MM-DD'),
+                value: summary.portfolioLiquidationValue
+            } as any)
         }
 
         setEquityDynamics(results);
@@ -356,7 +370,7 @@ function App() {
         }).then(setTrades)
             .then(() => getMoneyMoves(getAgreementNumber(userInfo))))
 
-                .finally(() => setIsLoading(false));
+            .finally(() => setIsLoading(false));
     }, [api, dateFrom, summary, visibilitychange]);
 
     useEffect(() => {
@@ -408,17 +422,23 @@ function App() {
         {
             key: 'diary',
             label: 'Дневник',
-            element: <Diary getIsinBySymbol={getIsinBySymbol} getListSectionBySymbol={getListSectionBySymbol} isMobile={width < 400 ? 1 : width < 1200 ? Math.round(width / 410) : 0} moneyMoves={moneyMoves || []} equityDynamics={equityDynamics}
-                            data={data} trades={trades} api={api} isLoading={isLoading} summary={summary} lastWithdrawals={lastWithdrawals} operations={operations}
+            element: <Diary getIsinBySymbol={getIsinBySymbol} getListSectionBySymbol={getListSectionBySymbol}
+                            isMobile={width < 400 ? 1 : width < 1200 ? Math.round(width / 410) : 0}
+                            moneyMoves={moneyMoves || []} equityDynamics={equityDynamics}
+                            data={data} trades={trades} api={api} isLoading={isLoading} summary={summary}
+                            lastWithdrawals={lastWithdrawals} operations={operations}
                             fullName={userInfo?.fullName}/>
         },
         {
             key: 'analytics',
             label: 'Аналитика',
-            element: <Analytics activeOperations={activeOperations} getIsinBySymbol={getIsinBySymbol} getListSectionBySymbol={getListSectionBySymbol} data={data} balanceSeriesData={equityDynamics?.portfolioValues.map(v => ({
-                time: moment(v.date).format('YYYY-MM-DD'),
-                value: v.value
-            })) || []} api={api} isLoading={isLoading} dateFrom={dateFrom} moneyMoves={moneyMoves || []}/>,
+            element: <Analytics activeOperations={activeOperations} getIsinBySymbol={getIsinBySymbol}
+                                getListSectionBySymbol={getListSectionBySymbol} data={data}
+                                balanceSeriesData={equityDynamics?.portfolioValues.map(v => ({
+                                    time: moment(v.date).format('YYYY-MM-DD'),
+                                    value: v.value
+                                })) || []} api={api} isLoading={isLoading} dateFrom={dateFrom}
+                                moneyMoves={moneyMoves || []}/>,
         }//,
         // {
         //     key: 'orderbook',
@@ -456,7 +476,7 @@ function App() {
 
     return (
         <Layout>
-            <Header style={{display: 'flex', alignItems: 'center'}}>
+            {userInfo && <Header style={{display: 'flex', alignItems: 'center'}}>
                 {/*<Typography.Title level={2} style={{width: 'auto'}}>Alor Trader Diary</Typography.Title>*/}
                 <div className="menu-content">
                     <Menu
@@ -466,9 +486,10 @@ function App() {
                         items={menuItems}
                         onSelect={onSelectMenu}
                     />
-                    <a className="header-support-link" href="https://t.me/+8KsjwdNHVzIwNDQy" target="_blank"> Поддержка</a>
+                    <a className="header-support-link" href="https://t.me/+8KsjwdNHVzIwNDQy"
+                       target="_blank"> Поддержка</a>
                 </div>
-            </Header>
+            </Header>}
             <Content className="site-layout" style={{minHeight: '100vh'}}>
                 <div className="body-content">
                     <Routes>
@@ -479,13 +500,14 @@ function App() {
                         {menuItems.map((item) => (
                             <Route path={`/${item.key}`} element={item.element}/>
                         ))}
+                        <Route path="/login" element={<LoginPage/>}/>
                         <Route path="*" element={<Navigate to="/"/>}/>
                     </Routes>
                 </div>
             </Content>
-            <Footer style={{textAlign: 'center'}}>
+            {userInfo && <Footer style={{textAlign: 'center'}}>
                 Alor Trader Diary ©2023 Created by Maksim Zakharov
-            </Footer>
+            </Footer>}
         </Layout>
     );
 }
