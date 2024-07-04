@@ -362,24 +362,31 @@ function App() {
     }, [api, settings.portfolio, visibilitychange])
 
     useEffect(() => {
-        if (!api || !summary || !visibilitychange) {
+        if (!api?.accessToken || !visibilitychange) {
             return;
         }
 
         setIsLoading(true);
 
+        getUserInfo();
+    }, [api?.accessToken, visibilitychange]);
+
+    useEffect(() => {
+        if (!api || !summary || !userInfo || !visibilitychange) {
+            return;
+        }
+
         setIsLoading(true);
-        getUserInfo().then(userInfo => loadTrades({
+
+loadTrades({
             tariffPlan: getCurrentTariffPlan(userInfo, 'FOND'),
             date,
             dateFrom,
         }).then(() => getEquityDynamics(dateFrom, dateTo, getAgreementNumber(userInfo)?.toString())
             .then(() => getOperations(userInfo))
             .then(() => getMoneyMoves(getAgreementNumber(userInfo))))
-        )
-
             .finally(() => setIsLoading(false));
-    }, [api, dateFrom, summary, visibilitychange]);
+    }, [api, dateFrom, summary, userInfo, visibilitychange]);
 
     useEffect(() => {
         if (!api) {

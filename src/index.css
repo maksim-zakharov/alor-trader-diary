@@ -30,6 +30,10 @@
     --scrollbars-thumb-opacity: 0.2;
     --scrollbars-thumb-hover-opacity: 0.32;
     --scrollbars-thumb-active-opacity: 0.56;
+
+    --pro-white: 255,255,255;
+    --pro-disabled-opacity: 0.56;
+    --pro-button-intent-color: var(--pro-white);
 }
 
 .custom-icon {
@@ -1211,6 +1215,16 @@ a, .link-color {
     .ant-row + .ant-row {
         margin-top: 16px;
     }
+}
+
+.ant-btn-primary:disabled{
+    background-color: rgba(var(--pro-button-primary-bg),1);
+    background-image: none;
+    border-color: transparent;
+    box-shadow: none;
+    cursor: not-allowed;
+    opacity: var(--pro-disabled-opacity);
+    color: rgba(var(--pro-button-intent-color),1);
 }
 
 .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled), .ant-radio-button-wrapper {

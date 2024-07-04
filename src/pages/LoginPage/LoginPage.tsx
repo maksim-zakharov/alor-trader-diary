@@ -13,6 +13,8 @@ const LoginPage = () => {
     const [userInfo, setUserInfo] = React.useState<UserInfoResponse>(null);
     const [error, setError] = useState();
 
+    const [loading, setLoading]  = useState(false);
+
     const [settings, setSettings] = useState<{
         token: string;
         portfolio: string;
@@ -45,8 +47,11 @@ const LoginPage = () => {
 
             await api.refresh();
 
+            setLoading(true);
 
             await api.clientInfo.getUserInfo().then(setUserInfo);
+
+            setLoading(false);
 
             setError(undefined);
 
@@ -80,7 +85,7 @@ const LoginPage = () => {
                 <FormItem validateStatus={error ? 'error' : undefined} help={error} label="Alor Token">
                     <Input placeholder="Введите Alor Token" onChange={e => setToken(e.target.value)}/>
                 </FormItem>
-                <Button onClick={checkToken} type="primary" htmlType="submit">Продолжить</Button>
+                <Button onClick={checkToken} type="primary" htmlType="submit" disabled={!token} loading={loading}>Продолжить</Button>
             </Form>}
             {settings.token && <Form className="container" layout="vertical" onSubmitCapture={login}>
                 <FormItem validateStatus={error ? 'error' : undefined} extra={error} label="Alor Portfolio">
@@ -92,7 +97,7 @@ const LoginPage = () => {
                             value: p.accountNumber
                         })) || []}/>
                 </FormItem>
-                <Button onClick={login} type="primary" htmlType="submit">Войти</Button>
+                <Button onClick={login} type="primary" htmlType="submit" disabled={!settings.portfolio}>Войти</Button>
                 <Button type="link" onClick={clearToken}>Ввести другой alor token</Button>
             </Form>}
         </Card>
