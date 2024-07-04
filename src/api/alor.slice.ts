@@ -1,14 +1,16 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {AlorApi, Endpoint, WssEndpoint, WssEndpointBeta} from "alor-api";
+import {alorApi} from "./alor.api";
 
 const initialState = {
     api: undefined,
+    agreementsMap: {},
     settings: JSON.parse(localStorage.getItem('settings') || '{}')
 } as {api: undefined | AlorApi, settings: {
         token: string;
         portfolio: string;
         commissionType: string;
-    }};
+    }, agreementsMap: any};
 
 export const alorSlice = createSlice({
     name: 'alorSlice',
@@ -23,12 +25,14 @@ export const alorSlice = createSlice({
             });
         }
     },
-    // extraReducers: (builder) => {
-    //     builder.addMatcher(goApi.endpoints.getAdGroup.matchPending, _resetAdGroupError);
-    //     builder.addMatcher(goApi.endpoints.editAdGroup.matchPending, _resetAdGroupError);
-    //     builder.addMatcher(goApi.endpoints.getCampaign.matchFulfilled, _resetEditCampaignError);
-    //     builder.addMatcher(goApi.endpoints.editCampaign.matchPending, _resetEditCampaignError);
-    // },
+    extraReducers: (builder) => {
+        // builder.addMatcher(goApi.endpoints.getAdGroup.matchPending, _resetAdGroupError);
+        // builder.addMatcher(goApi.endpoints.editAdGroup.matchPending, _resetAdGroupError);
+        builder.addMatcher(alorApi.endpoints.getUserInfo.matchFulfilled, (state, { payload }) => {
+            state.agreementsMap = payload?.agreements?.reduce((acc, curr) => ({...acc, [curr.agreementNumber]: curr}), {}) || {};
+        });
+        // builder.addMatcher(goApi.endpoints.editCampaign.matchPending, _resetEditCampaignError);
+    },
 });
 
 export const { initApi } = alorSlice.actions;

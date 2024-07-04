@@ -67,6 +67,7 @@ import {humanize, numberToPercent} from "../../utils";
 import NoResult from "../../common/NoResult";
 import * as humanizeDuration from 'humanize-duration';
 import TickerImg from "../../common/TickerImg";
+import {useAppSelector} from "../../store";
 
 interface DataType {
     key: string;
@@ -163,6 +164,7 @@ const Diary: FC<IProps> = ({
                                userInfo,
                                equityDynamics
                            }) => {
+    const agreementsMap = useAppSelector(state => state.alorSlice.agreementsMap);
     const [settings, setSettings] = useState<{
         token: string;
         portfolio: string;
@@ -172,6 +174,7 @@ const Diary: FC<IProps> = ({
         bankName: string;
         amount: string;
         bic: string;
+        agreement: string;
     }>(JSON.parse(localStorage.getItem('settings') || '{ "summaryType": "brokerSummary"}'));
 
     const moneyMovesCommission = useMemo(() => summ(moneyMoves.filter(m => m.title === "Комиссия брокера").map(m => m.sum)), [moneyMoves]);
@@ -1110,18 +1113,24 @@ const Diary: FC<IProps> = ({
                     <FormItem label="Alor Token">
                         <Input placeholder="Token" {...settingsInputProps('token')} />
                     </FormItem>
+                    <FormItem label="Договор">
+                        <Select value={settings.agreement}
+                                {...settingsInputProps('agreement')}
+
+                                placeholder="Выберите договор"
+                                options={userInfo?.agreements?.map(p => ({
+                                    label: p.cid,
+                                    value: p.agreementNumber
+                                })) || []}/>
+                    </FormItem>
                     <FormItem label="Alor Portfolio">
-                        <Select
-                            {...settingsInputProps('portfolio')}
+                        <Select value={settings.portfolio}
+                                {...settingsInputProps('portfolio')}
                                 placeholder="Выберите портфель"
-                                options={userInfo?.agreements?.[0]?.portfolios?.map(p => ({
+                                options={agreementsMap[settings.agreement]?.portfolios?.map(p => ({
                                     label: `${p.accountNumber} (${p.service})`,
                                     value: p.accountNumber
                                 })) || []}/>
-                        {/*<Input*/}
-                        {/*    placeholder="Portfolio"*/}
-                        {/*    {...settingsInputProps('portfolio')}*/}
-                        {/*/>*/}
                     </FormItem>
                     <FormItem label="Расчет комиссии">
                         <Select
