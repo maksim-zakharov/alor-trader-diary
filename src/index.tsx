@@ -12,6 +12,8 @@ import {ConfigProvider} from "antd";
 import dayjs from "dayjs";
 import "dayjs/locale/ru";
 import updateLocale from "dayjs/plugin/updateLocale";
+import {Provider} from 'react-redux';
+import {store} from "./store";
 
 dayjs.extend(updateLocale);
 dayjs.updateLocale("zh-cn", {
@@ -23,11 +25,13 @@ moment().locale('ru');
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 root.render(
   <React.StrictMode>
+      <Provider store={store}>
       <ConfigProvider locale={ru_RU}>
     <HashRouter>
       <App />
     </HashRouter>
       </ConfigProvider>
+      </Provider>
   </React.StrictMode>,
 );
 

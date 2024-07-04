@@ -28,6 +28,10 @@ import {
     UserInfoResponse
 } from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 import useListSecs from "./useListSecs";
+import {initApi} from "./api/alor.slice";
+import {useDispatch} from "react-redux";
+import {useAppDispatch} from "./store";
+import {useGetUserInfoQuery} from "./api/alor.api";
 
 export const avg = (numbers: number[]) =>
     !numbers.length ? 0 : summ(numbers) / numbers.length;
@@ -80,6 +84,7 @@ function useWindowDimensions() {
 }
 
 function App() {
+    const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const location = useLocation();
     const [settings, setSettings] = useState<{
@@ -212,6 +217,10 @@ function App() {
         setTrades(trades.filter(t => moment(t.date).isBefore(moment(dateTo))));
     };
 
+    useEffect(() => {
+        dispatch(initApi({token: settings.token}))
+    }, [settings.token])
+
     const api = useApi(settings.token);
 
     useEffect(() => {
@@ -287,15 +296,17 @@ function App() {
         return data;
     }, [historyPositions]);
 
-    const [userInfo, setUserInfo] = useState<UserInfoResponse | undefined>(undefined);
+    const {data: userInfo} = useGetUserInfoQuery();
+
+    // const [userInfo, setUserInfo] = useState<UserInfoResponse | undefined>(undefined);
     const [equityDynamics, setEquityDynamics] = useState<EquityDynamicsResponse>()
     const [moneyMoves, setMonetMoves] = useState<MoneyMove[]>([]);
 
-    const getUserInfo = () => api.clientInfo.getUserInfo()
-        .then(userInfo => {
-            setUserInfo(userInfo)
-            return userInfo;
-        })
+    // const getUserInfo = () => api.clientInfo.getUserInfo()
+    //     .then(userInfo => {
+    //         setUserInfo(userInfo)
+    //         return userInfo;
+    //     })
 
     const [operations, setOperations] = useState<GetOperationsResponse[]>([]);
 
@@ -368,7 +379,7 @@ function App() {
 
         setIsLoading(true);
 
-        getUserInfo();
+        // getUserInfo();
     }, [api?.accessToken, visibilitychange]);
 
     useEffect(() => {
