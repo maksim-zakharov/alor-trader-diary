@@ -6,11 +6,15 @@ import {UserInfoResponse} from "alor-api/dist/services/ClientInfoService/ClientI
 import './LoginPage.css';
 import {useNavigate} from "react-router-dom";
 import FormItem from "antd/es/form/FormItem";
+import {useGetUserInfoQuery} from "../../api/alor.api";
+import {initApi} from "../../api/alor.slice";
+import {useAppDispatch} from "../../store";
 
 const LoginPage = () => {
+    const dispatch = useAppDispatch();
     const navigate = useNavigate();
+    const {data: userInfo, refetch} = useGetUserInfoQuery();
     const [token, setToken] = React.useState<string | null>(null);
-    const [userInfo, setUserInfo] = React.useState<UserInfoResponse>(null);
     const [error, setError] = useState();
 
     const [loading, setLoading]  = useState(false);
@@ -20,36 +24,14 @@ const LoginPage = () => {
         portfolio: string;
         commissionType: string;
     }>(JSON.parse(localStorage.getItem('settings') || '{}'));
-    const api = useApi(settings.token);
-
-    useEffect(() => {
-        (async function () {
-            if (api) {
-                try {
-                    await api.refresh();
-
-                    setUserInfo(await api.clientInfo.getUserInfo());
-                } catch (e) {
-                    clearToken();
-                }
-            }
-        })();
-    }, [settings.token, api]);
 
     const checkToken = async () => {
         try {
-            const api = new AlorApi({
-                token,
-                endpoint: Endpoint.PROD,
-                wssEndpoint: WssEndpoint.PROD,
-                wssEndpointBeta: WssEndpointBeta.PROD,
-            })
-
-            await api.refresh();
+            dispatch(initApi({token}))
 
             setLoading(true);
 
-            await api.clientInfo.getUserInfo().then(setUserInfo);
+            refetch();
 
             setLoading(false);
 
@@ -76,7 +58,6 @@ const LoginPage = () => {
 
     const login = () => {
         navigate('/')
-        window.location.reload();
     }
 
     return <div className="LoginPage">

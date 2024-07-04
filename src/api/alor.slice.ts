@@ -3,13 +3,18 @@ import {AlorApi, Endpoint, WssEndpoint, WssEndpointBeta} from "alor-api";
 
 const initialState = {
     api: undefined,
-} as {api: undefined | AlorApi};
+    settings: JSON.parse(localStorage.getItem('settings') || '{}')
+} as {api: undefined | AlorApi, settings: {
+        token: string;
+        portfolio: string;
+        commissionType: string;
+    }};
 
 export const alorSlice = createSlice({
-    name: 'alor.slice',
+    name: 'alorSlice',
     initialState,
     reducers: {
-        initApi: (state, action: PayloadAction<{ token: string}>) => {
+        initApi(state, action: PayloadAction<{ token: string}>) {
             state.api = new AlorApi({
                 token: action.payload.token,
                 endpoint: Endpoint.PROD,

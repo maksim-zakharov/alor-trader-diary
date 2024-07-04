@@ -1186,7 +1186,7 @@ const Diary: FC<IProps> = ({
                     expandable={{
                         expandedRowRender,
                         defaultExpandedRowKeys: ['0'],
-                        rowExpandable: (row) => row.type !== 'summary',
+                        rowExpandable: (row: any) => row.type !== 'summary',
                     }}
                 />
             </>}

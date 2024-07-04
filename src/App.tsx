@@ -8,7 +8,6 @@ import moment from 'moment';
 import {Navigate, Route, Routes, useLocation, useNavigate, useSearchParams,} from 'react-router-dom';
 import {useApi} from './useApi';
 import {Exchange, Positions, Summary, Trade, Trades} from 'alor-api';
-import {MenuItemType} from 'antd/es/menu/hooks/useItems';
 import Diary from './pages/Diary/Diary';
 import Analytics from './pages/Analytics/Analytics';
 import LoginPage from "./pages/LoginPage/LoginPage";
@@ -29,9 +28,10 @@ import {
 } from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 import useListSecs from "./useListSecs";
 import {initApi} from "./api/alor.slice";
-import {useDispatch} from "react-redux";
-import {useAppDispatch} from "./store";
-import {useGetUserInfoQuery} from "./api/alor.api";
+import {useAppDispatch, useAppSelector} from "./store";
+import {useSelector} from "react-redux";
+import {MenuItemType} from "antd/es/menu/interface";
+import {useGetSummaryQuery, useGetUserInfoQuery} from './api/alor.api';
 
 export const avg = (numbers: number[]) =>
     !numbers.length ? 0 : summ(numbers) / numbers.length;
@@ -84,14 +84,15 @@ function useWindowDimensions() {
 }
 
 function App() {
+    const api = useAppSelector(state => state['alorSlice'].api);
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const location = useLocation();
-    const [settings, setSettings] = useState<{
-        token: string;
-        portfolio: string;
-        commissionType: string;
-    }>(JSON.parse(localStorage.getItem('settings') || '{}'));
+    const settings = useAppSelector(state => state.alorSlice.settings);
+
+    useEffect(() => {
+        dispatch(initApi({token: settings.token}))
+    }, [settings.token])
 
     useEffect(() => {
         if (settings.token && location.pathname.endsWith('/login')) {
@@ -116,7 +117,19 @@ function App() {
         });
     }, [])
 
-    const [summary, setSummary] = useState<Summary | undefined>(undefined);
+    const {data: userInfo, refetch: refreshUserInfo} = useGetUserInfoQuery();
+
+    const {data: summary, refetch: refreshSummary} = useGetSummaryQuery({portfolio: settings.portfolio});
+
+    useEffect(()  =>  {
+        if(userInfo && settings.portfolio && api)
+        refreshSummary();
+    }, [settings.portfolio, userInfo, api]);
+
+    useEffect(()  =>  {
+        if(settings.portfolio && api)
+            refreshUserInfo();
+    }, [settings.portfolio, api]);
 
     const [positions, setPositions] = useState<Positions>([]);
     const [trades, setTrades] = useState<Trades>([]);
@@ -218,12 +231,6 @@ function App() {
     };
 
     useEffect(() => {
-        dispatch(initApi({token: settings.token}))
-    }, [settings.token])
-
-    const api = useApi(settings.token);
-
-    useEffect(() => {
         // Если токена нет - редирект на логин
         if (!settings.token) {
             navigate('/login');
@@ -296,17 +303,8 @@ function App() {
         return data;
     }, [historyPositions]);
 
-    const {data: userInfo} = useGetUserInfoQuery();
-
-    // const [userInfo, setUserInfo] = useState<UserInfoResponse | undefined>(undefined);
     const [equityDynamics, setEquityDynamics] = useState<EquityDynamicsResponse>()
     const [moneyMoves, setMonetMoves] = useState<MoneyMove[]>([]);
-
-    // const getUserInfo = () => api.clientInfo.getUserInfo()
-    //     .then(userInfo => {
-    //         setUserInfo(userInfo)
-    //         return userInfo;
-    //     })
 
     const [operations, setOperations] = useState<GetOperationsResponse[]>([]);
 
@@ -356,32 +354,6 @@ function App() {
         return results;
     })
 
-    const getSummary = async () => {
-        const summary = await api.clientInfo.getSummary({
-            exchange: Exchange.MOEX,
-            portfolio: settings.portfolio,
-            format: 'Simple'
-        })
-
-        setSummary(summary)
-    }
-
-    useEffect(() => {
-        if (api && settings.portfolio && visibilitychange) {
-            getSummary();
-        }
-    }, [api, settings.portfolio, visibilitychange])
-
-    useEffect(() => {
-        if (!api?.accessToken || !visibilitychange) {
-            return;
-        }
-
-        setIsLoading(true);
-
-        // getUserInfo();
-    }, [api?.accessToken, visibilitychange]);
-
     useEffect(() => {
         if (!api || !summary || !userInfo || !visibilitychange) {
             return;
@@ -398,43 +370,6 @@ loadTrades({
             .then(() => getMoneyMoves(getAgreementNumber(userInfo))))
             .finally(() => setIsLoading(false));
     }, [api, dateFrom, summary, userInfo, visibilitychange]);
-
-    useEffect(() => {
-        if (!api) {
-            return;
-        }
-
-        // без вебсокетов
-        // api.onAuthCallback = () => {
-        //     api.subscriptions.positions(
-        //         {
-        //             portfolio: settings.portfolio,
-        //             exchange: Exchange.MOEX,
-        //         },
-        //         (positions) =>
-        //             setPositions((prevState) =>
-        //                 prevState.map((p) =>
-        //                     p.symbol === positions.symbol ? positions : p,
-        //                 ),
-        //             ),
-        //     );
-        //
-        //     api.subscriptions.trades(
-        //         {
-        //             portfolio: settings.portfolio,
-        //             exchange: Exchange.MOEX,
-        //         },
-        //         (trades) =>
-        //             setTrades((prevState) =>
-        //                 prevState.map((p) => (p.id === trades.id ? trades : p)),
-        //             ),
-        //     );
-        // };
-
-        if (!api.accessToken) {
-            api.refresh();
-        }
-    }, [api, historyPositions]);
 
     useEffect(() => {
         localStorage.setItem('symbols', JSON.stringify(symbols));
