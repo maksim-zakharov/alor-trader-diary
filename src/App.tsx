@@ -31,7 +31,7 @@ import {initApi} from "./api/alor.slice";
 import {useAppDispatch, useAppSelector} from "./store";
 import {useSelector} from "react-redux";
 import {MenuItemType} from "antd/es/menu/interface";
-import {useGetSummaryQuery, useGetUserInfoQuery} from './api/alor.api';
+import {useGetOperationsQuery, useGetSummaryQuery, useGetUserInfoQuery} from './api/alor.api';
 
 export const avg = (numbers: number[]) =>
     !numbers.length ? 0 : summ(numbers) / numbers.length;
@@ -218,8 +218,6 @@ function App() {
                 return acc;
             }, {});
 
-            console.log('tariffPlan', tariffPlan);
-
             trades = trades.map((t) => ({
                 ...t,
                 // @ts-ignore
@@ -306,16 +304,12 @@ function App() {
     const [equityDynamics, setEquityDynamics] = useState<EquityDynamicsResponse>()
     const [moneyMoves, setMonetMoves] = useState<MoneyMove[]>([]);
 
-    const [operations, setOperations] = useState<GetOperationsResponse[]>([]);
+    const {data: operations = []} = useGetOperationsQuery({agreementNumber: userInfo?.agreements[0]?.agreementNumber}, {skip: !userInfo});
 
     const activeOperations = useMemo(() => operations.filter(o => ![Status.Overdue, Status.Refused].includes(o.status)), [operations]);
 
-    const getOperations = (userInfo) => api.clientInfo.getOperations(Number(userInfo?.agreements[0]?.agreementNumber), {
-// limit: 10
-    })
-        .then((ops: any) => setOperations(ops))
-
-    const lastWithdrawals = useMemo(() => Array.from(new Set(activeOperations.map(o => o.data.amount))).sort((a, b) => b - a).slice(0, 5).filter(a => a), [activeOperations]);
+    // @ts-ignore
+    const lastWithdrawals: number[] = useMemo(() => Array.from(new Set(activeOperations.map(o => o.data.amount))).sort((a, b) => b - a).slice(0, 5).filter(a => a), [activeOperations]);
 
     const getMoneyMoves = (agreementNumber: number) => api.clientInfo.getMoneyMoves(agreementNumber, {
         dateFrom,
@@ -366,7 +360,6 @@ loadTrades({
             date,
             dateFrom,
         }).then(() => getEquityDynamics(dateFrom, dateTo, getAgreementNumber(userInfo)?.toString())
-            .then(() => getOperations(userInfo))
             .then(() => getMoneyMoves(getAgreementNumber(userInfo))))
             .finally(() => setIsLoading(false));
     }, [api, dateFrom, summary, userInfo, visibilitychange]);

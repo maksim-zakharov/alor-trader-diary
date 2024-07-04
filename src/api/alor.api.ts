@@ -8,7 +8,8 @@ const recurcive = (selector: (api: AlorApi) => any, params?: any) => async (arg,
         if(!api){
             return {} as any;
         }
-        const data = await selector(api).call(api, params?.(arg));
+        const newParams = params?.(arg);
+        const data = await selector(api).call(api, newParams);
         return { data }
     } catch (error: any) {
         if(error.message === 'Необходимо авторизоваться'){
@@ -36,6 +37,9 @@ export const alorApi = createApi({
         getUserInfo: builder.query<UserInfoResponse, void>({
             queryFn: recurcive(api => api.clientInfo.getUserInfo),
         }),
+        getOperations: builder.query<any, {agreementNumber: string}>({
+            queryFn: recurcive(api => api.clientInfo.getOperations, ({agreementNumber}) => Number(agreementNumber)),
+        }),
         getSummary: builder.query<any, {portfolio: string}>({
             queryFn: recurcive((api) => api.clientInfo.getSummary, params => ({
                 exchange: Exchange.MOEX,
@@ -46,4 +50,4 @@ export const alorApi = createApi({
     })
 })
 
-export const {useGetUserInfoQuery, useGetSummaryQuery} = alorApi;
+export const {useGetUserInfoQuery, useGetOperationsQuery, useGetSummaryQuery} = alorApi;
