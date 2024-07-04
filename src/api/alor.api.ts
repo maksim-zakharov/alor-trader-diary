@@ -1,8 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import queryString from 'query-string';
 import {UserInfoResponse} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 import {AlorApi, Exchange} from "alor-api";
-import {QueryReturnValue} from "@reduxjs/toolkit/dist/query/baseQueryTypes";
 
 const recurcive = (selector: (api: AlorApi) => any, params?: any) => async (arg, _api) => {
     const api = _api.getState()['alorSlice'].api as AlorApi;
@@ -10,7 +8,7 @@ const recurcive = (selector: (api: AlorApi) => any, params?: any) => async (arg,
         if(!api){
             return {} as any;
         }
-        const data = await selector(api).call(api, {...params, ...arg});
+        const data = await selector(api).call(api, params?.(arg));
         return { data }
     } catch (error: any) {
         if(error.message === 'Необходимо авторизоваться'){

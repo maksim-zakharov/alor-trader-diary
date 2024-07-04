@@ -90,6 +90,8 @@ function App() {
     const location = useLocation();
     const settings = useAppSelector(state => state.alorSlice.settings);
 
+    const {data: summary, refetch: refreshSummary} = useGetSummaryQuery({portfolio: settings.portfolio});
+
     useEffect(() => {
         dispatch(initApi({token: settings.token}))
     }, [settings.token])
@@ -118,8 +120,6 @@ function App() {
     }, [])
 
     const {data: userInfo, refetch: refreshUserInfo} = useGetUserInfoQuery();
-
-    const {data: summary, refetch: refreshSummary} = useGetSummaryQuery({portfolio: settings.portfolio});
 
     useEffect(()  =>  {
         if(userInfo && settings.portfolio && api)
@@ -387,7 +387,7 @@ loadTrades({
                             userInfo={userInfo}
                             isMobile={width < 400 ? 1 : width < 1200 ? Math.round(width / 410) : 0}
                             moneyMoves={moneyMoves || []} equityDynamics={equityDynamics}
-                            data={data} trades={trades} api={api} isLoading={isLoading} summary={summary}
+                            data={data} trades={trades} api={api} isLoading={isLoading}
                             lastWithdrawals={lastWithdrawals} operations={operations}
                             fullName={userInfo?.fullName}/>
         },

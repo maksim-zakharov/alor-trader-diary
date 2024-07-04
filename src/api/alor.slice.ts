@@ -10,6 +10,7 @@ const initialState = {
         token: string;
         portfolio: string;
         commissionType: string;
+        agreement: string;
     }, agreementsMap: any};
 
 export const alorSlice = createSlice({
@@ -23,7 +24,10 @@ export const alorSlice = createSlice({
                 wssEndpoint: WssEndpoint.PROD,
                 wssEndpointBeta: WssEndpointBeta.PROD,
             });
-        }
+        },
+        setSettings(state, action: PayloadAction<any>) {
+            state.settings = {...state.settings, ...action.payload};
+        },
     },
     extraReducers: (builder) => {
         // builder.addMatcher(goApi.endpoints.getAdGroup.matchPending, _resetAdGroupError);
@@ -35,4 +39,4 @@ export const alorSlice = createSlice({
     },
 });
 
-export const { initApi } = alorSlice.actions;
+export const { initApi, setSettings } = alorSlice.actions;

@@ -68,6 +68,8 @@ import NoResult from "../../common/NoResult";
 import * as humanizeDuration from 'humanize-duration';
 import TickerImg from "../../common/TickerImg";
 import {useAppSelector} from "../../store";
+import {useGetSummaryQuery} from "../../api/alor.api";
+import {setSettings} from "../../api/alor.slice";
 
 interface DataType {
     key: string;
@@ -106,7 +108,6 @@ interface IProps {
     trades?: any;
     api: AlorApi;
     isLoading: boolean;
-    summary: any;
     fullName?: string;
     isMobile: number
     equityDynamics?: EquityDynamicsResponse
@@ -154,7 +155,6 @@ const Diary: FC<IProps> = ({
                                trades,
                                api,
                                isLoading,
-                               summary,
                                getIsinBySymbol,
                                fullName,
                                moneyMoves,
@@ -164,18 +164,11 @@ const Diary: FC<IProps> = ({
                                userInfo,
                                equityDynamics
                            }) => {
+    const settings = useAppSelector(state => state.alorSlice.settings);
+
+    const {data: summary} = useGetSummaryQuery({portfolio: settings.portfolio});
+
     const agreementsMap = useAppSelector(state => state.alorSlice.agreementsMap);
-    const [settings, setSettings] = useState<{
-        token: string;
-        portfolio: string;
-        settlementAccount: string;
-        recipient: string;
-        loroAccount: string;
-        bankName: string;
-        amount: string;
-        bic: string;
-        agreement: string;
-    }>(JSON.parse(localStorage.getItem('settings') || '{ "summaryType": "brokerSummary"}'));
 
     const moneyMovesCommission = useMemo(() => summ(moneyMoves.filter(m => m.title === "Комиссия брокера").map(m => m.sum)), [moneyMoves]);
 
@@ -443,7 +436,7 @@ const Diary: FC<IProps> = ({
     const settingsInputProps = (field: string) => {
         const onChange = (e: any) => {
             const value = e.target ? e.target.value : e;
-            setSettings((prevState) => ({...prevState, [field]: value}));
+            setSettings(({ [field]: value}));
         };
 
         return {
@@ -1137,7 +1130,7 @@ const Diary: FC<IProps> = ({
                             style={{ width: '100%' }}
                             placeholder="Комиссия"
                             value={settingsInputProps('commissionType').value}
-                            onChange={val => setSettings((prevState) => ({...prevState, ['commissionType']: val}))}
+                            onChange={val => setSettings(({ ['commissionType']: val}))}
                             dropdownRender={(menu) => (
                                 <>
                                     {menu}
