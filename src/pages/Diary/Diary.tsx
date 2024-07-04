@@ -51,7 +51,7 @@ import {ColumnsType} from 'antd/es/table';
 import moment from 'moment/moment';
 import {selectOptions, summ} from '../../App';
 import {moneyFormat, shortNumberFormat} from '../../common/utils';
-import {AlorApi} from "alor-api";
+import {AlorApi, Exchange} from "alor-api";
 import * as days from "dayjs";
 import dayjs from "dayjs";
 import {useSearchParams} from "react-router-dom";
@@ -166,7 +166,11 @@ const Diary: FC<IProps> = ({
                            }) => {
     const settings = useAppSelector(state => state.alorSlice.settings);
 
-    const {data: summary} = useGetSummaryQuery({portfolio: settings.portfolio});
+    const {data: summary} = useGetSummaryQuery([{
+        exchange: Exchange.MOEX,
+        format: 'Simple',
+        portfolio: settings.portfolio
+    }]);
 
     const agreementsMap = useAppSelector(state => state.alorSlice.agreementsMap);
 

@@ -6,8 +6,7 @@ import React, {ReactNode, useEffect, useMemo, useState} from 'react';
 // import QuestionCircleIcon  from './assets/question-circle';
 import moment from 'moment';
 import {Navigate, Route, Routes, useLocation, useNavigate, useSearchParams,} from 'react-router-dom';
-import {useApi} from './useApi';
-import {Exchange, Positions, Summary, Trade, Trades} from 'alor-api';
+import {Exchange, Positions, Trade, Trades} from 'alor-api';
 import Diary from './pages/Diary/Diary';
 import Analytics from './pages/Analytics/Analytics';
 import LoginPage from "./pages/LoginPage/LoginPage";
@@ -19,19 +18,12 @@ import {
     positionsToTrades,
     tradesToHistoryPositions
 } from './utils';
-import {
-    EquityDynamicsResponse,
-    GetOperationsResponse,
-    MoneyMove,
-    Status,
-    UserInfoResponse
-} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
+import {EquityDynamicsResponse, Status} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 import useListSecs from "./useListSecs";
 import {initApi} from "./api/alor.slice";
 import {useAppDispatch, useAppSelector} from "./store";
-import {useSelector} from "react-redux";
 import {MenuItemType} from "antd/es/menu/interface";
-import {useGetOperationsQuery, useGetSummaryQuery, useGetUserInfoQuery} from './api/alor.api';
+import {useGetMoneyMovesQuery, useGetOperationsQuery, useGetSummaryQuery, useGetUserInfoQuery} from './api/alor.api';
 
 export const avg = (numbers: number[]) =>
     !numbers.length ? 0 : summ(numbers) / numbers.length;
@@ -90,7 +82,50 @@ function App() {
     const location = useLocation();
     const settings = useAppSelector(state => state.alorSlice.settings);
 
-    const {data: summary, refetch: refreshSummary} = useGetSummaryQuery({portfolio: settings.portfolio});
+    const [positions, setPositions] = useState<Positions>([]);
+    const [trades, setTrades] = useState<Trades>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const [searchParams, setSearchParams] = useSearchParams();
+    const currentMenuSelectedKey = location.pathname?.split('/')[1] || 'diary';
+    const date = searchParams.get('date');
+    let dateFrom = searchParams.get('dateFrom');
+    if (!dateFrom) {
+        dateFrom = moment().startOf('month').format('YYYY-MM-DD');
+    }
+    let dateTo = searchParams.get('dateTo');
+    if (!dateTo) {
+        dateTo = moment().endOf('month').add(1, 'day').format('YYYY-MM-DD');
+    }
+
+    // @ts-ignore
+    const {data: userInfo} = useGetUserInfoQuery({}, {
+        skip: !api
+    });
+
+    const {data: summary} = useGetSummaryQuery([{
+        exchange: Exchange.MOEX,
+        format: 'Simple',
+        portfolio: settings.portfolio
+    }], {
+        skip: !userInfo || !settings.portfolio,
+        refetchOnMountOrArgChange: true,
+    });
+
+    const {data: operations = []} = useGetOperationsQuery([userInfo?.agreements[0]?.agreementNumber], {
+        skip: !userInfo,
+        refetchOnMountOrArgChange: true
+    });
+
+    const {data: moneyMoves = []} = useGetMoneyMovesQuery([
+        getAgreementNumber(userInfo)
+        , {
+            dateFrom,
+            dateTo
+        }], {
+        skip: !userInfo,
+        refetchOnMountOrArgChange: true
+    })
 
     useEffect(() => {
         dispatch(initApi({token: settings.token}))
@@ -118,34 +153,6 @@ function App() {
             setVisibilitychange(!document.hidden);
         });
     }, [])
-
-    const {data: userInfo, refetch: refreshUserInfo} = useGetUserInfoQuery();
-
-    useEffect(()  =>  {
-        if(userInfo && settings.portfolio && api)
-        refreshSummary();
-    }, [settings.portfolio, userInfo, api]);
-
-    useEffect(()  =>  {
-        if(settings.portfolio && api)
-            refreshUserInfo();
-    }, [settings.portfolio, api]);
-
-    const [positions, setPositions] = useState<Positions>([]);
-    const [trades, setTrades] = useState<Trades>([]);
-    const [isLoading, setIsLoading] = useState(true);
-
-    const [searchParams, setSearchParams] = useSearchParams();
-    const currentMenuSelectedKey = location.pathname?.split('/')[1] || 'diary';
-    const date = searchParams.get('date');
-    let dateFrom = searchParams.get('dateFrom');
-    if (!dateFrom) {
-        dateFrom = moment().startOf('month').format('YYYY-MM-DD');
-    }
-    let dateTo = searchParams.get('dateTo');
-    if (!dateTo) {
-        dateTo = moment().endOf('month').add(1, 'day').format('YYYY-MM-DD');
-    }
 
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
 
@@ -302,22 +309,12 @@ function App() {
     }, [historyPositions]);
 
     const [equityDynamics, setEquityDynamics] = useState<EquityDynamicsResponse>()
-    const [moneyMoves, setMonetMoves] = useState<MoneyMove[]>([]);
-
-    const {data: operations = []} = useGetOperationsQuery({agreementNumber: userInfo?.agreements[0]?.agreementNumber}, {skip: !userInfo});
 
     const activeOperations = useMemo(() => operations.filter(o => ![Status.Overdue, Status.Refused].includes(o.status)), [operations]);
 
     // @ts-ignore
     const lastWithdrawals: number[] = useMemo(() => Array.from(new Set(activeOperations.map(o => o.data.amount))).sort((a, b) => b - a).slice(0, 5).filter(a => a), [activeOperations]);
 
-    const getMoneyMoves = (agreementNumber: number) => api.clientInfo.getMoneyMoves(agreementNumber, {
-        dateFrom,
-        dateTo
-    }).then(r => {
-        setMonetMoves(r)
-        return r;
-    })
 
     const getEquityDynamics = (dateFrom: string, dateTo: string, agreementNumber: string) => api.clientInfo.getEquityDynamics({
         startDate: moment(dateFrom).add(-1, 'day').format('YYYY-MM-DD'),
@@ -355,12 +352,12 @@ function App() {
 
         setIsLoading(true);
 
-loadTrades({
+        loadTrades({
             tariffPlan: getCurrentTariffPlan(userInfo, 'FOND'),
             date,
             dateFrom,
         }).then(() => getEquityDynamics(dateFrom, dateTo, getAgreementNumber(userInfo)?.toString())
-            .then(() => getMoneyMoves(getAgreementNumber(userInfo))))
+        )
             .finally(() => setIsLoading(false));
     }, [api, dateFrom, summary, userInfo, visibilitychange]);
 
