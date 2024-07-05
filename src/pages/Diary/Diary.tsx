@@ -186,12 +186,10 @@ const Diary: FC<IProps> = ({
         success: false
     })
 
-    const [showSettings, setShowSettings] = useState(false);
     const [reasons, setReasons] = useState<{ [id: string]: string }>(
         JSON.parse(localStorage.getItem('reasons') || '{}'),
     );
 
-    const [showOperationsModal, setShowOperationsModal] = useState(false);
     const [showPayModal, setShowPayModal] = useState(false);
 
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
@@ -530,6 +528,17 @@ const Diary: FC<IProps> = ({
     })
     const [searchParams, setSearchParams] = useSearchParams();
     let dateFrom = searchParams.get('dateFrom');
+    let showOperationsModal = searchParams.get('drawer') === 'operations';
+    let showSettings = searchParams.get('drawer') === 'settings';
+
+    const setShowOperationsModal = (drawerName: string) => (opened: boolean) => {
+        if(opened){
+            searchParams.set('drawer', drawerName);
+        } else {
+            searchParams.delete('drawer');
+        }
+        setSearchParams(searchParams);
+    }
 
     if (!dateFrom) {
         dateFrom = moment().startOf('month').format('YYYY-MM-DD');
@@ -816,7 +825,7 @@ const Diary: FC<IProps> = ({
                     type="text"
                     icon={<SettingOutlined/>}
                     className="vertical-button"
-                    onClick={(f) => setShowSettings(true)}
+                    onClick={(f) => setShowOperationsModal('settings')(true)}
                 />
             </Space>
         </div>
@@ -825,7 +834,7 @@ const Diary: FC<IProps> = ({
                 type="text"
                 icon={<SwapOutlined/>}
                 className="vertical-button"
-                onClick={(f) => setShowOperationsModal(true)}
+                onClick={(f) => setShowOperationsModal('operations')(true)}
             >Операции</Button>
 
             <Button
@@ -935,12 +944,12 @@ const Diary: FC<IProps> = ({
             <Button
                 type="text"
                 icon={<SettingOutlined/>}
-                onClick={(f) => setShowSettings(true)}
+                onClick={(f) => setShowOperationsModal('settings')(true)}
             />
             <Button
                 type="text"
                 icon={<SwapOutlined/>}
-                onClick={(f) => setShowOperationsModal(true)}
+                onClick={(f) => setShowOperationsModal('operations')(true)}
             >Операции</Button>
 
             <Button
@@ -1077,8 +1086,8 @@ const Diary: FC<IProps> = ({
                     ]}
                 />}
             </Modal>
-            <Modal title="Операции" open={showOperationsModal} footer={null}
-                   onCancel={() => setShowOperationsModal(false)} className="operation-modal">
+            <Drawer title="Операции" open={showOperationsModal} placement="right"
+                    onClose={() => setShowOperationsModal('operations')(false)} className="operation-modal">
                 {moneyOperations.map(getMaxLossTrade =>
                     <div className="ticker-info">
                         <div style={{display: 'flex'}}>
@@ -1096,11 +1105,11 @@ const Diary: FC<IProps> = ({
                             <div className="ticker_name_description">{getMaxLossTrade?.data?.accountFrom}</div>
                         </div>
                     </div>)}
-            </Modal>
+            </Drawer>
             <Drawer
                 title="Настройки"
                 placement="right"
-                onClose={() => setShowSettings(false)}
+                onClose={() => setShowOperationsModal('settings')(false)}
                 open={showSettings}
             >
                 <Form layout="vertical">
