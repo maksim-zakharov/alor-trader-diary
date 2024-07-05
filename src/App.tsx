@@ -332,10 +332,7 @@ function App() {
         return data;
     }, [historyPositions]);
 
-    const activeOperations = useMemo(() => operations.filter(o => ![Status.Overdue, Status.Refused].includes(o.status)), [operations]);
-
-    // @ts-ignore
-    const lastWithdrawals: number[] = useMemo(() => Array.from(new Set(activeOperations.map(o => o.data.amount))).sort((a, b) => b - a).slice(0, 5).filter(a => a), [activeOperations]);
+    const lastWithdrawals = useAppSelector(state => state.alorSlice.lastWithdrawals)
 
     const {data: _equityDynamics} = useGetEquityDynamicsQuery([{
         startDate: moment(dateFrom).add(-1, 'day').format('YYYY-MM-DD'),
@@ -414,7 +411,7 @@ function App() {
         {
             key: 'analytics',
             label: 'Аналитика',
-            element: <Analytics activeOperations={activeOperations} getIsinBySymbol={getIsinBySymbol}
+            element: <Analytics getIsinBySymbol={getIsinBySymbol}
                                 getListSectionBySymbol={getListSectionBySymbol} data={data}
                                 balanceSeriesData={equityDynamics?.portfolioValues.map(v => ({
                                     time: moment(v.date).format('YYYY-MM-DD'),

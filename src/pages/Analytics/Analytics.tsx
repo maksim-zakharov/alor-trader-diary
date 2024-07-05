@@ -18,6 +18,7 @@ import ProfitWeekdayWidget from "./widgets/ProfitWeekdayWidget";
 import LossWeekdayWidget from "./widgets/LossWeekdayWidget";
 import ProfitSectionWidget from "./widgets/ProfitSectionWidget";
 import LossSectionWidget from "./widgets/LossSectionWidget";
+import {useAppSelector} from "../../store";
 
 interface IProps {
     balanceSeriesData: any
@@ -28,13 +29,13 @@ interface IProps {
     moneyMoves: MoneyMove[];
     getListSectionBySymbol: any;
     getIsinBySymbol: any;
-    activeOperations: GetOperationsResponse[];
 }
 
-const Analytics: FC<IProps> = ({activeOperations, getIsinBySymbol, getListSectionBySymbol, data, api, dateFrom, isLoading, moneyMoves, balanceSeriesData}) => {
+const Analytics: FC<IProps> = ({getIsinBySymbol, getListSectionBySymbol, data, api, dateFrom, isLoading, moneyMoves, balanceSeriesData}) => {
     const [reasons, setReasons] = useState<{
         [id: string]: string
     }>(JSON.parse(localStorage.getItem('reasons') || '{}'));
+    const activeOperations = useAppSelector(state => state.alorSlice.activeOperations);
 
     const [nightMode] = useState(Boolean(localStorage.getItem('night') === 'true'));
 
