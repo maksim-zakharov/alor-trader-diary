@@ -509,9 +509,19 @@ code {
     border: none;
     font-size: 16px;
     font-weight: 400;
-    height: 32px;
+    /*height: 32px;*/
+    height: 40px;
     border-radius: 4px;
-    padding: 0 8px;
+    /*padding: 0 8px;*/
+    padding: 0 16px;
+}
+
+.ant-select-single{
+    height: 40px;
+}
+
+.ant-drawer-header-title{
+    flex-direction: row-reverse;
 }
 
 .dark-theme .ant-picker {
@@ -562,6 +572,7 @@ code {
 
 .ant-drawer .ant-drawer-close {
     color: rgba(var(--pro-icon-color), 1);
+    margin: 0;
 }
 
 .dark-theme .ant-modal-close-x {
@@ -579,7 +590,8 @@ code {
 }
 
 .ant-drawer .ant-drawer-header {
-    padding: 8px 12px;
+    /*padding: 8px 12px;*/
+    padding: 8px 16px;
 }
 
 .ant-btn-primary {
@@ -619,7 +631,8 @@ code {
 }
 
 .ant-drawer .ant-drawer-body {
-    padding: 8px 12px;
+    /*padding: 8px 12px;*/
+    padding: 8px 16px;
 }
 
 .ant-form-item {
@@ -1070,6 +1083,9 @@ a, .link-color {
         background-color: rgba(var(--pro-input-bg), 1);
         border-color: rgba(var(--pro-input-bg), 1);
         color: rgba(var(--pro-input-color), 1);
+
+    font-size: 16px;
+    padding: 0 16px;
 
         &::placeholder {
             color: rgba(var(--pro-icon-color), 1);
