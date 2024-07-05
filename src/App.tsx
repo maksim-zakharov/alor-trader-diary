@@ -23,7 +23,13 @@ import useListSecs from "./useListSecs";
 import {initApi} from "./api/alor.slice";
 import {useAppDispatch, useAppSelector} from "./store";
 import {MenuItemType} from "antd/es/menu/interface";
-import {useGetMoneyMovesQuery, useGetOperationsQuery, useGetSummaryQuery, useGetUserInfoQuery} from './api/alor.api';
+import {
+    useGetEquityDynamicsQuery,
+    useGetMoneyMovesQuery,
+    useGetOperationsQuery,
+    useGetSummaryQuery,
+    useGetUserInfoQuery
+} from './api/alor.api';
 
 export const avg = (numbers: number[]) =>
     !numbers.length ? 0 : summ(numbers) / numbers.length;
@@ -76,7 +82,7 @@ function useWindowDimensions() {
 }
 
 function App() {
-    const api = useAppSelector(state => state['alorSlice'].api);
+    const api = useAppSelector(state => state.alorSlice.api);
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const location = useLocation();
@@ -308,42 +314,49 @@ function App() {
         return data;
     }, [historyPositions]);
 
-    const [equityDynamics, setEquityDynamics] = useState<EquityDynamicsResponse>()
-
     const activeOperations = useMemo(() => operations.filter(o => ![Status.Overdue, Status.Refused].includes(o.status)), [operations]);
 
     // @ts-ignore
     const lastWithdrawals: number[] = useMemo(() => Array.from(new Set(activeOperations.map(o => o.data.amount))).sort((a, b) => b - a).slice(0, 5).filter(a => a), [activeOperations]);
 
-
-    const getEquityDynamics = (dateFrom: string, dateTo: string, agreementNumber: string) => api.clientInfo.getEquityDynamics({
+    const {data: _equityDynamics} = useGetEquityDynamicsQuery([{
         startDate: moment(dateFrom).add(-1, 'day').format('YYYY-MM-DD'),
         endDate: dateTo,
         portfolio: settings.portfolio,
-        agreementNumber
-    }).then(results => {
-        if (!results) {
-            setEquityDynamics({
+        agreementNumber: getAgreementNumber(userInfo)
+    }], {
+        skip: !userInfo || !settings.portfolio,
+        refetchOnMountOrArgChange: true
+    });
+
+    const equityDynamics = useMemo(() => {
+        if(!summary){
+            return {
+                portfolioValues: []
+            }
+        }
+        if (!_equityDynamics && summary) {
+            return {
                 portfolioValues: [{
                     date: moment().format('YYYY-MM-DD'),
                     value: summary.portfolioLiquidationValue
                 } as any]
-            } as any);
-            return results;
+            };
         }
-        const lastValue = results.portfolioValues.slice(-1)[0];
+
+        const result = JSON.parse(JSON.stringify(_equityDynamics));
+
+        const lastValue = result.portfolioValues.slice(-1)[0];
         // Если последнее значение есть и оно не сегодняшний день и мы запросили за текущий день тоже
         if (lastValue && moment(lastValue.date).isBefore(moment()) && moment(dateTo).isAfter(moment())) {
-            results.portfolioValues.push({
+            result.portfolioValues.push({
                 date: moment().format('YYYY-MM-DD'),
                 value: summary.portfolioLiquidationValue
             } as any)
         }
 
-        setEquityDynamics(results);
-
-        return results;
-    })
+        return result;
+    }, [_equityDynamics, summary]);
 
     useEffect(() => {
         if (!api || !summary || !userInfo || !visibilitychange) {
@@ -356,8 +369,7 @@ function App() {
             tariffPlan: getCurrentTariffPlan(userInfo, 'FOND'),
             date,
             dateFrom,
-        }).then(() => getEquityDynamics(dateFrom, dateTo, getAgreementNumber(userInfo)?.toString())
-        )
+        })
             .finally(() => setIsLoading(false));
     }, [api, dateFrom, summary, userInfo, visibilitychange]);
 

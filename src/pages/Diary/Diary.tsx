@@ -10,9 +10,9 @@ import {
     Form,
     Input,
     message,
-    Modal,
     Popconfirm,
-    Radio, Result,
+    Radio,
+    Result,
     Row,
     Select,
     SelectProps,
@@ -27,23 +27,23 @@ import {
     AppstoreOutlined,
     ArrowDownOutlined,
     ArrowUpOutlined,
+    ClockCircleOutlined,
     DeleteOutlined,
     EditOutlined,
-    MoonOutlined,
-    RetweetOutlined,
-    ClockCircleOutlined,
-    SettingOutlined,
-    EyeOutlined,
     EyeInvisibleOutlined,
+    EyeOutlined,
+    LogoutOutlined,
+    MoonOutlined,
     ReloadOutlined,
+    RetweetOutlined,
+    SettingOutlined,
     SunOutlined,
     SwapOutlined,
-    LogoutOutlined,
     TableOutlined
 } from '@ant-design/icons';
 
-import MoneyInputIcon  from '../../assets/money-input';
-import MoneyOutputIcon  from '../../assets/money-output';
+import MoneyInputIcon from '../../assets/money-input';
+import MoneyOutputIcon from '../../assets/money-output';
 
 import FormItem from 'antd/es/form/FormItem';
 import React, {ChangeEventHandler, FC, useEffect, useMemo, useState} from 'react';
@@ -61,14 +61,19 @@ import {
     EquityDynamicsResponse,
     GetOperationsResponse,
     MoneyMove,
-    Status, UserInfoResponse
+    Status,
+    UserInfoResponse
 } from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 import {humanize, numberToPercent} from "../../utils";
 import NoResult from "../../common/NoResult";
-import * as humanizeDuration from 'humanize-duration';
 import TickerImg from "../../common/TickerImg";
 import {useAppDispatch, useAppSelector} from "../../store";
-import {useGetSummaryQuery} from "../../api/alor.api";
+import {
+    useCreateOperationMutation,
+    useGetOperationCodeMutation,
+    useGetSummaryQuery,
+    useSignOperationMutation
+} from "../../api/alor.api";
 import {setSettings} from "../../api/alor.slice";
 
 interface DataType {
@@ -172,6 +177,10 @@ const Diary: FC<IProps> = ({
         format: 'Simple',
         portfolio: settings.portfolio
     }]);
+
+    const [createOperationMutation] = useCreateOperationMutation();
+    const [getOperationCode] = useGetOperationCodeMutation();
+    const [signOperationMutation] = useSignOperationMutation();
 
     const agreementsMap = useAppSelector(state => state.alorSlice.agreementsMap);
 
@@ -433,7 +442,7 @@ const Diary: FC<IProps> = ({
     const settingsInputProps = (field: string) => {
         const onChange = (e: any) => {
             const value = e.target ? e.target.value : e;
-            dispatch(setSettings(({ [field]: value})));
+            dispatch(setSettings(({[field]: value})));
         };
 
         return {
@@ -474,7 +483,7 @@ const Diary: FC<IProps> = ({
             return;
         }
 
-        const operationResult = await api.clientInfo.createOperation(agreementNumber, {
+        const operationResult = await createOperationMutation([agreementNumber, {
             account: settings.portfolio,
             bic: account.bic,
             amount: Number((amount || "").replaceAll(" ", '')),
@@ -486,28 +495,38 @@ const Diary: FC<IProps> = ({
             settlementAccount: account.settlementAccount,
             currency: Currency.RUB,
             subportfolioFrom: "MOEX"
-        })
+        }]).unwrap()
 
-        if(operationResult.errorMessage){
+        if (operationResult.errorMessage) {
             setError(operationResult.errorMessage);
             return;
         }
 
-        const codeResponse = await api.clientInfo.getOperationCode({
+        const codeResponse = await getOperationCode([{
             operationId: operationResult.operationId.toString(),
             agreementNumber
-        });
+        }]).unwrap();
+
+        if (codeResponse.errorMessage) {
+            setError(codeResponse.errorMessage);
+            return;
+        }
 
         setPaidInfo(prevState => ({...prevState, operationId: operationResult.operationId.toString()}))
     }
     const signOperation = async () => {
         const agreementNumber = settings.portfolio.replace('D', '');
 
-        const result = await api.clientInfo.signOperation({
+        const result = await signOperationMutation([{
             agreementNumber,
             operationId,
             confirmationCode
-        })
+        }]).unwrap();
+
+        if (result.errorMessage) {
+            setError(result.errorMessage);
+            return;
+        }
 
         if (result.success) {
             setPaidInfo({
@@ -531,7 +550,7 @@ const Diary: FC<IProps> = ({
     let showPayModal = searchParams.get('drawer') === 'payout';
 
     const setShowOperationsModal = (drawerName: string) => (opened: boolean) => {
-        if(opened){
+        if (opened) {
             searchParams.set('drawer', drawerName);
         } else {
             searchParams.delete('drawer');
@@ -698,10 +717,12 @@ const Diary: FC<IProps> = ({
 
         const title = useMemo(() => moment(weeksByMonth[0][1].trades[0].openDate).startOf('week').format('MMMM'), [month]);
 
-        const monthTotalResult = useMemo(()  => summ(weeksByMonth.map(([_, week]) => week.PnL)), [weeksByMonth]);
+        const monthTotalResult = useMemo(() => summ(weeksByMonth.map(([_, week]) => week.PnL)), [weeksByMonth]);
 
         return <>
-            <div className="MonthRenderTitle">{title}<span style={{color: monthTotalResult > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>{moneyFormat(monthTotalResult)}</span></div>
+            <div className="MonthRenderTitle">{title}<span
+                style={{color: monthTotalResult > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>{moneyFormat(monthTotalResult)}</span>
+            </div>
             {weeksRows.map(row => <Row gutter={16}>
                 {row.map(([weekNumber, week]) => <Col span={isMobile ? 24 / isMobile : 8}>
                     <Card title={`${week.from} - ${week.to}`} bordered={false}
@@ -762,10 +783,10 @@ const Diary: FC<IProps> = ({
     const todayPnL = useMemo(() => data.positions.find(row => row.type === 'summary' && moment(row.openDate).format('DD.MM.YYYY') === moment().format('DD.MM.YYYY'))?.PnL || 0, [data.positions]);
 
     const summaryValue = useMemo(() => {
-        if(!summary){
+        if (!summary) {
             return 0;
         }
-        if(!settings['summaryType'] || settings['summaryType'] === 'brokerSummary'){
+        if (!settings['summaryType'] || settings['summaryType'] === 'brokerSummary') {
             return summary.portfolioLiquidationValue || 0;
         }
 
@@ -796,8 +817,10 @@ const Diary: FC<IProps> = ({
     </div>
 
     const MobileSummary = () => <div className="MobileSummary widget">
-        <div style={{display: 'flex',     alignItems: 'baseline',
-            justifyContent: 'space-between'}}>
+        <div style={{
+            display: 'flex', alignItems: 'baseline',
+            justifyContent: 'space-between'
+        }}>
             <div>
                 <div className="summary">{settings['hideSummary'] ? '••••' : moneyFormat(summaryValue)}</div>
                 <div style={{
@@ -815,7 +838,7 @@ const Diary: FC<IProps> = ({
             <Space>
                 <Button
                     type="text"
-                    icon={settings['hideSummary']? <EyeOutlined/> :<EyeInvisibleOutlined/>}
+                    icon={settings['hideSummary'] ? <EyeOutlined/> : <EyeInvisibleOutlined/>}
                     className="vertical-button"
                     onClick={(f) => dispatch(setSettings(({['hideSummary']: !settings['hideSummary']})))}
                 />
@@ -837,7 +860,7 @@ const Diary: FC<IProps> = ({
 
             <Button
                 type="text"
-                icon={<LogoutOutlined />}
+                icon={<LogoutOutlined/>}
                 className="vertical-button"
                 onClick={(f) => setShowOperationsModal('payout')(true)}
             >Вывести</Button>
@@ -952,7 +975,7 @@ const Diary: FC<IProps> = ({
 
             <Button
                 type="text"
-                icon={<LogoutOutlined />}
+                icon={<LogoutOutlined/>}
                 onClick={(f) => setShowOperationsModal('payout')(true)}
             >Вывести</Button>
 
@@ -1036,7 +1059,8 @@ const Diary: FC<IProps> = ({
                                 style={{width: '100%'}}>Отменить</Button>
                     </>}
                     {selectedAccount && <>
-                        <FormItem label="Сумма" style={{width: '100%'}} help={error} status={error ? 'error' : undefined}>
+                        <FormItem label="Сумма" style={{width: '100%'}} help={error}
+                                  status={error ? 'error' : undefined}>
                             <Input
                                 placeholder="Сумма"
                                 value={amount}
@@ -1051,7 +1075,7 @@ const Diary: FC<IProps> = ({
                                 amount: lw.toString()
                             }))}>{lw}</Tag>)}
                         </div>}
-                    </> }
+                    </>}
                     {operationId && <FormItem label="Код подтверждения">
                         <Input
                             placeholder="Код подтверждения"
@@ -1079,7 +1103,8 @@ const Diary: FC<IProps> = ({
                         <Button key="console">
                             Распоряжение
                         </Button>,
-                        <Button type="primary" key="buy" onClick={() => sendAgain()} icon={<ReloadOutlined />} >Отправить снова</Button>,
+                        <Button type="primary" key="buy" onClick={() => sendAgain()} icon={<ReloadOutlined/>}>Отправить
+                            снова</Button>,
                     ]}
                 />}
             </Drawer>
@@ -1090,7 +1115,8 @@ const Diary: FC<IProps> = ({
                         <div style={{display: 'flex'}}>
                             {getMaxLossTrade.subType === 'money_withdrawal' ? <MoneyOutputIcon/> : <MoneyInputIcon/>}
                             <div className="ticker_name">
-                                <div className="ticker_name_title">{getMaxLossTrade.subType === 'money_withdrawal' ? 'Вывод с брокерского счета' : 'Пополнение брокерского счета'}</div>
+                                <div
+                                    className="ticker_name_title">{getMaxLossTrade.subType === 'money_withdrawal' ? 'Вывод с брокерского счета' : 'Пополнение брокерского счета'}</div>
                                 <div className="ticker_name_description">
                                     {withoutYear(getMaxLossTrade.date)} {moment(getMaxLossTrade?.date).format('HH:mm:ss')}
                                 </div>
@@ -1098,7 +1124,8 @@ const Diary: FC<IProps> = ({
                         </div>
                         <div className="ticker_actions">
                             <div className="ticker_name_title"
-                                 style={{color: [Status.Refused, Status.Overdue].includes(getMaxLossTrade.status) ? 'rgba(var(--table-loss-color),1)' : getMaxLossTrade.status === Status.Resolved ? 'rgba(var(--table-profit-color),1)' : undefined}}>{getMaxLossTrade.subType === 'money_input' ? '+' : '-'}{moneyFormat(getMaxLossTrade?.data?.amount || 0, 0)}{getMaxLossTrade.status === Status.executing && <ClockCircleOutlined style={{marginLeft: '4px'}} />}</div>
+                                 style={{color: [Status.Refused, Status.Overdue].includes(getMaxLossTrade.status) ? 'rgba(var(--table-loss-color),1)' : getMaxLossTrade.status === Status.Resolved ? 'rgba(var(--table-profit-color),1)' : undefined}}>{getMaxLossTrade.subType === 'money_input' ? '+' : '-'}{moneyFormat(getMaxLossTrade?.data?.amount || 0, 0)}{getMaxLossTrade.status === Status.executing &&
+                                <ClockCircleOutlined style={{marginLeft: '4px'}}/>}</div>
                             <div className="ticker_name_description">{getMaxLossTrade?.data?.accountFrom}</div>
                         </div>
                     </div>)}
@@ -1134,14 +1161,14 @@ const Diary: FC<IProps> = ({
                     </FormItem>
                     <FormItem label="Расчет комиссии">
                         <Select
-                            style={{ width: '100%' }}
+                            style={{width: '100%'}}
                             placeholder="Комиссия"
                             value={settingsInputProps('commissionType').value}
-                            onChange={val => dispatch(setSettings(({ ['commissionType']: val})))}
+                            onChange={val => dispatch(setSettings(({['commissionType']: val})))}
                             dropdownRender={(menu) => (
                                 <>
                                     {menu}
-                                    <Divider style={{ margin: '8px 0' }} />
+                                    <Divider style={{margin: '8px 0'}}/>
 
                                     <Form layout="vertical">
                                         <FormItem label="Комиссия">

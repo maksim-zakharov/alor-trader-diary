@@ -32,13 +32,15 @@ export const alorApi = createApi({
     ],
     baseQuery: fetchBaseQuery(),
     endpoints: (builder) => ({
-        // topUpBalance: builder.mutation<any, any>({
-        //     query: (body) => ({
-        //         url: 'advAccounts/invoice',
-        //         method: 'POST',
-        //         body,
-        //     }),
-        // }),
+        createOperation: builder.mutation({
+            queryFn: recurcive(api => api.clientInfo.createOperation),
+        }),
+        signOperation: builder.mutation({
+            queryFn: recurcive(api => api.clientInfo.signOperation),
+        }),
+        getOperationCode: builder.mutation({
+            queryFn: recurcive(api => api.clientInfo.getOperationCode),
+        }),
         getUserInfo: builder.query<UserInfoResponse, void>({
             queryFn: recurcive(api => api.clientInfo.getUserInfo),
         }),
@@ -51,7 +53,10 @@ export const alorApi = createApi({
         getSummary: builder.query<any, any>({
             queryFn: recurcive((api) => api.clientInfo.getSummary),
         }),
+        getEquityDynamics: builder.query<any, any>({
+            queryFn: recurcive((api) => api.clientInfo.getEquityDynamics),
+        }),
     })
 })
 
-export const {useGetUserInfoQuery,useGetMoneyMovesQuery, useGetOperationsQuery, useGetSummaryQuery} = alorApi;
+export const {useGetUserInfoQuery, useSignOperationMutation, useGetOperationCodeMutation, useCreateOperationMutation, useGetEquityDynamicsQuery,useGetMoneyMovesQuery, useGetOperationsQuery, useGetSummaryQuery} = alorApi;
