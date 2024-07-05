@@ -1,5 +1,10 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import {UserInfoResponse} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
+import {
+    EquityDynamicsResponse,
+    GetOperationsResponse,
+    MoneyMove,
+    UserInfoResponse
+} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 import {AlorApi, Exchange, Summary} from "alor-api";
 
 const recurcive = (selector: (api: AlorApi) => any) => async (args: any[] | void, _api) => {
@@ -32,28 +37,35 @@ export const alorApi = createApi({
     ],
     baseQuery: fetchBaseQuery(),
     endpoints: (builder) => ({
-        createOperation: builder.mutation({
+        createOperation: builder.mutation<{
+            validations: [];
+            formErrors: null;
+            data: {};
+            operationId: number;
+            errorMessage: null;
+            success: true;
+        }, any>({
             queryFn: recurcive(api => api.clientInfo.createOperation),
         }),
-        signOperation: builder.mutation({
+        signOperation: builder.mutation<{validations: [], errorMessage: null, success: true}, any>({
             queryFn: recurcive(api => api.clientInfo.signOperation),
         }),
-        getOperationCode: builder.mutation({
+        getOperationCode: builder.mutation<{errorMessage: null, success: true}, any>({
             queryFn: recurcive(api => api.clientInfo.getOperationCode),
         }),
         getUserInfo: builder.query<UserInfoResponse, void>({
             queryFn: recurcive(api => api.clientInfo.getUserInfo),
         }),
-        getOperations: builder.query<any, any>({
+        getOperations: builder.query<GetOperationsResponse[], any>({
             queryFn: recurcive(api => api.clientInfo.getOperations),
         }),
-        getMoneyMoves: builder.query<any, any>({
+        getMoneyMoves: builder.query<MoneyMove[], any>({
             queryFn: recurcive(api => api.clientInfo.getMoneyMoves),
         }),
-        getSummary: builder.query<any, any>({
+        getSummary: builder.query<Summary, any>({
             queryFn: recurcive((api) => api.clientInfo.getSummary),
         }),
-        getEquityDynamics: builder.query<any, any>({
+        getEquityDynamics: builder.query<EquityDynamicsResponse, any>({
             queryFn: recurcive((api) => api.clientInfo.getEquityDynamics),
         }),
     })
