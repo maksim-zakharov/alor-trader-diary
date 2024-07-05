@@ -34,6 +34,8 @@
     --pro-white: 255,255,255;
     --pro-disabled-opacity: 0.56;
     --pro-button-intent-color: var(--pro-white);
+
+    --input-left-right-padding: 14px;
 }
 
 .custom-icon {
@@ -513,7 +515,7 @@ code {
     height: 40px;
     border-radius: 4px;
     /*padding: 0 8px;*/
-    padding: 0 16px;
+    padding: 0 var(--input-left-right-padding);
 }
 
 .ant-select-single{
@@ -1085,13 +1087,17 @@ a, .link-color {
         color: rgba(var(--pro-input-color), 1);
 
     font-size: 16px;
-    padding: 0 16px;
+    padding: 0 var(--input-left-right-padding);
 
         &::placeholder {
             color: rgba(var(--pro-icon-color), 1);
 
         }
     }
+}
+
+.ant-select-dropdown .ant-select-item{
+    font-size: 16px;
 }
 
 .ant-select-single.ant-select-sm:not(.ant-select-customize-input).ant-select-show-arrow .ant-select-selection-item, .ant-select-single.ant-select-sm:not(.ant-select-customize-input).ant-select-show-arrow .ant-select-selection-placeholder {
