@@ -630,7 +630,6 @@ const Diary: FC<IProps> = ({
 
         return <>
             {(accounts.length || settings['settlementAccount']) && <>
-                <Divider/>
                 <Typography.Text>Выберите банковский счет</Typography.Text>
             </>}
             {settings['settlementAccount'] && showForm !== settings['settlementAccount'] &&
@@ -1029,15 +1028,15 @@ const Diary: FC<IProps> = ({
                         </FormItem>
                     </>}
                     {!showForm && <Button onClick={() => setShowForm(true)} type="primary"
-                                          style={{width: '100%', marginTop: '12px'}}>Добавить счет</Button>}
+                                          style={{width: '100%'}}>Добавить счет</Button>}
                     {showForm && <>
                         <Button onClick={() => saveAccount()} type="primary"
-                                style={{width: '100%', marginTop: '16px'}}>Сохранить</Button>
+                                style={{width: '100%'}}>Сохранить</Button>
                         <Button onClick={() => cancelEditAccount()}
-                                style={{width: '100%', marginTop: '16px'}}>Отменить</Button>
+                                style={{width: '100%'}}>Отменить</Button>
                     </>}
                     {selectedAccount && <>
-                        <FormItem label="Сумма" style={{width: '100%', marginTop: '12px'}} help={error} status={error ? 'error' : undefined}>
+                        <FormItem label="Сумма" style={{width: '100%'}} help={error} status={error ? 'error' : undefined}>
                             <Input
                                 placeholder="Сумма"
                                 value={amount}
@@ -1063,11 +1062,11 @@ const Diary: FC<IProps> = ({
                     <FormItem>
                         {!operationId && selectedAccount &&
                             <Button onClick={() => createOperation()} type="primary"
-                                    style={{width: '100%', marginTop: '12px'}}>Отправить
+                                    style={{width: '100%'}}>Отправить
                                 код</Button>}
                         {operationId &&
                             <Button onClick={() => signOperation()} type="primary"
-                                    style={{width: '100%', marginTop: '12px'}}>Подтвердить
+                                    style={{width: '100%'}}>Подтвердить
                                 код</Button>}
                     </FormItem>
                 </Form>}

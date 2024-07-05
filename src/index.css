@@ -276,7 +276,7 @@ code {
 }
 
 .tag-container {
-    margin-top: 8px;
+    margin-top: -8px;
 }
 
 .ant-tag {
@@ -648,9 +648,15 @@ code {
     }
 }
 
+.ant-form-vertical{
+    gap: 16px;
+    display: flex;
+    flex-direction: column;
+}
+
 .ant-drawer .ant-drawer-body {
     /*padding: 8px 12px;*/
-    padding: 8px 16px;
+    padding: 8px 16px 16px;
 }
 
 .ant-form-item {
