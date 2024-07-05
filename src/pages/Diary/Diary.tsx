@@ -1003,7 +1003,6 @@ const Diary: FC<IProps> = ({
                 {!success && <Form layout="vertical">
                     <AccountList/>
                     {showForm && <>
-                        <Divider/>
                         <FormItem label="Получатель">
                             <Input placeholder="Получатель" disabled value={fullName}/>
                         </FormItem>
@@ -1033,9 +1032,9 @@ const Diary: FC<IProps> = ({
                                           style={{width: '100%', marginTop: '12px'}}>Добавить счет</Button>}
                     {showForm && <>
                         <Button onClick={() => saveAccount()} type="primary"
-                                style={{width: '100%', marginTop: '12px'}}>Сохранить</Button>
+                                style={{width: '100%', marginTop: '16px'}}>Сохранить</Button>
                         <Button onClick={() => cancelEditAccount()}
-                                style={{width: '100%', marginTop: '12px'}}>Отменить</Button>
+                                style={{width: '100%', marginTop: '16px'}}>Отменить</Button>
                     </>}
                     {selectedAccount && <>
                         <FormItem label="Сумма" style={{width: '100%', marginTop: '12px'}} help={error} status={error ? 'error' : undefined}>

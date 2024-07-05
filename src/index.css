@@ -36,6 +36,14 @@
     --pro-button-intent-color: var(--pro-white);
 
     --input-left-right-padding: 14px;
+    --input-font-size: 16px;
+    --input-height: 40px;
+}
+@media only screen and (min-width: 700px) {
+    :root {
+        --input-font-size: 13px;
+        --input-height: 32px;
+    }
 }
 
 .custom-icon {
@@ -372,6 +380,12 @@ code {
     }
 }
 
+.ant-btn-default{
+ padding: 12px 14px;
+    font-size: var(--input-font-size);
+    height: var(--input-height);
+}
+
 
 .MobileSummary .percent:before {
     content: "";
@@ -509,17 +523,17 @@ code {
     background-color: rgba(var(--pro-input-bg), 1);
     color: rgba(var(--pro-input-color), 1);
     border: none;
-    font-size: 16px;
+    font-size: var(--input-font-size);
     font-weight: 400;
     /*height: 32px;*/
-    height: 40px;
+    height: var(--input-height);
     border-radius: 4px;
     /*padding: 0 8px;*/
     padding: 0 var(--input-left-right-padding);
 }
 
 .ant-select-single{
-    height: 40px;
+    height: var(--input-height);
 }
 
 .ant-drawer-header-title{
@@ -600,8 +614,10 @@ code {
     background-color: rgba(var(--pro-button-primary-bg), 1);
     border-radius: 4px;
     cursor: pointer;
-    font-size: 13px;
-    padding: 8px 12px;
+    font-size: var(--input-font-size);
+    /*padding: 8px 12px;*/
+    padding: 12px 14px;
+    height: var(--input-height);
     border: none;
     line-height: 16px;
 }
@@ -641,9 +657,9 @@ code {
     margin-bottom: 0;
 }
 
-.ant-form-item + .ant-form-item {
-    margin-top: 12px;
-}
+/*.ant-form-item + .ant-form-item {*/
+/*    margin-top: 12px;*/
+/*}*/
 
 .ant-form-vertical .ant-form-item-label {
     margin-bottom: 4px;
@@ -960,7 +976,7 @@ a, .link-color {
     .ant-input-affix-wrapper {
         background-color: rgba(var(--pro-input-bg), 1);
         border-color: rgba(var(--pro-input-bg), 1);
-        font-size: 16px;
+        font-size: var(--input-font-size);
     }
 
     .ant-input {
@@ -1087,7 +1103,7 @@ a, .link-color {
         border-color: rgba(var(--pro-input-bg), 1);
         color: rgba(var(--pro-input-color), 1);
 
-    font-size: 16px;
+    font-size: var(--input-font-size);
     padding: 0 var(--input-left-right-padding);
 
         &::placeholder {
@@ -1098,7 +1114,7 @@ a, .link-color {
 }
 
 .ant-select-dropdown .ant-select-item{
-    font-size: 16px;
+    font-size: var(--input-font-size);
 }
 
 .ant-select-single.ant-select-sm:not(.ant-select-customize-input).ant-select-show-arrow .ant-select-selection-item, .ant-select-single.ant-select-sm:not(.ant-select-customize-input).ant-select-show-arrow .ant-select-selection-placeholder {
