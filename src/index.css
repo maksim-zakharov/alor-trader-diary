@@ -607,7 +607,7 @@ code {
 }
 
 .ant-input-affix-wrapper {
-    padding: 0 8px;
+    padding: 0 var(--input-left-right-padding);
     border: none;
     background-color: rgba(var(--pro-input-bg), 1);
     color: rgba(var(--pro-icon-color), 1);
@@ -960,6 +960,7 @@ a, .link-color {
     .ant-input-affix-wrapper {
         background-color: rgba(var(--pro-input-bg), 1);
         border-color: rgba(var(--pro-input-bg), 1);
+        font-size: 16px;
     }
 
     .ant-input {
