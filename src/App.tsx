@@ -89,7 +89,7 @@ function App() {
     const settings = useAppSelector(state => state.alorSlice.settings);
 
     const [positions, setPositions] = useState<Positions>([]);
-    const [trades, setTrades] = useState<Trades>([]);
+    const [_trades, setTrades] = useState<Trades>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     const [searchParams, setSearchParams] = useSearchParams();
@@ -133,6 +133,39 @@ function App() {
         refetchOnMountOrArgChange: true
     })
 
+    const calculateCommission = (plan: string, totalVolume: number) => {
+
+        switch (settings.commissionType) {
+            case 'tariff':
+                return getCommissionByPlanAndTotalVolume(plan, totalVolume);
+            case 'taker':
+                return getCommissionByPlanAndTotalVolume(plan, totalVolume, true);
+            case undefined:
+                return getCommissionByPlanAndTotalVolume(plan, totalVolume);
+            default:
+                return Number(settings.commissionType) || 0;
+        }
+    }
+
+    const trades = useMemo(() => {
+        const tariffPlan = getCurrentTariffPlan(userInfo, 'FOND');
+        const dayVolumes = _trades.reduce((acc, curr) => {
+            const day = moment(curr.date).format('YYYY-MM-DD');
+            if (!acc[day]) {
+                acc[day] = 0;
+            }
+            // @ts-ignore
+            acc[day] += curr.volume;
+
+            return acc;
+        }, {});
+        return _trades.map((t) => ({
+            ...t,
+            // @ts-ignore
+            commission: calculateCommission(tariffPlan, dayVolumes[moment(t.date).format('YYYY-MM-DD')]) * t.volume,
+        }))
+    }, [userInfo, settings.commissionType, _trades])
+
     useEffect(() => {
         dispatch(initApi({token: settings.token}))
     }, [settings.token])
@@ -169,20 +202,6 @@ function App() {
             document.body.removeAttribute('class');
         }
     }, [theme]);
-
-    const calculateCommission = (plan: string, totalVolume: number) => {
-
-        switch (settings.commissionType) {
-            case 'tariff':
-                return getCommissionByPlanAndTotalVolume(plan, totalVolume);
-            case 'taker':
-                return getCommissionByPlanAndTotalVolume(plan, totalVolume, true);
-            case undefined:
-                return getCommissionByPlanAndTotalVolume(plan, totalVolume);
-            default:
-                return Number(settings.commissionType) || 0;
-        }
-    }
 
     const loadTrades = async ({
                                   tariffPlan,
