@@ -17,23 +17,12 @@
         padding: 24px 16px 16px;
     }
 
-    .ant-input{
-        font-size: 16px;
-    }
-
     .ant-card-head{
         text-align: center;
         font-size: 24px;
 
         padding: 16px 16px 0 !important;
     }
-
-    .container{
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-    }
-
 
     @media only screen and (max-width: 700px) {
         .ant-card{

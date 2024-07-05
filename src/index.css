@@ -38,11 +38,13 @@
     --input-left-right-padding: 14px;
     --input-font-size: 16px;
     --input-height: 40px;
+    --input-gap: 16px;
 }
 @media only screen and (min-width: 700px) {
     :root {
         --input-font-size: 13px;
         --input-height: 32px;
+        --input-gap: 12px;
     }
 }
 
@@ -649,7 +651,7 @@ code {
 }
 
 .ant-form-vertical{
-    gap: 16px;
+    gap: var(--input-gap);
     display: flex;
     flex-direction: column;
 }
@@ -1166,7 +1168,6 @@ a, .link-color {
 }
 
 .AccountCard {
-    margin-top: 12px;
     background-color: rgba(var(--pro-widget-body-bg), 1);
     border-color: rgba(var(--pro-divider-bg), 1);
     cursor: pointer;

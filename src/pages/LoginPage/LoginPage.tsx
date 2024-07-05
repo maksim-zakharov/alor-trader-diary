@@ -69,13 +69,13 @@ const LoginPage = () => {
 
     return <div className="LoginPage">
         <Card title="Вход">
-            {!settings.token && <Form className="container" layout="vertical" onSubmitCapture={checkToken}>
+            {!settings.token && <Form layout="vertical" onSubmitCapture={checkToken}>
                 <FormItem validateStatus={error ? 'error' : undefined} help={error} label="Alor Token">
                     <Input placeholder="Введите Alor Token" onChange={e => setToken(e.target.value)}/>
                 </FormItem>
                 <Button onClick={checkToken} type="primary" htmlType="submit" disabled={!token} loading={loading}>Продолжить</Button>
             </Form>}
-            {settings.token && <Form className="container" layout="vertical" onSubmitCapture={login}>
+            {settings.token && <Form layout="vertical" onSubmitCapture={login}>
                 <FormItem validateStatus={error ? 'error' : undefined} extra={error} label="Договор">
                     <Select value={settings.agreement} onSelect={handleSelectAgreement}
 
