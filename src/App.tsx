@@ -12,13 +12,12 @@ import Analytics from './pages/Analytics/Analytics';
 import LoginPage from "./pages/LoginPage/LoginPage";
 import {DefaultOptionType} from 'antd/es/select';
 import {
-    getAgreementNumber,
     getCommissionByPlanAndTotalVolume,
     getCurrentTariffPlan,
     positionsToTrades,
     tradesToHistoryPositions
 } from './utils';
-import {EquityDynamicsResponse, Status} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
+import {Status} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 import useListSecs from "./useListSecs";
 import {initApi} from "./api/alor.slice";
 import {useAppDispatch, useAppSelector} from "./store";
@@ -124,12 +123,12 @@ function App() {
     });
 
     const {data: moneyMoves = []} = useGetMoneyMovesQuery([
-        getAgreementNumber(userInfo)
+        settings.agreement,
         , {
             dateFrom,
             dateTo
         }], {
-        skip: !userInfo,
+        skip: !userInfo || !settings.agreement,
         refetchOnMountOrArgChange: true
     })
 
@@ -148,7 +147,7 @@ function App() {
     }
 
     const trades = useMemo(() => {
-        const tariffPlan = getCurrentTariffPlan(userInfo, 'FOND');
+        const tariffPlan = getCurrentTariffPlan(userInfo, settings.agreement, settings.portfolio);
         const dayVolumes = _trades.reduce((acc, curr) => {
             const day = moment(curr.date).format('YYYY-MM-DD');
             if (!acc[day]) {
@@ -164,7 +163,7 @@ function App() {
             // @ts-ignore
             commission: calculateCommission(tariffPlan, dayVolumes[moment(t.date).format('YYYY-MM-DD')]) * t.volume,
         }))
-    }, [userInfo, settings.commissionType, _trades])
+    }, [userInfo, settings.commissionType, settings.agreement, settings.portfolio, _trades])
 
     useEffect(() => {
         dispatch(initApi({token: settings.token}))
@@ -342,14 +341,14 @@ function App() {
         startDate: moment(dateFrom).add(-1, 'day').format('YYYY-MM-DD'),
         endDate: dateTo,
         portfolio: settings.portfolio,
-        agreementNumber: getAgreementNumber(userInfo)
+        agreementNumber: settings.agreement
     }], {
-        skip: !userInfo || !settings.portfolio,
+        skip: !userInfo || !settings.portfolio || !settings.agreement,
         refetchOnMountOrArgChange: true
     });
 
     const equityDynamics = useMemo(() => {
-        if(!summary){
+        if (!summary) {
             return {
                 portfolioValues: []
             }
@@ -385,12 +384,12 @@ function App() {
         setIsLoading(true);
 
         loadTrades({
-            tariffPlan: getCurrentTariffPlan(userInfo, 'FOND'),
+            tariffPlan: getCurrentTariffPlan(userInfo, settings.agreement,settings.portfolio),
             date,
             dateFrom,
         })
             .finally(() => setIsLoading(false));
-    }, [api, dateFrom, summary, userInfo, visibilitychange]);
+    }, [api, dateFrom, summary, userInfo, settings.agreement, settings.portfolio, visibilitychange]);
 
     useEffect(() => {
         localStorage.setItem('symbols', JSON.stringify(symbols));

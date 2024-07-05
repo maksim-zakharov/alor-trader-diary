@@ -375,5 +375,4 @@ export const enumerateDaysBetweenDates = (startDate, endDate) => {
     return dates;
 };
 
-export const getCurrentTariffPlan = (userInfo: UserInfoResponse, marketType: string | 'FOND'): string | undefined =>  (userInfo?.agreements[0].portfolios || []).find(p => p.marketType === marketType)?.tariffPlan;
-export const getAgreementNumber = (userInfo: UserInfoResponse): number | undefined => Number(userInfo?.agreements[0].agreementNumber)
+export const getCurrentTariffPlan = (userInfo: UserInfoResponse, agreementNumber: string, accountNumber: string): string | undefined =>  (userInfo?.agreements?.find(a => a.agreementNumber === agreementNumber)?.portfolios || []).find(p => p.accountNumber === accountNumber)?.tariffPlan;
