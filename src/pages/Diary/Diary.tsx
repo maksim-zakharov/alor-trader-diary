@@ -190,8 +190,6 @@ const Diary: FC<IProps> = ({
         JSON.parse(localStorage.getItem('reasons') || '{}'),
     );
 
-    const [showPayModal, setShowPayModal] = useState(false);
-
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
 
     useEffect(() => {
@@ -530,6 +528,7 @@ const Diary: FC<IProps> = ({
     let dateFrom = searchParams.get('dateFrom');
     let showOperationsModal = searchParams.get('drawer') === 'operations';
     let showSettings = searchParams.get('drawer') === 'settings';
+    let showPayModal = searchParams.get('drawer') === 'payout';
 
     const setShowOperationsModal = (drawerName: string) => (opened: boolean) => {
         if(opened){
@@ -609,7 +608,7 @@ const Diary: FC<IProps> = ({
         setFormState({})
         setShowForm(false);
         onSelect('');
-        setShowPayModal(false);
+        setShowOperationsModal('payout')(false);
         setPaidInfo({
             operationId: '',
             confirmationCode: '',
@@ -841,7 +840,7 @@ const Diary: FC<IProps> = ({
                 type="text"
                 icon={<LogoutOutlined />}
                 className="vertical-button"
-                onClick={(f) => setShowPayModal(true)}
+                onClick={(f) => setShowOperationsModal('payout')(true)}
             >Вывести</Button>
 
             <Radio.Group options={options} onChange={e => onChangeView(e.target.value)} value={view} size="large"
@@ -955,7 +954,7 @@ const Diary: FC<IProps> = ({
             <Button
                 type="text"
                 icon={<LogoutOutlined />}
-                onClick={(f) => setShowPayModal(true)}
+                onClick={(f) => setShowOperationsModal('payout')(true)}
             >Вывести</Button>
 
             <DatePicker value={currentDates} onChange={onChangeDate} style={{width: 120}}/>
@@ -999,8 +998,8 @@ const Diary: FC<IProps> = ({
         <div className="Diary">
             <MobileSummary/>
             <InfoPanelDesktop/>
-            <Modal title="Вывод средств" open={showPayModal} footer={null}
-                   onCancel={() => cancelEditAccount()}>
+            <Drawer title="Вывод средств" open={showPayModal} placement="right"
+                    onClose={() => cancelEditAccount()}>
                 {!success && <Form layout="vertical">
                     <AccountList/>
                     {showForm && <>
@@ -1085,7 +1084,7 @@ const Diary: FC<IProps> = ({
                         <Button type="primary" key="buy" onClick={() => sendAgain()} icon={<ReloadOutlined />} >Отправить снова</Button>,
                     ]}
                 />}
-            </Modal>
+            </Drawer>
             <Drawer title="Операции" open={showOperationsModal} placement="right"
                     onClose={() => setShowOperationsModal('operations')(false)} className="operation-modal">
                 {moneyOperations.map(getMaxLossTrade =>
