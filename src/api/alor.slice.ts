@@ -27,6 +27,7 @@ export const alorSlice = createSlice({
         },
         setSettings(state, action: PayloadAction<any>) {
             state.settings = {...state.settings, ...action.payload};
+            localStorage.setItem('settings', JSON.stringify(state.settings));
         },
     },
     extraReducers: (builder) => {

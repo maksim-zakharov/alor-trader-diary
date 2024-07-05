@@ -67,7 +67,7 @@ import {humanize, numberToPercent} from "../../utils";
 import NoResult from "../../common/NoResult";
 import * as humanizeDuration from 'humanize-duration';
 import TickerImg from "../../common/TickerImg";
-import {useAppSelector} from "../../store";
+import {useAppDispatch, useAppSelector} from "../../store";
 import {useGetSummaryQuery} from "../../api/alor.api";
 import {setSettings} from "../../api/alor.slice";
 
@@ -164,6 +164,7 @@ const Diary: FC<IProps> = ({
                                userInfo,
                                equityDynamics
                            }) => {
+    const dispatch = useAppDispatch();
     const settings = useAppSelector(state => state.alorSlice.settings);
 
     const {data: summary} = useGetSummaryQuery([{
@@ -218,10 +219,6 @@ const Diary: FC<IProps> = ({
     useEffect(() => {
         localStorage.setItem('state', JSON.stringify(comments));
     }, [comments]);
-
-    useEffect(() => {
-        localStorage.setItem('settings', JSON.stringify(settings));
-    }, [settings]);
 
     const nightMode = useMemo(() => (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches) || theme === 'dark', [theme]);
 
@@ -440,7 +437,7 @@ const Diary: FC<IProps> = ({
     const settingsInputProps = (field: string) => {
         const onChange = (e: any) => {
             const value = e.target ? e.target.value : e;
-            setSettings(({ [field]: value}));
+            dispatch(setSettings(({ [field]: value})));
         };
 
         return {
@@ -813,7 +810,7 @@ const Diary: FC<IProps> = ({
                     type="text"
                     icon={settings['hideSummary']? <EyeOutlined/> :<EyeInvisibleOutlined/>}
                     className="vertical-button"
-                    onClick={(f) => setSettings((prevState) => ({...prevState, ['hideSummary']: !prevState['hideSummary']}))}
+                    onClick={(f) => dispatch(setSettings(({['hideSummary']: !settings['hideSummary']})))}
                 />
                 <Button
                     type="text"
@@ -1134,7 +1131,7 @@ const Diary: FC<IProps> = ({
                             style={{ width: '100%' }}
                             placeholder="Комиссия"
                             value={settingsInputProps('commissionType').value}
-                            onChange={val => setSettings(({ ['commissionType']: val}))}
+                            onChange={val => dispatch(setSettings(({ ['commissionType']: val})))}
                             dropdownRender={(menu) => (
                                 <>
                                     {menu}
@@ -1167,7 +1164,8 @@ const Diary: FC<IProps> = ({
                     <FormItem label="Расчет текущих средств">
                         <Select options={summaryOptions} style={{width: '100%'}}
                                 value={settingsInputProps('summaryType').value || 'brokerSummary'}
-                                onChange={val => setSettings((prevState) => ({...prevState, ['summaryType']: val}))}/>
+                                onChange={val => dispatch(setSettings({['summaryType']: val}))}
+                        />
                     </FormItem>
                 </Form>
             </Drawer>
