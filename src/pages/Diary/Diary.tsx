@@ -476,7 +476,7 @@ const Diary: FC<IProps> = ({
     const createOperation = async () => {
         setError(undefined);
 
-        const agreementNumber = settings.portfolio.replace('D', '');
+        const agreementNumber = settings.agreement;
 
         const account = accounts.find(a => a.settlementAccount === selectedAccount) || settings;
         if (!account.settlementAccount) {
@@ -515,7 +515,7 @@ const Diary: FC<IProps> = ({
         setPaidInfo(prevState => ({...prevState, operationId: operationResult.operationId.toString()}))
     }
     const signOperation = async () => {
-        const agreementNumber = settings.portfolio.replace('D', '');
+        const agreementNumber = settings.agreement;
 
         const result = await signOperationMutation([{
             agreementNumber,
