@@ -26,16 +26,14 @@ interface IProps {
     api: AlorApi;
     dateFrom: any;
     isLoading: boolean;
-    moneyMoves: MoneyMove[];
     getListSectionBySymbol: any;
     getIsinBySymbol: any;
 }
 
-const Analytics: FC<IProps> = ({getIsinBySymbol, getListSectionBySymbol, data, api, dateFrom, isLoading, moneyMoves, balanceSeriesData}) => {
+const Analytics: FC<IProps> = ({getIsinBySymbol, getListSectionBySymbol, data, api, dateFrom, isLoading, balanceSeriesData}) => {
     const [reasons, setReasons] = useState<{
         [id: string]: string
     }>(JSON.parse(localStorage.getItem('reasons') || '{}'));
-    const activeOperations = useAppSelector(state => state.alorSlice.activeOperations);
 
     const [nightMode] = useState(Boolean(localStorage.getItem('night') === 'true'));
 
@@ -113,8 +111,8 @@ const Analytics: FC<IProps> = ({getIsinBySymbol, getListSectionBySymbol, data, a
     }
 
     return <>
-        <ProfitWidget activeOperations={activeOperations} isLoading={isLoading} colors={nightMode && darkColors} data={balanceSeriesDataWithoutFirst}
-                      initBalance={balanceSeriesData[0]?.value || 0} moneyMoves={moneyMoves}/>
+        <ProfitWidget isLoading={isLoading} colors={nightMode && darkColors} data={balanceSeriesDataWithoutFirst}
+                      initBalance={balanceSeriesData[0]?.value || 0}/>
         {/*<div className="widget">*/}
         {/*    <div className="widget_header">Reasons</div>*/}
         {/*    <HighchartsReact*/}

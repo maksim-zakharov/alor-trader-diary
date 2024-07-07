@@ -123,8 +123,7 @@ function App() {
     });
 
     const {data: moneyMoves = []} = useGetMoneyMovesQuery([
-        settings.agreement,
-        , {
+        settings.agreement,{
             dateFrom,
             dateTo
         }], {
@@ -416,8 +415,7 @@ function App() {
                                 balanceSeriesData={equityDynamics?.portfolioValues.map(v => ({
                                     time: moment(v.date).format('YYYY-MM-DD'),
                                     value: v.value
-                                })) || []} api={api} isLoading={isLoading} dateFrom={dateFrom}
-                                moneyMoves={moneyMoves || []}/>,
+                                })) || []} api={api} isLoading={isLoading} dateFrom={dateFrom}/>,
         }//,
         // {
         //     key: 'orderbook',

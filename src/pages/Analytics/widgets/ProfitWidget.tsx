@@ -2,10 +2,40 @@ import Spinner from "../../../common/Spinner";
 import TVChart from "../../../common/TVChart";
 import React, {useMemo} from "react";
 import moment from 'moment/moment';
-import {Status} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
+import {MoneyMovesSearch, Status} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 import {enumerateDaysBetweenDates} from "../../../utils";
+import {useAppSelector} from "../../../store";
+import {useGetMoneyMovesQuery, useGetUserInfoQuery} from "../../../api/alor.api";
+import {useSearchParams} from "react-router-dom";
 
-const ProfitWidget = ({activeOperations, data, isLoading, colors, moneyMoves, initBalance}) => {
+const ProfitWidget = ({data, isLoading, colors, initBalance}) => {
+    const [searchParams, setSearchParams] = useSearchParams();
+    let dateFrom = searchParams.get('dateFrom');
+    if (!dateFrom) {
+        dateFrom = moment().startOf('month').format('YYYY-MM-DD');
+    }
+    let dateTo = searchParams.get('dateTo');
+    if (!dateTo) {
+        dateTo = moment().endOf('month').add(1, 'day').format('YYYY-MM-DD');
+    }
+    const api = useAppSelector(state => state.alorSlice.api);
+    const settings = useAppSelector(state => state.alorSlice.settings);
+    // @ts-ignore
+    const {data: userInfo} = useGetUserInfoQuery({}, {
+        skip: !api
+    });
+
+    const {data: moneyMoves = []} = useGetMoneyMovesQuery([
+        settings.agreement,{
+            dateFrom,
+            dateTo
+        }], {
+        skip: !userInfo || !settings.agreement,
+        refetchOnMountOrArgChange: true
+    });
+
+    const activeOperations = useAppSelector(state => state.alorSlice.activeOperations);
+
     const moneyMovesMap = useMemo(() => moneyMoves.filter(mM =>  !['Комиссия брокера', "Комиссия депозитария"].includes(mM.title)).reduce((acc, curr) => {
         if(!curr.sum){
             return acc;
@@ -18,10 +48,11 @@ const ProfitWidget = ({activeOperations, data, isLoading, colors, moneyMoves, in
 
         let multi = 1;
 
-        if(curr.subType === 'withdrawal'){
-            multi = -1;
-        }
-        if(curr.subType === 'input') {
+        // @ts-ignore
+        // if(curr.subType === MoneyMovesSearch.Withdraw){
+        //     multi = -1;
+        // }
+        if(curr.subType === MoneyMovesSearch.Input) {
             multi = 1;
         }
 
@@ -106,7 +137,19 @@ const ProfitWidget = ({activeOperations, data, isLoading, colors, moneyMoves, in
             //     lastMoneyMove += dayMoneyMovesMap[d.time];
             // }
 
+            // Баланс на конкретный день (d.time)
+            const dayEquity = d.value;
+
+            // Разница в балансе между текущим днем и самым первым (по сути задаем initBalance как точку отчета y = 0);
+            const diffInitCurrentDayEquity = dayEquity - initBalance;
+
+            const moneyMovesSumByTime = test[d.time]
+
+            const value = diffInitCurrentDayEquity; // - initBalance; //  - moneyMovesSumByTime;
+
             result.push({...d, value: d.value - initBalance - test[d.time]});
+
+            // result.push({...d, value });
         })
 
         return result;
