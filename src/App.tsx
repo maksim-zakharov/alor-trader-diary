@@ -364,10 +364,12 @@ function App() {
         // Если последнее значение есть и оно не сегодняшний день и мы запросили за текущий день тоже
         if (lastValue && moment(lastValue.date).isBefore(moment()) && moment(dateTo).isAfter(moment())) {
             result.portfolioValues.push({
-                date: moment().format('YYYY-MM-DD'),
+                date: moment().format('YYYY-MM-DDTHH:mm:ss'),
                 value: summary.portfolioLiquidationValue
             } as any)
         }
+
+        result.portfolioValues = result.portfolioValues.filter(p => !!p.value);
 
         return result;
     }, [_equityDynamics, summary]);
