@@ -232,6 +232,21 @@ code {
     display: block;
 }
 
+.mobile-position-spinner{
+    display: none;
+    height: 300px;
+    position: relative;
+
+    .spinner-text{
+        position: absolute;
+        text-align: center;
+        margin: auto;
+        width: 100%;
+        left: 0;
+        top: 186px;
+    }
+}
+
 .MobilePosition {
     display: none;
     margin-bottom: 16px;
@@ -296,6 +311,7 @@ code {
 .MobileSummary {
     display: none;
     margin-bottom: 16px;
+    height: 186px;
 
     .summary {
         font-size: 24px;
@@ -439,6 +455,10 @@ code {
     }
 
     .MobilePosition {
+        display: block;
+    }
+
+    .mobile-position-spinner{
         display: block;
     }
 

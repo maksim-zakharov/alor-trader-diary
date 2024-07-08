@@ -75,6 +75,7 @@ import {
     useSignOperationMutation
 } from "../../api/alor.api";
 import {setSettings} from "../../api/alor.slice";
+import Spinner from "../../common/Spinner";
 
 interface DataType {
     key: string;
@@ -817,7 +818,8 @@ const Diary: FC<IProps> = ({
     </div>
 
     const MobileSummary = () => <div className="MobileSummary widget">
-        <div style={{
+        {isLoading && <Spinner/>}
+        {!isLoading && <><div style={{
             display: 'flex', alignItems: 'baseline',
             justifyContent: 'space-between'
         }}>
@@ -867,7 +869,7 @@ const Diary: FC<IProps> = ({
 
             <Radio.Group options={options} onChange={e => onChangeView(e.target.value)} value={view} size="large"
                          optionType="button"/>
-        </div>
+        </div></>}
     </div>
 
     const MobilePosition = ({positions}) => {
@@ -1206,7 +1208,11 @@ const Diary: FC<IProps> = ({
                 {years.map(year => <YearRender year={year}/>)}
             </>}
             {view === 'table' && <>
-                {dayPositions.map(dp => <MobilePosition positions={dp}/>)}
+                {isLoading && <div className="mobile-position-spinner">
+                    <Spinner/>
+                    <div className="spinner-text">Подгружаем сделки</div>
+                </div>}
+                {!isLoading && dayPositions.map(dp => <MobilePosition positions={dp}/>)}
                 <Table
                     onRow={(row: any) =>
                         row.type === 'summary' && {
