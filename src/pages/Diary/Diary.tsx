@@ -74,7 +74,7 @@ import {
     useGetSummaryQuery,
     useSignOperationMutation
 } from "../../api/alor.api";
-import {setSettings} from "../../api/alor.slice";
+import {selectCurrentPortfolio, setSettings} from "../../api/alor.slice";
 import Spinner from "../../common/Spinner";
 
 interface DataType {
@@ -184,6 +184,7 @@ const Diary: FC<IProps> = ({
     const [signOperationMutation] = useSignOperationMutation();
 
     const agreementsMap = useAppSelector(state => state.alorSlice.agreementsMap);
+    const currentPortfolio = useAppSelector(selectCurrentPortfolio);
 
     const moneyMovesCommission = useMemo(() => summ(moneyMoves.filter(m => m.title === "Комиссия брокера").map(m => m.sum)), [moneyMoves]);
 
@@ -319,7 +320,7 @@ const Diary: FC<IProps> = ({
                             moment(row.openDate).format('DD.MM.YYYY'),
                     // onCell: sharedOnCell,
                 },
-                {
+                currentPortfolio?.marketType === "FOND" && {
                     title: 'Эшелон',
                     dataIndex: 'symbol',
                     key: 'symbol',
@@ -436,8 +437,8 @@ const Diary: FC<IProps> = ({
                             />
                         ),
                 },
-            ].filter(c => !isMobile || !['comment', 'reason', 'side', 'PnLPercent', 'Fee'].includes(c.dataIndex)) as any[]
-        , [isMobile, hidenMap]);
+            ].filter(c => !!c && (!isMobile || !['comment', 'reason', 'side', 'PnLPercent', 'Fee'].includes(c.dataIndex))) as any[]
+        , [isMobile, hidenMap, currentPortfolio]);
 
 
     const settingsInputProps = (field: string) => {

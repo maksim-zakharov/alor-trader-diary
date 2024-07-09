@@ -169,10 +169,10 @@ function App() {
     }, [settings.token])
 
     useEffect(() => {
-        if (settings.token && location.pathname.endsWith('/login')) {
+        if (settings.token && settings.portfolio && location.pathname.endsWith('/login')) {
             navigate('/')
         }
-    }, [location.pathname, settings.token]);
+    }, [location.pathname, settings.token, settings.portfolio]);
 
     const {height, width} = useWindowDimensions();
     const [symbols, setSymbols] = useState(
@@ -265,9 +265,9 @@ function App() {
         } else
             // Если портфолио нет - редирект на страницу выбора логина
         if (!settings.portfolio) {
-
+            navigate('/login');
         }
-    }, []);
+    }, [settings.token, settings.portfolio]);
 
     const startedTrades = useMemo(
         () => positionsToTrades(positions),
