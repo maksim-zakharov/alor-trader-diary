@@ -17,7 +17,6 @@ import {
     positionsToTrades,
     tradesToHistoryPositions
 } from './utils';
-import {Status} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 import useListSecs from "./useListSecs";
 import {initApi} from "./api/alor.slice";
 import {useAppDispatch, useAppSelector} from "./store";
@@ -86,6 +85,7 @@ function App() {
     const navigate = useNavigate();
     const location = useLocation();
     const settings = useAppSelector(state => state.alorSlice.settings);
+    const userInfo = useAppSelector(state => state.alorSlice.userInfo);
 
     const [positions, setPositions] = useState<Positions>([]);
     const [_trades, setTrades] = useState<Trades>([]);
@@ -104,7 +104,7 @@ function App() {
     }
 
     // @ts-ignore
-    const {data: userInfo} = useGetUserInfoQuery({}, {
+    useGetUserInfoQuery({}, {
         skip: !api
     });
 
@@ -123,7 +123,7 @@ function App() {
     });
 
     const {data: moneyMoves = []} = useGetMoneyMovesQuery([
-        settings.agreement,{
+        settings.agreement, {
             dateFrom,
             dateTo
         }], {
@@ -165,7 +165,8 @@ function App() {
     }, [userInfo, settings.commissionType, settings.agreement, settings.portfolio, _trades])
 
     useEffect(() => {
-        dispatch(initApi({token: settings.token}))
+        if (settings.token)
+            dispatch(initApi({token: settings.token}))
     }, [settings.token])
 
     useEffect(() => {
@@ -382,7 +383,7 @@ function App() {
         setIsLoading(true);
 
         loadTrades({
-            tariffPlan: getCurrentTariffPlan(userInfo, settings.agreement,settings.portfolio),
+            tariffPlan: getCurrentTariffPlan(userInfo, settings.agreement, settings.portfolio),
             date,
             dateFrom,
         })

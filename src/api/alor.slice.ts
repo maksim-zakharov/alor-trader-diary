@@ -13,7 +13,7 @@ const initialState = {
     agreementsMap: {},
     activeOperations: [],
     lastWithdrawals: [],
-    userInfo: undefined,
+    userInfo: localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo')) : undefined,
     settings: JSON.parse(localStorage.getItem('settings') || '{}')
 } as {
     api: undefined | AlorApi, userInfo: UserInfoResponse, settings: {
@@ -53,15 +53,23 @@ export const alorSlice = createSlice({
             state.settings = {...state.settings, ...action.payload};
             localStorage.setItem('settings', JSON.stringify(state.settings));
         },
+        logout(state){
+            state.userInfo = undefined;
+            state.settings = {...state.settings, portfolio: undefined, token: undefined, agreement: undefined};
+            state.api = undefined;
+
+            localStorage.removeItem('userInfo');
+        }
     },
     extraReducers: (builder) => {
         // builder.addMatcher(goApi.endpoints.getAdGroup.matchPending, _resetAdGroupError);
         builder.addMatcher(alorApi.endpoints.getOperations.matchFulfilled, (state, {payload}) => {
-            state.activeOperations = payload.filter(o => ![Status.Overdue, Status.Refused].includes(o.status)) || [];
+            state.activeOperations = payload ? payload.filter(o => ![Status.Overdue, Status.Refused].includes(o.status)) : [];
             state.lastWithdrawals = Array.from(new Set(state.activeOperations.map(o => o.data.amount))).sort((a, b) => b - a).slice(0, 5).filter(a => a);
         });
         builder.addMatcher(alorApi.endpoints.getUserInfo.matchFulfilled, (state, {payload}) => {
             state.userInfo = payload;
+            localStorage.setItem('userInfo', JSON.stringify(payload));
             state.agreementsMap = payload?.agreements?.reduce((acc, curr) => ({
                 ...acc,
                 [curr.agreementNumber]: curr
@@ -71,4 +79,4 @@ export const alorSlice = createSlice({
     },
 });
 
-export const {initApi, setSettings} = alorSlice.actions;
+export const {initApi, setSettings, logout} = alorSlice.actions;

@@ -1,84 +1,93 @@
 import {Button, Card, Form, Input, Select} from "antd";
-import {AlorApi, Endpoint, WssEndpoint, WssEndpointBeta} from "alor-api";
 import React, {useEffect, useMemo, useState} from "react";
-import {useApi} from "../../useApi";
-import {UserInfoResponse} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 import './LoginPage.css';
 import {useNavigate} from "react-router-dom";
 import FormItem from "antd/es/form/FormItem";
 import {useGetUserInfoQuery} from "../../api/alor.api";
-import {initApi} from "../../api/alor.slice";
+import {initApi, logout, setSettings} from "../../api/alor.slice";
 import {useAppDispatch, useAppSelector} from "../../store";
 
 const LoginPage = () => {
+    const api = useAppSelector(state => state.alorSlice.api);
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
-    const {data: userInfo, refetch} = useGetUserInfoQuery();
+    const userInfo = useAppSelector(state => state.alorSlice.userInfo);
+    // @ts-ignore
+    const {refetch, isLoading} = useGetUserInfoQuery({}, {skip: !api});
     const [token, setToken] = React.useState<string | null>(null);
     const [error, setError] = useState();
 
-    const agreementsMap = useAppSelector(state => state.alorSlice.agreementsMap);
+    const [loading, setLoading] = useState(false);
 
-    const [loading, setLoading]  = useState(false);
+    const settings = useAppSelector(state => state.alorSlice.settings);
 
-    const [settings, setSettings] = useState<{
-        token: string;
-        portfolio: string;
-        commissionType: string;
-        agreement: any;
-    }>(JSON.parse(localStorage.getItem('settings') || '{}'));
+    const [{agreement, portfolio}, setState] = useState({agreement: undefined, portfolio: undefined});
+
+    const options = useMemo(() => userInfo?.agreements.find(a => a.agreementNumber === agreement)?.portfolios?.map(p => ({
+        label: `${p.accountNumber} (${p.service})`,
+        value: p.accountNumber
+    })) || [], [agreement, userInfo]);
+
+    useEffect(() => {
+        // (async () => {
+        //     if(api){
+        //         try {
+        //             dispatch(initApi({token}))
+        //
+        //             setLoading(true);
+        //
+        //             await api.refresh();
+        //
+        //             setLoading(false);
+        //
+        //             setError(undefined);
+        //
+        //             dispatch(setSettings(({token})));
+        //         } catch (e: any) {
+        //             setError(e.message);
+        //             clearToken();
+        //             console.log(e.message);
+        //         }
+        //     }
+        // })();
+    }, [api]);
 
     const checkToken = async () => {
-        try {
-            dispatch(initApi({token}))
-
-            setLoading(true);
-
-            refetch();
-
-            setLoading(false);
-
-            setError(undefined);
-
-            setSettings(prevState => ({...prevState, token}));
-        } catch (e: any) {
-            setError(e.message);
-            clearToken();
-            console.log(e.message);
-        }
+        dispatch(initApi({token}))
+        dispatch(setSettings({token}));
     }
-    useEffect(() => {
-        localStorage.setItem('settings', JSON.stringify(settings));
-    }, [settings]);
 
     const handleSelectPortfolio = (portfolio: string) => {
-        setSettings(prevState => ({...prevState, portfolio}));
+        setState(prevState => ({...prevState, portfolio}));
     }
 
     const handleSelectAgreement = (agreement: string) => {
-        setSettings(prevState => ({...prevState, agreement}));
+        setState(prevState => ({...prevState, agreement}));
     }
 
     const clearToken = () => {
-        setSettings({} as any);
+        dispatch(logout())
     }
 
     const login = () => {
-        navigate('/')
+        if (agreement && portfolio) {
+            dispatch(setSettings({agreement, portfolio}));
+            navigate('/')
+        }
     }
 
     return <div className="LoginPage">
         <Card title="Вход">
-            {!settings.token && <Form layout="vertical" onSubmitCapture={checkToken}>
+            {!userInfo && <Form layout="vertical" onSubmitCapture={checkToken}>
                 <FormItem validateStatus={error ? 'error' : undefined} help={error} label="Alor Token">
                     <Input placeholder="Введите Alor Token" onChange={e => setToken(e.target.value)}/>
                 </FormItem>
-                <Button onClick={checkToken} type="primary" htmlType="submit" disabled={!token} loading={loading}>Продолжить</Button>
+                <Button onClick={checkToken} type="primary" htmlType="submit" disabled={!token}
+                        loading={isLoading}>Продолжить</Button>
             </Form>}
-            {settings.token && <Form layout="vertical" onSubmitCapture={login}>
+            {userInfo && <Form layout="vertical" onSubmitCapture={login}>
                 <FormItem validateStatus={error ? 'error' : undefined} extra={error} label="Договор">
-                    <Select value={settings.agreement} onSelect={handleSelectAgreement}
-
+                    <Select value={agreement} onSelect={handleSelectAgreement}
                             placeholder="Выберите договор"
                             options={userInfo?.agreements?.map(p => ({
                                 label: p.cid,
@@ -86,15 +95,12 @@ const LoginPage = () => {
                             })) || []}/>
                 </FormItem>
                 <FormItem validateStatus={error ? 'error' : undefined} extra={error} label="Alor Portfolio">
-                <Select value={settings.portfolio} onSelect={handleSelectPortfolio}
-
-                        placeholder="Выберите портфель"
-                        options={agreementsMap[settings.agreement]?.portfolios?.map(p => ({
-                            label: `${p.accountNumber} (${p.service})`,
-                            value: p.accountNumber
-                        })) || []}/>
+                    <Select value={portfolio} onSelect={handleSelectPortfolio}
+                            placeholder="Выберите портфель"
+                            options={options}/>
                 </FormItem>
-                <Button onClick={login} type="primary" htmlType="submit" disabled={!settings.portfolio || !settings.agreement}>Войти</Button>
+                <Button onClick={login} type="primary" htmlType="submit"
+                        disabled={!portfolio || !agreement}>Войти</Button>
                 <Button type="link" onClick={clearToken}>Ввести другой alor token</Button>
             </Form>}
         </Card>
