@@ -29,4 +29,4 @@ export const shortNumberFormat = (number: number,minimumFractionDigits = undefin
     notation: 'compact',
       minimumFractionDigits,
     maximumFractionDigits,
-  }).format(number);
+  }).format(number || 0);
