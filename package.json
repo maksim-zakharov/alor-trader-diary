@@ -28,7 +28,7 @@
   "scripts": {
     "start": "vite",
     "build": "vite build",
-    "build:ci": "vite build",
+    "build:ci": "vite build --base=/alor-trader-diary",
     "test": "react-app-rewired test",
     "eject": "react-app-rewired eject"
   },
