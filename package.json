@@ -27,8 +27,8 @@
   },
   "scripts": {
     "start": "vite",
-    "build": "tsc && vite build",
-    "build:ci": "CI=false PUBLIC_URL=/alor-trader-diary react-app-rewired build",
+    "build": "vite build",
+    "build:ci": "vite build",
     "test": "react-app-rewired test",
     "eject": "react-app-rewired eject"
   },
