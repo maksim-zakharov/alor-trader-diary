@@ -2,7 +2,7 @@ import {Positions, Side, Trade} from 'alor-api';
 import {summ} from './App';
 import moment, {Moment} from 'moment/moment';
 import {UserInfoResponse} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
-import * as humanizeDuration from "humanize-duration";
+import humanizeDuration from "humanize-duration";
 
 export const digitsAfterDot = (num) => {
     if (!num) {

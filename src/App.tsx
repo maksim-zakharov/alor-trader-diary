@@ -12,6 +12,7 @@ import Analytics from './pages/Analytics/Analytics';
 import LoginPage from "./pages/LoginPage/LoginPage";
 import {DefaultOptionType} from 'antd/es/select';
 import {
+    calculateCommission,
     getCommissionByPlanAndTotalVolume,
     getCurrentTariffPlan,
     positionsToTrades,
@@ -25,7 +26,7 @@ import {
     useGetEquityDynamicsQuery,
     useGetMoneyMovesQuery,
     useGetOperationsQuery,
-    useGetSummaryQuery,
+    useGetSummaryQuery, useGetTradesQuery,
     useGetUserInfoQuery
 } from './api/alor.api';
 
@@ -88,8 +89,6 @@ function App() {
     const userInfo = useAppSelector(state => state.alorSlice.userInfo);
 
     const [positions, setPositions] = useState<Positions>([]);
-    const [_trades, setTrades] = useState<Trades>([]);
-    const [isLoading, setIsLoading] = useState(true);
 
     const [searchParams, setSearchParams] = useSearchParams();
     const currentMenuSelectedKey = location.pathname?.split('/')[1] || 'diary';
@@ -108,42 +107,45 @@ function App() {
         skip: !api
     });
 
-    const {data: summary} = useGetSummaryQuery([{
+    const {data: _trades = [], isLoading} = useGetTradesQuery({
+        tariffPlan: getCurrentTariffPlan(userInfo, settings.agreement, settings.portfolio),
+        date,
+        dateFrom,
+        dateTo,
+        commissionType: settings.commissionType,
+        portfolio: settings.portfolio
+    }, {
+        skip: !api || !userInfo || !settings.agreement || !settings.portfolio
+    })
+
+    const {data: summary} = useGetSummaryQuery({
         exchange: Exchange.MOEX,
         format: 'Simple',
         portfolio: settings.portfolio
-    }], {
-        skip: !userInfo || !settings.portfolio,
-        refetchOnMountOrArgChange: true,
+    }, {
+        skip: !api || !userInfo || !settings.portfolio
     });
 
-    const {data: operations = []} = useGetOperationsQuery([userInfo?.agreements[0]?.agreementNumber], {
-        skip: !userInfo,
-        refetchOnMountOrArgChange: true
+    const {data: operations = []} = useGetOperationsQuery(userInfo?.agreements[0]?.agreementNumber, {
+        skip: !userInfo || !api
     });
 
-    const {data: moneyMoves = []} = useGetMoneyMovesQuery([
-        settings.agreement, {
+    const {data: moneyMoves = []} = useGetMoneyMovesQuery({
+            agreementNumber: settings.agreement,
             dateFrom,
             dateTo
-        }], {
-        skip: !userInfo || !settings.agreement,
-        refetchOnMountOrArgChange: true
+        }, {
+        skip: !userInfo || !settings.agreement || !api
     })
 
-    const calculateCommission = (plan: string, totalVolume: number) => {
-
-        switch (settings.commissionType) {
-            case 'tariff':
-                return getCommissionByPlanAndTotalVolume(plan, totalVolume);
-            case 'taker':
-                return getCommissionByPlanAndTotalVolume(plan, totalVolume, true);
-            case undefined:
-                return getCommissionByPlanAndTotalVolume(plan, totalVolume);
-            default:
-                return Number(settings.commissionType) || 0;
-        }
-    }
+    const {data: _equityDynamics} = useGetEquityDynamicsQuery({
+        startDate: moment(dateFrom).add(-1, 'day').format('YYYY-MM-DD'),
+        endDate: dateTo,
+        portfolio: settings.portfolio,
+        agreementNumber: settings.agreement
+    }, {
+        skip: !userInfo || !settings.portfolio || !settings.agreement || !dateFrom || !api
+    });
 
     const trades = useMemo(() => {
         const tariffPlan = getCurrentTariffPlan(userInfo, settings.agreement, settings.portfolio);
@@ -202,63 +204,6 @@ function App() {
         }
     }, [theme]);
 
-    const loadTrades = async ({
-                                  tariffPlan,
-                                  date,
-                                  dateFrom,
-                              }: {
-        tariffPlan?: string;
-        date?: string;
-        dateFrom?: string;
-    }) => {
-        let trades: Trade[] = await api.clientInfo.getTrades({
-            exchange: Exchange.MOEX,
-            portfolio: settings.portfolio,
-        });
-
-        if (date || dateFrom) {
-            let lastTrades = await api.clientInfo.getHistoryTrades({
-                exchange: Exchange.MOEX,
-                portfolio: settings.portfolio,
-                dateFrom: date || dateFrom,
-            });
-            trades.push(...lastTrades);
-
-            while (lastTrades.length > 1) {
-                lastTrades = await api.clientInfo.getHistoryTrades({
-                    exchange: Exchange.MOEX,
-                    portfolio: settings.portfolio,
-                    from: trades.slice(-1)[0].id,
-                });
-                trades.push(...lastTrades.slice(1));
-            }
-
-            if (date)
-                trades = trades.filter((t) =>
-                    moment(date).add(1, 'day').isAfter(moment(t.date)),
-                );
-
-            const dayVolumes = trades.reduce((acc, curr) => {
-                const day = moment(curr.date).format('YYYY-MM-DD');
-                if (!acc[day]) {
-                    acc[day] = 0;
-                }
-                // @ts-ignore
-                acc[day] += curr.volume;
-
-                return acc;
-            }, {});
-
-            trades = trades.map((t) => ({
-                ...t,
-                // @ts-ignore
-                commission: calculateCommission(tariffPlan, dayVolumes[moment(t.date).format('YYYY-MM-DD')]) * t.volume,
-            }));
-        }
-
-        setTrades(trades.filter(t => moment(t.date).isBefore(moment(dateTo))));
-    };
-
     useEffect(() => {
         // Если токена нет - редирект на логин
         if (!settings.token) {
@@ -288,7 +233,7 @@ function App() {
 
         allTrades.reverse();
 
-        return tradesToHistoryPositions(allTrades);
+        return tradesToHistoryPositions(allTrades as any);
     }, [trades]);
 
     const data = useMemo(() => {
@@ -334,16 +279,6 @@ function App() {
 
     const lastWithdrawals = useAppSelector(state => state.alorSlice.lastWithdrawals)
 
-    const {data: _equityDynamics} = useGetEquityDynamicsQuery([{
-        startDate: moment(dateFrom).add(-1, 'day').format('YYYY-MM-DD'),
-        endDate: dateTo,
-        portfolio: settings.portfolio,
-        agreementNumber: settings.agreement
-    }], {
-        skip: !userInfo || !settings.portfolio || !settings.agreement,
-        refetchOnMountOrArgChange: true
-    });
-
     const equityDynamics = useMemo(() => {
         if (!summary) {
             return {
@@ -376,39 +311,18 @@ function App() {
     }, [_equityDynamics, summary]);
 
     useEffect(() => {
-        if (!api || !summary || !userInfo || !visibilitychange) {
-            return;
-        }
-
-        setIsLoading(true);
-
-        loadTrades({
-            tariffPlan: getCurrentTariffPlan(userInfo, settings.agreement, settings.portfolio),
-            date,
-            dateFrom,
-        })
-            .finally(() => setIsLoading(false));
-    }, [api, dateFrom, summary, userInfo, settings.agreement, settings.portfolio, visibilitychange]);
-
-    useEffect(() => {
         localStorage.setItem('symbols', JSON.stringify(symbols));
     }, [symbols]);
-
-    useEffect(() => {
-        localStorage.setItem('settings', JSON.stringify(settings));
-    }, [settings]);
 
     const menuItems: (MenuItemType & { element: ReactNode })[] = [
         {
             key: 'diary',
             label: 'Дневник',
             element: <Diary getIsinBySymbol={getIsinBySymbol} getListSectionBySymbol={getListSectionBySymbol}
-                            userInfo={userInfo}
                             isMobile={width < 400 ? 1 : width < 1200 ? Math.round(width / 410) : 0}
-                            moneyMoves={moneyMoves || []} equityDynamics={equityDynamics}
-                            data={data} trades={trades} api={api} isLoading={isLoading}
-                            lastWithdrawals={lastWithdrawals} operations={operations}
-                            fullName={userInfo?.fullName}/>
+                            moneyMoves={moneyMoves || []}
+                            data={data} isLoading={isLoading}
+                            lastWithdrawals={lastWithdrawals} operations={operations}/>
         },
         {
             key: 'analytics',

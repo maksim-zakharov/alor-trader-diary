@@ -25,11 +25,11 @@ const ProfitWidget = ({data, isLoading, colors, initBalance}) => {
         skip: !api
     });
 
-    const {data: moneyMoves = []} = useGetMoneyMovesQuery([
-        settings.agreement,{
-            dateFrom,
-            dateTo
-        }], {
+    const {data: moneyMoves = []} = useGetMoneyMovesQuery({
+        agreementNumber: settings.agreement,
+        dateFrom,
+        dateTo
+    }, {
         skip: !userInfo || !settings.agreement,
         refetchOnMountOrArgChange: true
     });

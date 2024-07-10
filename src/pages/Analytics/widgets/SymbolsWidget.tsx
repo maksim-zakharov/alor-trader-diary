@@ -1,6 +1,6 @@
 import Spinner from "../../../common/Spinner";
 import HighchartsReact from "highcharts-react-official";
-import * as Highcharts from "highcharts";
+import Highcharts from "highcharts";
 import NoResult from "../../../common/NoResult";
 import React, {useMemo} from "react";
 

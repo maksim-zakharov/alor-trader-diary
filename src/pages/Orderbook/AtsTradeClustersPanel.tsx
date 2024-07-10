@@ -1,7 +1,5 @@
-import AtsTradeClusters from './AtsTradeClusters';
 import { FC, useEffect, useMemo, useRef, useState } from 'react';
 import { Alltrade, Side, Timeframe, Trade } from 'alor-api';
-import * as moment from 'moment';
 import { fillCanvas, shortNumberFormat } from '../../common/utils';
 import { scaleLinear } from 'd3';
 

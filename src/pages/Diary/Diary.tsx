@@ -52,7 +52,6 @@ import moment from 'moment/moment';
 import {selectOptions, summ} from '../../App';
 import {moneyFormat, shortNumberFormat} from '../../common/utils';
 import {AlorApi, Exchange} from "alor-api";
-import * as days from "dayjs";
 import dayjs from "dayjs";
 import {useSearchParams} from "react-router-dom";
 import PositionDetails from "./components/PositionDetails";
@@ -112,17 +111,13 @@ const sharedOnCell = (_: DataType, index: number) => {
 interface IProps {
     data: any;
     trades?: any;
-    api: AlorApi;
     isLoading: boolean;
-    fullName?: string;
     isMobile: number
-    equityDynamics?: EquityDynamicsResponse
     moneyMoves: MoneyMove[];
     getListSectionBySymbol: any;
     getIsinBySymbol: any;
     lastWithdrawals: number[]
     operations: GetOperationsResponse[];
-    userInfo: UserInfoResponse;
 }
 
 const AccountCard: FC<any> = ({
@@ -158,26 +153,26 @@ const AccountCard: FC<any> = ({
 const Diary: FC<IProps> = ({
                                getListSectionBySymbol,
                                data,
-                               trades,
-                               api,
                                isLoading,
                                getIsinBySymbol,
-                               fullName,
                                moneyMoves,
                                isMobile,
                                lastWithdrawals,
-                               operations,
-                               userInfo,
-                               equityDynamics
+                               operations
                            }) => {
     const dispatch = useAppDispatch();
     const settings = useAppSelector(state => state.alorSlice.settings);
+    const api = useAppSelector(state => state.alorSlice.api);
+    const userInfo = useAppSelector(state => state.alorSlice.userInfo);
+    const fullName = userInfo?.fullName;
 
-    const {data: summary} = useGetSummaryQuery([{
+    const {data: summary, isLoading: isSummaryLoading} = useGetSummaryQuery({
         exchange: Exchange.MOEX,
         format: 'Simple',
         portfolio: settings.portfolio
-    }]);
+    }, {
+        skip: !api || !userInfo || !settings.portfolio
+    });
 
     const [createOperationMutation] = useCreateOperationMutation();
     const [getOperationCode] = useGetOperationCodeMutation();
@@ -485,7 +480,8 @@ const Diary: FC<IProps> = ({
             return;
         }
 
-        const operationResult = await createOperationMutation([agreementNumber, {
+        const operationResult = await createOperationMutation({
+            agreementNumber,
             account: settings.portfolio,
             bic: account.bic,
             amount: Number((amount || "").replaceAll(" ", '')),
@@ -497,17 +493,17 @@ const Diary: FC<IProps> = ({
             settlementAccount: account.settlementAccount,
             currency: Currency.RUB,
             subportfolioFrom: "MOEX"
-        }]).unwrap()
+        }).unwrap()
 
         if (operationResult.errorMessage) {
             setError(operationResult.errorMessage);
             return;
         }
 
-        const codeResponse = await getOperationCode([{
+        const codeResponse = await getOperationCode({
             operationId: operationResult.operationId.toString(),
             agreementNumber
-        }]).unwrap();
+        }).unwrap();
 
         if (codeResponse.errorMessage) {
             setError(codeResponse.errorMessage);
@@ -519,11 +515,11 @@ const Diary: FC<IProps> = ({
     const signOperation = async () => {
         const agreementNumber = settings.agreement;
 
-        const result = await signOperationMutation([{
+        const result = await signOperationMutation({
             agreementNumber,
             operationId,
             confirmationCode
-        }]).unwrap();
+        }).unwrap();
 
         if (result.errorMessage) {
             setError(result.errorMessage);
@@ -563,7 +559,7 @@ const Diary: FC<IProps> = ({
     if (!dateFrom) {
         dateFrom = moment().startOf('month').format('YYYY-MM-DD');
     }
-    const currentDates: DatePickerProps['value'] = days(dateFrom);
+    const currentDates: DatePickerProps['value'] = dayjs(dateFrom);
 
     const onChangeDate = (dateFrom) => {
         searchParams.set('dateFrom', dateFrom.format('YYYY-MM-DD'));
@@ -806,7 +802,7 @@ const Diary: FC<IProps> = ({
     >
         <Statistic
             title="Баланс"
-            loading={isLoading}
+            loading={isSummaryLoading}
             value={moneyFormat(summaryValue)}
             precision={2}
         />
@@ -819,8 +815,8 @@ const Diary: FC<IProps> = ({
     </div>
 
     const MobileSummary = () => <div className="MobileSummary widget">
-        {isLoading && <Spinner/>}
-        {!isLoading && <><div style={{
+        {isSummaryLoading && <Spinner/>}
+        {!isSummaryLoading && <div style={{
             display: 'flex', alignItems: 'baseline',
             justifyContent: 'space-between'
         }}>
@@ -852,7 +848,7 @@ const Diary: FC<IProps> = ({
                     onClick={(f) => setShowOperationsModal('settings')(true)}
                 />
             </Space>
-        </div>
+        </div>}
         <div className="button-group">
             <Button
                 type="text"
@@ -870,14 +866,14 @@ const Diary: FC<IProps> = ({
 
             <Radio.Group options={options} onChange={e => onChangeView(e.target.value)} value={view} size="large"
                          optionType="button"/>
-        </div></>}
+        </div>
     </div>
 
     const MobilePosition = ({positions}) => {
         const summary = useMemo(() => positions.find(p => p.type === 'summary'), [positions]);
         const dayPositions = useMemo(() => positions.filter(p => p.type !== 'summary'), [positions]);
 
-        return <div className="MobilePosition widget">
+        return <div className="MobilePosition widget" key={summary.openDate}>
             <div style={{display: 'flex', alignItems: 'end'}}>
                 <div className="title-container">
                     <div className="title">{moment(summary.openDate).format('DD.MM.YYYY')}</div>
@@ -893,7 +889,7 @@ const Diary: FC<IProps> = ({
                 </div>
             </div>
             {dayPositions.map(dp =>
-                <div className="ticker-info">
+                <div className="ticker-info" key={`${summary.openDate}-${dp.openDate}-${dp.symbol}`}>
                     <div style={{display: 'flex'}}>
                         <TickerImg getIsinBySymbol={getIsinBySymbol} symbol={dp?.symbol}/>
                         <div className="ticker_name">
@@ -1073,7 +1069,7 @@ const Diary: FC<IProps> = ({
                             />
                         </FormItem>
                         {lastWithdrawals.length > 0 && <div className="tag-container">
-                            {lastWithdrawals.map(lw => <Tag onClick={() => setPaidInfo(prevState => ({
+                            {lastWithdrawals.map(lw => <Tag key={lw} onClick={() => setPaidInfo(prevState => ({
                                 ...prevState,
                                 amount: lw.toString()
                             }))}>{lw}</Tag>)}
@@ -1114,7 +1110,7 @@ const Diary: FC<IProps> = ({
             <Drawer title="Операции" open={showOperationsModal} placement="right"
                     onClose={() => setShowOperationsModal('operations')(false)} className="operation-modal">
                 {moneyOperations.map(getMaxLossTrade =>
-                    <div className="ticker-info">
+                    <div className="ticker-info" key={getMaxLossTrade.id}>
                         <div style={{display: 'flex'}}>
                             {getMaxLossTrade.subType === 'money_withdrawal' ? <MoneyOutputIcon/> : <MoneyInputIcon/>}
                             <div className="ticker_name">

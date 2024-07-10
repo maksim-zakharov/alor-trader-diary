@@ -1,4 +1,4 @@
-import * as moment from "moment/moment";
+import moment from "moment/moment";
 import {moneyFormat} from "../../../common/utils";
 import React, {useMemo} from "react";
 import {Skeleton} from "antd";

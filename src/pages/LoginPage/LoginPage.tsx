@@ -6,14 +6,15 @@ import FormItem from "antd/es/form/FormItem";
 import {useGetUserInfoQuery} from "../../api/alor.api";
 import {initApi, logout, setSettings} from "../../api/alor.slice";
 import {useAppDispatch, useAppSelector} from "../../store";
+import {AlorApi, Endpoint, WssEndpoint, WssEndpointBeta} from "alor-api";
 
 const LoginPage = () => {
     const api = useAppSelector(state => state.alorSlice.api);
+    const userInfo = useAppSelector(state => state.alorSlice.userInfo);
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
-    const userInfo = useAppSelector(state => state.alorSlice.userInfo);
     // @ts-ignore
-    const {refetch, isLoading} = useGetUserInfoQuery({}, {skip: !api});
+    const {refetch} = useGetUserInfoQuery({}, {skip: !api});
     const [token, setToken] = React.useState<string | null>(null);
     const [error, setError] = useState();
 
@@ -28,33 +29,35 @@ const LoginPage = () => {
         value: p.accountNumber
     })) || [], [agreement, userInfo]);
 
-    useEffect(() => {
-        // (async () => {
-        //     if(api){
-        //         try {
-        //             dispatch(initApi({token}))
-        //
-        //             setLoading(true);
-        //
-        //             await api.refresh();
-        //
-        //             setLoading(false);
-        //
-        //             setError(undefined);
-        //
-        //             dispatch(setSettings(({token})));
-        //         } catch (e: any) {
-        //             setError(e.message);
-        //             clearToken();
-        //             console.log(e.message);
-        //         }
-        //     }
-        // })();
-    }, [api]);
-
     const checkToken = async () => {
-        dispatch(initApi({token}))
-        dispatch(setSettings({token}));
+        try{
+            const api = new AlorApi({
+                token,
+                endpoint: Endpoint.PROD,
+                wssEndpoint: WssEndpoint.PROD,
+                wssEndpointBeta: WssEndpointBeta.PROD,
+            })
+            setLoading(true);
+
+                        await api.refresh(undefined, undefined, error => {
+                            setError(error.message)
+                            clearToken();
+                            console.log(error.message);
+                        });
+
+                        setLoading(false);
+
+                        if(api.accessToken){
+                            setError(undefined);
+                            dispatch(initApi({token, accessToken: api.accessToken}))
+                            dispatch(setSettings(({token})));
+                            setTimeout(() => refetch());
+                        }
+        } catch (e: any) {
+                        setError(e.message);
+                        clearToken();
+                        console.log(e.message);
+                    }
     }
 
     const handleSelectPortfolio = (portfolio: string) => {
@@ -83,7 +86,7 @@ const LoginPage = () => {
                     <Input placeholder="Введите Alor Token" onChange={e => setToken(e.target.value)}/>
                 </FormItem>
                 <Button onClick={checkToken} type="primary" htmlType="submit" disabled={!token}
-                        loading={isLoading}>Продолжить</Button>
+                        loading={loading}>Продолжить</Button>
             </Form>}
             {userInfo && <Form layout="vertical" onSubmitCapture={login}>
                 <FormItem validateStatus={error ? 'error' : undefined} extra={error} label="Договор">

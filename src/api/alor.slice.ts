@@ -41,9 +41,10 @@ export const alorSlice = createSlice({
     name: 'alorSlice',
     initialState,
     reducers: {
-        initApi(state, action: PayloadAction<{ token: string }>) {
+        initApi(state, action: PayloadAction<{ token: string, accessToken?: string }>) {
             state.api = new AlorApi({
                 token: action.payload.token,
+                accessToken: action.payload.accessToken,
                 endpoint: Endpoint.PROD,
                 wssEndpoint: WssEndpoint.PROD,
                 wssEndpointBeta: WssEndpointBeta.PROD,

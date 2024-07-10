@@ -1,7 +1,6 @@
 import React, {FC, useEffect, useMemo, useState} from "react";
 import {AlorApi} from "alor-api";
-import * as moment from "moment";
-import * as Highcharts from "highcharts";
+import Highcharts from "highcharts";
 import {selectOptionsMap, summ} from "../../App";
 import ProfitIntervalWidget from "./widgets/ProfitIntervalWidget";
 import LossIntervalWidget from "./widgets/LossIntervalWidget";
@@ -9,16 +8,13 @@ import MaxProfitTradesWidget from "./widgets/MaxProfitTradesWidget";
 import MaxLossTradesWidget from "./widgets/MaxLossTradesWidget";
 import LossTimeWidget from "./widgets/LossTimeWidget";
 import ProfitTimeWidget from "./widgets/ProfitTimeWidget";
-import EquityWidget from "./widgets/EquityWidget";
 import SymbolsWidget from "./widgets/SymbolsWidget";
 import ReportWidget from "./widgets/ReportWidget";
 import ProfitWidget from "./widgets/ProfitWidget";
-import {GetOperationsResponse, MoneyMove} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 import ProfitWeekdayWidget from "./widgets/ProfitWeekdayWidget";
 import LossWeekdayWidget from "./widgets/LossWeekdayWidget";
 import ProfitSectionWidget from "./widgets/ProfitSectionWidget";
 import LossSectionWidget from "./widgets/LossSectionWidget";
-import {useAppSelector} from "../../store";
 
 interface IProps {
     balanceSeriesData: any
@@ -35,7 +31,7 @@ const Analytics: FC<IProps> = ({getIsinBySymbol, getListSectionBySymbol, data, a
         [id: string]: string
     }>(JSON.parse(localStorage.getItem('reasons') || '{}'));
 
-    const [nightMode] = useState(Boolean(localStorage.getItem('night') === 'true'));
+    const [nightMode] = useState(true); // Boolean(localStorage.getItem('night') === 'true'));
 
     const balanceSeriesDataWithoutFirst = useMemo(() => balanceSeriesData.slice(1), [balanceSeriesData]);
 
