@@ -75,7 +75,7 @@ https://{yourDomain}/authorize?
     state={state}
 ```
 
-В ответ нам отдается 302 с Location Location: {https://yourApp/callback}?code={authorizationCode}&state=xyzABC123
+В ответ нам отдается 302 с Location: {https://yourApp/callback}?code={authorizationCode}&state=xyzABC123
 который автоматом редиректит нас по указанной ссылке
 
 4. Логинимся на авторизационном сайте, он редиректит нас на наш сайт передавая нам code И вешает куку-сессию как признак
