@@ -68,7 +68,7 @@ import NoResult from "../../common/NoResult";
 import TickerImg from "../../common/TickerImg";
 import {useAppDispatch, useAppSelector} from "../../store";
 import {
-    useCreateOperationMutation,
+    useCreateOperationMutation, useGetMoneyMovesQuery,
     useGetOperationCodeMutation, useGetOperationsQuery,
     useGetSummaryQuery,
     useSignOperationMutation
@@ -113,9 +113,10 @@ interface IProps {
     trades?: any;
     isLoading: boolean;
     isMobile: number
-    moneyMoves: MoneyMove[];
     getListSectionBySymbol: any;
     getIsinBySymbol: any;
+    dateFrom?: string;
+    dateTo?: string;
 }
 
 const AccountCard: FC<any> = ({
@@ -153,7 +154,8 @@ const Diary: FC<IProps> = ({
                                data,
                                isLoading,
                                getIsinBySymbol,
-                               moneyMoves,
+                               dateFrom,
+                               dateTo,
                                isMobile
                            }) => {
 
@@ -163,6 +165,14 @@ const Diary: FC<IProps> = ({
     const api = useAppSelector(state => state.alorSlice.api);
     const userInfo = useAppSelector(state => state.alorSlice.userInfo);
     const fullName = userInfo?.fullName;
+
+    const {data: moneyMoves = []} = useGetMoneyMovesQuery({
+        agreementNumber: settings.agreement,
+        dateFrom,
+        dateTo
+    }, {
+        skip: !userInfo || !settings.agreement || !api
+    })
 
     const {data: operations = []} = useGetOperationsQuery(userInfo?.agreements[0]?.agreementNumber, {
         skip: !userInfo || !api
@@ -545,7 +555,6 @@ const Diary: FC<IProps> = ({
         success: false
     })
     const [searchParams, setSearchParams] = useSearchParams();
-    let dateFrom = searchParams.get('dateFrom');
     let showOperationsModal = searchParams.get('drawer') === 'operations';
     let showSettings = searchParams.get('drawer') === 'settings';
     let showPayModal = searchParams.get('drawer') === 'payout';

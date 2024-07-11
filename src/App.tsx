@@ -11,11 +11,7 @@ import Diary from './pages/Diary/Diary';
 import Analytics from './pages/Analytics/Analytics';
 import LoginPage from "./pages/LoginPage/LoginPage";
 import {DefaultOptionType} from 'antd/es/select';
-import {
-    getCurrentTariffPlan,
-    positionsToTrades,
-    tradesToHistoryPositions
-} from './utils';
+import {getCurrentTariffPlan, positionsToTrades, tradesToHistoryPositions} from './utils';
 import useListSecs from "./useListSecs";
 import {initApi, setSettings} from "./api/alor.slice";
 import {useAppDispatch, useAppSelector} from "./store";
@@ -24,7 +20,8 @@ import {
     calculateCommission,
     useGetEquityDynamicsQuery,
     useGetMoneyMovesQuery,
-    useGetSummaryQuery, useGetTradesQuery,
+    useGetSummaryQuery,
+    useGetTradesQuery,
     useGetUserInfoQuery
 } from './api/alor.api';
 import {getEnv, oAuth2Client} from "./api/oAuth2";
@@ -109,7 +106,7 @@ function App() {
     useEffect(() => {
         const url = new URL(document.location.href);
         const code = url.searchParams.get('code');
-        if(code){
+        if (code) {
             oAuth2Client.code.getToken(document.location.href, {
                 body: {
                     client_id: getEnv('SSO_CLIENT_ID'),
@@ -124,9 +121,9 @@ function App() {
     }, [document.location.href])
 
     useEffect(() => {
-        if(userInfo && settings.token){
+        if (userInfo && settings.token) {
             const url = new URL(window.location.href);
-            if(url.searchParams.get('state') || url.searchParams.get('code')){
+            if (url.searchParams.get('state') || url.searchParams.get('code')) {
                 url.searchParams.delete('code');
                 url.searchParams.delete('state');
                 window.location.replace(url.toString());
@@ -155,14 +152,6 @@ function App() {
     }, {
         skip: !api || !userInfo || !settings.portfolio
     });
-
-    const {data: moneyMoves = []} = useGetMoneyMovesQuery({
-            agreementNumber: settings.agreement,
-            dateFrom,
-            dateTo
-        }, {
-        skip: !userInfo || !settings.agreement || !api
-    })
 
     const {data: _equityDynamics} = useGetEquityDynamicsQuery({
         startDate: moment(dateFrom).add(-1, 'day').format('YYYY-MM-DD'),
@@ -336,7 +325,7 @@ function App() {
             label: 'Дневник',
             element: <Diary getIsinBySymbol={getIsinBySymbol} getListSectionBySymbol={getListSectionBySymbol}
                             isMobile={width < 400 ? 1 : width < 1200 ? Math.round(width / 410) : 0}
-                            moneyMoves={moneyMoves || []}
+                            dateFrom={dateFrom} dateTo={dateTo}
                             data={data} isLoading={isLoading}/>
         },
         {
