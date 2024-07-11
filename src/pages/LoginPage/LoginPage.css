@@ -2,6 +2,13 @@
     height: calc(100vh - 48px);
     display: flex;
 
+.support-link{
+    text-align: center;
+    width: 100%;
+    line-height: 1;
+    height: auto;
+}
+
     .ant-form-item{
         border: none;
     }

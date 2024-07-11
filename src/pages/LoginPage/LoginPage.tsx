@@ -85,6 +85,7 @@ const LoginPage = () => {
                 </FormItem>
                 <Button onClick={checkToken} type="primary" htmlType="submit" disabled={!token}
                         loading={loading}>Продолжить</Button>
+                <Button className="support-link" type="link" href="https://t.me/+8KsjwdNHVzIwNDQy" target="_blank">Поддержка</Button>
             </Form>}
             {userInfo && <Form layout="vertical" onSubmitCapture={login}>
                 <FormItem validateStatus={error ? 'error' : undefined} extra={error} label="Договор">
@@ -103,6 +104,7 @@ const LoginPage = () => {
                 <Button onClick={login} type="primary" htmlType="submit"
                         disabled={!portfolio || !agreement}>Войти</Button>
                 <Button type="link" onClick={clearToken}>Ввести другой alor token</Button>
+                <Button className="support-link" type="link" href="https://t.me/+8KsjwdNHVzIwNDQy" target="_blank">Поддержка</Button>
             </Form>}
         </Card>
     </div>
