@@ -28,6 +28,7 @@ import {
     useGetSummaryQuery, useGetTradesQuery,
     useGetUserInfoQuery
 } from './api/alor.api';
+import {getEnv, oAuth2, redirectUri} from "./api/oAuth2";
 
 export const avg = (numbers: number[]) =>
     !numbers.length ? 0 : summ(numbers) / numbers.length;
@@ -80,6 +81,8 @@ function useWindowDimensions() {
 }
 
 function App() {
+    // @ts-ignore
+    console.log(process.env)
     const api = useAppSelector(state => state.alorSlice.api);
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
@@ -100,6 +103,67 @@ function App() {
     if (!dateTo) {
         dateTo = moment().endOf('month').add(1, 'day').format('YYYY-MM-DD');
     }
+
+    useEffect(() => {
+        const url = new URL(document.location.href);
+        const code = url.searchParams.get('code');
+        if(code){
+        (async () => {
+
+            // fetch("https://oauth.alor.ru/token", {
+            //     "headers": {
+            //         "accept": "*/*",
+            //         "accept-language": "ru-RU,ru;q=0.9",
+            //         "authorization": "Basic NjFkYjBhYzEzYmI5NDEzMWIxNzQ6Y29scUhGc2FvT0hSd3A4SDVKYk5OK2dqYzdocWU1dUE4YXBLMXRsd1BMZz0=",
+            //         "cache-control": "no-cache",
+            //         "content-type": "application/x-www-form-urlencoded",
+            //         "pragma": "no-cache",
+            //         "sec-ch-ua": "\"Google Chrome\";v=\"117\", \"Not;A=Brand\";v=\"8\", \"Chromium\";v=\"117\"",
+            //         "sec-ch-ua-mobile": "?0",
+            //         "sec-ch-ua-platform": "\"macOS\"",
+            //         "sec-fetch-dest": "empty",
+            //         "sec-fetch-mode": "cors",
+            //         "sec-fetch-site": "cross-site"
+            //     },
+            //     "referrer": "http://localhost:3000/",
+            //     "referrerPolicy": "strict-origin-when-cross-origin",
+            //     "body": `client_id=${getEnv('SSO_CLIENT_ID')}&client_secret=${getEnv('SSO_CLIENT_SECRET')}&grant_type=authorization_code&code=${code}&redirect_uri=https%3A%2F%2Fmaksim-zakharov.github.io%2Falor-trader-diary`,
+            //     "method": "POST",
+            //     "mode": "cors",
+            //     "credentials": "include"
+            // });
+            // oAuth2.authorizationCode.getToken({
+            //     // @ts-ignore
+            //         clientId: getEnv('SSO_CLIENT_ID'),
+            //         code,
+            //         redirectUri,
+            //     }).then(console.log)
+
+            const oauth2Token = await oAuth2.authorizationCode.getTokenFromCodeRedirect(
+                document.location.href,
+                {
+                    /**
+                     * The redirect URI is not actually used for any redirects, but MUST be the
+                     * same as what you passed earlier to "authorizationCode"
+                     */
+                    redirectUri,
+
+                    /**
+                     * This is optional, but if it's passed then it also MUST be the same as
+                     * what you passed in the first step.
+                     *
+                     * If set, it will verify that the server sent the exact same state back.
+                     */
+                    // state: 'some-string',
+
+                    // codeVerifier: '',
+                }
+            );
+
+            console.log(oauth2Token);
+        })()
+        }
+    }, [document.location.href])
 
     // @ts-ignore
     useGetUserInfoQuery({}, {
