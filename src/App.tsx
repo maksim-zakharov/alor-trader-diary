@@ -126,6 +126,19 @@ function App() {
         }
     }, [document.location.href])
 
+    useEffect(() => {
+        if(userInfo && settings.token){
+            // const url = new URL(window.location.href);
+            // if(url.searchParams.get('state')){
+            //     url.searchParams.delete('code');
+            //     url.searchParams.delete('state');
+            //     window.location.replace(url.toString());
+            // }
+
+            searchParams.delete('code');
+        }
+    }, [userInfo, settings.token, searchParams])
+
     const {data: _trades = [], isLoading} = useGetTradesQuery({
         tariffPlan: getCurrentTariffPlan(userInfo, settings.agreement, settings.portfolio),
         date,
