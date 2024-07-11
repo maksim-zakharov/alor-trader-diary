@@ -8,7 +8,7 @@ import {initApi, logout, setSettings} from "../../api/alor.slice";
 import {useAppDispatch, useAppSelector} from "../../store";
 import {AlorApi, Endpoint, WssEndpoint, WssEndpointBeta} from "alor-api";
 import {generateCodeVerifier, OAuth2Client} from "@badgateway/oauth2-client";
-import {oAuth2, redirectUri} from "../../api/oAuth2";
+import {oAuth2, oAuth2Client, redirectUri} from "../../api/oAuth2";
 
 const LoginPage = () => {
     const trySSO = localStorage.getItem('SSO');
@@ -99,20 +99,22 @@ const LoginPage = () => {
             state += possible.charAt(Math.floor(Math.random() * possible.length));
         }
 
+        document.location = oAuth2Client.code.getUri();
+
 // In a browser this might work as follows:
-        document.location = await oAuth2.authorizationCode.getAuthorizeUri({
-
-            // URL in the app that the user should get redirected to after authenticating
-            redirectUri,
-
-            // Optional string that can be sent along to the auth server. This value will
-            // be sent along with the redirect back to the app verbatim.
-            state,
-
-            codeVerifier: '',
-
-            scope: ['ordersread', 'trades', 'personal', 'trades'],
-        });
+//         document.location = await oAuth2.authorizationCode.getAuthorizeUri({
+//
+//             // URL in the app that the user should get redirected to after authenticating
+//             redirectUri,
+//
+//             // Optional string that can be sent along to the auth server. This value will
+//             // be sent along with the redirect back to the app verbatim.
+//             state,
+//
+//             codeVerifier: '',
+//
+//             scope: ['ordersread', 'trades', 'personal', 'trades'],
+//         });
     }
 
     return <div className="LoginPage">

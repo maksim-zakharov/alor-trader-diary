@@ -1,5 +1,6 @@
 
 import {OAuth2Client} from "@badgateway/oauth2-client";
+import ClientOAuth2 from "client-oauth2";
 
 // @ts-ignore
 export const getEnv = (env: string) => process.env[env];
@@ -44,3 +45,12 @@ export const oAuth2 = new OAuth2Client({
     // If not specified, we assume it's on /.well-known/oauth2-authorization-server
     discoveryEndpoint: '/.well-known/oauth2-authorization-server',
 });
+
+export const oAuth2Client = new ClientOAuth2({
+    clientId: getEnv('SSO_CLIENT_ID'),
+    clientSecret: getEnv('SSO_CLIENT_SECRET'),
+    accessTokenUri: 'https://oauth.alor.ru/token',
+    authorizationUri: 'https://oauth.alor.ru/authorize',
+    redirectUri,
+    scopes: ['ordersread', 'trades', 'personal', 'trades']
+})

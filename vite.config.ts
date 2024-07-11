@@ -11,6 +11,11 @@ export default ({ mode }) => {
         define: {
             'process.env': env,
         },
+        resolve: {
+            alias: {
+                'querystring': './node_modules/querystring-browser/querystring.js',
+            },
+        },
         plugins: [react(), viteTsconfigPaths()],
         server: {
             // this ensures that the browser opens upon server start

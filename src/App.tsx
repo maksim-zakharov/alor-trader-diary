@@ -28,7 +28,7 @@ import {
     useGetSummaryQuery, useGetTradesQuery,
     useGetUserInfoQuery
 } from './api/alor.api';
-import {getEnv, oAuth2, redirectUri} from "./api/oAuth2";
+import {getEnv, oAuth2, oAuth2Client, redirectUri} from "./api/oAuth2";
 
 export const avg = (numbers: number[]) =>
     !numbers.length ? 0 : summ(numbers) / numbers.length;
@@ -107,7 +107,7 @@ function App() {
         const code = url.searchParams.get('code');
         if(code){
         (async () => {
-
+            oAuth2Client.code.getToken(document.location.href).then(console.log)
             // fetch("https://oauth.alor.ru/token", {
             //     "headers": {
             //         "accept": "*/*",
@@ -137,28 +137,28 @@ function App() {
             //         redirectUri,
             //     }).then(console.log)
 
-            const oauth2Token = await oAuth2.authorizationCode.getTokenFromCodeRedirect(
-                document.location.href,
-                {
-                    /**
-                     * The redirect URI is not actually used for any redirects, but MUST be the
-                     * same as what you passed earlier to "authorizationCode"
-                     */
-                    redirectUri,
-
-                    /**
-                     * This is optional, but if it's passed then it also MUST be the same as
-                     * what you passed in the first step.
-                     *
-                     * If set, it will verify that the server sent the exact same state back.
-                     */
-                    // state: 'some-string',
-
-                    // codeVerifier: '',
-                }
-            );
-
-            console.log(oauth2Token);
+            // const oauth2Token = await oAuth2.authorizationCode.getTokenFromCodeRedirect(
+            //     document.location.href,
+            //     {
+            //         /**
+            //          * The redirect URI is not actually used for any redirects, but MUST be the
+            //          * same as what you passed earlier to "authorizationCode"
+            //          */
+            //         redirectUri,
+            //
+            //         /**
+            //          * This is optional, but if it's passed then it also MUST be the same as
+            //          * what you passed in the first step.
+            //          *
+            //          * If set, it will verify that the server sent the exact same state back.
+            //          */
+            //         // state: 'some-string',
+            //
+            //         // codeVerifier: '',
+            //     }
+            // );
+            //
+            // console.log(oauth2Token);
         })()
         }
     }, [document.location.href])
