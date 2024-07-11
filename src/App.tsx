@@ -136,6 +136,7 @@ function App() {
             // }
 
             searchParams.delete('code');
+            setSearchParams(searchParams);
         }
     }, [userInfo, settings.token, searchParams])
 
