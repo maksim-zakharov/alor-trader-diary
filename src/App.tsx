@@ -205,11 +205,11 @@ function App() {
 
     useEffect(() => {
         // Если токена нет - редирект на логин
-        if (!settings.token) {
+        if (!settings.token && !location.pathname.endsWith('/login')) {
             navigate('/login');
         } else
             // Если портфолио нет - редирект на страницу выбора логина
-        if (!settings.portfolio) {
+        if (!settings.portfolio && !location.pathname.endsWith('/login')) {
             navigate('/login');
         }
     }, [settings.token, settings.portfolio]);
