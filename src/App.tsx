@@ -81,8 +81,6 @@ function useWindowDimensions() {
 }
 
 function App() {
-    // @ts-ignore
-    console.log(process.env)
     const api = useAppSelector(state => state.alorSlice.api);
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
