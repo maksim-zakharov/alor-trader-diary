@@ -1,5 +1,5 @@
 import {Button, Card, Form, Input, Select} from "antd";
-import React, {useEffect, useMemo, useState} from "react";
+import React, {useMemo, useState} from "react";
 import './LoginPage.css';
 import {useNavigate} from "react-router-dom";
 import FormItem from "antd/es/form/FormItem";
@@ -7,11 +7,10 @@ import {useGetUserInfoQuery} from "../../api/alor.api";
 import {initApi, logout, setSettings} from "../../api/alor.slice";
 import {useAppDispatch, useAppSelector} from "../../store";
 import {AlorApi, Endpoint, WssEndpoint, WssEndpointBeta} from "alor-api";
-import {generateCodeVerifier, OAuth2Client} from "@badgateway/oauth2-client";
-import {oAuth2, oAuth2Client, redirectUri} from "../../api/oAuth2";
+import {oAuth2Client} from "../../api/oAuth2";
 
 const LoginPage = () => {
-    const trySSO =true;// localStorage.getItem('SSO');
+    const trySSO = true;// localStorage.getItem('SSO');
     const api = useAppSelector(state => state.alorSlice.api);
     const userInfo = useAppSelector(state => state.alorSlice.userInfo);
     const dispatch = useAppDispatch();
@@ -31,7 +30,7 @@ const LoginPage = () => {
     })) || [], [agreement, userInfo]);
 
     const checkToken = async () => {
-        try{
+        try {
             const api = new AlorApi({
                 token,
                 endpoint: Endpoint.PROD,
@@ -40,25 +39,25 @@ const LoginPage = () => {
             })
             setLoading(true);
 
-                        await api.refresh(undefined, undefined, error => {
-                            setError(error.message)
-                            clearToken();
-                            console.log(error.message);
-                        });
+            await api.refresh(undefined, undefined, error => {
+                setError(error.message)
+                clearToken();
+                console.log(error.message);
+            });
 
-                        setLoading(false);
+            setLoading(false);
 
-                        if(api.accessToken){
-                            setError(undefined);
-                            dispatch(initApi({token, accessToken: api.accessToken}))
-                            dispatch(setSettings(({token})));
-                            setTimeout(() => refetch());
-                        }
+            if (api.accessToken) {
+                setError(undefined);
+                dispatch(initApi({token, accessToken: api.accessToken}))
+                dispatch(setSettings(({token})));
+                setTimeout(() => refetch());
+            }
         } catch (e: any) {
-                        setError(e.message);
-                        clearToken();
-                        console.log(e.message);
-                    }
+            setError(e.message);
+            clearToken();
+            console.log(e.message);
+        }
     }
 
     const handleSelectPortfolio = (portfolio: string) => {
@@ -96,7 +95,8 @@ const LoginPage = () => {
                     <Button onClick={loginBySSO} type="primary" style={{width: "100%"}}>Алор Брокер (SSO)</Button>
                 </FormItem>
                 }
-                <Button className="support-link" type="link" href="https://t.me/+8KsjwdNHVzIwNDQy" target="_blank">Поддержка</Button>
+                <Button className="support-link" type="link" href="https://t.me/+8KsjwdNHVzIwNDQy"
+                        target="_blank">Поддержка</Button>
             </Form>}
             {userInfo && <Form layout="vertical" onSubmitCapture={login}>
                 <FormItem validateStatus={error ? 'error' : undefined} extra={error} label="Договор">
@@ -115,7 +115,8 @@ const LoginPage = () => {
                 <Button onClick={login} type="primary" htmlType="submit"
                         disabled={!portfolio || !agreement}>Войти</Button>
                 <Button type="link" onClick={clearToken}>Ввести другой alor token</Button>
-                <Button className="support-link" type="link" href="https://t.me/+8KsjwdNHVzIwNDQy" target="_blank">Поддержка</Button>
+                <Button className="support-link" type="link" href="https://t.me/+8KsjwdNHVzIwNDQy"
+                        target="_blank">Поддержка</Button>
             </Form>}
         </Card>
     </div>

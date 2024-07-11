@@ -69,7 +69,7 @@ import TickerImg from "../../common/TickerImg";
 import {useAppDispatch, useAppSelector} from "../../store";
 import {
     useCreateOperationMutation,
-    useGetOperationCodeMutation,
+    useGetOperationCodeMutation, useGetOperationsQuery,
     useGetSummaryQuery,
     useSignOperationMutation
 } from "../../api/alor.api";
@@ -116,8 +116,6 @@ interface IProps {
     moneyMoves: MoneyMove[];
     getListSectionBySymbol: any;
     getIsinBySymbol: any;
-    lastWithdrawals: number[]
-    operations: GetOperationsResponse[];
 }
 
 const AccountCard: FC<any> = ({
@@ -156,15 +154,19 @@ const Diary: FC<IProps> = ({
                                isLoading,
                                getIsinBySymbol,
                                moneyMoves,
-                               isMobile,
-                               lastWithdrawals,
-                               operations
+                               isMobile
                            }) => {
+
+    const lastWithdrawals = useAppSelector(state => state.alorSlice.lastWithdrawals)
     const dispatch = useAppDispatch();
     const settings = useAppSelector(state => state.alorSlice.settings);
     const api = useAppSelector(state => state.alorSlice.api);
     const userInfo = useAppSelector(state => state.alorSlice.userInfo);
     const fullName = userInfo?.fullName;
+
+    const {data: operations = []} = useGetOperationsQuery(userInfo?.agreements[0]?.agreementNumber, {
+        skip: !userInfo || !api
+    });
 
     const {data: summary, isLoading: isSummaryLoading} = useGetSummaryQuery({
         exchange: Exchange.MOEX,

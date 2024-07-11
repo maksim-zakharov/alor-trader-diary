@@ -6,7 +6,7 @@ import React, {ReactNode, useEffect, useMemo, useState} from 'react';
 // import QuestionCircleIcon  from './assets/question-circle';
 import moment from 'moment';
 import {Navigate, Route, Routes, useLocation, useNavigate, useSearchParams,} from 'react-router-dom';
-import {Exchange, Positions, Trade, Trades} from 'alor-api';
+import {Exchange, Positions} from 'alor-api';
 import Diary from './pages/Diary/Diary';
 import Analytics from './pages/Analytics/Analytics';
 import LoginPage from "./pages/LoginPage/LoginPage";
@@ -24,11 +24,10 @@ import {
     calculateCommission,
     useGetEquityDynamicsQuery,
     useGetMoneyMovesQuery,
-    useGetOperationsQuery,
     useGetSummaryQuery, useGetTradesQuery,
     useGetUserInfoQuery
 } from './api/alor.api';
-import {getEnv, oAuth2, oAuth2Client, redirectUri} from "./api/oAuth2";
+import {getEnv, oAuth2Client} from "./api/oAuth2";
 
 export const avg = (numbers: number[]) =>
     !numbers.length ? 0 : summ(numbers) / numbers.length;
@@ -111,18 +110,16 @@ function App() {
         const url = new URL(document.location.href);
         const code = url.searchParams.get('code');
         if(code){
-            (async () => {
-                oAuth2Client.code.getToken(document.location.href, {
-                    body: {
-                        client_id: getEnv('SSO_CLIENT_ID'),
-                        client_secret: getEnv('SSO_CLIENT_SECRET'),
-                    }
-                }).then(({accessToken, refreshToken}) => {
-                    dispatch(initApi({token: refreshToken, accessToken: accessToken}))
-                    dispatch(setSettings(({token: refreshToken})));
-                    setTimeout(() => refetch());
-                })
-            })()
+            oAuth2Client.code.getToken(document.location.href, {
+                body: {
+                    client_id: getEnv('SSO_CLIENT_ID'),
+                    client_secret: getEnv('SSO_CLIENT_SECRET'),
+                }
+            }).then(({accessToken, refreshToken}) => {
+                dispatch(initApi({token: refreshToken, accessToken: accessToken}))
+                dispatch(setSettings(({token: refreshToken})));
+                setTimeout(() => refetch());
+            })
         }
     }, [document.location.href])
 
@@ -157,10 +154,6 @@ function App() {
         portfolio: settings.portfolio
     }, {
         skip: !api || !userInfo || !settings.portfolio
-    });
-
-    const {data: operations = []} = useGetOperationsQuery(userInfo?.agreements[0]?.agreementNumber, {
-        skip: !userInfo || !api
     });
 
     const {data: moneyMoves = []} = useGetMoneyMovesQuery({
@@ -218,14 +211,6 @@ function App() {
     );
 
     const {getListSectionBySymbol, getIsinBySymbol} = useListSecs();
-
-    const [visibilitychange, setVisibilitychange] = useState<boolean>(true);
-
-    useEffect(() => {
-        document.addEventListener("visibilitychange", function () {
-            setVisibilitychange(!document.hidden);
-        });
-    }, [])
 
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
 
@@ -310,8 +295,6 @@ function App() {
         return data;
     }, [historyPositions]);
 
-    const lastWithdrawals = useAppSelector(state => state.alorSlice.lastWithdrawals)
-
     const equityDynamics = useMemo(() => {
         if (!summary) {
             return {
@@ -354,8 +337,7 @@ function App() {
             element: <Diary getIsinBySymbol={getIsinBySymbol} getListSectionBySymbol={getListSectionBySymbol}
                             isMobile={width < 400 ? 1 : width < 1200 ? Math.round(width / 410) : 0}
                             moneyMoves={moneyMoves || []}
-                            data={data} isLoading={isLoading}
-                            lastWithdrawals={lastWithdrawals} operations={operations}/>
+                            data={data} isLoading={isLoading}/>
         },
         {
             key: 'analytics',
@@ -404,7 +386,6 @@ function App() {
     return (
         <Layout>
             {userInfo && <Header style={{display: 'flex', alignItems: 'center'}}>
-                {/*<Typography.Title level={2} style={{width: 'auto'}}>Alor Trader Diary</Typography.Title>*/}
                 <div className="menu-content">
                     <Menu
                         theme="dark"
