@@ -12,8 +12,6 @@ import Analytics from './pages/Analytics/Analytics';
 import LoginPage from "./pages/LoginPage/LoginPage";
 import {DefaultOptionType} from 'antd/es/select';
 import {
-    calculateCommission,
-    getCommissionByPlanAndTotalVolume,
     getCurrentTariffPlan,
     positionsToTrades,
     tradesToHistoryPositions
@@ -23,6 +21,7 @@ import {initApi} from "./api/alor.slice";
 import {useAppDispatch, useAppSelector} from "./store";
 import {MenuItemType} from "antd/es/menu/interface";
 import {
+    calculateCommission,
     useGetEquityDynamicsQuery,
     useGetMoneyMovesQuery,
     useGetOperationsQuery,
@@ -162,7 +161,7 @@ function App() {
         return _trades.map((t) => ({
             ...t,
             // @ts-ignore
-            commission: calculateCommission(tariffPlan, dayVolumes[moment(t.date).format('YYYY-MM-DD')]) * t.volume,
+            commission: calculateCommission(tariffPlan, dayVolumes[moment(t.date).format('YYYY-MM-DD')], settings.commissionType) * t.volume,
         }))
     }, [userInfo, settings.commissionType, settings.agreement, settings.portfolio, _trades])
 

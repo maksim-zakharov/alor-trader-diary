@@ -11,7 +11,7 @@ import moment from "moment";
 import {getCommissionByPlanAndTotalVolume} from "../utils";
 import {ExchangePortfolioSummaryParams} from "alor-api/dist/models/models";
 
-const calculateCommission = (plan: string, totalVolume: number, commissionType: string | undefined) => {
+export const calculateCommission = (plan: string, totalVolume: number, commissionType: string | undefined) => {
 
     switch (commissionType) {
         case 'tariff':
