@@ -212,7 +212,7 @@ function App() {
         if (!settings.portfolio && !location.pathname.endsWith('/login')) {
             navigate('/login');
         }
-    }, [settings.token, settings.portfolio]);
+    }, [settings.token, settings.portfolio, location.pathname]);
 
     const startedTrades = useMemo(
         () => positionsToTrades(positions),
