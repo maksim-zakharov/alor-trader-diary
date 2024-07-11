@@ -11,7 +11,7 @@ import {generateCodeVerifier, OAuth2Client} from "@badgateway/oauth2-client";
 import {oAuth2, oAuth2Client, redirectUri} from "../../api/oAuth2";
 
 const LoginPage = () => {
-    const trySSO = localStorage.getItem('SSO');
+    const trySSO =true;// localStorage.getItem('SSO');
     const api = useAppSelector(state => state.alorSlice.api);
     const userInfo = useAppSelector(state => state.alorSlice.userInfo);
     const dispatch = useAppDispatch();
