@@ -81,40 +81,7 @@ const LoginPage = () => {
     }
 
     const loginBySSO = async () => {
-        /**
-         * This generates a security code that must be passed to the various steps.
-         * This is used for 'PKCE' which is an advanced security feature.
-         *
-         * It doesn't break servers that don't support it, but it makes servers that
-         * so support it more secure.
-         *
-         * It's optional to pass this, but recommended.
-         */
-        // const codeVerifier = await generateCodeVerifier();
-
-        let state = '';
-        const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-        for (let i = 0; i < 15; i++) {
-            state += possible.charAt(Math.floor(Math.random() * possible.length));
-        }
-
         document.location = oAuth2Client.code.getUri();
-
-// In a browser this might work as follows:
-//         document.location = await oAuth2.authorizationCode.getAuthorizeUri({
-//
-//             // URL in the app that the user should get redirected to after authenticating
-//             redirectUri,
-//
-//             // Optional string that can be sent along to the auth server. This value will
-//             // be sent along with the redirect back to the app verbatim.
-//             state,
-//
-//             codeVerifier: '',
-//
-//             scope: ['ordersread', 'trades', 'personal', 'trades'],
-//         });
     }
 
     return <div className="LoginPage">
