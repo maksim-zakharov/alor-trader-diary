@@ -56,3 +56,29 @@ client_secret: {{client_secret}}
    {"credentials":{"login":"login","password":"password","twoFactorPin":null},"client_id":"SingleSignOn","redirect_url":"//lk.alor.ru/"}
    ```
 5. POST https://lk-api.alor.ru/auth/actions/refresh отдаю refreshToken (пока не понял откуда) и в ответ получаю jwt
+
+## Общая авторизация для всех SSO (as to be)
+1. Заходим на любой сайт (лк, терминал или доверенный сайт разработчика)
+2. Делаем с текущего сайта запрос на авторизационный сайт за токеном
+3. Запрос падает, редиректим на сайт авторизации
+```
+https://{yourDomain}/authorize?
+    response_type=code&
+    client_id={yourClientId}&
+    redirect_uri={https://yourApp/callback}&
+    scope={scope}&
+    state={state}
+```
+В ответ нам отдается 302 с Location Location: {https://yourApp/callback}?code={authorizationCode}&state=xyzABC123 который автоматом редиректит нас по указанной ссылке
+4. Логинимся на авторизационном сайте, он редиректит нас на наш сайт передавая нам code И вешает куку-сессию как признак авторизации на сайт авторизации. Если мы уже были на нем залогинены (есть кука, то нас автоматически редиректит)
+5. С этим code мы запрашиваем уже токен и работаем с ним
+```
+   curl --request POST \
+   --url 'https://{yourDomain}/oauth/token' \
+   --header 'content-type: application/x-www-form-urlencoded' \
+   --data grant_type=authorization_code \
+   --data 'client_id={yourClientId}' \
+   --data 'client_secret={yourClientSecret}' \
+   --data 'code=yourAuthorizationCode}' \
+   --data 'redirect_uri={https://yourApp/callback}'
+```
