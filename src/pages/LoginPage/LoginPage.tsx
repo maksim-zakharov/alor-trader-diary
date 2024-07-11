@@ -92,8 +92,8 @@ const LoginPage = () => {
                 </FormItem>
                 <Button onClick={checkToken} type="primary" htmlType="submit" disabled={!token}
                         loading={loading}>Продолжить</Button>
-                {trySSO && <FormItem label="Или войдите с помощью Алор">
-                    <Button onClick={loginBySSO} type="primary" style={{width: "100%"}}>Вход по SSO</Button>
+                {trySSO && <FormItem label="Или войти через">
+                    <Button onClick={loginBySSO} type="primary" style={{width: "100%"}}>Алор Брокер (SSO)</Button>
                 </FormItem>
                 }
                 <Button className="support-link" type="link" href="https://t.me/+8KsjwdNHVzIwNDQy" target="_blank">Поддержка</Button>
