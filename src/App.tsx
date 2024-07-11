@@ -107,7 +107,10 @@ function App() {
         const code = url.searchParams.get('code');
         if(code){
         (async () => {
-            oAuth2Client.code.getToken(document.location.href).then(console.log)
+            oAuth2Client.code.getToken(document.location.href, {
+                clientId: getEnv('SSO_CLIENT_ID'),
+                clientSecret: getEnv('SSO_CLIENT_SECRET'),
+            }).then(console.log)
             // fetch("https://oauth.alor.ru/token", {
             //     "headers": {
             //         "accept": "*/*",
