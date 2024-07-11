@@ -128,12 +128,12 @@ function App() {
 
     useEffect(() => {
         if(userInfo && settings.token){
-            // const url = new URL(window.location.href);
-            // if(url.searchParams.get('state')){
-            //     url.searchParams.delete('code');
-            //     url.searchParams.delete('state');
-            //     window.location.replace(url.toString());
-            // }
+            const url = new URL(window.location.href);
+            if(url.searchParams.get('state') || url.searchParams.get('code')){
+                url.searchParams.delete('code');
+                url.searchParams.delete('state');
+                window.location.replace(url.toString());
+            }
 
             searchParams.delete('code');
             setSearchParams(searchParams);
