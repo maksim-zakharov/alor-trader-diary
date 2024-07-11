@@ -171,6 +171,7 @@ const Diary: FC<IProps> = ({
         format: 'Simple',
         portfolio: settings.portfolio
     }, {
+        pollingInterval: 5000,
         skip: !api || !userInfo || !settings.portfolio
     });
 

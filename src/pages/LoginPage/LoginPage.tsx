@@ -20,8 +20,6 @@ const LoginPage = () => {
 
     const [loading, setLoading] = useState(false);
 
-    const settings = useAppSelector(state => state.alorSlice.settings);
-
     const [{agreement, portfolio}, setState] = useState({agreement: undefined, portfolio: undefined});
 
     const options = useMemo(() => userInfo?.agreements.find(a => a.agreementNumber === agreement)?.portfolios?.map(p => ({
