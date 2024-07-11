@@ -5,7 +5,7 @@ import ClientOAuth2 from "client-oauth2";
 // @ts-ignore
 export const getEnv = (env: string) => process.env[env];
 
-export const redirectUri = 'https://maksim-zakharov.github.io/alor-trader-diary';
+export const redirectUri = 'https://maksim-zakharov.github.io/alor-trader-diary/';
 
 export const oAuth2 = new OAuth2Client({
 
