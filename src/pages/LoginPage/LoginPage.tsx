@@ -7,8 +7,52 @@ import {useGetUserInfoQuery} from "../../api/alor.api";
 import {initApi, logout, setSettings} from "../../api/alor.slice";
 import {useAppDispatch, useAppSelector} from "../../store";
 import {AlorApi, Endpoint, WssEndpoint, WssEndpointBeta} from "alor-api";
+import {generateCodeVerifier, OAuth2Client} from "@badgateway/oauth2-client";
+
+// @ts-ignore
+const getEnv = (env: string) => import.meta.env[env];
+
+const client = new OAuth2Client({
+
+    // The base URI of your OAuth2 server
+    server: 'http://oauthdev.alor.ru',
+
+    // OAuth2 client id
+    clientId: getEnv('SSO_CLIENT_ID'),
+
+    // OAuth2 client secret. Only required for 'client_credentials', 'password'
+    // flows. Don't specify this in insecure contexts, such as a browser using
+    // the authorization_code flow.
+    clientSecret: getEnv('SSO_CLIENT_SECRET'),
+
+
+    // The following URIs are all optional. If they are not specified, we will
+    // attempt to discover them using the oauth2 discovery document.
+    // If your server doesn't have support this, you may need to specify these.
+    // you may use relative URIs for any of these.
+
+
+    // Token endpoint. Most flows need this.
+    // If not specified we'll use the information for the discovery document
+    // first, and otherwise default to /token
+    tokenEndpoint: '/token',
+
+    // Authorization endpoint.
+    //
+    // You only need this to generate URLs for authorization_code flows.
+    // If not specified we'll use the information for the discovery document
+    // first, and otherwise default to /authorize
+    authorizationEndpoint: '/authorize',
+
+    // OAuth2 Metadata discovery endpoint.
+    //
+    // This document is used to determine various server features.
+    // If not specified, we assume it's on /.well-known/oauth2-authorization-server
+    discoveryEndpoint: '/.well-known/oauth2-authorization-server',
+});
 
 const LoginPage = () => {
+    const trySSO = localStorage.getItem('SSO');
     const api = useAppSelector(state => state.alorSlice.api);
     const userInfo = useAppSelector(state => state.alorSlice.userInfo);
     const dispatch = useAppDispatch();
@@ -77,6 +121,34 @@ const LoginPage = () => {
         }
     }
 
+    const loginBySSO = async () => {
+        /**
+         * This generates a security code that must be passed to the various steps.
+         * This is used for 'PKCE' which is an advanced security feature.
+         *
+         * It doesn't break servers that don't support it, but it makes servers that
+         * so support it more secure.
+         *
+         * It's optional to pass this, but recommended.
+         */
+        const codeVerifier = await generateCodeVerifier();
+
+// In a browser this might work as follows:
+        document.location = await client.authorizationCode.getAuthorizeUri({
+
+            // URL in the app that the user should get redirected to after authenticating
+            redirectUri: 'https://maksim-zakharov.github.io/alor-trader-diary',
+
+            // Optional string that can be sent along to the auth server. This value will
+            // be sent along with the redirect back to the app verbatim.
+            state: '',
+
+            codeVerifier,
+
+            scope: ['OrdersRead', 'Trades', 'Personal', 'Stats'],
+        });
+    }
+
     return <div className="LoginPage">
         <Card title="Вход">
             {!userInfo && <Form layout="vertical" onSubmitCapture={checkToken}>
@@ -85,6 +157,7 @@ const LoginPage = () => {
                 </FormItem>
                 <Button onClick={checkToken} type="primary" htmlType="submit" disabled={!token}
                         loading={loading}>Продолжить</Button>
+                {trySSO && <Button onClick={loginBySSO}>Вход по SSO</Button>}
                 <Button className="support-link" type="link" href="https://t.me/+8KsjwdNHVzIwNDQy" target="_blank">Поддержка</Button>
             </Form>}
             {userInfo && <Form layout="vertical" onSubmitCapture={login}>

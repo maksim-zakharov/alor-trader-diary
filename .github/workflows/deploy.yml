@@ -16,6 +16,12 @@ concurrency:
   group: 'pages'
   cancel-in-progress: true
 
+
+# 👇 global env
+env:
+  SSO_CLIENT_ID: ${{ secrets.SSO_CLIENT_ID }}
+  SSO_CLIENT_SECRET: ${{ secrets.SSO_CLIENT_SECRET }}
+
 jobs:
   # Single deploy job since we're just deploying
   deploy:
