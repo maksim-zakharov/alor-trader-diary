@@ -11,7 +11,7 @@ import {oAuth2Client} from "../../api/oAuth2";
 import axios from "axios";
 
 const LoginPage = () => {
-    const tryLogin = true; // localStorage.getItem('tryLogin');
+    const tryLogin = localStorage.getItem('tryLogin');
     const api = useAppSelector(state => state.alorSlice.api);
     const userInfo = useAppSelector(state => state.alorSlice.userInfo);
     const dispatch = useAppDispatch();
