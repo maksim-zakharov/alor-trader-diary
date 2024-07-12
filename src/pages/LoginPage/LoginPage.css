@@ -14,6 +14,10 @@
         }
     }
 
+    .ant-input-affix-wrapper .anticon.ant-input-password-icon {
+        color: rgba(var(--pro-input-color), 0.45);
+    }
+
     .support-link {
         /*text-align: left;*/
         width: fit-content;
