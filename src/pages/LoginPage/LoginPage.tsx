@@ -1,5 +1,5 @@
 import {Button, Card, Form, Input, Select} from "antd";
-import React, {useMemo, useState} from "react";
+import React, {FormEventHandler, useMemo, useState} from "react";
 import './LoginPage.css';
 import {useNavigate} from "react-router-dom";
 import FormItem from "antd/es/form/FormItem";
@@ -30,7 +30,8 @@ const LoginPage = () => {
         value: p.accountNumber
     })) || [], [agreement, userInfo]);
 
-    const checkToken = async () => {
+    const checkToken = async (event) => {
+        event.preventDefault();
         if(withPassword){
             return loginByCredentials()
         }
@@ -86,6 +87,7 @@ const LoginPage = () => {
     const [{login, password, withPassword}, setCredentials] = useState<{login?: string, password?: string, withPassword?: boolean}>({login: '', password: '', withPassword: false});
 
     const loginByCredentials = async () => {
+        debugger
         const ssoResult = await axios.post('https://lk-api.alor.ru/sso-auth/client', {
             "credentials": {
                 login,

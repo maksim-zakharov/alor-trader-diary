@@ -61,6 +61,7 @@ export const alorSlice = createSlice({
             state.settings = {...state.settings, portfolio: undefined, token: undefined, agreement: undefined, lk: undefined};
             state.api = undefined;
 
+            localStorage.setItem('settings', JSON.stringify(state.settings));
             localStorage.removeItem('userInfo');
         }
     },
