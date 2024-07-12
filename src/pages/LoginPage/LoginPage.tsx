@@ -1,5 +1,6 @@
 import {Button, Card, Form, Input, Select} from "antd";
-import React, {FormEventHandler, useMemo, useState} from "react";
+import {KeyOutlined, LockOutlined} from "@ant-design/icons";
+import React, {useMemo, useState} from "react";
 import './LoginPage.css';
 import {useNavigate} from "react-router-dom";
 import FormItem from "antd/es/form/FormItem";
@@ -32,7 +33,7 @@ const LoginPage = () => {
 
     const checkToken = async (event) => {
         event.preventDefault();
-        if(withPassword){
+        if (withPassword) {
             return loginByCredentials()
         }
         try {
@@ -84,7 +85,11 @@ const LoginPage = () => {
         }
     }
 
-    const [{login, password, withPassword}, setCredentials] = useState<{login?: string, password?: string, withPassword?: boolean}>({login: '', password: '', withPassword: false});
+    const [{login, password, withPassword}, setCredentials] = useState<{
+        login?: string,
+        password?: string,
+        withPassword?: boolean
+    }>({login: '', password: '', withPassword: true});
 
     const loginByCredentials = async () => {
         debugger
@@ -93,7 +98,7 @@ const LoginPage = () => {
                 login,
                 password,
                 "twoFactorPin": null
-            },"client_id":"SingleSignOn","redirect_url":"//lk.alor.ru/"
+            }, "client_id": "SingleSignOn", "redirect_url": "//lk.alor.ru/"
         }).then(res => res.data);
         dispatch(setSettings(({token: ssoResult.refreshToken, lk: true})));
         dispatch(initApi({token: ssoResult.refreshToken, type: 'lk'}))
@@ -116,19 +121,26 @@ const LoginPage = () => {
                 </>}
                 {withPassword && <>
                     <FormItem validateStatus={error ? 'error' : undefined} help={error} label="Логин">
-                        <Input placeholder="Введите логин" name="login" onChange={e => setCredentials(prevState => ({...prevState, login: e.target.value}))}/>
+                        <Input placeholder="Введите логин" name="login"
+                               onChange={e => setCredentials(prevState => ({...prevState, login: e.target.value}))}/>
                     </FormItem>
                     <FormItem validateStatus={error ? 'error' : undefined} help={error} label="Пароль">
-                        <Input.Password placeholder="Введите пароль" name="password" type="password" onChange={e => setCredentials(prevState => ({...prevState, password: e.target.value}))}/>
+                        <Input.Password placeholder="Введите пароль" name="password" type="password"
+                                        onChange={e => setCredentials(prevState => ({
+                                            ...prevState,
+                                            password: e.target.value
+                                        }))}/>
                     </FormItem>
                     <Button onClick={checkToken} type="primary" htmlType="submit" disabled={!login || !password}
                             loading={loading}>Войти</Button>
-                    <Button type="link" onClick={() => setCredentials(({withPassword: false}))}>Войти через токен</Button>
                 </>}
                 <FormItem label="Или войти через">
-                    <div style={{display: "flex", flexDirection: "column", gap: '16px'}}>
-                        <Button onClick={loginBySSO} type="primary" style={{width: "100%"}}>Алор Брокер (SSO)</Button>
-                        {tryLogin && !withPassword && <Button onClick={() => setCredentials(({withPassword: true}))} type="primary" style={{width: "100%"}}>С паролем</Button>}
+                    <div style={{display: "flex", gap: '16px'}}>
+                        <Button onClick={loginBySSO} type="default" title="Войти через Алор Брокер"
+                                className="auth-btn"><img
+                            src="https://s3.tradingview.com/userpics/5839685-GSlC_big.png"/></Button>
+                        {withPassword && <Button onClick={() => setCredentials(({withPassword: false}))} title="Войти через токен" className="auth-btn" icon={<KeyOutlined/>}/>}
+                        {!withPassword && <Button onClick={() => setCredentials(({withPassword: true}))} title="Войти через пароль" className="auth-btn" icon={<LockOutlined/>}/>}
                     </div>
                 </FormItem>
                 <Button className="support-link" type="link" href="https://t.me/+8KsjwdNHVzIwNDQy"
