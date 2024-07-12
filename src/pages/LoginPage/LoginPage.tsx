@@ -8,9 +8,10 @@ import {initApi, logout, setSettings} from "../../api/alor.slice";
 import {useAppDispatch, useAppSelector} from "../../store";
 import {AlorApi, Endpoint, WssEndpoint, WssEndpointBeta} from "alor-api";
 import {oAuth2Client} from "../../api/oAuth2";
+import axios from "axios";
 
 const LoginPage = () => {
-    const trySSO = true;// localStorage.getItem('SSO');
+    const tryLogin = true; // localStorage.getItem('tryLogin');
     const api = useAppSelector(state => state.alorSlice.api);
     const userInfo = useAppSelector(state => state.alorSlice.userInfo);
     const dispatch = useAppDispatch();
@@ -30,6 +31,9 @@ const LoginPage = () => {
     })) || [], [agreement, userInfo]);
 
     const checkToken = async () => {
+        if(withPassword){
+            return loginByCredentials()
+        }
         try {
             const api = new AlorApi({
                 token,
@@ -72,11 +76,46 @@ const LoginPage = () => {
         dispatch(logout())
     }
 
-    const login = () => {
+    const submit = () => {
         if (agreement && portfolio) {
             dispatch(setSettings({agreement, portfolio}));
             navigate('/')
         }
+    }
+
+    const [{login, password, withPassword}, setCredentials] = useState<{login?: string, password?: string, withPassword?: boolean}>({login: '', password: '', withPassword: false});
+
+    const loginByCredentials = async () => {
+        const twoFactorResult = await axios.get(`https://lk-api.alor.ru/auth/actions/2factor/?login=${login}`).then(res => res.data);
+        const loginResult = await axios.post('https://lk-api.alor.ru/auth/actions/login', {
+            "credentials": {
+                login,
+                password,
+                "twoFactorPin": null
+            },
+            "requiredServices": [
+                "clientApi",
+                "Warp"
+            ]
+        }).then(res => res.data);
+
+        console.log("loginResult", loginResult);
+
+        const ssoResult = await axios.post('https://lk-api.alor.ru/sso-auth/client', {
+            "credentials": {
+                login,
+                password,
+                "twoFactorPin": null
+            },"client_id":"SingleSignOn","redirect_url":"//lk.alor.ru/"
+        }).then(res => res.data);
+        console.log("ssoResult", ssoResult);
+
+        const refreshResult = await axios.post('https://lk-api.alor.ru/auth/actions/refresh', ssoResult).then(res => res.data);
+
+        console.log("refreshResult", refreshResult);
+        dispatch(setSettings(({token: ssoResult.refreshToken, lk: true})));
+        dispatch(initApi({token: ssoResult.refreshToken, accessToken: refreshResult.jwt}))
+        setTimeout(() => refetch());
     }
 
     const loginBySSO = async () => {
@@ -86,19 +125,34 @@ const LoginPage = () => {
     return <div className="LoginPage">
         <Card title="Вход">
             {!userInfo && <Form layout="vertical" onSubmitCapture={checkToken}>
-                <FormItem validateStatus={error ? 'error' : undefined} help={error} label="Alor Token">
-                    <Input placeholder="Введите Alor Token" onChange={e => setToken(e.target.value)}/>
+                {!withPassword && <>
+                    <FormItem validateStatus={error ? 'error' : undefined} help={error} label="Alor Token">
+                        <Input placeholder="Введите Alor Token" onChange={e => setToken(e.target.value)}/>
+                    </FormItem>
+                    <Button onClick={checkToken} type="primary" htmlType="submit" disabled={!token}
+                            loading={loading}>Продолжить</Button>
+                </>}
+                {withPassword && <>
+                    <FormItem validateStatus={error ? 'error' : undefined} help={error} label="Логин">
+                        <Input placeholder="Введите логин" name="login" onChange={e => setCredentials(prevState => ({...prevState, login: e.target.value}))}/>
+                    </FormItem>
+                    <FormItem validateStatus={error ? 'error' : undefined} help={error} label="Пароль">
+                        <Input.Password placeholder="Введите пароль" name="password" type="password" onChange={e => setCredentials(prevState => ({...prevState, password: e.target.value}))}/>
+                    </FormItem>
+                    <Button onClick={checkToken} type="primary" htmlType="submit" disabled={!login || !password}
+                            loading={loading}>Войти</Button>
+                    <Button type="link" onClick={() => setCredentials(({withPassword: false}))}>Войти через токен</Button>
+                </>}
+                <FormItem label="Или войти через">
+                    <div style={{display: "flex", flexDirection: "column", gap: '16px'}}>
+                        <Button onClick={loginBySSO} type="primary" style={{width: "100%"}}>Алор Брокер (SSO)</Button>
+                        {tryLogin && !withPassword && <Button onClick={() => setCredentials(({withPassword: true}))} type="primary" style={{width: "100%"}}>С паролем</Button>}
+                    </div>
                 </FormItem>
-                <Button onClick={checkToken} type="primary" htmlType="submit" disabled={!token}
-                        loading={loading}>Продолжить</Button>
-                {trySSO && <FormItem label="Или войти через">
-                    <Button onClick={loginBySSO} type="primary" style={{width: "100%"}}>Алор Брокер (SSO)</Button>
-                </FormItem>
-                }
                 <Button className="support-link" type="link" href="https://t.me/+8KsjwdNHVzIwNDQy"
                         target="_blank">Поддержка</Button>
             </Form>}
-            {userInfo && <Form layout="vertical" onSubmitCapture={login}>
+            {userInfo && <Form layout="vertical" onSubmitCapture={submit}>
                 <FormItem validateStatus={error ? 'error' : undefined} extra={error} label="Договор">
                     <Select value={agreement} onSelect={handleSelectAgreement}
                             placeholder="Выберите договор"
@@ -112,7 +166,7 @@ const LoginPage = () => {
                             placeholder="Выберите портфель"
                             options={options}/>
                 </FormItem>
-                <Button onClick={login} type="primary" htmlType="submit"
+                <Button onClick={submit} type="primary" htmlType="submit"
                         disabled={!portfolio || !agreement}>Войти</Button>
                 <Button type="link" onClick={clearToken}>Ввести другой alor token</Button>
                 <Button className="support-link" type="link" href="https://t.me/+8KsjwdNHVzIwNDQy"

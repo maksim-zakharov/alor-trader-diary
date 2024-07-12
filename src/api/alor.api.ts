@@ -10,6 +10,7 @@ import {AlorApi, Exchange, Summary, Trade, Trades} from "alor-api";
 import moment from "moment";
 import {getCommissionByPlanAndTotalVolume} from "../utils";
 import {ExchangePortfolioSummaryParams} from "alor-api/dist/models/models";
+import axios from "axios";
 
 export const calculateCommission = (plan: string, totalVolume: number, commissionType: string | undefined) => {
 
@@ -27,6 +28,7 @@ export const calculateCommission = (plan: string, totalVolume: number, commissio
 
 const recurcive = (selector: (api: AlorApi) => any, paramsCallback = params => params) => async (args: any[] | void, _api) => {
     const api = _api.getState()['alorSlice'].api as AlorApi;
+    const {lk, token} = _api.getState()['alorSlice'].settings;
     try {
         if(!api){
             return {} as any;
@@ -42,7 +44,14 @@ const recurcive = (selector: (api: AlorApi) => any, paramsCallback = params => p
         return { data }
     } catch (error: any) {
         if(error.message === 'Необходимо авторизоваться'){
-            await api.refresh();
+            if(lk){
+                const refreshResult = await axios.post('https://lk-api.alor.ru/auth/actions/refresh', {refreshToken: token}).then(res => res.data);
+                api.accessToken = refreshResult.jwt;
+                api.http.defaults.headers.common["Authorization"] =
+                    "Bearer " + refreshResult.jwt;
+            }else {
+                await api.refresh();
+            }
             return recurcive(selector)(args, _api)
         }
         return { error } as any

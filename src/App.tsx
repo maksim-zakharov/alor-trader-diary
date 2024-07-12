@@ -25,6 +25,7 @@ import {
     useGetUserInfoQuery
 } from './api/alor.api';
 import {getEnv, oAuth2Client} from "./api/oAuth2";
+import axios from "axios";
 
 export const avg = (numbers: number[]) =>
     !numbers.length ? 0 : summ(numbers) / numbers.length;
