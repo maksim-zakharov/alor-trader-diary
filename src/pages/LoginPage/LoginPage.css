@@ -1,41 +1,55 @@
-.LoginPage{
+.LoginPage {
     height: calc(100vh - 48px);
     display: flex;
 
-    .auth-btn{
+    .auth-btn {
         width: 40px;
         height: 40px;
         border-radius: 4px;
         overflow: hidden;
-        img{
+
+        img {
             width: 40px;
             height: 40px;
         }
     }
 
-.support-link{
-    text-align: center;
-    width: 100%;
-    line-height: 1;
-    height: auto;
-}
+    .support-link {
+        /*text-align: left;*/
+        width: fit-content;
+        line-height: 1;
+        height: auto;
+        color: rgba(var(--pro-icon-color), 1);
+        padding: 0;
 
-    .ant-form-item{
+        svg {
+            margin-right: 0;
+            width: 16px;
+        }
+    }
+
+    .ant-form-item {
         border: none;
     }
 
-    .ant-card{
+    .ant-card-container {
+        margin: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .ant-card {
         border-color: transparent;
         width: 400px;
-        margin: auto;
         border-radius: 20px;
     }
 
-    .ant-card-body{
+    .ant-card-body {
         padding: 24px 16px 16px;
     }
 
-    .ant-card-head{
+    .ant-card-head {
         text-align: center;
         font-size: 24px;
 
@@ -43,7 +57,7 @@
     }
 
     @media only screen and (max-width: 700px) {
-        .ant-card{
+        .ant-card {
             width: 100%;
         }
     }

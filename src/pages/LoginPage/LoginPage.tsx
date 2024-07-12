@@ -10,6 +10,7 @@ import {useAppDispatch, useAppSelector} from "../../store";
 import {AlorApi, Endpoint, WssEndpoint, WssEndpointBeta} from "alor-api";
 import {oAuth2Client} from "../../api/oAuth2";
 import axios from "axios";
+import QuestionCircleIcon  from '../../assets/question-circle';
 
 const LoginPage = () => {
     const tryLogin = true; // localStorage.getItem('tryLogin');
@@ -62,7 +63,6 @@ const LoginPage = () => {
         } catch (e: any) {
             setError(e.message);
             clearToken();
-            console.log(e.message);
         }
     }
 
@@ -92,17 +92,21 @@ const LoginPage = () => {
     }>({login: '', password: '', withPassword: true});
 
     const loginByCredentials = async () => {
-        debugger
-        const ssoResult = await axios.post('https://lk-api.alor.ru/sso-auth/client', {
-            "credentials": {
-                login,
-                password,
-                "twoFactorPin": null
-            }, "client_id": "SingleSignOn", "redirect_url": "//lk.alor.ru/"
-        }).then(res => res.data);
-        dispatch(setSettings(({token: ssoResult.refreshToken, lk: true})));
-        dispatch(initApi({token: ssoResult.refreshToken, type: 'lk'}))
-        setTimeout(() => refetch());
+        try{
+            const ssoResult = await axios.post('https://lk-api.alor.ru/sso-auth/client', {
+                "credentials": {
+                    login,
+                    password,
+                    "twoFactorPin": null
+                }, "client_id": "SingleSignOn", "redirect_url": "//lk.alor.ru/"
+            }).then(res => res.data)
+            setError(undefined);
+            dispatch(setSettings(({token: ssoResult.refreshToken, lk: true})));
+            dispatch(initApi({token: ssoResult.refreshToken, type: 'lk'}))
+            setTimeout(() => refetch());
+        } catch (e: any){
+            setError(e.response?.data?.message);
+        }
     }
 
     const loginBySSO = async () => {
@@ -110,63 +114,63 @@ const LoginPage = () => {
     }
 
     return <div className="LoginPage">
-        <Card title="Вход">
-            {!userInfo && <Form layout="vertical" onSubmitCapture={checkToken}>
-                {!withPassword && <>
-                    <FormItem validateStatus={error ? 'error' : undefined} help={error} label="Alor Token">
-                        <Input placeholder="Введите Alor Token" onChange={e => setToken(e.target.value)}/>
+        <div className="ant-card-container">
+            <Card title="Вход">
+                {!userInfo && <Form layout="vertical" onSubmitCapture={checkToken}>
+                    {!withPassword && <>
+                        <FormItem validateStatus={error ? 'error' : undefined} help={error} label="Alor Token">
+                            <Input placeholder="Введите Alor Token" onChange={e => setToken(e.target.value)}/>
+                        </FormItem>
+                        <Button onClick={checkToken} type="primary" htmlType="submit" disabled={!token}
+                                loading={loading}>Продолжить</Button>
+                    </>}
+                    {withPassword && <>
+                        <FormItem validateStatus={error ? 'error' : undefined} help={error} label="Логин">
+                            <Input placeholder="Введите логин" name="login"
+                                   onChange={e => setCredentials(prevState => ({...prevState, login: e.target.value}))}/>
+                        </FormItem>
+                        <FormItem label="Пароль">
+                            <Input.Password placeholder="Введите пароль" name="password" type="password"
+                                            onChange={e => setCredentials(prevState => ({
+                                                ...prevState,
+                                                password: e.target.value
+                                            }))}/>
+                        </FormItem>
+                        <Button onClick={checkToken} type="primary" htmlType="submit" disabled={!login || !password}
+                                loading={loading}>Войти</Button>
+                    </>}
+                    <FormItem label="Или войти через">
+                        <div style={{display: "flex", gap: '16px'}}>
+                            <Button onClick={loginBySSO} type="default" title="Войти через Алор Брокер"
+                                    className="auth-btn"><img
+                                src="https://s3.tradingview.com/userpics/5839685-GSlC_big.png"/></Button>
+                            {withPassword && <Button onClick={() => setCredentials(({withPassword: false}))} title="Войти через токен" className="auth-btn" icon={<KeyOutlined/>}/>}
+                            {!withPassword && <Button onClick={() => setCredentials(({withPassword: true}))} title="Войти через пароль" className="auth-btn" icon={<LockOutlined/>}/>}
+                        </div>
                     </FormItem>
-                    <Button onClick={checkToken} type="primary" htmlType="submit" disabled={!token}
-                            loading={loading}>Продолжить</Button>
-                </>}
-                {withPassword && <>
-                    <FormItem validateStatus={error ? 'error' : undefined} help={error} label="Логин">
-                        <Input placeholder="Введите логин" name="login"
-                               onChange={e => setCredentials(prevState => ({...prevState, login: e.target.value}))}/>
+                </Form>}
+                {userInfo && <Form layout="vertical" onSubmitCapture={submit}>
+                    <FormItem validateStatus={error ? 'error' : undefined} extra={error} label="Договор">
+                        <Select value={agreement} onSelect={handleSelectAgreement}
+                                placeholder="Выберите договор"
+                                options={userInfo?.agreements?.map(p => ({
+                                    label: p.cid,
+                                    value: p.agreementNumber
+                                })) || []}/>
                     </FormItem>
-                    <FormItem validateStatus={error ? 'error' : undefined} help={error} label="Пароль">
-                        <Input.Password placeholder="Введите пароль" name="password" type="password"
-                                        onChange={e => setCredentials(prevState => ({
-                                            ...prevState,
-                                            password: e.target.value
-                                        }))}/>
+                    <FormItem validateStatus={error ? 'error' : undefined} extra={error} label="Alor Portfolio">
+                        <Select value={portfolio} onSelect={handleSelectPortfolio}
+                                placeholder="Выберите портфель"
+                                options={options}/>
                     </FormItem>
-                    <Button onClick={checkToken} type="primary" htmlType="submit" disabled={!login || !password}
-                            loading={loading}>Войти</Button>
-                </>}
-                <FormItem label="Или войти через">
-                    <div style={{display: "flex", gap: '16px'}}>
-                        <Button onClick={loginBySSO} type="default" title="Войти через Алор Брокер"
-                                className="auth-btn"><img
-                            src="https://s3.tradingview.com/userpics/5839685-GSlC_big.png"/></Button>
-                        {withPassword && <Button onClick={() => setCredentials(({withPassword: false}))} title="Войти через токен" className="auth-btn" icon={<KeyOutlined/>}/>}
-                        {!withPassword && <Button onClick={() => setCredentials(({withPassword: true}))} title="Войти через пароль" className="auth-btn" icon={<LockOutlined/>}/>}
-                    </div>
-                </FormItem>
-                <Button className="support-link" type="link" href="https://t.me/+8KsjwdNHVzIwNDQy"
-                        target="_blank">Поддержка</Button>
-            </Form>}
-            {userInfo && <Form layout="vertical" onSubmitCapture={submit}>
-                <FormItem validateStatus={error ? 'error' : undefined} extra={error} label="Договор">
-                    <Select value={agreement} onSelect={handleSelectAgreement}
-                            placeholder="Выберите договор"
-                            options={userInfo?.agreements?.map(p => ({
-                                label: p.cid,
-                                value: p.agreementNumber
-                            })) || []}/>
-                </FormItem>
-                <FormItem validateStatus={error ? 'error' : undefined} extra={error} label="Alor Portfolio">
-                    <Select value={portfolio} onSelect={handleSelectPortfolio}
-                            placeholder="Выберите портфель"
-                            options={options}/>
-                </FormItem>
-                <Button onClick={submit} type="primary" htmlType="submit"
-                        disabled={!portfolio || !agreement}>Войти</Button>
-                <Button type="link" onClick={clearToken}>Ввести другой alor token</Button>
-                <Button className="support-link" type="link" href="https://t.me/+8KsjwdNHVzIwNDQy"
-                        target="_blank">Поддержка</Button>
-            </Form>}
-        </Card>
+                    <Button onClick={submit} type="primary" htmlType="submit"
+                            disabled={!portfolio || !agreement}>Войти</Button>
+                    <Button type="link" onClick={clearToken}>Ввести другой alor token</Button>
+                </Form>}
+            </Card>
+            <Button className="support-link" type="link" href="https://t.me/+8KsjwdNHVzIwNDQy"
+                    target="_blank"><QuestionCircleIcon/>Поддержка</Button>
+        </div>
     </div>
 }
 
