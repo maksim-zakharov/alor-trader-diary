@@ -45,10 +45,10 @@ const recurcive = (selector: (api: AlorApi) => any, paramsCallback = params => p
     } catch (error: any) {
         if(error.message === 'Необходимо авторизоваться'){
             if(lk){
-                const refreshResult = await axios.post('https://lk-api.alor.ru/auth/actions/refresh', {refreshToken: token}).then(res => res.data);
-                api.accessToken = refreshResult.jwt;
+                const {AccessToken} = await api.auth.refreshToken({refreshToken: token, type: 'lk'});
+                api.accessToken = AccessToken;
                 api.http.defaults.headers.common["Authorization"] =
-                    "Bearer " + refreshResult.jwt;
+                    "Bearer " + AccessToken;
             }else {
                 await api.refresh();
             }

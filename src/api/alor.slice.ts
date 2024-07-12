@@ -21,6 +21,7 @@ const initialState = {
         portfolio: string;
         commissionType: string;
         agreement: string;
+        lk?: boolean;
     }, agreementsMap: any, activeOperations: GetOperationsResponse[], lastWithdrawals: number[]
 };
 
@@ -41,13 +42,14 @@ export const alorSlice = createSlice({
     name: 'alorSlice',
     initialState,
     reducers: {
-        initApi(state, action: PayloadAction<{ token: string, accessToken?: string }>) {
+        initApi(state, action: PayloadAction<{ token: string, accessToken?: string, type?: 'lk' | 'dev' }>) {
             state.api = new AlorApi({
                 token: action.payload.token,
                 accessToken: action.payload.accessToken,
                 endpoint: Endpoint.PROD,
                 wssEndpoint: WssEndpoint.PROD,
                 wssEndpointBeta: WssEndpointBeta.PROD,
+                refreshType: action.payload.type,
             });
         },
         setSettings(state, action: PayloadAction<any>) {
@@ -56,7 +58,7 @@ export const alorSlice = createSlice({
         },
         logout(state){
             state.userInfo = undefined;
-            state.settings = {...state.settings, portfolio: undefined, token: undefined, agreement: undefined};
+            state.settings = {...state.settings, portfolio: undefined, token: undefined, agreement: undefined, lk: undefined};
             state.api = undefined;
 
             localStorage.removeItem('userInfo');

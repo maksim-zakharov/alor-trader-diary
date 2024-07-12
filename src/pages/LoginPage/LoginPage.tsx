@@ -11,7 +11,7 @@ import {oAuth2Client} from "../../api/oAuth2";
 import axios from "axios";
 
 const LoginPage = () => {
-    const tryLogin = localStorage.getItem('tryLogin');
+    const tryLogin = true; // localStorage.getItem('tryLogin');
     const api = useAppSelector(state => state.alorSlice.api);
     const userInfo = useAppSelector(state => state.alorSlice.userInfo);
     const dispatch = useAppDispatch();
@@ -86,21 +86,6 @@ const LoginPage = () => {
     const [{login, password, withPassword}, setCredentials] = useState<{login?: string, password?: string, withPassword?: boolean}>({login: '', password: '', withPassword: false});
 
     const loginByCredentials = async () => {
-        const twoFactorResult = await axios.get(`https://lk-api.alor.ru/auth/actions/2factor/?login=${login}`).then(res => res.data);
-        const loginResult = await axios.post('https://lk-api.alor.ru/auth/actions/login', {
-            "credentials": {
-                login,
-                password,
-                "twoFactorPin": null
-            },
-            "requiredServices": [
-                "clientApi",
-                "Warp"
-            ]
-        }).then(res => res.data);
-
-        console.log("loginResult", loginResult);
-
         const ssoResult = await axios.post('https://lk-api.alor.ru/sso-auth/client', {
             "credentials": {
                 login,
@@ -108,13 +93,8 @@ const LoginPage = () => {
                 "twoFactorPin": null
             },"client_id":"SingleSignOn","redirect_url":"//lk.alor.ru/"
         }).then(res => res.data);
-        console.log("ssoResult", ssoResult);
-
-        const refreshResult = await axios.post('https://lk-api.alor.ru/auth/actions/refresh', ssoResult).then(res => res.data);
-
-        console.log("refreshResult", refreshResult);
         dispatch(setSettings(({token: ssoResult.refreshToken, lk: true})));
-        dispatch(initApi({token: ssoResult.refreshToken, accessToken: refreshResult.jwt}))
+        dispatch(initApi({token: ssoResult.refreshToken, type: 'lk'}))
         setTimeout(() => refetch());
     }
 

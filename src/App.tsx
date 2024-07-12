@@ -184,7 +184,7 @@ function App() {
 
     useEffect(() => {
         if (settings.token)
-            dispatch(initApi({token: settings.token}))
+            dispatch(initApi({token: settings.token, type: settings.lk ? 'lk' : undefined}))
     }, [settings.token])
 
     useEffect(() => {
