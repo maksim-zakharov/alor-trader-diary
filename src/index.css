@@ -442,6 +442,12 @@ header {
     }
 }
 
+.ant-form-item-explain{
+    padding-top: 4px;
+    color: rgba(var(--pro-icon-color), 1) !important;
+    font-size: 12px !important;
+}
+
 .MobileFooter {
     box-sizing: content-box;
     display: none;

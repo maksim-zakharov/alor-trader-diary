@@ -1027,6 +1027,8 @@ const Diary: FC<IProps> = ({
         {label: 'Средства утром + прибыль', value: 'buyMorningPowerPlusPnL'},
     ]
 
+    const sumHelp = `Доступно ${moneyFormat(summary?.portfolioLiquidationValue, 0, 0)}`;
+
     return (
         <div className="Diary">
             <Title>Дневник</Title>
@@ -1071,10 +1073,10 @@ const Diary: FC<IProps> = ({
                                 style={{width: '100%'}}>Отменить</Button>
                     </>}
                     {selectedAccount && <>
-                        <FormItem label="Сумма" style={{width: '100%'}} help={error}
+                        <FormItem label="Сумма" style={{width: '100%'}} help={error || sumHelp}
                                   status={error ? 'error' : undefined}>
                             <Input
-                                placeholder="Сумма"
+                                placeholder="Введите сумму"
                                 value={amount}
                                 onChange={e => setPaidInfo(prevState => ({...prevState, amount: e.target.value}))}
                                 disabled={!selectedAccount}
