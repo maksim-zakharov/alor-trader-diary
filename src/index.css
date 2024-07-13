@@ -252,10 +252,6 @@ h1.ant-typography {
     font-size: 32px;
 }
 
-body {
-    padding-bottom: env(safe-area-inset-bottom);
-}
-
 .MobilePosition {
     display: none;
 
@@ -458,6 +454,7 @@ header {
     color: rgba(var(--pro-input-color), 1);
     border-top: 1px solid rgba(var(--pro-base-03), 1);
     padding: 0 16px;
+    padding-bottom: env(safe-area-inset-bottom);
 
     .ant-menu {
         gap: 16px;
