@@ -80,6 +80,7 @@ function useWindowDimensions() {
 }
 
 function App() {
+    const contentRef = React.createRef();
     const api = useAppSelector(state => state.alorSlice.api);
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
@@ -122,6 +123,16 @@ function App() {
             })
         }
     }, [document.location.href])
+
+
+    useEffect(() => {
+        if(contentRef){
+            contentRef?.current?.scrollTo({
+                top: 0,
+                behavior: 'smooth',
+            });
+        }
+    }, [location, contentRef]);
 
     useEffect(() => {
         if (userInfo && settings.token) {
@@ -393,7 +404,7 @@ function App() {
     }
 
     return (
-        <Layout>
+        <Layout ref={contentRef}>
             {userInfo && <Header style={{display: 'flex', alignItems: 'center'}}>
                 <div className="menu-content">
                 <Menu
