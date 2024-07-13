@@ -449,12 +449,13 @@ header {
     justify-content: space-between;
     height: 60px;
     position: sticky;
-    /*bottom: 0;*/
-    bottom: calc(env(safe-area-inset-bottom));
+    bottom: 0;
+    /*bottom: calc(env(safe-area-inset-bottom));*/
     background-color: rgba(var(--pro-widget-body-bg), 1);
     color: rgba(var(--pro-input-color), 1);
     border-top: 1px solid rgba(var(--pro-base-03), 1);
     padding: 0 16px;
+    padding-bottom: calc(env(safe-area-inset-bottom) - 4px);
 
     .ant-menu {
         gap: 16px;
