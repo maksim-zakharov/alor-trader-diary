@@ -75,6 +75,7 @@ import {
 } from "../../api/alor.api";
 import {selectCurrentPortfolio, setSettings} from "../../api/alor.slice";
 import Spinner from "../../common/Spinner";
+import Title from "antd/es/typography/Title";
 
 interface DataType {
     key: string;
@@ -183,7 +184,6 @@ const Diary: FC<IProps> = ({
         format: 'Simple',
         portfolio: settings.portfolio
     }, {
-        pollingInterval: 5000,
         skip: !api || !userInfo || !settings.portfolio
     });
 
@@ -1029,6 +1029,7 @@ const Diary: FC<IProps> = ({
 
     return (
         <div className="Diary">
+            <Title>Дневник</Title>
             <MobileSummary/>
             <InfoPanelDesktop/>
             <Drawer title="Вывод средств" open={showPayModal} placement="right"
@@ -1221,7 +1222,6 @@ const Diary: FC<IProps> = ({
                     <Spinner/>
                     <div className="spinner-text">Подгружаем сделки</div>
                 </div>}
-                {!isLoading && dayPositions.map(dp => <MobilePosition positions={dp}/>)}
                 <Table
                     onRow={(row: any) =>
                         row.type === 'summary' && {
@@ -1241,6 +1241,7 @@ const Diary: FC<IProps> = ({
                         rowExpandable: (row: any) => row.type !== 'summary',
                     }}
                 />
+                {!isLoading && dayPositions.map(dp => <MobilePosition positions={dp}/>)}
             </>}
         </div>
     );

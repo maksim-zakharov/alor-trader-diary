@@ -5,7 +5,7 @@ import {Content, Footer, Header} from 'antd/es/layout/layout';
 import React, {ReactNode, useEffect, useMemo, useState} from 'react';
 // import QuestionCircleIcon  from './assets/question-circle';
 import moment from 'moment';
-import {Navigate, Route, Routes, useLocation, useNavigate, useSearchParams,} from 'react-router-dom';
+import {Link, Navigate, Route, Routes, useLocation, useNavigate, useSearchParams,} from 'react-router-dom';
 import {Exchange, Positions} from 'alor-api';
 import Diary from './pages/Diary/Diary';
 import Analytics from './pages/Analytics/Analytics';
@@ -16,6 +16,7 @@ import useListSecs from "./useListSecs";
 import {initApi, setSettings} from "./api/alor.slice";
 import {useAppDispatch, useAppSelector} from "./store";
 import {MenuItemType} from "antd/es/menu/interface";
+import {FundOutlined, ProfileOutlined} from "@ant-design/icons";
 import {
     calculateCommission,
     useGetEquityDynamicsQuery,
@@ -26,6 +27,7 @@ import {
 } from './api/alor.api';
 import {getEnv, oAuth2Client} from "./api/oAuth2";
 import axios from "axios";
+import QuestionCircleIcon from "./assets/question-circle";
 
 export const avg = (numbers: number[]) =>
     !numbers.length ? 0 : summ(numbers) / numbers.length;
@@ -324,6 +326,7 @@ function App() {
         {
             key: 'diary',
             label: 'Дневник',
+            icon: <ProfileOutlined />,
             element: <Diary getIsinBySymbol={getIsinBySymbol} getListSectionBySymbol={getListSectionBySymbol}
                             isMobile={width < 400 ? 1 : width < 1200 ? Math.round(width / 410) : 0}
                             dateFrom={dateFrom} dateTo={dateTo}
@@ -332,6 +335,7 @@ function App() {
         {
             key: 'analytics',
             label: 'Аналитика',
+            icon: <FundOutlined />,
             element: <Analytics getIsinBySymbol={getIsinBySymbol}
                                 getListSectionBySymbol={getListSectionBySymbol} data={data}
                                 balanceSeriesData={equityDynamics?.portfolioValues.map(v => ({
@@ -373,11 +377,26 @@ function App() {
         navigate(to);
     };
 
+    const MobileFooterMenu = () => {
+
+        return <div className="MobileFooter">
+            <Menu
+                theme="dark"
+                mode="horizontal"
+                defaultSelectedKeys={[currentMenuSelectedKey]}
+                items={menuItems}
+                onSelect={onSelectMenu}
+            />
+            <a className="header-support-link" href="https://t.me/+8KsjwdNHVzIwNDQy"
+               target="_blank"><QuestionCircleIcon/>Поддержка</a>
+        </div>
+    }
+
     return (
         <Layout>
             {userInfo && <Header style={{display: 'flex', alignItems: 'center'}}>
                 <div className="menu-content">
-                    <Menu
+                <Menu
                         theme="dark"
                         mode="horizontal"
                         defaultSelectedKeys={[currentMenuSelectedKey]}
@@ -385,7 +404,7 @@ function App() {
                         onSelect={onSelectMenu}
                     />
                     <a className="header-support-link" href="https://t.me/+8KsjwdNHVzIwNDQy"
-                       target="_blank"> Поддержка</a>
+                       target="_blank"><QuestionCircleIcon/>Поддержка</a>
                 </div>
             </Header>}
             <Content className="site-layout" style={{minHeight: '100vh'}}>
@@ -403,6 +422,7 @@ function App() {
                     </Routes>
                 </div>
             </Content>
+            {userInfo && <MobileFooterMenu/>}
             {userInfo && <Footer style={{textAlign: 'center'}}>
                 Alor Trader Diary ©2023 Created by Maksim Zakharov
             </Footer>}

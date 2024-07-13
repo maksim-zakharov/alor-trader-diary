@@ -15,6 +15,7 @@ import ProfitWeekdayWidget from "./widgets/ProfitWeekdayWidget";
 import LossWeekdayWidget from "./widgets/LossWeekdayWidget";
 import ProfitSectionWidget from "./widgets/ProfitSectionWidget";
 import LossSectionWidget from "./widgets/LossSectionWidget";
+import Title from "antd/es/typography/Title";
 
 interface IProps {
     balanceSeriesData: any
@@ -107,6 +108,7 @@ const Analytics: FC<IProps> = ({getIsinBySymbol, getListSectionBySymbol, data, a
     }
 
     return <>
+        <Title>Аналитика</Title>
         <ProfitWidget isLoading={isLoading} colors={nightMode && darkColors} data={balanceSeriesDataWithoutFirst}
                       initBalance={balanceSeriesData[0]?.value || 0}/>
         {/*<div className="widget">*/}
