@@ -1,6 +1,6 @@
 import {Button, Card, Form, Input, Select} from "antd";
 import {KeyOutlined, LockOutlined} from "@ant-design/icons";
-import React, {useMemo, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import './LoginPage.css';
 import {useNavigate} from "react-router-dom";
 import FormItem from "antd/es/form/FormItem";
@@ -31,6 +31,16 @@ const LoginPage = () => {
         label: `${p.accountNumber} (${p.service})`,
         value: p.accountNumber
     })) || [], [agreement, userInfo]);
+
+    const selectFirstAgreement = () => {
+        if(userInfo?.agreements[0].agreementNumber && userInfo?.agreements[0].portfolios[0]){
+            dispatch(setSettings({agreement: userInfo?.agreements[0].agreementNumber, portfolio: userInfo?.agreements[0].portfolios[0].accountNumber}));
+        }
+    }
+
+    useEffect(() => {
+        selectFirstAgreement();
+    }, [userInfo])
 
     const checkToken = async (event) => {
         event.preventDefault();
