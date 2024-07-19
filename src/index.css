@@ -1339,6 +1339,14 @@ a, .link-color {
     color: rgba(var(--pro-icon-color), 1);
 }
 
+@media only screen and (max-width: 700px) {
+.AccountCard{
+
+    border: none;
+    background: linear-gradient(to bottom right, #353535, #525252);
+}
+}
+
 .AccountCard {
     background-color: rgba(var(--pro-widget-body-bg), 1);
     border-color: rgba(var(--pro-divider-bg), 1);
@@ -1353,14 +1361,14 @@ a, .link-color {
     }
 
     .ant-card-head {
-        padding: 8px 8px 0;
+        padding: 16px 16px 0;
         min-height: 0;
         border: none;
         color: rgba(var(--pro-text-02), 1);
     }
 
     .ant-card-body {
-        padding: 0 8px 8px;
+        padding: 4px 16px 16px;
         color: rgba(var(--pro-icon-color), 1);
     }
 }
