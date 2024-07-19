@@ -797,6 +797,10 @@ header {
 @media only screen and (max-width: 700px) {
     .ant-drawer-content-wrapper {
         width: 100% !important;
+        border-radius: 20px;
+        overflow: hidden;
+        top: 86px !important;
+        height: initial !important;
     }
 }
 

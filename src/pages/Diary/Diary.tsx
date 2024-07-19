@@ -1034,7 +1034,7 @@ const Diary: FC<IProps> = ({
             <Title>Дневник</Title>
             <MobileSummary/>
             <InfoPanelDesktop/>
-            <Drawer title="Вывести" open={showPayModal} placement="right"
+            <Drawer title="Вывести" open={showPayModal} placement={isMobile ? "bottom" : "right"}
                     closeIcon={<Button type="link" onClick={() => cancelEditAccount()}>Закрыть</Button>}
                     onClose={() => cancelEditAccount()}>
                 {!success && <Form layout="vertical">
@@ -1123,7 +1123,7 @@ const Diary: FC<IProps> = ({
                     ]}
                 />}
             </Drawer>
-            <Drawer title="Операции" open={showOperationsModal} placement="right"
+            <Drawer title="Операции" open={showOperationsModal} placement={isMobile ? "bottom" : "right"}
                     closeIcon={<Button type="link" onClick={() => setShowOperationsModal('operations')(false)}>Закрыть</Button>}
                     onClose={() => setShowOperationsModal('operations')(false)} className="operation-modal">
                 {moneyOperations.map(getMaxLossTrade =>
@@ -1148,7 +1148,7 @@ const Diary: FC<IProps> = ({
             </Drawer>
             <Drawer
                 title="Настройки"
-                placement="right"
+                placement={isMobile ? "bottom" : "right"}
                 closeIcon={<Button type="link" onClick={() => setShowOperationsModal('settings')(false)}>Закрыть</Button>}
                 onClose={() => setShowOperationsModal('settings')(false)}
                 open={showSettings}
