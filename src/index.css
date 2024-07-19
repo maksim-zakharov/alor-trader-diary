@@ -74,8 +74,16 @@
         --input-left-right-padding: 0px;
     }
 
+    .ant-btn-link {
+        color: rgb(83, 102, 204);
+    }
+
     .ant-form-vertical .ant-form-item-label{
         display: none;
+    }
+
+    .ant-drawer-close, .ant-drawer-close .ant-btn{
+        font-size: 16px;
     }
 }
 
@@ -804,7 +812,7 @@ header {
         width: 100% !important;
         border-radius: 20px;
         overflow: hidden;
-        top: 86px !important;
+        top: 42px !important;
         height: initial !important;
     }
 
