@@ -24,6 +24,8 @@
     --pro-icons-marker-2: 30, 44, 57;
     --pro-text-color: var(--pro-text-01);
 
+    --pro-link-color: 51, 111, 238;
+
     --scrollbar-width: 10px;
     --scrollbars-bg-color: 0, 0, 0;
     --scrollbars-bg-opacity: 0;
@@ -75,7 +77,7 @@
     }
 
     .ant-btn-link {
-        color: rgb(83, 102, 204);
+        color: rgb(var(--pro-link-color));
     }
 
     .ant-form-vertical .ant-form-item-label{
@@ -85,6 +87,18 @@
     .ant-drawer-close, .ant-drawer-close .ant-btn{
         font-size: 16px;
     }
+
+    .ant-input-affix-wrapper {
+        border-radius: 0;
+        &:hover{
+             background-color: initial;
+             border-bottom: 1px solid rgb(var(--pro-link-color));
+         }
+    }
+}
+
+.ant-select-outlined:not(.ant-select-disabled):not(.ant-select-customize-input):not(.ant-pagination-size-changer):hover .ant-select-selector{
+    border: none;
 }
 
 .custom-icon {
@@ -795,7 +809,7 @@ header {
 }
 
 .ant-input-affix-wrapper:hover {
-    background-color: rgba(var(--pro-divider-bg), 1);
+    /*background-color: rgba(var(--pro-divider-bg), 1);*/
 }
 
 .ant-btn-primary:not(:disabled):not(.ant-btn-disabled):hover {
