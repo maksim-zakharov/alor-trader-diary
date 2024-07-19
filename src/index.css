@@ -14,6 +14,7 @@
     --pro-widget-body-bg: 30, 44, 57;
     --pro-app-background-color: 23, 35, 46;
     --table-loss-color: 255, 117, 132;
+    --table-loss-bg: 209, 38, 27;
     --table-profit-color: 44, 232, 156;
     --pro-button-primary-hover-bg: 56, 121, 242;
     --pro-non-ideal-state-color: 166, 189, 213;
@@ -39,6 +40,8 @@
     --input-font-size: 16px;
     --input-height: 40px;
     --input-gap: 16px;
+
+    --button-group-bg: 36, 52, 66;
 }
 
 @media only screen and (min-width: 700px) {
@@ -46,6 +49,27 @@
         --input-font-size: 13px;
         --input-height: 32px;
         --input-gap: 12px;
+    }
+}
+
+@media only screen and (max-width: 700px) {
+    :root {
+        --pro-app-background-color: 1, 1, 1;
+        --pro-widget-body-bg: 28,28,30;
+        --button-group-bg: 50, 49, 52;
+        --pro-text-02: 250, 250, 250;
+        --pro-input-bg: 28, 28, 30;
+        --pro-icon-color: 126, 127, 136;
+
+        --pro-text-01: 213, 212, 215;
+        --pro-input-color: 213, 212, 215;
+
+        --pro-icons-marker-1: 50, 49, 52;
+        --pro-icons-marker-2: 126, 127, 136;
+
+        --table-loss-color: 200, 43, 52;
+        --table-loss-bg: 84, 31, 31;
+        /*--pro-input-color: 213, 212, 215;*/
     }
 }
 
@@ -175,7 +199,7 @@ body {
 .ticker_name_title {
     line-height: 20px;
     font-weight: 500;
-    color: rgba(var(--pro-input-color), 1);
+    color: rgba(var(--pro-text-02), 1);
     font-size: 13px;
     max-width: 220px;
 }
@@ -291,7 +315,7 @@ h1.ant-typography {
 
         &.loss {
             color: rgba(var(--table-loss-color), 1);
-            background-color: rgba(209, 38, 27, 0.4);
+            background-color: rgba(var(--table-loss-bg), 0.4);
 
             .percent:before {
                 background-color: rgba(var(--table-loss-color), 1);
@@ -346,16 +370,19 @@ h1.ant-typography {
 
         &.loss {
             color: rgba(var(--table-loss-color), 1);
-            background-color: rgba(209, 38, 27, 0.4);
+             background-color: rgba(var(--table-loss-bg), 0.4);
 
             .percent:before {
                 background-color: rgba(var(--table-loss-color), 1);
             }
         }
     }
+.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled), .ant-radio-button-wrapper{
+    background-color: rgb(var(--button-group-bg));
+}
 
     .button-group {
-        background-color: rgb(36, 52, 66);
+        background-color: rgb(var(--button-group-bg));
         padding: 16px 20px;
         border-radius: 20px;
         margin-top: 16px;
@@ -802,7 +829,7 @@ header {
 }
 
 .dark-theme .ant-drawer .ant-drawer-content {
-    background-color: rgba(var(--pro-widget-body-bg), 1);
+    background-color: rgba(var(--pro-app-background-color), 1);
 }
 
 .dark-theme .ant-modal .ant-modal-content {
@@ -811,7 +838,7 @@ header {
 
 .dark-theme {
     .ant-btn-text {
-        color: rgba(var(--pro-input-color), 1);
+        color: rgba(var(--pro-text-01), 1);
         line-height: 16px;
     }
 }
@@ -957,7 +984,7 @@ a, .link-color {
 
     .ant-menu-dark.ant-menu-horizontal > .ant-menu-item-selected, :where(.css-dev-only-do-not-override-pr0fja).ant-menu-dark > .ant-menu.ant-menu-horizontal > .ant-menu-item-selected, :where(.css-dev-only-do-not-override-pr0fja).ant-menu-dark.ant-menu-horizontal > .ant-menu-submenu-selected, :where(.css-dev-only-do-not-override-pr0fja).ant-menu-dark > .ant-menu.ant-menu-horizontal > .ant-menu-submenu-selected {
         font-weight: bold;
-        color: rgba(var(--pro-input-color), 1);
+        color: rgba(var(--pro-text-02), 1);
     }
 
     .ant-statistic .ant-statistic-title {
@@ -965,18 +992,18 @@ a, .link-color {
     }
 
     .ant-btn-icon {
-        color: rgba(var(--pro-input-color), 1);
+        color: rgba(var(--pro-text-01), 1);
         font-size: 16px;
     }
 
     .ant-typography, div.ant-typography-h1, div.ant-typography-h1 > textarea, .ant-typography h1 {
 
-        color: rgba(var(--pro-input-color), 1);
+        color: rgba(var(--pro-text-02), 1);
     }
 
     .ant-list .ant-list-item {
 
-        color: rgba(var(--pro-icon-color), 1);
+        color: rgba(var(--pro-text-02), 1);
         font-size: 13px;
         line-height: 16px;
         font-weight: 400;
@@ -1038,7 +1065,7 @@ a, .link-color {
     }
 
     .ant-list .ant-list-item .ant-list-item-action > li {
-        color: rgba(var(--pro-input-color), 1);
+        color: rgba(var(--pro-text-02), 1);
     }
 
     .ant-list {
@@ -1054,7 +1081,7 @@ a, .link-color {
         color: rgba(var(--pro-text-02), 1);
 
         &.loss {
-            background-color: rgba(135, 32, 44, 0.4);
+             background-color: rgba(var(--table-loss-bg), 0.4);
             color: rgba(var(--table-loss-color), 1);
         }
 
@@ -1073,7 +1100,7 @@ a, .link-color {
         background-color: initial;
 
         &.loss td {
-            background-color: rgba(135, 32, 44, 0.4);
+             background-color: rgba(var(--table-loss-bg), 0.4);
             color: rgba(var(--table-loss-color), 1);
         }
 
@@ -1396,15 +1423,11 @@ a, .link-color {
 .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled), .ant-radio-button-wrapper {
     background-color: rgba(var(--pro-input-bg), 1);
     border: none;
-    color: rgba(var(--pro-input-color), 1);
+    color: rgba(var(--pro-text-01), 1);
 }
 
 .ant-radio-button-wrapper {
     color: rgba(var(--pro-icon-color), 0.5);
-}
-
-.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
-    color: rgba(var(--pro-input-color), 1);
 }
 
 .ant-radio-button-wrapper:first-child {
@@ -1703,7 +1726,7 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
 .header-support-link {
     display: flex;
     align-items: center;
-    color: rgba(var(--pro-controls-label-color), 1);
+    color: rgba(var(--pro-text-01), 1);
     /*padding: 16px;*/
 
     svg {
@@ -1720,7 +1743,7 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
     }
 
     .ticker-info {
-        background: rgba(var(--pro-base-02), 1);
+        background: rgba(var(--pro-widget-body-bg), 1);
         padding: 8px 12px;
         border-radius: 8px;
 
