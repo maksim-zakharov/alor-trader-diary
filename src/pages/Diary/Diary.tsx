@@ -73,7 +73,7 @@ import {
     useGetSummaryQuery,
     useSignOperationMutation
 } from "../../api/alor.api";
-import {selectCurrentPortfolio, setSettings} from "../../api/alor.slice";
+import {logout, selectCurrentPortfolio, setSettings} from "../../api/alor.slice";
 import Spinner from "../../common/Spinner";
 import Title from "antd/es/typography/Title";
 
@@ -1154,9 +1154,9 @@ const Diary: FC<IProps> = ({
                 open={showSettings}
             >
                 <Form layout="vertical">
-                    <FormItem label="Alor Token">
+                    {!settings.lk && <FormItem label="Alor Token">
                         <Input placeholder="Token" {...settingsInputProps('token')} />
-                    </FormItem>
+                    </FormItem>}
                     <FormItem label="Договор">
                         <Select value={settings.agreement}
                                 {...settingsInputProps('agreement')}
@@ -1216,6 +1216,9 @@ const Diary: FC<IProps> = ({
                                 value={settingsInputProps('summaryType').value || 'brokerSummary'}
                                 onChange={val => dispatch(setSettings({['summaryType']: val}))}
                         />
+                    </FormItem>
+                    <FormItem>
+                        <Button danger style={{width: '100%'}} onClick={() => dispatch(logout())} type="link">Выйти</Button>
                     </FormItem>
                 </Form>
             </Drawer>
