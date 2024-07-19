@@ -70,6 +70,12 @@
         --table-loss-color: 200, 43, 52;
         --table-loss-bg: 84, 31, 31;
         /*--pro-input-color: 213, 212, 215;*/
+
+        --input-left-right-padding: 0px;
+    }
+
+    .ant-form-vertical .ant-form-item-label{
+        display: none;
     }
 }
 
@@ -740,7 +746,7 @@ header {
     color: rgba(var(--pro-icon-color), 1);
     margin: 0;
     position: absolute;
-    left: 30px;
+    left: 33px;
 }
 
 .dark-theme .ant-modal-close-x {
@@ -758,7 +764,6 @@ header {
 }
 
 .ant-drawer .ant-drawer-header {
-    /*padding: 8px 12px;*/
     padding: 8px 16px;
 }
 
@@ -801,6 +806,11 @@ header {
         overflow: hidden;
         top: 86px !important;
         height: initial !important;
+    }
+
+    .ant-drawer .ant-drawer-header {
+        padding: 12px 16px;
+        border-bottom: none;
     }
 }
 
@@ -1123,7 +1133,7 @@ a, .link-color {
     }
 
     .ant-table-wrapper .ant-table-thead > tr > th, .ant-table-wrapper .ant-table-thead > tr > td {
-        background-color: rgb(36, 52, 66);
+        background-color: rgb(var(--button-group-bg));
         border-bottom-color: rgba(var(--pro-app-background-color), 1);
         color: rgba(var(--pro-input-color), 1);
         font-size: 13px;
@@ -1367,7 +1377,7 @@ a, .link-color {
 .MonthRenderCard {
     .ant-card-head {
         padding: 8px 12px !important;
-        background-color: rgb(36, 52, 66);
+        background-color: rgb(var(--button-group-bg));
         border-bottom-color: rgba(var(--pro-app-background-color), 1);
         color: rgba(var(--pro-input-color), 1);
         font-size: 16px;
@@ -1758,6 +1768,13 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
             margin-top: 8px;
         }
     }
+
+
+@media only screen and (max-width: 700px) {
+    .ticker-info {
+        padding: 8px 0;
+    }
+}
 
     .ticker_name_description {
         line-height: 16px;

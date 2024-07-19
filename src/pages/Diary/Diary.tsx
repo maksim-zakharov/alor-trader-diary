@@ -1044,11 +1044,11 @@ const Diary: FC<IProps> = ({
                             <Input placeholder="Получатель" disabled value={fullName}/>
                         </FormItem>
                         <FormItem label="БИК">
-                            <Input placeholder="БИК" {...settingsFormProps('bic')} />
+                            <Input placeholder="БИК" type="number" {...settingsFormProps('bic')} />
                         </FormItem>
                         <FormItem label="Корр. счет">
                             <Input
-                                placeholder="Корр. счет"
+                                placeholder="Корр. счет" type="number"
                                 {...settingsFormProps('loroAccount')}
                             />
                         </FormItem>
@@ -1060,7 +1060,7 @@ const Diary: FC<IProps> = ({
                         </FormItem>
                         <FormItem label="Номер счета">
                             <Input
-                                placeholder="Номер счета"
+                                placeholder="Номер счета" type="number"
                                 {...settingsFormProps('settlementAccount')}
                             />
                         </FormItem>
@@ -1081,7 +1081,7 @@ const Diary: FC<IProps> = ({
                                 value={amount}
                                 onChange={e => setPaidInfo(prevState => ({...prevState, amount: e.target.value}))}
                                 disabled={!selectedAccount}
-                                suffix="₽"
+                                suffix="₽" type="number"
                             />
                         </FormItem>
                         {lastWithdrawals.length > 0 && <div className="tag-container">
@@ -1094,7 +1094,7 @@ const Diary: FC<IProps> = ({
                     {operationId && <FormItem label="Код подтверждения">
                         <Input
                             placeholder="Код подтверждения"
-                            value={confirmationCode}
+                            value={confirmationCode} type="number"
                             onChange={e => setPaidInfo(prevState => ({...prevState, confirmationCode: e.target.value}))}
                         />
                     </FormItem>}
