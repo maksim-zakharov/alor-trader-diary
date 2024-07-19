@@ -46,6 +46,10 @@
     --button-group-bg: 36, 52, 66;
 }
 
+.ant-input-outlined:focus{
+    box-shadow: none !important;
+}
+
 @media only screen and (min-width: 700px) {
     :root {
         --input-font-size: 13px;
