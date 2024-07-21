@@ -78,7 +78,10 @@ export const getCommissionByPlanAndTotalVolume = (plan: string, totalVolume: num
     return commission;
 }
 
-export const numberToPercent = (number) => ((number || 0) * 100).toFixed(2)
+export const numberToPercent = (number) => new Intl.NumberFormat('ru-RU', {
+    maximumFractionDigits: 2,
+    minimumFractionDigits: 2
+}).format(((number || 0) * 100));
 
 export const roundPrice = (
     price: number,
