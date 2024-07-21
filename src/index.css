@@ -73,11 +73,15 @@
         --pro-icons-marker-1: 50, 49, 52;
         --pro-icons-marker-2: 126, 127, 136;
 
-        --table-loss-color: 200, 43, 52;
+        /*--table-loss-color: 200, 43, 52;*/
         --table-loss-bg: 84, 31, 31;
         /*--pro-input-color: 213, 212, 215;*/
 
         --input-left-right-padding: 0px;
+        --pro-divider-bg: 126, 127, 136;
+
+        --table-loss-color: 194, 24, 25;
+        --table-profit-color: 38, 165, 78;
     }
 
     .ant-btn-link {
@@ -103,6 +107,7 @@
 
 .ant-select-outlined:not(.ant-select-disabled):not(.ant-select-customize-input):not(.ant-pagination-size-changer):hover .ant-select-selector{
     border: none;
+    box-shadow: none;
 }
 
 .custom-icon {
@@ -335,6 +340,7 @@ h1.ant-typography {
         width: fit-content;
         padding: 2px 8px;
         border-radius: 16px;
+        font-weight: 500;
 
         &.profit {
             color: rgba(var(--table-profit-color), 1);
@@ -390,6 +396,7 @@ h1.ant-typography {
         padding: 2px 8px;
         border-radius: 16px;
         margin-top: 6px;
+        font-weight: 500;
 
         &.profit {
             color: rgba(var(--table-profit-color), 1);
@@ -518,7 +525,7 @@ header {
     /*bottom: calc(env(safe-area-inset-bottom));*/
     background-color: rgba(var(--pro-widget-body-bg), 1);
     color: rgba(var(--pro-input-color), 1);
-    border-top: 1px solid rgba(var(--pro-base-03), 1);
+    border-top: 1px solid rgba(var(--pro-divider-bg), 0.2);
     padding: 0 16px;
     padding-bottom: calc(env(safe-area-inset-bottom) - 4px);
 
@@ -587,7 +594,7 @@ header {
 @media only screen and (max-width: 700px) {
     .widget {
         width: 100%;
-        padding: 16px;
+        padding: 16px 20px;
         border-radius: 20px;
         margin-top: 16px;
     }
@@ -760,7 +767,7 @@ header {
 }
 
 .ant-drawer .ant-drawer-header {
-    border-bottom-color: rgba(var(--pro-divider-bg), 1);
+    border-bottom-color: rgba(var(--pro-divider-bg), 0.2);
 }
 
 .ant-drawer .ant-drawer-title {
@@ -780,7 +787,7 @@ header {
 }
 
 .ant-divider-horizontal {
-    border-block-color: rgba(var(--pro-divider-bg), 1);
+    border-block-color: rgba(var(--pro-divider-bg), 0.2);
     margin: 12px 0;
 }
 
@@ -828,7 +835,7 @@ header {
 @media only screen and (max-width: 700px) {
     .ant-drawer-content-wrapper {
         width: 100% !important;
-        border-radius: 20px;
+        border-radius: 12px;
         overflow: hidden;
         top: 42px !important;
         height: initial !important;
@@ -1089,7 +1096,7 @@ a, .link-color {
     }
 
     .ant-list .ant-list-item:not(:last-child) {
-        border-bottom: 1px solid rgba(var(--pro-divider-bg), 1);
+        border-bottom: 1px solid rgba(var(--pro-divider-bg), 0.2);
     }
 
     .ant-card-head-title {
@@ -1143,7 +1150,7 @@ a, .link-color {
         background-color: initial;
 
         &.loss td {
-             background-color: rgba(var(--table-loss-bg), 0.4);
+             background-color: rgba(209, 38, 27, 0.4);
             color: rgba(var(--table-loss-color), 1);
         }
 
@@ -1213,6 +1220,7 @@ a, .link-color {
         height: 32px;
         border-bottom: 1px solid rgba(var(--pro-base-03), 1);
         box-sizing: content-box;
+        z-index: 2;
     }
 
     .ant-menu {
@@ -1807,10 +1815,23 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
 @media only screen and (max-width: 700px) {
     .ticker-info {
         padding: 8px 0;
+        border-bottom: 1px solid rgba(var(--pro-divider-bg), 0.2);
+        border-radius: 0;
     }
 }
 
     .ticker_name_description {
         line-height: 16px;
     }
+}
+
+.ticker_name_title > span + span:before {
+    content: "";
+    margin: 0 6px;
+    width: 2px;
+    height: 2px;
+    border-radius: 1.5px;
+    display: inline-block;
+    vertical-align: middle;
+    background-color: rgba(var(--pro-divider-bg), 1);
 }

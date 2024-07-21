@@ -833,7 +833,7 @@ const Diary: FC<IProps> = ({
             justifyContent: 'space-between'
         }}>
             <div>
-                <div className="summary">{settings['hideSummary'] ? '••••' : moneyFormat(summaryValue)}</div>
+                <div className="summary">{settings['hideSummary'] ? '••••' : moneyFormat(summaryValue, 0, 0)}</div>
                 <div style={{
                     display: 'inline-flex',
                     alignItems: 'end'
@@ -913,7 +913,9 @@ const Diary: FC<IProps> = ({
                     </div>
                     <div className="ticker_actions">
                         <div className="ticker_name_title"
-                             style={{color: dp?.PnL > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>{moneyFormat(dp?.PnL || 0)} ({`${numberToPercent(dp?.PnLPercent)}%`})
+                             style={{color: dp?.PnL > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>
+                            <span>{moneyFormat(dp?.PnL || 0)}</span>
+                            <span>{`${numberToPercent(dp?.PnLPercent)}%`}</span>
                         </div>
                         <div className="ticker_name_description">на сумму {moneyFormat(dp?.volume, 0)}</div>
                     </div>

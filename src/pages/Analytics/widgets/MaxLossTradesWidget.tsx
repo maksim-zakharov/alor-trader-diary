@@ -24,7 +24,10 @@ const MaxLossTradesWidget = ({nonSummaryPositions, isLoading, getIsinBySymbol}) 
                     </div>
                 </div>
                 <div className="ticker_actions">
-                    <div className="ticker_name_title" style={{ color: 'rgba(var(--table-loss-color),1)' }}>{moneyFormat(getMaxLossTrade?.PnL || 0)} ({`${numberToPercent(getMaxLossTrade?.PnLPercent)}%`})</div>
+                    <div className="ticker_name_title" style={{ color: 'rgba(var(--table-loss-color),1)' }}>
+                        <span>{moneyFormat(getMaxLossTrade?.PnL || 0)}</span>
+                        <span>{`${numberToPercent(getMaxLossTrade?.PnLPercent)}%`}</span>
+                    </div>
                     <div className="ticker_name_description">на сумму {moneyFormat(getMaxLossTrade?.volume, 0)}</div>
                 </div>
             </div>)}

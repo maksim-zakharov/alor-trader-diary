@@ -5,6 +5,7 @@ import moment from "moment";
 import {ArrowDownOutlined, ArrowUpOutlined} from "@ant-design/icons";
 import {moneyFormat} from "../../../common/utils";
 import {fromTo, Security} from "alor-api";
+import {useAppSelector} from "../../../store";
 
 const PositionDetails = ({nightMode, trades, api, symbol}) => {
     const [security, setSecurity] = useState<Security | undefined>(undefined);
@@ -60,11 +61,7 @@ const PositionDetails = ({nightMode, trades, api, symbol}) => {
         }).then(r => setSecurity(r));
     }, [symbol, api]);
 
-    const darkColors = {
-        backgroundColor: 'rgb(30,44,57)',
-        color: 'rgb(166,189,213)',
-        borderColor: 'rgba(44,60,75, 0.5)',
-    };
+    const darkColors = useAppSelector(state => state.alorSlice.darkColors);
 
     return <div className="collapsed-row">
         <Chart

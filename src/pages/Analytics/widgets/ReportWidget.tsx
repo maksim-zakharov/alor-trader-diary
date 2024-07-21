@@ -41,8 +41,8 @@ const ReportWidget = ({nonSummaryPositions, tradingDays, data, isLoading}) => {
     const list2 = [
         {label: 'Ср. прибыль на сделку', value: renderProfit(averageTradeNetProfit)},
         {label: 'Ср. прибыль в день', value: renderProfit(averageDayNetProfit)},
-        {label: 'Плановая месячная прибыль', value: renderProfit(planingMonthlyProfit)},
-        {label: 'Плановая годовая прибыль', value: renderProfit(planingYearlyProfit)},
+        {label: 'План. месячная прибыль', value: renderProfit(planingMonthlyProfit)},
+        {label: 'План. годовая прибыль', value: renderProfit(planingYearlyProfit)},
     ]
 
     return <div className="widget">

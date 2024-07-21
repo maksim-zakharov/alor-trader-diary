@@ -24,7 +24,10 @@ const MaxProfitTradesWidget = ({nonSummaryPositions, isLoading, getIsinBySymbol}
                     </div>
                 </div>
                 <div className="ticker_actions">
-                    <div className="ticker_name_title" style={{ color: 'rgba(var(--table-profit-color),1)' }}>{moneyFormat(getMaxProfitTrade?.PnL || 0)} ({`${numberToPercent(getMaxProfitTrade?.PnLPercent)}%`})</div>
+                    <div className="ticker_name_title" style={{color: 'rgba(var(--table-profit-color),1)'}}>
+                        <span>{moneyFormat(getMaxProfitTrade?.PnL || 0)}</span>
+                        <span>{`${numberToPercent(getMaxProfitTrade?.PnLPercent)}%`}</span>
+                    </div>
                     <div className="ticker_name_description">на сумму {moneyFormat(getMaxProfitTrade?.volume, 0)}</div>
                 </div>
             </div>)}

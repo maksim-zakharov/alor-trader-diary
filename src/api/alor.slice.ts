@@ -13,9 +13,19 @@ const initialState = {
     agreementsMap: {},
     activeOperations: [],
     lastWithdrawals: [],
+    darkColors: {
+        backgroundColor: 'rgb(30,44,57)',
+        color: 'rgb(166,189,213)',
+        borderColor: 'rgba(44,60,75, 0.6)'
+    },
     userInfo: localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo')) : undefined,
     settings: JSON.parse(localStorage.getItem('settings') || '{}')
 } as {
+    darkColors: {
+        backgroundColor: string,
+        color: string,
+        borderColor: string,
+    }
     api: undefined | AlorApi, userInfo: UserInfoResponse, settings: {
         token: string;
         portfolio: string;
@@ -52,6 +62,9 @@ export const alorSlice = createSlice({
                 refreshType: action.payload.type,
             });
         },
+        updateDarkColors(state, action: PayloadAction<typeof initialState.darkColors>) {
+            state.darkColors = {...state.darkColors, ...action.payload};
+        },
         setSettings(state, action: PayloadAction<any>) {
             state.settings = {...state.settings, ...action.payload};
             localStorage.setItem('settings', JSON.stringify(state.settings));
@@ -83,4 +96,4 @@ export const alorSlice = createSlice({
     },
 });
 
-export const {initApi, setSettings, logout} = alorSlice.actions;
+export const {initApi, updateDarkColors, setSettings, logout} = alorSlice.actions;

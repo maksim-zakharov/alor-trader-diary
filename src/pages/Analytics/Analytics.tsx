@@ -1,7 +1,7 @@
 import React, {FC, useEffect, useMemo, useState} from "react";
 import {AlorApi} from "alor-api";
 import Highcharts from "highcharts";
-import {selectOptionsMap, summ} from "../../App";
+import {selectOptionsMap, summ, useWindowDimensions} from "../../App";
 import ProfitIntervalWidget from "./widgets/ProfitIntervalWidget";
 import LossIntervalWidget from "./widgets/LossIntervalWidget";
 import MaxProfitTradesWidget from "./widgets/MaxProfitTradesWidget";
@@ -16,6 +16,8 @@ import LossWeekdayWidget from "./widgets/LossWeekdayWidget";
 import ProfitSectionWidget from "./widgets/ProfitSectionWidget";
 import LossSectionWidget from "./widgets/LossSectionWidget";
 import Title from "antd/es/typography/Title";
+import {useAppDispatch, useAppSelector} from "../../store";
+import {updateDarkColors} from "../../api/alor.slice";
 
 interface IProps {
     balanceSeriesData: any
@@ -31,16 +33,13 @@ const Analytics: FC<IProps> = ({getIsinBySymbol, getListSectionBySymbol, data, a
     const [reasons, setReasons] = useState<{
         [id: string]: string
     }>(JSON.parse(localStorage.getItem('reasons') || '{}'));
+    const dispatch = useAppDispatch();
 
     const [nightMode] = useState(true); // Boolean(localStorage.getItem('night') === 'true'));
 
     const balanceSeriesDataWithoutFirst = useMemo(() => balanceSeriesData.slice(1), [balanceSeriesData]);
 
-    const darkColors = {
-        backgroundColor: 'rgb(30,44,57)',
-        color: 'rgb(166,189,213)',
-        borderColor: 'rgb(44,60,75)'
-    }
+    const darkColors = useAppSelector(state => state.alorSlice.darkColors);
 
     const tradingDays = useMemo(() => data.positions.filter(p => p.type === 'summary'), [data.positions]);
     const nonSummaryPositions: any[] = useMemo(() => data.positions.filter(p => p.type !== 'summary'), [data.positions]);
