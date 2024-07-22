@@ -6,10 +6,10 @@ import {
     MoneyMove,
     UserInfoResponse
 } from "alor-api/dist/services/ClientInfoService/ClientInfoService";
-import {AlorApi, Exchange, Summary, Trade, Trades} from "alor-api";
+import {AlorApi, Exchange, Securities, Summary, Trade, Trades} from "alor-api";
 import moment from "moment";
 import {getCommissionByPlanAndTotalVolume} from "../utils";
-import {ExchangePortfolioSummaryParams} from "alor-api/dist/models/models";
+import {DevSecuritiesSearchParams, ExchangePortfolioSummaryParams} from "alor-api/dist/models/models";
 import axios from "axios";
 
 export const calculateCommission = (plan: string, totalVolume: number, commissionType: string | undefined) => {
@@ -94,6 +94,9 @@ export const alorApi = createApi({
         getOperationCode: builder.mutation<{errorMessage: null, success: true}, any>({
             queryFn: recurcive(api => api.clientInfo.getOperationCode),
         }),
+        getSecurities: builder.mutation<Securities, DevSecuritiesSearchParams>({
+            queryFn: recurcive(api => api.instruments.getSecurities),
+        } as any),
         getUserInfo: builder.query<UserInfoResponse, void>({
             queryFn: recurcive(api => api.clientInfo.getUserInfo),
         }),
@@ -196,4 +199,4 @@ export const alorApi = createApi({
     })
 })
 
-export const {useGetUserInfoQuery, useGetTradesQuery, useSignOperationMutation, useGetOperationCodeMutation, useCreateOperationMutation, useGetEquityDynamicsQuery,useGetMoneyMovesQuery, useGetOperationsQuery, useGetSummaryQuery} = alorApi;
+export const {useGetUserInfoQuery, useGetSecuritiesMutation, useGetTradesQuery, useSignOperationMutation, useGetOperationCodeMutation, useCreateOperationMutation, useGetEquityDynamicsQuery,useGetMoneyMovesQuery, useGetOperationsQuery, useGetSummaryQuery} = alorApi;

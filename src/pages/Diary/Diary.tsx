@@ -39,37 +39,34 @@ import {
     SettingOutlined,
     SunOutlined,
     SwapOutlined,
-    TableOutlined
+    TableOutlined,
+    SearchOutlined
 } from '@ant-design/icons';
 
 import MoneyInputIcon from '../../assets/money-input';
 import MoneyOutputIcon from '../../assets/money-output';
 
 import FormItem from 'antd/es/form/FormItem';
-import React, {ChangeEventHandler, FC, useEffect, useMemo, useState} from 'react';
+import React, {ChangeEventHandler, FC, useEffect, useMemo, useRef, useState} from 'react';
 import {ColumnsType} from 'antd/es/table';
 import moment from 'moment/moment';
 import {selectOptions, summ} from '../../App';
 import {moneyFormat, shortNumberFormat} from '../../common/utils';
-import {AlorApi, Exchange} from "alor-api";
+import {Exchange} from "alor-api";
 import dayjs from "dayjs";
 import {useSearchParams} from "react-router-dom";
 import PositionDetails from "./components/PositionDetails";
-import {
-    Currency,
-    EquityDynamicsResponse,
-    GetOperationsResponse,
-    MoneyMove,
-    Status,
-    UserInfoResponse
-} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
+import {Currency, Status} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 import {humanize, numberToPercent} from "../../utils";
 import NoResult from "../../common/NoResult";
 import TickerImg from "../../common/TickerImg";
 import {useAppDispatch, useAppSelector} from "../../store";
 import {
-    useCreateOperationMutation, useGetMoneyMovesQuery,
-    useGetOperationCodeMutation, useGetOperationsQuery,
+    useCreateOperationMutation,
+    useGetMoneyMovesQuery,
+    useGetOperationCodeMutation,
+    useGetOperationsQuery,
+    useGetSecuritiesMutation,
     useGetSummaryQuery,
     useSignOperationMutation
 } from "../../api/alor.api";
@@ -1031,9 +1028,117 @@ const Diary: FC<IProps> = ({
 
     const sumHelp = `Доступно ${moneyFormat(summary?.portfolioLiquidationValue, 0, 0)}`;
 
+    const MobileSearch = () => {
+        const [getSecurities, {data = []}] = useGetSecuritiesMutation();
+        const [focused, setFocused] = React.useState(false);
+        const [value, setValue] = useState<string>('');
+        const onFocus = () => setFocused(true)
+        const onBlur = () => setFocused(false)
+        const onChange = (event) => {
+            // searchParams.set('query', event.target.value);
+            // setSearchParams(searchParams);
+            setValue(event.target.value)
+        }
+
+        const boardsWithLabel = [
+            {label: 'Акции', value: 'TQBR'},
+            {label: 'Фонды', value: 'TQTF'},
+            {label: 'Паи', value: 'TQIF'},
+            {label: 'Облигации', value: 'TQCB'},
+            {label: 'Гос. облигации', value: 'TQOB'},
+        ]
+
+        const securitiesGroupByBoard = useMemo(() => data.reduce((acc, curr) => {
+            if (!acc[curr.primary_board]) {
+                acc[curr.primary_board] = [];
+            }
+
+            if (value && curr.description.toLowerCase().includes((value || '').toLowerCase()))
+                acc[curr.primary_board].push(curr);
+
+            return acc;
+        }, {}), [data, value]);
+
+        const ref = useRef(null);
+
+        const debounce = (callback: (args) => any, ms: number) => {
+            let timeout;
+            return (...args) => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    callback(args);
+                }, ms);
+            }
+        }
+        const getData = (query: string) => getSecurities({
+            query,
+            limit: 1000,
+        }).unwrap();
+
+        const getDataDebounce = useMemo(() => debounce(getData, 500), []);
+
+        useEffect(() => {
+            if (value) {
+                getDataDebounce(value)
+            }
+        }, [value]);
+
+        const [hideMap, setHideMap] = useState({});
+
+        return <div className="SearchContainer">
+            <div className="input-container">
+                <Input placeholder="Бумага" className="rounded" ref={ref} value={value} onChange={onChange}
+                       prefix={<SearchOutlined />}
+                       onFocus={onFocus} onBlur={onBlur}/>
+                {value && <Button type="link" onClick={() => setValue('')}>Отменить</Button>}
+            </div>
+            <div>
+                {boardsWithLabel.filter(bwl => securitiesGroupByBoard[bwl.value]?.length).map(bwl =>
+                    <div className="MobilePosition widget" key={bwl.value}>
+                        <div style={{display: 'flex', alignItems: 'end'}}>
+                            <div className="title-container">
+                                <div className="title">{bwl.label}</div>
+                                {(securitiesGroupByBoard[bwl.value] || []).length > 3 && <div style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'end'
+                                }}>
+                                    {!hideMap[bwl.value] && <Button type="link" onClick={() => setHideMap(prevState => ({...prevState, [bwl.value]: true}))}>Больше</Button>}
+                                    {hideMap[bwl.value] && <Button type="link" onClick={() => setHideMap(prevState => ({...prevState, [bwl.value]: false}))}>Меньше</Button>}
+                                </div>}
+                            </div>
+                        </div>
+                        {(securitiesGroupByBoard[bwl.value] || []).filter((_, i) => !hideMap[bwl.value] ? i < 3 : true).map(dp =>
+                            <div className="ticker-info" key={dp.ISIN}>
+                                <div style={{display: 'flex'}}>
+                                    <TickerImg getIsinBySymbol={getIsinBySymbol} board={dp?.primary_board}
+                                               symbol={dp?.symbol}/>
+                                    <div className="ticker_name">
+                                        <div className="ticker_name_title">{dp?.description}</div>
+                                        <div className="ticker_name_description">
+                                            {dp?.symbol}
+                                        </div>
+                                    </div>
+                                </div>
+                                {/*<div className="ticker_actions">*/}
+                                {/*    <div className="ticker_name_title"*/}
+                                {/*         style={{color: dp?.PnL > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>*/}
+                                {/*        <span>{moneyFormat(dp?.PnL || 0)}</span>*/}
+                                {/*        <span>{`${numberToPercent(dp?.PnLPercent)}%`}</span>*/}
+                                {/*    </div>*/}
+                                {/*    <div className="ticker_name_description">на сумму {moneyFormat(dp?.volume, 0)}</div>*/}
+                                {/*</div>*/}
+                            </div>)}
+                    </div>
+                )}
+
+            </div>
+        </div>
+    }
+
     return (
         <div className="Diary">
             <Title>Дневник</Title>
+            <MobileSearch/>
             <MobileSummary/>
             <InfoPanelDesktop/>
             <Drawer title="Вывести" open={showPayModal} placement={isMobile ? "bottom" : "right"}
@@ -1126,7 +1231,8 @@ const Diary: FC<IProps> = ({
                 />}
             </Drawer>
             <Drawer title="Операции" open={showOperationsModal} placement={isMobile ? "bottom" : "right"}
-                    closeIcon={<Button type="link" onClick={() => setShowOperationsModal('operations')(false)}>Закрыть</Button>}
+                    closeIcon={<Button type="link"
+                                       onClick={() => setShowOperationsModal('operations')(false)}>Закрыть</Button>}
                     onClose={() => setShowOperationsModal('operations')(false)} className="operation-modal">
                 {moneyOperations.map(getMaxLossTrade =>
                     <div className="ticker-info" key={getMaxLossTrade.id}>
@@ -1151,7 +1257,8 @@ const Diary: FC<IProps> = ({
             <Drawer
                 title="Настройки"
                 placement={isMobile ? "bottom" : "right"}
-                closeIcon={<Button type="link" onClick={() => setShowOperationsModal('settings')(false)}>Закрыть</Button>}
+                closeIcon={<Button type="link"
+                                   onClick={() => setShowOperationsModal('settings')(false)}>Закрыть</Button>}
                 onClose={() => setShowOperationsModal('settings')(false)}
                 open={showSettings}
             >
@@ -1220,7 +1327,8 @@ const Diary: FC<IProps> = ({
                         />
                     </FormItem>
                     <FormItem>
-                        <Button danger style={{width: '100%'}} onClick={() => dispatch(logout())} type="link">Выйти</Button>
+                        <Button danger style={{width: '100%'}} onClick={() => dispatch(logout())}
+                                type="link">Выйти</Button>
                     </FormItem>
                 </Form>
             </Drawer>
