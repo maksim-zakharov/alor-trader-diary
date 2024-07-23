@@ -1281,7 +1281,7 @@ const Diary: FC<IProps> = ({
                     <Tabs.TabPane tab="Стакан" key="level2">
                         В разработке
                     </Tabs.TabPane>
-                    {dividends.length > 0 && <Tabs.TabPane tab="Дивиденды" key="dividends">
+                    {dividends.filter(d => d.dividendPerShare).length > 0 && <Tabs.TabPane tab="Дивиденды" key="dividends">
                         <span>
                             Дата, по которой включительно необходимо купить акции биржевых эмитентов для получения дивидендов. Начисление дивидендов ориентировочно в течение 1-2 месяцев. По внебиржевым инструментам даты строго ориентировочны и могут отличаться в связи с спецификой расчета по таким сделкам.
                         </span>
