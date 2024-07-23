@@ -1944,5 +1944,21 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
 }
 
 .ant-tabs-content{
+    color: rgba(var(--pro-text-02), 1);
+}
+
+.dividends-table {
+    width: 100%;
+    margin-top: 8px;
     color: rgba(var(--pro-text-01), 1);
+}
+
+.dividends-table th{
+    text-align: left;
+    /*width: 33%;*/
+}
+
+.dividends-table td{
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(var(--pro-divider-bg), 0.2);
 }

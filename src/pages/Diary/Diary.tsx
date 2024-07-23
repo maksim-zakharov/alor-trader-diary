@@ -62,8 +62,8 @@ import NoResult from "../../common/NoResult";
 import TickerImg from "../../common/TickerImg";
 import {useAppDispatch, useAppSelector} from "../../store";
 import {
-    useCreateOperationMutation,
-    useGetMoneyMovesQuery,
+    useCreateOperationMutation, useGetDividendsQuery,
+    useGetMoneyMovesQuery, useGetNewsQuery,
     useGetOperationCodeMutation,
     useGetOperationsQuery,
     useGetSecuritiesMutation,
@@ -557,6 +557,20 @@ const Diary: FC<IProps> = ({
     let showPayModal = searchParams.get('drawer') === 'payout';
     let showSymbolModal = searchParams.get('symbol');
     let symbolTab = searchParams.get('symbolTab') || 'description';
+
+    const {data: news = []} = useGetNewsQuery({
+        symbols: showSymbolModal,
+        limit: 100,
+        offset: 0
+    }, {
+        skip: !api || !showSymbolModal
+    });
+
+    const {data: dividends = []} = useGetDividendsQuery({
+        ticker: showSymbolModal
+    }, {
+        skip: !api || !showSymbolModal
+    });
 
     const setShowOperationsModal = (drawerName: string) => (opened: boolean) => {
         if (opened) {
@@ -1104,6 +1118,11 @@ const Diary: FC<IProps> = ({
 
         const [hideMap, setHideMap] = useState({});
 
+        const handleSelectTicker = (position: any) => {
+            searchParams.set('symbol', position.symbol);
+            setSearchParams(searchParams);
+        }
+
         return <div className="SearchContainer">
             <div className="input-container">
                 <Input placeholder="Бумага" className="rounded" ref={ref} value={value} onChange={onChange}
@@ -1127,7 +1146,7 @@ const Diary: FC<IProps> = ({
                             </div>
                         </div>
                         {(securitiesGroupByBoard[bwl.value] || []).filter((_, i) => !hideMap[bwl.value] ? i < 3 : true).map(dp =>
-                            <div className="ticker-info" key={dp.ISIN}>
+                            <div className="ticker-info" key={dp.ISIN} onClick={() => handleSelectTicker(dp)}>
                                 <div style={{display: 'flex'}}>
                                     <TickerImg getIsinBySymbol={getIsinBySymbol} board={dp?.primary_board}
                                                symbol={dp?.symbol}/>
@@ -1153,6 +1172,8 @@ const Diary: FC<IProps> = ({
             </div>
         </div>
     }
+
+    console.log(news)
 
     return (
         <div className="Diary">
@@ -1260,9 +1281,23 @@ const Diary: FC<IProps> = ({
                     <Tabs.TabPane tab="Стакан" key="level2">
                         В разработке
                     </Tabs.TabPane>
-                    <Tabs.TabPane tab="Дивиденды" key="dividends">
-                        В разработке
-                    </Tabs.TabPane>
+                    {dividends.length > 0 && <Tabs.TabPane tab="Дивиденды" key="dividends">
+                        <span>
+                            Дата, по которой включительно необходимо купить акции биржевых эмитентов для получения дивидендов. Начисление дивидендов ориентировочно в течение 1-2 месяцев. По внебиржевым инструментам даты строго ориентировочны и могут отличаться в связи с спецификой расчета по таким сделкам.
+                        </span>
+                        <table className="dividends-table">
+                            <thead>
+                            <th>Дата</th>
+                            <th>Сумма</th>
+                            <th>Доход</th>
+                            </thead>
+                            <tbody>
+                            {dividends.filter(d => d.dividendPerShare).sort((a, b) => b.recordDate.localeCompare(a.recordDate)).map(d => <tr key={d.id}><td>{moment(d.recordDate).format('LL')}</td><td>{new Intl.NumberFormat('ru-RU', {
+                                minimumFractionDigits: 0, maximumFractionDigits: 2, style: 'currency', currency: d.currency
+                            }).format(d.dividendPerShare)}</td><td>{numberToPercent(d.dividendYield)}%</td></tr>)}
+                            </tbody>
+                        </table>
+                    </Tabs.TabPane>}
                     <Tabs.TabPane tab="Новости" key="news">
                         В разработке
                     </Tabs.TabPane>

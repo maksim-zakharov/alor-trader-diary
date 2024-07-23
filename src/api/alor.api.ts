@@ -58,6 +58,62 @@ const recurcive = (selector: (api: AlorApi) => any, paramsCallback = params => p
     }
 }
 
+export interface NewsRequest {
+    limit:           number;
+    offset:     number;
+    sortDesc:     string;
+    symbols?:       string;
+}
+
+export interface News {
+    id:           number;
+    sourceId:     string;
+    header:       string;
+    publishDate:  Date;
+    newsType:     number;
+    content:      string;
+    countryCodes: string[];
+    rubricCodes:  string[];
+    symbols:      string[];
+    mt:           null;
+}
+export interface SecurityDescription {
+    symbol:       string;
+    description:  string;
+    sector:       string;
+    isin:         string;
+    baseCurrency: string;
+    securityType: string;
+    lotsize:      number;
+    shortName:    string;
+    cfiCode:      string;
+}
+
+export interface SecurityDividend {
+    recordDate:                Date;
+    dividendPerShare:          number;
+    dividendYield:             number;
+    currency:                  Currency;
+    recommendDividendPerShare: number;
+    listDate:                  Date;
+    declaredPayDateNominee:    Date | null;
+    exDividendDate:            Date | null;
+    fixDate:                   Date | null;
+}
+
+const getDividends = (api: AlorApi) => ({ticker}: {ticker: string})  => api.http
+    .get(`/instruments/v1/${ticker}/stock/dividends`, {
+        baseURL: "https://api.alor.ru",
+    })
+    .then((r) => r.data)
+
+const getNews = (api: AlorApi) => (params: NewsRequest)  => api.http
+    .get(`/news/news`, {
+        params,
+        baseURL: "https://api.alor.ru",
+    })
+    .then((r) => r.data)
+
 export const alorApi = createApi({
     reducerPath: 'alor.api',
     tagTypes: [
@@ -102,6 +158,12 @@ export const alorApi = createApi({
         }),
         getOperations: builder.query<GetOperationsResponse[], string>({
             queryFn: recurcive(api => api.clientInfo.getOperations),
+        } as any),
+        getNews: builder.query<News[], NewsRequest>({
+            queryFn: recurcive(api => getNews(api)),
+        } as any),
+        getDividends: builder.query<SecurityDividend, {ticker: string}>({
+            queryFn: recurcive(api => getDividends(api)),
         } as any),
         getMoneyMoves: builder.query<MoneyMove[], {
             agreementNumber: string
@@ -199,4 +261,4 @@ export const alorApi = createApi({
     })
 })
 
-export const {useGetUserInfoQuery, useGetSecuritiesMutation, useGetTradesQuery, useSignOperationMutation, useGetOperationCodeMutation, useCreateOperationMutation, useGetEquityDynamicsQuery,useGetMoneyMovesQuery, useGetOperationsQuery, useGetSummaryQuery} = alorApi;
+export const {useGetUserInfoQuery, useGetNewsQuery, useGetDividendsQuery, useGetSecuritiesMutation, useGetTradesQuery, useSignOperationMutation, useGetOperationCodeMutation, useCreateOperationMutation, useGetEquityDynamicsQuery,useGetMoneyMovesQuery, useGetOperationsQuery, useGetSummaryQuery} = alorApi;
