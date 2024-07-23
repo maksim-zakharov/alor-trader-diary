@@ -1882,12 +1882,12 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
 
     .ticker-info {
         background: rgba(var(--pro-widget-body-bg), 1);
-        padding: 8px 12px;
+        padding: 8px 0;
         border-radius: 8px;
 
-        &:not(:first-child) {
-            margin-top: 8px;
-        }
+        /*&:not(:first-child) {*/
+        /*    margin-top: 8px;*/
+        /*}*/
     }
 
 
