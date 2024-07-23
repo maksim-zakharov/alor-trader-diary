@@ -18,7 +18,7 @@ import {
     SelectProps,
     Space,
     Statistic,
-    Table,
+    Table, Tabs,
     Tag,
     Timeline,
     Typography,
@@ -555,6 +555,8 @@ const Diary: FC<IProps> = ({
     let showOperationsModal = searchParams.get('drawer') === 'operations';
     let showSettings = searchParams.get('drawer') === 'settings';
     let showPayModal = searchParams.get('drawer') === 'payout';
+    let showSymbolModal = searchParams.get('symbol');
+    let symbolTab = searchParams.get('symbolTab') || 'description';
 
     const setShowOperationsModal = (drawerName: string) => (opened: boolean) => {
         if (opened) {
@@ -562,6 +564,17 @@ const Diary: FC<IProps> = ({
         } else {
             searchParams.delete('drawer');
         }
+        setSearchParams(searchParams);
+    }
+    const closeSymbolModal = () => {
+        searchParams.delete('selectedSymbolKey');
+        searchParams.delete('symbol');
+        searchParams.delete('symbolTab');
+        setSearchParams(searchParams);
+    }
+
+    const onHandleSelectSymbolTab = (symbolTab) => {
+        searchParams.set('symbolTab', symbolTab);
         setSearchParams(searchParams);
     }
 
@@ -1235,6 +1248,25 @@ const Diary: FC<IProps> = ({
                             снова</Button>,
                     ]}
                 />}
+            </Drawer>
+            <Drawer title={showSymbolModal} open={showSymbolModal} placement={isMobile ? "bottom" : "right"}
+                    closeIcon={<Button type="link"
+                                       onClick={closeSymbolModal}>Закрыть</Button>}
+                    onClose={closeSymbolModal}>
+                <Tabs activeKey={symbolTab} onTabClick={onHandleSelectSymbolTab}>
+                    <Tabs.TabPane tab="Обзор" key="description">
+                        В разработке
+                    </Tabs.TabPane>
+                    <Tabs.TabPane tab="Стакан" key="level2">
+                        В разработке
+                    </Tabs.TabPane>
+                    <Tabs.TabPane tab="Дивиденды" key="dividends">
+                        В разработке
+                    </Tabs.TabPane>
+                    <Tabs.TabPane tab="Новости" key="news">
+                        В разработке
+                    </Tabs.TabPane>
+                </Tabs>
             </Drawer>
             <Drawer title="Операции" open={showOperationsModal} placement={isMobile ? "bottom" : "right"}
                     closeIcon={<Button type="link"

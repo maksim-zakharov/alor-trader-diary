@@ -1921,3 +1921,28 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
     vertical-align: middle;
     background-color: rgba(var(--pro-divider-bg), 1);
 }
+
+.ant-tabs .ant-tabs-tab{
+    color: rgba(var(--pro-text-01), 1);
+    padding: 12px;
+}
+
+.ant-tabs-tab .ant-tabs-tab-active, .ant-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn{
+    color: rgba(var(--pro-text-02), 1);
+}
+
+.ant-tabs-top >.ant-tabs-nav::before, .ant-tabs-top >div>.ant-tabs-nav::before{
+    display: none;
+}
+
+.ant-tabs-nav-wrap{
+    border-bottom: 1px solid rgba(var(--pro-divider-bg), 0.2);
+}
+
+.ant-tabs .ant-tabs-tab+.ant-tabs-tab{
+    margin: 0;
+}
+
+.ant-tabs-content{
+    color: rgba(var(--pro-text-01), 1);
+}
