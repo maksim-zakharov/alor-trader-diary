@@ -453,7 +453,7 @@ h1.ant-typography {
 .MobileSummary {
     display: none;
     margin-bottom: 16px;
-    height: 186px;
+    /*height: 186px;*/
 
     .summary {
         font-size: 24px;
@@ -493,11 +493,18 @@ h1.ant-typography {
         background-color: rgb(var(--button-group-bg));
     }
 
+    .summary-info{
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        padding: 8px 0;
+    }
+
     .button-group {
         background-color: rgb(var(--button-group-bg));
         padding: 16px 20px;
         border-radius: 20px;
-        margin-top: 16px;
+        margin: 8px 0;
         display: flex;
         justify-content: space-between;
         align-items: center;

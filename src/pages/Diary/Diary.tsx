@@ -825,10 +825,7 @@ const Diary: FC<IProps> = ({
 
     const MobileSummary = () => <div className="MobileSummary widget">
         {isSummaryLoading && <Spinner/>}
-        {!isSummaryLoading && <div style={{
-            display: 'flex', alignItems: 'baseline',
-            justifyContent: 'space-between'
-        }}>
+        {!isSummaryLoading && <div className="summary-info">
             <div>
                 <div className="summary">{settings['hideSummary'] ? '••••' : moneyFormat(summaryValue, 0, 0)}</div>
                 <div style={{

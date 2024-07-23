@@ -13,7 +13,6 @@ import axios from "axios";
 import QuestionCircleIcon  from '../../assets/question-circle';
 
 const LoginPage = () => {
-    const tryLogin = true; // localStorage.getItem('tryLogin');
     const api = useAppSelector(state => state.alorSlice.api);
     const userInfo = useAppSelector(state => state.alorSlice.userInfo);
     const dispatch = useAppDispatch();
