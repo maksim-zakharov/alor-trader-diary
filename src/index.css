@@ -382,7 +382,7 @@ h1.ant-typography {
             padding-left: 20px;
             padding-right: 20px;
 
-            &:hover {
+            &:hover, &.selected {
                 background-color: rgb(var(--button-group-bg));
             }
         }

@@ -879,6 +879,15 @@ const Diary: FC<IProps> = ({
         const summary = useMemo(() => positions.find(p => p.type === 'summary'), [positions]);
         const dayPositions = useMemo(() => positions.filter(p => p.type !== 'summary'), [positions]);
 
+        const [searchParams ,setSearchParams] = useSearchParams();
+        const selectKey = searchParams.get('selectedSymbolKey');
+
+        const handleSelectTicker = (position: any) => {
+            searchParams.set('symbol', position.symbol);
+            searchParams.set('selectedSymbolKey', `${summary.openDate}-${position.openDate}-${position.symbol}`);
+            setSearchParams(searchParams);
+        }
+
         return <div className="MobilePosition widget" key={summary.openDate}>
             <div style={{display: 'flex', alignItems: 'end'}}>
                 <div className="title-container">
@@ -895,7 +904,7 @@ const Diary: FC<IProps> = ({
                 </div>
             </div>
             {dayPositions.map(dp =>
-                <div className="ticker-info" key={`${summary.openDate}-${dp.openDate}-${dp.symbol}`}>
+                <div className={`ticker-info${selectKey === `${summary.openDate}-${dp.openDate}-${dp.symbol}`?' selected' : ''}`} key={`${summary.openDate}-${dp.openDate}-${dp.symbol}`} onClick={() => handleSelectTicker(dp)}>
                     <div style={{display: 'flex'}}>
                         <TickerImg getIsinBySymbol={getIsinBySymbol} symbol={dp?.symbol}/>
                         <div className="ticker_name">
