@@ -101,6 +101,12 @@ export interface SecurityDividend {
     fixDate:                   Date | null;
 }
 
+const getDescription = (api: AlorApi) => ({ticker}: {ticker: string})  => api.http
+    .get(`/instruments/v1/${ticker}/description`, {
+        baseURL: "https://api.alor.ru",
+    })
+    .then((r) => r.data)
+
 const getDividends = (api: AlorApi) => ({ticker}: {ticker: string})  => api.http
     .get(`/instruments/v1/${ticker}/stock/dividends`, {
         baseURL: "https://api.alor.ru",
@@ -164,6 +170,9 @@ export const alorApi = createApi({
         } as any),
         getDividends: builder.query<SecurityDividend, {ticker: string}>({
             queryFn: recurcive(api => getDividends(api)),
+        } as any),
+        getDescription: builder.query<SecurityDescription, {ticker: string}>({
+            queryFn: recurcive(api => getDescription(api)),
         } as any),
         getMoneyMoves: builder.query<MoneyMove[], {
             agreementNumber: string
@@ -261,4 +270,4 @@ export const alorApi = createApi({
     })
 })
 
-export const {useGetUserInfoQuery, useGetNewsQuery, useGetDividendsQuery, useGetSecuritiesMutation, useGetTradesQuery, useSignOperationMutation, useGetOperationCodeMutation, useCreateOperationMutation, useGetEquityDynamicsQuery,useGetMoneyMovesQuery, useGetOperationsQuery, useGetSummaryQuery} = alorApi;
+export const {useGetUserInfoQuery, useGetDescriptionQuery, useGetNewsQuery, useGetDividendsQuery, useGetSecuritiesMutation, useGetTradesQuery, useSignOperationMutation, useGetOperationCodeMutation, useCreateOperationMutation, useGetEquityDynamicsQuery,useGetMoneyMovesQuery, useGetOperationsQuery, useGetSummaryQuery} = alorApi;

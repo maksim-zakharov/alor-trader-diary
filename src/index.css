@@ -2010,3 +2010,7 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
     padding-top: 8px;
     border-top: 1px solid rgba(var(--pro-divider-bg), 0.2);
 }
+
+.description-container h3{
+    margin: 0;
+}

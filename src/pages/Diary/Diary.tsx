@@ -62,7 +62,7 @@ import NoResult from "../../common/NoResult";
 import TickerImg from "../../common/TickerImg";
 import {useAppDispatch, useAppSelector} from "../../store";
 import {
-    useCreateOperationMutation, useGetDividendsQuery,
+    useCreateOperationMutation, useGetDescriptionQuery, useGetDividendsQuery,
     useGetMoneyMovesQuery, useGetNewsQuery,
     useGetOperationCodeMutation,
     useGetOperationsQuery,
@@ -571,6 +571,14 @@ const Diary: FC<IProps> = ({
     }, {
         skip: !api || !showSymbolModal
     });
+
+    const {data: description} = useGetDescriptionQuery({
+        ticker: showSymbolModal
+    }, {
+        skip: !api || !showSymbolModal
+    });
+
+
 
     const setShowOperationsModal = (drawerName: string) => (opened: boolean) => {
         if (opened) {
@@ -1270,13 +1278,18 @@ const Diary: FC<IProps> = ({
                     ]}
                 />}
             </Drawer>
-            <Drawer title={showSymbolModal} open={showSymbolModal} placement={isMobile ? "bottom" : "right"}
+            <Drawer title={description?.shortName || showSymbolModal} open={showSymbolModal} placement={isMobile ? "bottom" : "right"}
                     closeIcon={<Button type="link"
                                        onClick={closeSymbolModal}>Закрыть</Button>}
                     onClose={closeSymbolModal}>
                 <Tabs activeKey={symbolTab} onTabClick={onHandleSelectSymbolTab}>
                     <Tabs.TabPane tab="Обзор" key="description">
-                        В разработке
+                        <div className="description-container">
+                            <h3>О компании</h3>
+                            <p>
+                                {description?.description}
+                            </p>
+                        </div>
                     </Tabs.TabPane>
                     <Tabs.TabPane tab="Стакан" key="level2">
                         В разработке
