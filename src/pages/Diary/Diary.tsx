@@ -1181,8 +1181,6 @@ const Diary: FC<IProps> = ({
         </div>
     }
 
-    console.log(news)
-
     return (
         <div className="Diary">
             <Title>Дневник</Title>
