@@ -1962,3 +1962,51 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
     padding: 8px 0;
     border-bottom: 1px solid rgba(var(--pro-divider-bg), 0.2);
 }
+
+.news-list-container{
+    height: calc(100vh - 178px);
+    overflow: auto;
+    overflow-x: hidden;
+}
+
+.news-list p > p:not(:first-of-type){
+    display: none;
+}
+.news-list h4{
+    margin: 0;
+}
+.news-list div{
+    margin-top: 4px;
+    color: rgba(var(--pro-text-01), 1);
+    font-size: 12px;
+}
+
+.news-list h4 + p{
+    margin-top: 0;
+}
+
+.news-list p{
+    margin-top: 12px;
+    color: rgba(var(--pro-text-02), 1);
+}
+
+.news-list p + p{
+    margin-top: 8px;
+}
+
+.news-list p + p + p{
+    display: none;
+}
+
+.news-list p + p + p + p{
+    display: none;
+}
+
+.news-list p + p + p + p + p{
+    display: none;
+
+}
+.news-list + .news-list{
+    padding-top: 8px;
+    border-top: 1px solid rgba(var(--pro-divider-bg), 0.2);
+}

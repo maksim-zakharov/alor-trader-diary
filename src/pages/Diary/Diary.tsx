@@ -1299,7 +1299,13 @@ const Diary: FC<IProps> = ({
                         </table>
                     </Tabs.TabPane>}
                     <Tabs.TabPane tab="Новости" key="news">
-                        В разработке
+                        <div className="news-list-container">
+                            {news.map(n => <div className="news-list" key={n.id}>
+                                <h4>{n.header}</h4>
+                                <div>{moment(n.publishDate).format('LLL')}</div>
+                                <p dangerouslySetInnerHTML={{__html: n.content}}/>
+                            </div>)}
+                        </div>
                     </Tabs.TabPane>
                 </Tabs>
             </Drawer>
