@@ -1291,7 +1291,7 @@ const Diary: FC<IProps> = ({
                         </div>
                     </Tabs.TabPane>
                     <Tabs.TabPane tab="Стакан" key="level2">
-                        <OrderbookWidget api={api} symbol={showSymbolModal} showClusters/>
+                        <OrderbookWidget api={api} symbol={showSymbolModal} key={showSymbolModal} showClusters/>
                     </Tabs.TabPane>
                     {dividends.filter(d => d.dividendPerShare).length > 0 && <Tabs.TabPane tab="Дивиденды" key="dividends">
                         <span>
