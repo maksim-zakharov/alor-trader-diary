@@ -73,6 +73,7 @@ import {
 import {logout, selectCurrentPortfolio, setSettings} from "../../api/alor.slice";
 import Spinner from "../../common/Spinner";
 import Title from "antd/es/typography/Title";
+import OrderbookWidget from "../Orderbook/OrderbookWidget";
 
 interface DataType {
     key: string;
@@ -1290,7 +1291,7 @@ const Diary: FC<IProps> = ({
                         </div>
                     </Tabs.TabPane>
                     <Tabs.TabPane tab="Стакан" key="level2">
-                        В разработке
+                        <OrderbookWidget api={api} symbol={showSymbolModal} showClusters/>
                     </Tabs.TabPane>
                     {dividends.filter(d => d.dividendPerShare).length > 0 && <Tabs.TabPane tab="Дивиденды" key="dividends">
                         <span>
