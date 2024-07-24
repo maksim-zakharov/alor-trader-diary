@@ -236,7 +236,7 @@ const Diary: FC<IProps> = ({
 
     const nightMode = useMemo(() => (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches) || theme === 'dark', [theme]);
 
-    const expandedRowRender = (row: any) => <PositionDetails trades={row.trades} symbol={row.symbol} api={api}
+    const expandedRowRender = (row: any) => <PositionDetails trades={row.trades} symbol={row.symbol}
                                                              nightMode={nightMode}/>;
     const selectProps = (position: any): SelectProps => {
         const onSelect: SelectProps['onSelect'] = (value) => {

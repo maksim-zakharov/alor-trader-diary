@@ -1,14 +1,22 @@
 import Chart from "./Chart";
 import {Table, TableColumnsType} from "antd";
-import React, {useEffect, useMemo, useState} from "react";
+import React, {useMemo} from "react";
 import moment from "moment";
 import {ArrowDownOutlined, ArrowUpOutlined} from "@ant-design/icons";
 import {moneyFormat} from "../../../common/utils";
-import {fromTo, Security} from "alor-api";
 import {useAppSelector} from "../../../store";
+import {useGetSecurityByExchangeAndSymbolQuery} from "../../../api/alor.api";
 
-const PositionDetails = ({nightMode, trades, api, symbol}) => {
-    const [security, setSecurity] = useState<Security | undefined>(undefined);
+const PositionDetails = ({nightMode, trades, symbol}) => {
+    const api = useAppSelector(state => state.alorSlice.api);
+
+    const {data: security} = useGetSecurityByExchangeAndSymbolQuery({
+            symbol,
+            exchange: "MOEX",
+        },
+        {
+            skip: !api || !symbol
+        });
 
     const digits = useMemo(() => security ? `${security.minstep}`.split('.')[1]?.length : 0, [security]);
 
@@ -27,10 +35,12 @@ const PositionDetails = ({nightMode, trades, api, symbol}) => {
             align: 'center',
             render: (_, row) =>
                 // @ts-ignore
-                row.side === 'sell' ? <ArrowDownOutlined /> : <ArrowUpOutlined />,
+                row.side === 'sell' ? <ArrowDownOutlined/> : <ArrowUpOutlined/>,
         },
-        { title: 'Количество', dataIndex: 'qty',
-            align: 'center',key: 'qty' },
+        {
+            title: 'Количество', dataIndex: 'qty',
+            align: 'center', key: 'qty'
+        },
         {
             title: 'Цена',
             dataIndex: 'price',
@@ -54,13 +64,6 @@ const PositionDetails = ({nightMode, trades, api, symbol}) => {
         },
     ];
 
-    useEffect(() => {
-        api.instruments.getSecurityByExchangeAndSymbol({
-            symbol,
-            exchange: "MOEX",
-        }).then(r => setSecurity(r));
-    }, [symbol, api]);
-
     const darkColors = useAppSelector(state => state.alorSlice.darkColors);
 
     return <div className="collapsed-row">
@@ -70,13 +73,12 @@ const PositionDetails = ({nightMode, trades, api, symbol}) => {
             symbol={symbol}
             digits={digits}
             security={security}
-            api={api}
             from={trades[0].date}
             to={trades.slice(-1)[0].date}
         />
         <Table
             className="collapsed-row-details"
-            style={{ gridColumnStart: 1, gridColumnEnd: 3 }}
+            style={{gridColumnStart: 1, gridColumnEnd: 3}}
             columns={columns}
             dataSource={trades.sort((a: any, b: any) =>
                 a.date.localeCompare(b.date),

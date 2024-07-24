@@ -6,11 +6,20 @@ import {
     MoneyMove,
     UserInfoResponse
 } from "alor-api/dist/services/ClientInfoService/ClientInfoService";
-import {AlorApi, Exchange, Securities, Summary, Trade, Trades} from "alor-api";
+import {
+    AlorApi,
+    DevHistoryParams,
+    Exchange,
+    History as AHistory,
+    Securities,
+    Security,
+    Summary,
+    Trade,
+    Trades
+} from "alor-api";
 import moment from "moment";
 import {getCommissionByPlanAndTotalVolume} from "../utils";
 import {DevSecuritiesSearchParams, ExchangePortfolioSummaryParams} from "alor-api/dist/models/models";
-import axios from "axios";
 
 export const calculateCommission = (plan: string, totalVolume: number, commissionType: string | undefined) => {
 
@@ -184,6 +193,12 @@ export const alorApi = createApi({
         getSummary: builder.query<Summary, ExchangePortfolioSummaryParams>({
             queryFn: recurcive((api) => api.clientInfo.getSummary),
         } as any),
+        getSecurityByExchangeAndSymbol: builder.query<Security, {symbol: string, exchange: string}>({
+            queryFn: recurcive((api) => api.instruments.getSecurityByExchangeAndSymbol),
+        } as any),
+        getHistory: builder.query<AHistory, DevHistoryParams>({
+            queryFn: recurcive((api) => api.instruments.getHistory),
+        } as any),
         getEquityDynamics: builder.query<EquityDynamicsResponse, {
             startDate: string;
             endDate: string;
@@ -270,4 +285,4 @@ export const alorApi = createApi({
     })
 })
 
-export const {useGetUserInfoQuery, useGetDescriptionQuery, useGetNewsQuery, useGetDividendsQuery, useGetSecuritiesMutation, useGetTradesQuery, useSignOperationMutation, useGetOperationCodeMutation, useCreateOperationMutation, useGetEquityDynamicsQuery,useGetMoneyMovesQuery, useGetOperationsQuery, useGetSummaryQuery} = alorApi;
+export const {useGetUserInfoQuery, useGetSecurityByExchangeAndSymbolQuery, useGetHistoryQuery, useGetDescriptionQuery, useGetNewsQuery, useGetDividendsQuery, useGetSecuritiesMutation, useGetTradesQuery, useSignOperationMutation, useGetOperationCodeMutation, useCreateOperationMutation, useGetEquityDynamicsQuery,useGetMoneyMovesQuery, useGetOperationsQuery, useGetSummaryQuery} = alorApi;
