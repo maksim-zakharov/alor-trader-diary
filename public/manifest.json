@@ -20,9 +20,11 @@
   ],
   "intent_filters": {
     "scope_url_scheme": "https",
-    "scope_url_host": "maksim-zakharov.github.io/alor-trader-diary",
-    "scope_url_path": "/"
+    "scope_url_host": "maksim-zakharov.github.io",
+    "scope_url_path": "/alor-trader-diary"
   },
+  "scope": "/",
+  "handle_links": "preferred",
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#000000",

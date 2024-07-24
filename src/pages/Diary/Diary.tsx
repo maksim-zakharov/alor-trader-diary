@@ -40,7 +40,8 @@ import {
     SunOutlined,
     SwapOutlined,
     TableOutlined,
-    SearchOutlined
+    SearchOutlined,
+    ShareAltOutlined
 } from '@ant-design/icons';
 
 import MoneyInputIcon from '../../assets/money-input';
@@ -1182,6 +1183,12 @@ const Diary: FC<IProps> = ({
         </div>
     }
 
+    const handleShareButtonClick = (data: Omit<ShareData, 'files'>) => {
+        if(navigator.canShare){
+            navigator.canShare(data)
+        }
+    }
+
     return (
         <div className="Diary">
             <Title>Дневник</Title>
@@ -1280,7 +1287,13 @@ const Diary: FC<IProps> = ({
             <Drawer title={description?.shortName || showSymbolModal} open={showSymbolModal} placement={isMobile ? "bottom" : "right"}
                     closeIcon={<Button type="link"
                                        onClick={closeSymbolModal}>Закрыть</Button>}
-                    onClose={closeSymbolModal}>
+                    onClose={closeSymbolModal}
+                    extra={<Button onClick={() => handleShareButtonClick({
+                        title: `${showSymbolModal} | Trading Diary`,
+                        text: window.location.host,
+                        url: window.location.href,
+                    })} icon={<ShareAltOutlined />}/>}
+            >
                 <Tabs activeKey={symbolTab} onTabClick={onHandleSelectSymbolTab}>
                     <Tabs.TabPane tab="Обзор" key="description">
                         <div className="description-container">
