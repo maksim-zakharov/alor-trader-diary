@@ -1313,7 +1313,7 @@ const Diary: FC<IProps> = ({
                     <p dangerouslySetInnerHTML={{__html: newsMap[selectedNews]?.content}}/>
                 </div>
             </Drawer>
-            <Drawer title={description?.shortName || showSymbolModal} open={showSymbolModal}
+            <Drawer title={description?.shortName || showSymbolModal} open={!selectedNews && showSymbolModal}
                     placement={isMobile ? "bottom" : "right"}
                     closeIcon={<Button type="link"
                                        onClick={closeSymbolModal}>Закрыть</Button>}
