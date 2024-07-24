@@ -1305,7 +1305,7 @@ const Diary: FC<IProps> = ({
                     extra={<Button onClick={() => handleShareButtonClick({
                         title: `${showSymbolModal} | Trading Diary`,
                         text: window.location.host,
-                        url: `/#/diary?symbol=${showSymbolModal}&newsId=${selectedNews}`,
+                        url: `/alor-trader-diary/#/diary?symbol=${showSymbolModal}&newsId=${selectedNews}`,
                     })} icon={<ShareAltOutlined />}/>}
             >
                 <div className="description-container">
@@ -1321,7 +1321,7 @@ const Diary: FC<IProps> = ({
                     extra={<Button onClick={() => handleShareButtonClick({
                         title: `${showSymbolModal} | Trading Diary`,
                         text: window.location.host,
-                        url: `/#/diary?symbol=${showSymbolModal}`,
+                        url: `/alor-trader-diary/#/diary?symbol=${showSymbolModal}`,
                     })} icon={<ShareAltOutlined />}/>}
             >
                 <Tabs activeKey={symbolTab} onTabClick={onHandleSelectSymbolTab}>
