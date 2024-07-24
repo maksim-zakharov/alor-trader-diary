@@ -1303,8 +1303,8 @@ const Diary: FC<IProps> = ({
                                        onClick={() => selectNews(null)}>Закрыть</Button>}
                     onClose={() => selectNews(null)}
                     extra={<Button onClick={() => handleShareButtonClick({
-                        title: `${showSymbolModal} | Trading Diary`,
-                        text: window.location.host,
+                        title: `${description?.shortName || showSymbolModal} | Trading Diary`,
+                        text: `${window.location.host}/alor-trader-diary/#`,
                         url: `/alor-trader-diary/#/diary?symbol=${showSymbolModal}&newsId=${selectedNews}`,
                     })} icon={<ShareAltOutlined />}/>}
             >
@@ -1319,8 +1319,8 @@ const Diary: FC<IProps> = ({
                                        onClick={closeSymbolModal}>Закрыть</Button>}
                     onClose={closeSymbolModal}
                     extra={<Button onClick={() => handleShareButtonClick({
-                        title: `${showSymbolModal} | Trading Diary`,
-                        text: window.location.host,
+                        title: `${description?.shortName || showSymbolModal} | Trading Diary`,
+                        text: `${window.location.host}/alor-trader-diary/#`,
                         url: `/alor-trader-diary/#/diary?symbol=${showSymbolModal}`,
                     })} icon={<ShareAltOutlined />}/>}
             >
