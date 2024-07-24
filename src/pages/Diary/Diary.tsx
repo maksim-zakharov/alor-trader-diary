@@ -1185,7 +1185,7 @@ const Diary: FC<IProps> = ({
 
     const handleShareButtonClick = (data: Omit<ShareData, 'files'>) => {
         if(navigator.canShare){
-            navigator.canShare(data)
+            navigator.share(data)
         }
     }
 
@@ -1291,7 +1291,7 @@ const Diary: FC<IProps> = ({
                     extra={<Button onClick={() => handleShareButtonClick({
                         title: `${showSymbolModal} | Trading Diary`,
                         text: window.location.host,
-                        url: window.location.href,
+                        url: `/#/diary?symbol=${showSymbolModal}`,
                     })} icon={<ShareAltOutlined />}/>}
             >
                 <Tabs activeKey={symbolTab} onTabClick={onHandleSelectSymbolTab}>
