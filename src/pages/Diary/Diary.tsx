@@ -568,6 +568,20 @@ const Diary: FC<IProps> = ({
         skip: !api || !showSymbolModal
     });
 
+    const newsMap = useMemo(() => news.reduce((acc, curr) => ({...acc, [curr.id]: curr}), {}), [news]);
+
+    const selectedNews = searchParams.get('newsId');
+
+    const selectNews = (id) => {
+        if(id){
+            searchParams.set('newsId', id);
+        } else {
+            searchParams.delete('newsId');
+        }
+
+        setSearchParams(searchParams);
+    }
+
     const {data: dividends = []} = useGetDividendsQuery({
         ticker: showSymbolModal
     }, {
@@ -1284,7 +1298,23 @@ const Diary: FC<IProps> = ({
                     ]}
                 />}
             </Drawer>
-            <Drawer title={description?.shortName || showSymbolModal} open={showSymbolModal} placement={isMobile ? "bottom" : "right"}
+            <Drawer title="Новости" open={selectedNews} placement={isMobile ? "bottom" : "right"}
+                    closeIcon={<Button type="link"
+                                       onClick={() => selectNews(null)}>Закрыть</Button>}
+                    onClose={() => selectNews(null)}
+                    extra={<Button onClick={() => handleShareButtonClick({
+                        title: `${showSymbolModal} | Trading Diary`,
+                        text: window.location.host,
+                        url: `/#/diary?symbol=${showSymbolModal}&newsId=${selectedNews}`,
+                    })} icon={<ShareAltOutlined />}/>}
+            >
+                <div className="description-container">
+                    <h3>{newsMap[selectedNews]?.header}</h3>
+                    <p dangerouslySetInnerHTML={{__html: newsMap[selectedNews]?.content}}/>
+                </div>
+            </Drawer>
+            <Drawer title={description?.shortName || showSymbolModal} open={showSymbolModal}
+                    placement={isMobile ? "bottom" : "right"}
                     closeIcon={<Button type="link"
                                        onClick={closeSymbolModal}>Закрыть</Button>}
                     onClose={closeSymbolModal}
@@ -1328,7 +1358,7 @@ const Diary: FC<IProps> = ({
                     </Tabs.TabPane>}
                     <Tabs.TabPane tab="Новости" key="news">
                         <div className="news-list-container">
-                            {news.map(n => <div className="news-list" key={n.id}>
+                            {news.map(n => <div className="news-list" onClick={() => selectNews(n.id)} key={n.id}>
                                 <h4>{n.header}</h4>
                                 <div>{moment(n.publishDate).format('LLL')}</div>
                                 <p dangerouslySetInnerHTML={{__html: n.content}}/>
