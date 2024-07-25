@@ -45,12 +45,10 @@ const recurcive = (selector: (api: AlorApi) => any, paramsCallback = params => p
         const params = paramsCallback ? paramsCallback(args) : args;
         if(Array.isArray(params)){
             // @ts-ignore
-            const data = await selector(api).apply(api, params);
-            return { data }
+            return selector(api).apply(api, params).then(data => ({data})).catch(error => ({error}));
         }
         // @ts-ignore
-        const data = await selector(api).call(api, params);
-        return { data }
+        return selector(api).call(api, params).then(data => ({data})).catch(error => ({error}));
     } catch (error: any) {
         if(error.message === 'Необходимо авторизоваться'){
             if(lk){

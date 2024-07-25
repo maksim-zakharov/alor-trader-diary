@@ -582,19 +582,16 @@ const Diary: FC<IProps> = ({
         setSearchParams(searchParams);
     }
 
-    const {data: dividends = []} = useGetDividendsQuery({
-        ticker: showSymbolModal
-    }, {
-        skip: !api || !showSymbolModal
-    });
-
     const {data: description} = useGetDescriptionQuery({
         ticker: showSymbolModal
     }, {
         skip: !api || !showSymbolModal
     });
-
-
+    const {data: dividends = [], error: dividendsError} = useGetDividendsQuery({
+        ticker: showSymbolModal
+    }, {
+        skip: !api || !showSymbolModal,
+    });
 
     const setShowOperationsModal = (drawerName: string) => (opened: boolean) => {
         if (opened) {
@@ -1339,7 +1336,7 @@ const Diary: FC<IProps> = ({
                         {/*</div>*/}
                         В разработке
                     </Tabs.TabPane>
-                    {dividends.filter(d => d.dividendPerShare).length > 0 && <Tabs.TabPane tab="Дивиденды" key="dividends">
+                    {dividends.filter(d => d.dividendPerShare).length > 0 && !dividendsError && <Tabs.TabPane tab="Дивиденды" key="dividends">
                         <span>
                             Дата, по которой включительно необходимо купить акции биржевых эмитентов для получения дивидендов. Начисление дивидендов ориентировочно в течение 1-2 месяцев. По внебиржевым инструментам даты строго ориентировочны и могут отличаться в связи с спецификой расчета по таким сделкам.
                         </span>
