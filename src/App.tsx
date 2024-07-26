@@ -18,7 +18,7 @@ import {useAppDispatch, useAppSelector} from "./store";
 import {MenuItemType} from "antd/es/menu/interface";
 import {FundOutlined, ProfileOutlined, DownOutlined} from "@ant-design/icons";
 import {
-    calculateCommission,
+    calculateCommission, useGetAllSummariesQuery,
     useGetEquityDynamicsQuery,
     useGetSummaryQuery,
     useGetTradesQuery,
@@ -26,6 +26,9 @@ import {
 } from './api/alor.api';
 import {getEnv, oAuth2Client} from "./api/oAuth2";
 import QuestionCircleIcon from "./assets/question-circle";
+import PortfolioIcon from './assets/portfolio';
+import CheckIcon from './assets/check';
+import {moneyFormat} from "./common/utils";
 
 export const avg = (numbers: number[]) =>
     !numbers.length ? 0 : summ(numbers) / numbers.length;
@@ -155,7 +158,7 @@ function App() {
         commissionType: settings.commissionType,
         portfolio: settings.portfolio
     }, {
-        skip: !api || !userInfo || !settings.agreement || !settings.portfolio
+        skip:  !userInfo || !settings.agreement || !settings.portfolio
     })
 
     const {data: summary} = useGetSummaryQuery({
@@ -163,7 +166,7 @@ function App() {
         format: 'Simple',
         portfolio: settings.portfolio
     }, {
-        skip: !api || !userInfo || !settings.portfolio
+        skip: !userInfo || !settings.portfolio
     });
 
     const {data: _equityDynamics} = useGetEquityDynamicsQuery({
@@ -415,9 +418,23 @@ function App() {
 
     const SelectAccountDropdown = () => {
 
-        const items: MenuProps['items'] = useMemo(() => (userInfo?. agreements || []).map(agreement => ({label: agreement.agreementNumber, type: 'group', key: agreement.agreementNumber, children: agreement.portfolios.map(portfolio => ({
-                label: portfolio.accountNumber,
+        const {data: summaries} = useGetAllSummariesQuery({
+            exchange: Exchange.MOEX,
+            format: 'Simple',
+            userInfo
+        }, {
+            skip: !userInfo
+        });
+
+        const accountSummariesMap = useMemo(() => (summaries || []).reduce((acc, curr) => ({...acc, [curr.accountNumber]: curr}),{}), [summaries]);
+
+        const items: MenuProps['items'] = useMemo(() => (userInfo?. agreements || []).map(agreement => ({label: `Договор ${agreement.agreementNumber}`, type: 'group', key: agreement.agreementNumber, children: agreement.portfolios.map(portfolio => ({
+                label: <div className="portfolio-item">
+                    <Space><span>{portfolio.accountNumber} ({portfolio.service})</span><CheckIcon/></Space>
+                    <div className="portfolio-summary">{moneyFormat(accountSummariesMap[portfolio.accountNumber]?.portfolioLiquidationValue, 0, 0)}</div>
+                </div>,
                 key: `${agreement.agreementNumber}-${portfolio.accountNumber}`,
+                icon: <div className="portfolio-icon"><PortfolioIcon/></div>
             })) })), [userInfo]);
 
         const onSelect = ({key}) => {
@@ -427,7 +444,7 @@ function App() {
             }
         }
 
-        return <Dropdown menu={{ items, onSelect, selectable: true}} trigger={['click']} className="SelectAccountDropdown">
+        return <Dropdown overlayClassName="SelectAccountDropdownMenu" menu={{ selectedKeys: [`${settings.agreement}-${settings.portfolio}`], items, onSelect, selectable: true}} trigger={['click']} className="SelectAccountDropdown">
             <a className="header-support-link" onClick={e => e.preventDefault()}>
                 <Space>
                     <strong>{settings.portfolio}</strong>

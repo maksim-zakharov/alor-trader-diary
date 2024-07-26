@@ -183,7 +183,7 @@ const Diary: FC<IProps> = ({
         format: 'Simple',
         portfolio: settings.portfolio
     }, {
-        skip: !api || !userInfo || !settings.portfolio
+        skip:  !userInfo || !settings.portfolio
     });
 
     const [createOperationMutation] = useCreateOperationMutation();
@@ -565,7 +565,7 @@ const Diary: FC<IProps> = ({
         limit: 100,
         offset: 0
     }, {
-        skip: !api || !showSymbolModal
+        skip:  !showSymbolModal
     });
 
     const newsMap = useMemo(() => news.reduce((acc, curr) => ({...acc, [curr.id]: curr}), {}), [news]);
@@ -585,12 +585,12 @@ const Diary: FC<IProps> = ({
     const {data: description} = useGetDescriptionQuery({
         ticker: showSymbolModal
     }, {
-        skip: !api || !showSymbolModal
+        skip:  !showSymbolModal
     });
     const {data: dividendsData, error: dividendsError} = useGetDividendsQuery({
         ticker: showSymbolModal
     }, {
-        skip: !api || !showSymbolModal,
+        skip:  !showSymbolModal,
     });
 
     const dividends = dividendsData || [];

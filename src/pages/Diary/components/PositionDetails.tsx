@@ -8,14 +8,12 @@ import {useAppSelector} from "../../../store";
 import {useGetSecurityByExchangeAndSymbolQuery} from "../../../api/alor.api";
 
 const PositionDetails = ({nightMode, trades, symbol}) => {
-    const api = useAppSelector(state => state.alorSlice.api);
-
     const {data: security} = useGetSecurityByExchangeAndSymbolQuery({
             symbol,
             exchange: "MOEX",
         },
         {
-            skip: !api || !symbol
+            skip:  !symbol
         });
 
     const digits = useMemo(() => security ? `${security.minstep}`.split('.')[1]?.length : 0, [security]);

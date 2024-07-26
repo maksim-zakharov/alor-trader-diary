@@ -13,6 +13,7 @@ const initialState = {
     agreementsMap: {},
     activeOperations: [],
     lastWithdrawals: [],
+    release: undefined,
     darkColors: {
         backgroundColor: 'rgb(30,44,57)',
         color: 'rgb(166,189,213)',
@@ -61,6 +62,8 @@ export const alorSlice = createSlice({
                 wssEndpointBeta: WssEndpointBeta.PROD,
                 refreshType: action.payload.type,
             });
+
+            state.release?.();
         },
         updateDarkColors(state, action: PayloadAction<typeof initialState.darkColors>) {
             state.darkColors = {...state.darkColors, ...action.payload};
@@ -68,6 +71,12 @@ export const alorSlice = createSlice({
         setSettings(state, action: PayloadAction<any>) {
             state.settings = {...state.settings, ...action.payload};
             localStorage.setItem('settings', JSON.stringify(state.settings));
+        },
+        acquire(state, action: PayloadAction<any>) {
+            state.release = action.payload;
+            if(state.api){
+                state.release?.();
+            }
         },
         logout(state){
             state.userInfo = undefined;
@@ -96,4 +105,4 @@ export const alorSlice = createSlice({
     },
 });
 
-export const {initApi, updateDarkColors, setSettings, logout} = alorSlice.actions;
+export const {initApi, updateDarkColors, acquire, setSettings, logout} = alorSlice.actions;

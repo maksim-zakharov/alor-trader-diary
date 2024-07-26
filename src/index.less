@@ -44,6 +44,16 @@
     --input-gap: 16px;
 
     --button-group-bg: 36, 52, 66;
+
+    --pro-dark-gray-5: 36,52,66;
+    --pro-dark-gray-6: 44,60,75;
+
+    --pro-elevation-1: var(--pro-dark-gray-5);
+    --pro-menu-hover-bg: var(--pro-elevation-1-hover);
+    --pro-elevation-1-hover: var(--pro-dark-gray-6);
+
+    --pro-menu-bg: var(--pro-elevation-1);
+    --pro-menu-color: var(--pro-text-01);
 }
 
 .ant-input-outlined:focus {
@@ -2049,4 +2059,76 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
         fill: rgba(var(--pro-icon-color), 1);
     }
     margin-right: 16px;
+}
+
+.SelectAccountDropdownMenu{
+    &.ant-dropdown .ant-dropdown-menu{
+        padding: 8px 0px;
+        width: 340px;
+        background: rgba(var(--pro-menu-bg),1);
+        border-radius: 4px;
+        color: rgba(var(--pro-menu-color),1);
+    }
+
+    &.ant-dropdown .ant-dropdown-menu .ant-dropdown-menu-item-group-list{
+        margin: 0;
+    }
+
+    &.ant-dropdown .ant-dropdown-menu .ant-dropdown-menu-item{
+        height: 56px;
+        padding: 8px 12px;
+        padding-top: 4px;
+        box-sizing: border-box;
+        font-size: 13px;
+
+        &:hover{
+            background-color: rgba(var(--pro-menu-hover-bg),1);
+            cursor: pointer;
+        }
+    }
+
+    .ant-dropdown-menu .ant-dropdown-menu-item{
+        color: inherit;
+        line-height: 20px;
+
+        .custom-icon svg{
+            margin: 0;
+            height: 16px;
+            width: 16px;
+            display: none;
+        }
+
+        .portfolio-icon{
+            background-color: rgba(var(--pro-base-04),1);
+            border-radius: 50%;
+            height: 32px;
+            padding: 8px;
+            position: relative;
+            width: 32px;
+            box-sizing: border-box;
+
+            .custom-icon svg{
+                display: initial;
+            }
+        }
+    }
+
+    &.ant-dropdown .ant-dropdown-menu .ant-dropdown-menu-item-group-title{
+        color: inherit;
+        font-weight: 500;
+        padding: 8px 12px;
+    }
+
+    &.ant-dropdown .ant-dropdown-menu .ant-dropdown-menu-item-selected{
+        background-color: initial;
+
+        .custom-icon svg{
+            display: initial;
+        }
+    }
+
+    .portfolio-summary{
+        color: rgba(var(--pro-text-color),1);
+        font-weight: 800;
+    }
 }

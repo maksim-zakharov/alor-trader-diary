@@ -1,10 +1,10 @@
 
-import { configureStore, ThunkDispatch, combineReducers, EnhancedStore } from '@reduxjs/toolkit';
-import { Reducer } from 'react';
+import { configureStore, ThunkDispatch, combineReducers } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import { AnyAction } from 'redux';
 import {alorApi} from "./api/alor.api";
 import {alorSlice} from "./api/alor.slice";
+import {Mutex} from "async-mutex";
 
 export const reducers = {
     [alorApi.reducerPath]: alorApi.reducer,

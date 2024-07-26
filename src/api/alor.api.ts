@@ -1,9 +1,10 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import {
+    Agreement,
     Currency,
     EquityDynamicsResponse,
     GetOperationsResponse,
-    MoneyMove,
+    MoneyMove, Portfolio,
     UserInfoResponse
 } from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 import {
@@ -18,8 +19,10 @@ import {
     Trades
 } from "alor-api";
 import moment from "moment";
-import {getCommissionByPlanAndTotalVolume} from "../utils";
+import {getCommissionByPlanAndTotalVolume, mutex} from "../utils";
 import {DevSecuritiesSearchParams, ExchangePortfolioSummaryParams} from "alor-api/dist/models/models";
+import {Mutex, MutexInterface} from "async-mutex";
+import {acquire} from "./alor.slice";
 
 export const calculateCommission = (plan: string, totalVolume: number, commissionType: string | undefined) => {
 
@@ -37,28 +40,44 @@ export const calculateCommission = (plan: string, totalVolume: number, commissio
 
 const recurcive = (selector: (api: AlorApi) => any, paramsCallback = params => params) => async (args: any[] | void, _api) => {
     const api = _api.getState()['alorSlice'].api as AlorApi;
+    const dispatch = _api.dispatch;
     const {lk, token} = _api.getState()['alorSlice'].settings;
+    let release: MutexInterface.Releaser;
+
+    await mutex.waitForUnlock();
+
+    if(!api) {
+        // return {} as any;
+        release = await mutex.acquire();
+        dispatch(acquire(release))
+        // await mutex.waitForUnlock();
+        return recurcive(selector)(args, _api)
+    }
     try {
-        if(!api){
-            return {} as any;
-        }
         const params = paramsCallback ? paramsCallback(args) : args;
         if(Array.isArray(params)){
             // @ts-ignore
-            return selector(api).apply(api, params).then(data => ({data})).catch(error => ({error}));
+            return selector(api).apply(api, params).then(data => ({data}));
         }
         // @ts-ignore
-        return selector(api).call(api, params).then(data => ({data})).catch(error => ({error}));
+        return selector(api).call(api, params).then(data => ({data}));
     } catch (error: any) {
         if(error.message === 'Необходимо авторизоваться'){
-            if(lk){
-                const {AccessToken} = await api.auth.refreshToken({refreshToken: token, type: 'lk'});
-                api.accessToken = AccessToken;
-                api.http.defaults.headers.common["Authorization"] =
-                    "Bearer " + AccessToken;
-            }else {
-                await api.refresh();
+            if (!mutex.isLocked()) {
+                const release = await mutex.acquire();
+                dispatch(acquire(release))
+                if (lk) {
+                    const {AccessToken} = await api.auth.refreshToken({refreshToken: token, type: 'lk'});
+                    api.accessToken = AccessToken;
+                    api.http.defaults.headers.common["Authorization"] =
+                        "Bearer " + AccessToken;
+                } else {
+                    await api.refresh();
+                    release();
+                }
             }
+        } else {
+            await mutex.waitForUnlock();
             return recurcive(selector)(args, _api)
         }
         return { error } as any
@@ -127,6 +146,10 @@ const getNews = (api: AlorApi) => (params: NewsRequest)  => api.http
     })
     .then((r) => r.data)
 
+const getAllSummaries = (api: AlorApi) => async ({userInfo, ...params}: (Omit<ExchangePortfolioSummaryParams, 'portfolio'> & {userInfo: UserInfoResponse}))  => {
+    return Promise.all(userInfo.agreements.map((agreement) => agreement.portfolios.map(p => api.clientInfo.getSummary({...params, portfolio:  p.accountNumber}).then(r => ({...r, accountNumber: p.accountNumber, agreementNumber: agreement.agreementNumber})))).flat());
+}
+
 export const alorApi = createApi({
     reducerPath: 'alor.api',
     tagTypes: [
@@ -190,6 +213,9 @@ export const alorApi = createApi({
         } as any),
         getSummary: builder.query<Summary, ExchangePortfolioSummaryParams>({
             queryFn: recurcive((api) => api.clientInfo.getSummary),
+        } as any),
+        getAllSummaries: builder.query<(Summary & Pick<Agreement, 'agreementNumber'> & Pick<Portfolio, 'accountNumber'>)[], (Omit<ExchangePortfolioSummaryParams, 'portfolio'> & {userInfo: UserInfoResponse})>({
+            queryFn: recurcive((api) => getAllSummaries(api)),
         } as any),
         getSecurityByExchangeAndSymbol: builder.query<Security, {symbol: string, exchange: string}>({
             queryFn: recurcive((api) => api.instruments.getSecurityByExchangeAndSymbol),
@@ -283,4 +309,4 @@ export const alorApi = createApi({
     })
 })
 
-export const {useGetUserInfoQuery, useGetSecurityByExchangeAndSymbolQuery, useGetHistoryQuery, useGetDescriptionQuery, useGetNewsQuery, useGetDividendsQuery, useGetSecuritiesMutation, useGetTradesQuery, useSignOperationMutation, useGetOperationCodeMutation, useCreateOperationMutation, useGetEquityDynamicsQuery,useGetMoneyMovesQuery, useGetOperationsQuery, useGetSummaryQuery} = alorApi;
+export const {useGetUserInfoQuery, useGetAllSummariesQuery, useGetSecurityByExchangeAndSymbolQuery, useGetHistoryQuery, useGetDescriptionQuery, useGetNewsQuery, useGetDividendsQuery, useGetSecuritiesMutation, useGetTradesQuery, useSignOperationMutation, useGetOperationCodeMutation, useCreateOperationMutation, useGetEquityDynamicsQuery,useGetMoneyMovesQuery, useGetOperationsQuery, useGetSummaryQuery} = alorApi;

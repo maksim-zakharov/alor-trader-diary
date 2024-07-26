@@ -3,6 +3,9 @@ import {summ} from './App';
 import moment, {Moment} from 'moment/moment';
 import {UserInfoResponse} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 import humanizeDuration from "humanize-duration";
+import { Mutex } from 'async-mutex';
+
+export const mutex = new Mutex();
 
 export const digitsAfterDot = (num) => {
     if (!num) {

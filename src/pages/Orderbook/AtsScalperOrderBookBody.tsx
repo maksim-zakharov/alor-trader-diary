@@ -59,7 +59,7 @@ const AtsScalperOrderBookBody: FC<IProps> = ({
             exchange: "MOEX",
         },
         {
-            skip: !api || !symbol
+            skip:  !symbol
         });
 
     const orderBookBody = useMemo(
