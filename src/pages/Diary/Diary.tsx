@@ -587,11 +587,13 @@ const Diary: FC<IProps> = ({
     }, {
         skip: !api || !showSymbolModal
     });
-    const {data: dividends = [], error: dividendsError} = useGetDividendsQuery({
+    const {data: dividendsData, error: dividendsError} = useGetDividendsQuery({
         ticker: showSymbolModal
     }, {
         skip: !api || !showSymbolModal,
     });
+
+    const dividends = dividendsData || [];
 
     const setShowOperationsModal = (drawerName: string) => (opened: boolean) => {
         if (opened) {
@@ -1353,7 +1355,7 @@ const Diary: FC<IProps> = ({
                             </tbody>
                         </table>
                     </Tabs.TabPane>}
-                    <Tabs.TabPane tab="Новости" key="news">
+                    {news.length > 0 && <Tabs.TabPane tab="Новости" key="news">
                         <div className="news-list-container">
                             {news.map(n => <div className="news-list" onClick={() => selectNews(n.id)} key={n.id}>
                                 <h4>{n.header}</h4>
@@ -1361,7 +1363,7 @@ const Diary: FC<IProps> = ({
                                 <p dangerouslySetInnerHTML={{__html: n.content}}/>
                             </div>)}
                         </div>
-                    </Tabs.TabPane>
+                    </Tabs.TabPane>}
                 </Tabs>
             </Drawer>
             <Drawer title="Операции" open={showOperationsModal} placement={isMobile ? "bottom" : "right"}
