@@ -546,7 +546,7 @@ const Diary: FC<IProps> = ({
 
         if (result.success) {
             setPaidInfo({
-                portfolio: '',
+                portfolio: settings.portfolio,
                 confirmationCode: '',
                 operationId: '',
                 amount: '',
@@ -555,7 +555,7 @@ const Diary: FC<IProps> = ({
         }
     }
     const sendAgain = () => setPaidInfo({
-        portfolio: '',
+        portfolio: settings.portfolio,
         confirmationCode: '',
         operationId: '',
         amount: '',
@@ -694,7 +694,7 @@ const Diary: FC<IProps> = ({
         onSelect('');
         setShowOperationsModal('payout')(false);
         setPaidInfo({
-            portfolio: '',
+            portfolio: settings.portfolio,
             operationId: '',
             confirmationCode: '',
             amount: '',
