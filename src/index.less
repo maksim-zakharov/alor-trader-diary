@@ -45,8 +45,11 @@
 
     --button-group-bg: 36, 52, 66;
 
+    --pro-gray-4: 140,167,190;
     --pro-dark-gray-5: 36,52,66;
     --pro-dark-gray-6: 44,60,75;
+
+    --pro-text-03: var(--pro-gray-4);
 
     --pro-elevation-1: var(--pro-dark-gray-5);
     --pro-menu-hover-bg: var(--pro-elevation-1-hover);
@@ -2064,7 +2067,7 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
 .SelectAccountDropdownMenu{
     &.ant-dropdown .ant-dropdown-menu{
         padding: 8px 0px;
-        width: 340px;
+        width: 280px;
         background: rgba(var(--pro-menu-bg),1);
         border-radius: 4px;
         color: rgba(var(--pro-menu-color),1);
@@ -2130,5 +2133,11 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
     .portfolio-summary{
         color: rgba(var(--pro-text-color),1);
         font-weight: 800;
+
+        .portfolio-description{
+            font-weight: 400;
+            color: rgba(var(--pro-text-03),1);
+            margin-right: 8px;
+        }
     }
 }

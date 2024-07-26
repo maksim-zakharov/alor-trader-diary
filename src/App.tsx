@@ -427,8 +427,19 @@ function App() {
         });
 
         const accountSummariesMap = useMemo(() => (summaries || []).reduce((acc, curr) => ({...acc, [curr.accountNumber]: curr}),{}), [summaries]);
+        const agreementSummariesMap = useMemo(() => (summaries || []).reduce((acc, curr) => {
+            if(!acc[curr.agreementNumber]){
+                acc[curr.agreementNumber] = 0;
+            }
+            acc[curr.agreementNumber] += curr.portfolioLiquidationValue;
+            return acc;
+        },{}), [summaries]);
 
-        const items: MenuProps['items'] = useMemo(() => (userInfo?. agreements || []).map(agreement => ({label: `Договор ${agreement.agreementNumber}`, type: 'group', key: agreement.agreementNumber, children: agreement.portfolios.map(portfolio => ({
+        const items: MenuProps['items'] = useMemo(() => (userInfo?. agreements || []).map(agreement => ({label: <div className="portfolio-item">
+                <Space><span>Договор {agreement.agreementNumber}</span></Space>
+                <div className="portfolio-summary">
+                    <span className="portfolio-description">Всего на {agreement.portfolios.length} счетах:</span>{moneyFormat(agreementSummariesMap[agreement.agreementNumber], 0, 0)}</div>
+            </div>, type: 'group', key: agreement.agreementNumber, children: agreement.portfolios.map(portfolio => ({
                 label: <div className="portfolio-item">
                     <Space><span>{portfolio.accountNumber} ({portfolio.service})</span><CheckIcon/></Space>
                     <div className="portfolio-summary">{moneyFormat(accountSummariesMap[portfolio.accountNumber]?.portfolioLiquidationValue, 0, 0)}</div>
