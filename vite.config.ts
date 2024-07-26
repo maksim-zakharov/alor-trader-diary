@@ -18,6 +18,15 @@ export default ({ mode }) => {
                 'ws': resolve(__dirname, 'src/alias/ws.js')
             },
         },
+        css: {
+            preprocessorOptions: {
+                less: {
+                    math: "always",
+                    relativeUrls: true,
+                    javascriptEnabled: true,
+                },
+            },
+        },
         plugins: [react(), viteTsconfigPaths()],
         server: {
             // this ensures that the browser opens upon server start

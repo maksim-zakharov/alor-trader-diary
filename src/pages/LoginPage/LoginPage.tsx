@@ -1,7 +1,7 @@
 import {Button, Card, Form, Input, Select} from "antd";
 import {KeyOutlined, LockOutlined} from "@ant-design/icons";
 import React, {useEffect, useMemo, useState} from "react";
-import './LoginPage.css';
+import './LoginPage.less';
 import {useNavigate} from "react-router-dom";
 import FormItem from "antd/es/form/FormItem";
 import {useGetUserInfoQuery} from "../../api/alor.api";
