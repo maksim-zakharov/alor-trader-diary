@@ -1,6 +1,6 @@
 // import logo from './logo.svg';
 import './App.css';
-import {Dropdown, Layout, Menu, MenuProps, Space,} from 'antd';
+import {Divider, Dropdown, Layout, Menu, MenuProps, Space,} from 'antd';
 import {Content, Footer, Header} from 'antd/es/layout/layout';
 import React, {ReactNode, useEffect, useMemo, useState} from 'react';
 // import QuestionCircleIcon  from './assets/question-circle';
@@ -435,6 +435,11 @@ function App() {
             return acc;
         },{}), [summaries]);
 
+        const totalSum = useMemo(() => (summaries || []).reduce((acc, curr) => {
+            acc += curr.portfolioLiquidationValue;
+            return acc;
+        },0), [summaries]);
+
         const items: MenuProps['items'] = useMemo(() => (userInfo?. agreements || []).map(agreement => ({label: <div className="portfolio-item">
                 <Space><span>Договор {agreement.agreementNumber}</span></Space>
                 <div className="portfolio-summary">
@@ -455,7 +460,21 @@ function App() {
             }
         }
 
-        return <Dropdown overlayClassName="SelectAccountDropdownMenu" menu={{ selectedKeys: [`${settings.agreement}-${settings.portfolio}`], items, onSelect, selectable: true}} trigger={['click']} className="SelectAccountDropdown">
+        return <Dropdown overlayClassName="SelectAccountDropdownMenu"
+                         dropdownRender={menu => (
+                             <>
+                                 <div className="portfolio-item ant-dropdown-menu-item-group-title">
+                                     <div className="portfolio-summary">
+                                         <span className="portfolio-description">Всего на всех счетах:</span>
+                                     </div>
+                                     <div className="portfolio-summary">
+                                        {moneyFormat(totalSum, 0, 0)}
+                                     </div>
+                                 </div>
+                                 <Divider/>
+                                 {menu}
+                             </>
+                         )} menu={{  selectedKeys: [`${settings.agreement}-${settings.portfolio}`], items, onSelect, selectable: true}} trigger={['click']} className="SelectAccountDropdown">
             <a className="header-support-link" onClick={e => e.preventDefault()}>
                 <Space>
                     <strong>{settings.portfolio}</strong>
