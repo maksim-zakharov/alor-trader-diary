@@ -451,7 +451,7 @@ function App() {
         const onSelect = ({key}) => {
             const [agreement, portfolio] = key.split('-');
             if(agreement && portfolio){
-                dispatch(setSettings(({['agreement']: agreement, ['portfolio']: portfolio})))
+                dispatch(setSettings(({agreement, portfolio})))
             }
         }
 

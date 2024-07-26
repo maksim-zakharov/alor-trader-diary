@@ -8,6 +8,14 @@ import {
 } from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 import {AppState} from "../store";
 
+type Settings = {
+    token: string;
+    portfolio: string;
+    commissionType: string;
+    agreement: string;
+    lk?: boolean;
+}
+
 const initialState = {
     api: undefined,
     agreementsMap: {},
@@ -27,13 +35,7 @@ const initialState = {
         color: string,
         borderColor: string,
     }
-    api: undefined | AlorApi, userInfo: UserInfoResponse, settings: {
-        token: string;
-        portfolio: string;
-        commissionType: string;
-        agreement: string;
-        lk?: boolean;
-    }, agreementsMap: any, activeOperations: GetOperationsResponse[], lastWithdrawals: number[]
+    api: undefined | AlorApi, userInfo: UserInfoResponse, settings: Settings, agreementsMap: any, activeOperations: GetOperationsResponse[], lastWithdrawals: number[]
 };
 
 export const selectCurrentPortfolio = (state: AppState): Portfolio | undefined => {
@@ -68,7 +70,7 @@ export const alorSlice = createSlice({
         updateDarkColors(state, action: PayloadAction<typeof initialState.darkColors>) {
             state.darkColors = {...state.darkColors, ...action.payload};
         },
-        setSettings(state, action: PayloadAction<any>) {
+        setSettings(state, action: PayloadAction<Partial<Settings>>) {
             state.settings = {...state.settings, ...action.payload};
             localStorage.setItem('settings', JSON.stringify(state.settings));
         },
