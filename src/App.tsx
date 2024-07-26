@@ -1,6 +1,6 @@
 // import logo from './logo.svg';
 import './App.css';
-import {Layout, Menu, MenuProps,} from 'antd';
+import {Dropdown, Layout, Menu, MenuProps, Space,} from 'antd';
 import {Content, Footer, Header} from 'antd/es/layout/layout';
 import React, {ReactNode, useEffect, useMemo, useState} from 'react';
 // import QuestionCircleIcon  from './assets/question-circle';
@@ -16,7 +16,7 @@ import useListSecs from "./useListSecs";
 import {initApi, setSettings, updateDarkColors} from "./api/alor.slice";
 import {useAppDispatch, useAppSelector} from "./store";
 import {MenuItemType} from "antd/es/menu/interface";
-import {FundOutlined, ProfileOutlined} from "@ant-design/icons";
+import {FundOutlined, ProfileOutlined, DownOutlined} from "@ant-design/icons";
 import {
     calculateCommission,
     useGetEquityDynamicsQuery,
@@ -413,10 +413,35 @@ function App() {
         </div>
     }
 
+    const SelectAccountDropdown = () => {
+
+        const items: MenuProps['items'] = useMemo(() => (userInfo?. agreements || []).map(agreement => ({label: agreement.agreementNumber, type: 'group', key: agreement.agreementNumber, children: agreement.portfolios.map(portfolio => ({
+                label: portfolio.accountNumber,
+                key: `${agreement.agreementNumber}-${portfolio.accountNumber}`,
+            })) })), [userInfo]);
+
+        const onSelect = ({key}) => {
+            const [agreement, portfolio] = key.split('-');
+            if(agreement && portfolio){
+                dispatch(setSettings(({['agreement']: agreement, ['portfolio']: portfolio})))
+            }
+        }
+
+        return <Dropdown menu={{ items, onSelect, selectable: true}} trigger={['click']} className="SelectAccountDropdown">
+            <a className="header-support-link" onClick={e => e.preventDefault()}>
+                <Space>
+                    <strong>{settings.portfolio}</strong>
+                    <DownOutlined />
+                </Space>
+            </a>
+        </Dropdown>
+    }
+
     return (
         <Layout ref={contentRef}>
             {userInfo && <Header style={{display: 'flex', alignItems: 'center'}}>
                 <div className="menu-content">
+                    <SelectAccountDropdown/>
                     <Menu
                         theme="dark"
                         mode="horizontal"

@@ -1805,9 +1805,9 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
     background-color: #d1261bb3
 }
 
-{
-    width: 100%
-}
+//{
+//    width: 100%
+//}
 .container {
     width: 100%;
     display: flex;
@@ -2033,4 +2033,20 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
 
 .ant-tabs-tab[data-node-key="null"]{
     display: none;
+}
+
+.SelectAccountDropdown{
+    display: flex;
+    font-size: 12px;
+
+    .ant-space{
+        height: 32px;
+    }
+
+    &.header-support-link svg {
+        width: 12px;
+        height: 12px;
+        fill: rgba(var(--pro-icon-color), 1);
+    }
+    margin-right: 16px;
 }
