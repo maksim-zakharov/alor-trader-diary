@@ -42,13 +42,16 @@
     --input-font-size: 16px;
     --input-height: 40px;
     --input-gap: 16px;
+    --pro-black: 0, 0, 0;
 
     --button-group-bg: 36, 52, 66;
 
     --pro-gray-4: 140,167,190;
     --pro-dark-gray-5: 36,52,66;
     --pro-dark-gray-6: 44,60,75;
+    --pro-elevation-shadow-3: 0 4px 16px rgba(var(--pro-black),0.24);
 
+    --pro-popover-box-shadow: var(--pro-elevation-shadow-3);
     --pro-menu-divider-color: var(--pro-base-04);
     --pro-text-03: var(--pro-gray-4);
 
@@ -2067,11 +2070,12 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
 
 .SelectAccountDropdownMenu{
     &.ant-dropdown{
-        padding: 8px 0px;
+        padding: 4px 0;
         width: 280px;
         background: rgba(var(--pro-menu-bg),1);
         border-radius: 4px;
         color: rgba(var(--pro-menu-color),1);
+        box-shadow: var(--pro-popover-box-shadow);
     }
     .ant-divider-horizontal{
         margin: 0;
@@ -2139,6 +2143,7 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
         color: inherit;
         font-weight: 500;
         padding: 8px 12px;
+        line-height: 20px;
     }
 
     &.ant-dropdown .ant-dropdown-menu .ant-dropdown-menu-item-selected{
@@ -2152,11 +2157,34 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
     .portfolio-summary{
         color: rgba(var(--pro-text-color),1);
         font-weight: 700;
+        line-height: 20px;
 
         .portfolio-description{
             font-weight: 400;
             color: rgba(var(--pro-text-03),1);
             margin-right: 8px;
         }
+    }
+}
+
+.ant-select-selection-item, .ant-select-item-option-content{
+    display: flex;
+    justify-content: space-between;
+}
+
+.ant-select-arrow .custom-icon svg{
+    height: 16px;
+    width: 16px;
+    margin: 0;
+}
+
+.ant-select-open{
+
+    .ant-select-selection-item{
+        color: rgba(var(--pro-input-color), 1) !important;
+    }
+
+    .ant-select-arrow .custom-icon svg{
+        transform: rotate(180deg);
     }
 }

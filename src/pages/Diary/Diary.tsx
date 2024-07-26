@@ -18,7 +18,8 @@ import {
     SelectProps,
     Space,
     Statistic,
-    Table, Tabs,
+    Table,
+    Tabs,
     Tag,
     Timeline,
     Typography,
@@ -36,16 +37,17 @@ import {
     MoonOutlined,
     ReloadOutlined,
     RetweetOutlined,
+    SearchOutlined,
     SettingOutlined,
+    ShareAltOutlined,
     SunOutlined,
     SwapOutlined,
-    TableOutlined,
-    SearchOutlined,
-    ShareAltOutlined
+    TableOutlined
 } from '@ant-design/icons';
 
 import MoneyInputIcon from '../../assets/money-input';
 import MoneyOutputIcon from '../../assets/money-output';
+import ChevronBottomIcon from '../../assets/chevron-bottom';
 
 import FormItem from 'antd/es/form/FormItem';
 import React, {ChangeEventHandler, FC, useEffect, useMemo, useRef, useState} from 'react';
@@ -63,8 +65,12 @@ import NoResult from "../../common/NoResult";
 import TickerImg from "../../common/TickerImg";
 import {useAppDispatch, useAppSelector} from "../../store";
 import {
-    useCreateOperationMutation, useGetDescriptionQuery, useGetDividendsQuery,
-    useGetMoneyMovesQuery, useGetNewsQuery,
+    useCreateOperationMutation,
+    useGetAllSummariesQuery,
+    useGetDescriptionQuery,
+    useGetDividendsQuery,
+    useGetMoneyMovesQuery,
+    useGetNewsQuery,
     useGetOperationCodeMutation,
     useGetOperationsQuery,
     useGetSecuritiesMutation,
@@ -74,7 +80,6 @@ import {
 import {logout, selectCurrentPortfolio, setSettings} from "../../api/alor.slice";
 import Spinner from "../../common/Spinner";
 import Title from "antd/es/typography/Title";
-import OrderbookWidget from "../Orderbook/OrderbookWidget";
 
 interface DataType {
     key: string;
@@ -183,7 +188,7 @@ const Diary: FC<IProps> = ({
         format: 'Simple',
         portfolio: settings.portfolio
     }, {
-        skip:  !userInfo || !settings.portfolio
+        skip: !userInfo || !settings.portfolio
     });
 
     const [createOperationMutation] = useCreateOperationMutation();
@@ -197,10 +202,11 @@ const Diary: FC<IProps> = ({
 
     const [showForm, setShowForm] = useState<boolean | string>(false);
 
-    const [{operationId, confirmationCode, amount, success}, setPaidInfo] = useState({
+    const [{operationId, confirmationCode, amount, portfolio, success}, setPaidInfo] = useState({
         operationId: '',
         confirmationCode: '',
         amount: '',
+        portfolio: settings.portfolio,
         success: false
     })
 
@@ -494,7 +500,7 @@ const Diary: FC<IProps> = ({
 
         const operationResult = await createOperationMutation({
             agreementNumber,
-            account: settings.portfolio,
+            account: portfolio,
             bic: account.bic,
             amount: Number((amount || "").replaceAll(" ", '')),
             all: false,
@@ -540,6 +546,7 @@ const Diary: FC<IProps> = ({
 
         if (result.success) {
             setPaidInfo({
+                portfolio: '',
                 confirmationCode: '',
                 operationId: '',
                 amount: '',
@@ -548,6 +555,7 @@ const Diary: FC<IProps> = ({
         }
     }
     const sendAgain = () => setPaidInfo({
+        portfolio: '',
         confirmationCode: '',
         operationId: '',
         amount: '',
@@ -565,7 +573,7 @@ const Diary: FC<IProps> = ({
         limit: 100,
         offset: 0
     }, {
-        skip:  !showSymbolModal
+        skip: !showSymbolModal
     });
 
     const newsMap = useMemo(() => news.reduce((acc, curr) => ({...acc, [curr.id]: curr}), {}), [news]);
@@ -573,7 +581,7 @@ const Diary: FC<IProps> = ({
     const selectedNews = searchParams.get('newsId');
 
     const selectNews = (id) => {
-        if(id){
+        if (id) {
             searchParams.set('newsId', id);
         } else {
             searchParams.delete('newsId');
@@ -585,12 +593,12 @@ const Diary: FC<IProps> = ({
     const {data: description} = useGetDescriptionQuery({
         ticker: showSymbolModal
     }, {
-        skip:  !showSymbolModal
+        skip: !showSymbolModal
     });
     const {data: dividendsData, error: dividendsError} = useGetDividendsQuery({
         ticker: showSymbolModal
     }, {
-        skip:  !showSymbolModal,
+        skip: !showSymbolModal,
     });
 
     const dividends = dividendsData || [];
@@ -686,6 +694,7 @@ const Diary: FC<IProps> = ({
         onSelect('');
         setShowOperationsModal('payout')(false);
         setPaidInfo({
+            portfolio: '',
             operationId: '',
             confirmationCode: '',
             amount: '',
@@ -929,7 +938,7 @@ const Diary: FC<IProps> = ({
         const summary = useMemo(() => positions.find(p => p.type === 'summary'), [positions]);
         const dayPositions = useMemo(() => positions.filter(p => p.type !== 'summary'), [positions]);
 
-        const [searchParams ,setSearchParams] = useSearchParams();
+        const [searchParams, setSearchParams] = useSearchParams();
         const selectKey = searchParams.get('selectedSymbolKey');
 
         const handleSelectTicker = (position: any) => {
@@ -954,7 +963,9 @@ const Diary: FC<IProps> = ({
                 </div>
             </div>
             {dayPositions.map(dp =>
-                <div className={`ticker-info${selectKey === `${summary.openDate}-${dp.openDate}-${dp.symbol}`?' selected' : ''}`} key={`${summary.openDate}-${dp.openDate}-${dp.symbol}`} onClick={() => handleSelectTicker(dp)}>
+                <div
+                    className={`ticker-info${selectKey === `${summary.openDate}-${dp.openDate}-${dp.symbol}` ? ' selected' : ''}`}
+                    key={`${summary.openDate}-${dp.openDate}-${dp.symbol}`} onClick={() => handleSelectTicker(dp)}>
                     <div style={{display: 'flex'}}>
                         <TickerImg getIsinBySymbol={getIsinBySymbol} symbol={dp?.symbol}/>
                         <div className="ticker_name">
@@ -1149,7 +1160,7 @@ const Diary: FC<IProps> = ({
         return <div className="SearchContainer">
             <div className="input-container">
                 <Input placeholder="Бумага" className="rounded" ref={ref} value={value} onChange={onChange}
-                       prefix={<SearchOutlined />}
+                       prefix={<SearchOutlined/>}
                        onFocus={onFocus} onBlur={onBlur}/>
                 {value && <Button type="link" onClick={() => setValue('')}>Отменить</Button>}
             </div>
@@ -1163,8 +1174,15 @@ const Diary: FC<IProps> = ({
                                     display: 'inline-flex',
                                     alignItems: 'end'
                                 }}>
-                                    {!hideMap[bwl.value] && <Button type="link" onClick={() => setHideMap(prevState => ({...prevState, [bwl.value]: true}))}>Больше</Button>}
-                                    {hideMap[bwl.value] && <Button type="link" onClick={() => setHideMap(prevState => ({...prevState, [bwl.value]: false}))}>Меньше</Button>}
+                                    {!hideMap[bwl.value] && <Button type="link"
+                                                                    onClick={() => setHideMap(prevState => ({
+                                                                        ...prevState,
+                                                                        [bwl.value]: true
+                                                                    }))}>Больше</Button>}
+                                    {hideMap[bwl.value] && <Button type="link" onClick={() => setHideMap(prevState => ({
+                                        ...prevState,
+                                        [bwl.value]: false
+                                    }))}>Меньше</Button>}
                                 </div>}
                             </div>
                         </div>
@@ -1197,10 +1215,34 @@ const Diary: FC<IProps> = ({
     }
 
     const handleShareButtonClick = (data: Omit<ShareData, 'files'>) => {
-        if(navigator.canShare){
+        if (navigator.canShare) {
             navigator.share(data)
         }
     }
+    const {data: summaries} = useGetAllSummariesQuery({
+        exchange: Exchange.MOEX,
+        format: 'Simple',
+        userInfo
+    }, {
+        skip: !userInfo
+    });
+
+    const accountSummariesMap = useMemo(() => (summaries || []).reduce((acc, curr) => ({
+        ...acc,
+        [curr.accountNumber]: curr
+    }), {}), [summaries]);
+    const agreementSummariesMap = useMemo(() => (summaries || []).reduce((acc, curr) => {
+        if (!acc[curr.agreementNumber]) {
+            acc[curr.agreementNumber] = 0;
+        }
+        acc[curr.agreementNumber] += curr.portfolioLiquidationValue;
+        return acc;
+    }, {}), [summaries]);
+
+    const totalSum = useMemo(() => (summaries || []).reduce((acc, curr) => {
+        acc += curr.portfolioLiquidationValue;
+        return acc;
+    }, 0), [summaries]);
 
     return (
         <div className="Diary">
@@ -1212,6 +1254,25 @@ const Diary: FC<IProps> = ({
                     closeIcon={<Button type="link" onClick={() => cancelEditAccount()}>Закрыть</Button>}
                     onClose={() => cancelEditAccount()}>
                 {!success && <Form layout="vertical">
+                    {(accounts.length || settings['settlementAccount']) &&
+                        <FormItem label="Откуда">
+                            <Select value={portfolio}
+                                    suffixIcon={<ChevronBottomIcon/>}
+                                    onChange={e => setPaidInfo(prevState => ({...prevState, portfolio: e}))}
+                                    placeholder="Выберите договор"
+                                    options={userInfo?.agreements?.map(p => ({
+                                        label: p.cid,
+                                        title: p.cid,
+                                        value: p.agreementNumber,
+                                        options: p.portfolios.map(portfolio => ({
+                                            label: <>
+                                                <div>{portfolio.accountNumber}</div>
+                                                <div>{moneyFormat(accountSummariesMap[portfolio.accountNumber]?.portfolioLiquidationValue, 0, 0)}</div>
+                                            </>,
+                                            value: portfolio.accountNumber
+                                        }))
+                                    })) || []}/>
+                        </FormItem>}
                     <AccountList/>
                     {showForm && <>
                         <FormItem label="Получатель">
@@ -1274,9 +1335,8 @@ const Diary: FC<IProps> = ({
                     </FormItem>}
                     <FormItem>
                         {!operationId && selectedAccount &&
-                            <Button onClick={() => createOperation()} type="primary"
-                                    style={{width: '100%'}}>Отправить
-                                код</Button>}
+                            <Button onClick={() => createOperation()} disabled={!amount} type="primary"
+                                    style={{width: '100%'}}>Отправить код</Button>}
                         {operationId &&
                             <Button onClick={() => signOperation()} type="primary"
                                     style={{width: '100%'}}>Подтвердить
@@ -1305,7 +1365,7 @@ const Diary: FC<IProps> = ({
                         title: `${description?.shortName || showSymbolModal} | Trading Diary`,
                         text: `${window.location.host}/alor-trader-diary/#`,
                         url: `/alor-trader-diary/#/diary?symbol=${showSymbolModal}&newsId=${selectedNews}`,
-                    })} icon={<ShareAltOutlined />}/>}
+                    })} icon={<ShareAltOutlined/>}/>}
             >
                 <div className="description-container">
                     <h3>{newsMap[selectedNews]?.header}</h3>
@@ -1321,7 +1381,7 @@ const Diary: FC<IProps> = ({
                         title: `${description?.shortName || showSymbolModal} | Trading Diary`,
                         text: `${window.location.host}/alor-trader-diary/#`,
                         url: `/alor-trader-diary/#/diary?symbol=${showSymbolModal}`,
-                    })} icon={<ShareAltOutlined />}/>}
+                    })} icon={<ShareAltOutlined/>}/>}
             >
                 <Tabs activeKey={symbolTab} onTabClick={onHandleSelectSymbolTab}>
                     <Tabs.TabPane tab="Обзор" key="description">
@@ -1338,23 +1398,32 @@ const Diary: FC<IProps> = ({
                         {/*</div>*/}
                         В разработке
                     </Tabs.TabPane>
-                    {dividends.filter(d => d.dividendPerShare).length > 0 && !dividendsError && <Tabs.TabPane tab="Дивиденды" key="dividends">
+                    {dividends.filter(d => d.dividendPerShare).length > 0 && !dividendsError &&
+                        <Tabs.TabPane tab="Дивиденды" key="dividends">
                         <span>
                             Дата, по которой включительно необходимо купить акции биржевых эмитентов для получения дивидендов. Начисление дивидендов ориентировочно в течение 1-2 месяцев. По внебиржевым инструментам даты строго ориентировочны и могут отличаться в связи с спецификой расчета по таким сделкам.
                         </span>
-                        <table className="dividends-table">
-                            <thead>
-                            <th>Дата</th>
-                            <th>Сумма</th>
-                            <th>Доход</th>
-                            </thead>
-                            <tbody>
-                            {dividends.filter(d => d.dividendPerShare).sort((a, b) => b.recordDate.localeCompare(a.recordDate)).map(d => <tr key={d.id}><td>{moment(d.recordDate).format('LL')}</td><td>{new Intl.NumberFormat('ru-RU', {
-                                minimumFractionDigits: 0, maximumFractionDigits: 2, style: 'currency', currency: d.currency
-                            }).format(d.dividendPerShare)}</td><td>{numberToPercent(d.dividendYield)}%</td></tr>)}
-                            </tbody>
-                        </table>
-                    </Tabs.TabPane>}
+                            <table className="dividends-table">
+                                <thead>
+                                <th>Дата</th>
+                                <th>Сумма</th>
+                                <th>Доход</th>
+                                </thead>
+                                <tbody>
+                                {dividends.filter(d => d.dividendPerShare).sort((a, b) => b.recordDate.localeCompare(a.recordDate)).map(d =>
+                                    <tr key={d.id}>
+                                        <td>{moment(d.recordDate).format('LL')}</td>
+                                        <td>{new Intl.NumberFormat('ru-RU', {
+                                            minimumFractionDigits: 0,
+                                            maximumFractionDigits: 2,
+                                            style: 'currency',
+                                            currency: d.currency
+                                        }).format(d.dividendPerShare)}</td>
+                                        <td>{numberToPercent(d.dividendYield)}%</td>
+                                    </tr>)}
+                                </tbody>
+                            </table>
+                        </Tabs.TabPane>}
                     {news.length > 0 && <Tabs.TabPane tab="Новости" key="news">
                         <div className="news-list-container">
                             {news.map(n => <div className="news-list" onClick={() => selectNews(n.id)} key={n.id}>
