@@ -14,7 +14,6 @@ import {
     Radio,
     Result,
     Row,
-    Select,
     SelectProps,
     Space,
     Statistic,
@@ -28,7 +27,6 @@ import {
     AppstoreOutlined,
     ArrowDownOutlined,
     ArrowUpOutlined,
-    ClockCircleOutlined,
     DeleteOutlined,
     EditOutlined,
     EyeInvisibleOutlined,
@@ -45,10 +43,6 @@ import {
     TableOutlined
 } from '@ant-design/icons';
 
-import MoneyInputIcon from '../../assets/money-input';
-import MoneyOutputIcon from '../../assets/money-output';
-import ChevronBottomIcon from '../../assets/chevron-bottom';
-
 import FormItem from 'antd/es/form/FormItem';
 import React, {ChangeEventHandler, FC, useEffect, useMemo, useRef, useState} from 'react';
 import {ColumnsType} from 'antd/es/table';
@@ -59,7 +53,7 @@ import {Exchange} from "alor-api";
 import dayjs from "dayjs";
 import {useSearchParams} from "react-router-dom";
 import PositionDetails from "./components/PositionDetails";
-import {Currency, Status} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
+import {Currency} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 import {humanize, numberToPercent} from "../../utils";
 import NoResult from "../../common/NoResult";
 import TickerImg from "../../common/TickerImg";
@@ -72,7 +66,6 @@ import {
     useGetMoneyMovesQuery,
     useGetNewsQuery,
     useGetOperationCodeMutation,
-    useGetOperationsQuery,
     useGetSecuritiesMutation,
     useGetSummaryQuery,
     useSignOperationMutation
@@ -81,6 +74,7 @@ import {logout, selectCurrentPortfolio, setSettings} from "../../api/alor.slice"
 import Spinner from "../../common/Spinner";
 import Title from "antd/es/typography/Title";
 import ASelect from "../../common/Select";
+import OperationsDrawer from "./components/OperationsDrawer";
 
 interface DataType {
     key: string;
@@ -179,10 +173,6 @@ const Diary: FC<IProps> = ({
     }, {
         skip: !userInfo || !settings.agreement || !api
     })
-
-    const {data: operations = []} = useGetOperationsQuery(userInfo?.agreements[0]?.agreementNumber, {
-        skip: !userInfo || !api
-    });
 
     const {data: summary, isLoading: isSummaryLoading} = useGetSummaryQuery({
         exchange: Exchange.MOEX,
@@ -1076,14 +1066,6 @@ const Diary: FC<IProps> = ({
         return acc;
     }, {})).map(p => p[1]), [data.positions]);
 
-    const moneyOperations = useMemo(() => operations.filter(o => ['money_input', 'money_withdrawal'].includes(o.subType)), [operations])
-
-    const withoutYear = (date) => {
-        const format = moment(date).format('LL');
-
-        return format.slice(0, format.length - 8);
-    }
-
     const commissionOptions: any[] = [
         {label: 'По тарифу', value: 'tariff'},
         {label: 'Тейкер', value: 'taker'},
@@ -1258,20 +1240,20 @@ const Diary: FC<IProps> = ({
                     {(accounts.length || settings['settlementAccount']) &&
                         <FormItem label="Откуда">
                             <ASelect value={portfolio}
-                                    onChange={e => setPaidInfo(prevState => ({...prevState, portfolio: e}))}
-                                    placeholder="Выберите договор"
-                                    options={userInfo?.agreements?.map(p => ({
-                                        label: p.cid,
-                                        title: p.cid,
-                                        value: p.agreementNumber,
-                                        options: p.portfolios.map(portfolio => ({
-                                            label: <>
-                                                <div>{portfolio.accountNumber}</div>
-                                                <div>{moneyFormat(accountSummariesMap[portfolio.accountNumber]?.portfolioLiquidationValue, 0, 0)}</div>
-                                            </>,
-                                            value: portfolio.accountNumber
-                                        }))
-                                    })) || []}/>
+                                     onChange={e => setPaidInfo(prevState => ({...prevState, portfolio: e}))}
+                                     placeholder="Выберите договор"
+                                     options={userInfo?.agreements?.map(p => ({
+                                         label: p.cid,
+                                         title: p.cid,
+                                         value: p.agreementNumber,
+                                         options: p.portfolios.map(portfolio => ({
+                                             label: <>
+                                                 <div>{portfolio.accountNumber}</div>
+                                                 <div>{moneyFormat(accountSummariesMap[portfolio.accountNumber]?.portfolioLiquidationValue, 0, 0)}</div>
+                                             </>,
+                                             value: portfolio.accountNumber
+                                         }))
+                                     })) || []}/>
                         </FormItem>}
                     <AccountList/>
                     {showForm && <>
@@ -1435,30 +1417,8 @@ const Diary: FC<IProps> = ({
                     </Tabs.TabPane>}
                 </Tabs>
             </Drawer>
-            <Drawer title="Операции" open={showOperationsModal} placement={isMobile ? "bottom" : "right"}
-                    closeIcon={<Button type="link"
-                                       onClick={() => setShowOperationsModal('operations')(false)}>Закрыть</Button>}
-                    onClose={() => setShowOperationsModal('operations')(false)} className="operation-modal">
-                {moneyOperations.map(getMaxLossTrade =>
-                    <div className="ticker-info" key={getMaxLossTrade.id}>
-                        <div style={{display: 'flex'}}>
-                            {getMaxLossTrade.subType === 'money_withdrawal' ? <MoneyOutputIcon/> : <MoneyInputIcon/>}
-                            <div className="ticker_name">
-                                <div
-                                    className="ticker_name_title">{getMaxLossTrade.subType === 'money_withdrawal' ? 'Вывод с брокерского счета' : 'Пополнение брокерского счета'}</div>
-                                <div className="ticker_name_description">
-                                    {withoutYear(getMaxLossTrade.date)} {moment(getMaxLossTrade?.date).format('HH:mm:ss')}
-                                </div>
-                            </div>
-                        </div>
-                        <div className="ticker_actions">
-                            <div className="ticker_name_title"
-                                 style={{color: [Status.Refused, Status.Overdue].includes(getMaxLossTrade.status) ? 'rgba(var(--table-loss-color),1)' : getMaxLossTrade.status === Status.Resolved ? 'rgba(var(--table-profit-color),1)' : undefined}}>{getMaxLossTrade.subType === 'money_input' ? '+' : '-'}{moneyFormat(getMaxLossTrade?.data?.amount || 0, 0)}{getMaxLossTrade.status === Status.executing &&
-                                <ClockCircleOutlined style={{marginLeft: '4px'}}/>}</div>
-                            <div className="ticker_name_description">{getMaxLossTrade?.data?.accountFrom}</div>
-                        </div>
-                    </div>)}
-            </Drawer>
+            <OperationsDrawer isMobile={isMobile} isOpened={showOperationsModal}
+                              onClose={() => setShowOperationsModal('operations')(false)}/>
             <Drawer
                 title="Настройки"
                 placement={isMobile ? "bottom" : "right"}
@@ -1473,22 +1433,22 @@ const Diary: FC<IProps> = ({
                     </FormItem>}
                     <FormItem label="Договор">
                         <ASelect value={settings.agreement}
-                                {...settingsInputProps('agreement')}
+                                 {...settingsInputProps('agreement')}
 
-                                placeholder="Выберите договор"
-                                options={userInfo?.agreements?.map(p => ({
-                                    label: p.cid,
-                                    value: p.agreementNumber
-                                })) || []}/>
+                                 placeholder="Выберите договор"
+                                 options={userInfo?.agreements?.map(p => ({
+                                     label: p.cid,
+                                     value: p.agreementNumber
+                                 })) || []}/>
                     </FormItem>
                     <FormItem label="Alor Portfolio">
                         <ASelect value={settings.portfolio}
-                                {...settingsInputProps('portfolio')}
-                                placeholder="Выберите портфель"
-                                options={agreementsMap[settings.agreement]?.portfolios?.map(p => ({
-                                    label: `${p.accountNumber} (${p.service})`,
-                                    value: p.accountNumber
-                                })) || []}/>
+                                 {...settingsInputProps('portfolio')}
+                                 placeholder="Выберите портфель"
+                                 options={agreementsMap[settings.agreement]?.portfolios?.map(p => ({
+                                     label: `${p.accountNumber} (${p.service})`,
+                                     value: p.accountNumber
+                                 })) || []}/>
                     </FormItem>
                     <FormItem label="Расчет комиссии">
                         <ASelect
@@ -1527,8 +1487,8 @@ const Diary: FC<IProps> = ({
                     {/*</FormItem>*/}
                     <FormItem label="Расчет текущих средств">
                         <ASelect options={summaryOptions} style={{width: '100%'}}
-                                value={settingsInputProps('summaryType').value || 'brokerSummary'}
-                                onChange={val => dispatch(setSettings({['summaryType']: val}))}
+                                 value={settingsInputProps('summaryType').value || 'brokerSummary'}
+                                 onChange={val => dispatch(setSettings({['summaryType']: val}))}
                         />
                     </FormItem>
                     <FormItem>

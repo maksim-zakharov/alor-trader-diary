@@ -29,6 +29,7 @@ import QuestionCircleIcon from "./assets/question-circle";
 import PortfolioIcon from './assets/portfolio';
 import CheckIcon from './assets/check';
 import {moneyFormat} from "./common/utils";
+import ChevronBottomIcon from "./assets/chevron-bottom";
 
 export const avg = (numbers: number[]) =>
     !numbers.length ? 0 : summ(numbers) / numbers.length;
@@ -474,11 +475,11 @@ function App() {
                                  <Divider/>
                                  {menu}
                              </>
-                         )} menu={{  selectedKeys: [`${settings.agreement}-${settings.portfolio}`], items, onSelect, selectable: true}} trigger={['click']} className="SelectAccountDropdown">
+                         )} menu={{ selectedKeys: [`${settings.agreement}-${settings.portfolio}`], items, onSelect, selectable: true}} trigger={['click']} className="SelectAccountDropdown">
             <a className="header-support-link" onClick={e => e.preventDefault()}>
                 <Space>
                     <strong>{settings.portfolio}</strong>
-                    <DownOutlined />
+                    <ChevronBottomIcon/>
                 </Space>
             </a>
         </Dropdown>
