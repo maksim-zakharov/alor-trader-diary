@@ -27,6 +27,7 @@
     --pro-link-color: 51, 111, 238;
 
     --scrollbar-width: 10px;
+    //--scrollbar-width: 8px;
     --scrollbars-bg-color: 0, 0, 0;
     --scrollbars-bg-opacity: 0;
     --scrollbars-thumb-color: var(--pro-text-color);
@@ -1859,7 +1860,6 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-    /*visibility: hidden;*/
     border: 2px solid transparent;
     background-color: rgba(var(--scrollbars-thumb-color), var(--scrollbars-thumb-opacity));
     background-clip: padding-box;
@@ -1908,6 +1908,15 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
         padding: 8px 12px;
     }
 
+    .ant-drawer-body{
+        padding: 8px 0px 16px;
+        overflow: hidden;
+    }
+
+    .rc-virtual-list{
+        padding: 0px 16px;
+    }
+
     .ticker-info {
         background: rgba(var(--pro-widget-body-bg), 1);
         padding: 8px 0;
@@ -1924,6 +1933,9 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
             padding: 8px 0;
             border-bottom: 1px solid rgba(var(--pro-divider-bg), 0.2);
             border-radius: 0;
+
+            height: 52px;
+            box-sizing: border-box;
         }
     }
 

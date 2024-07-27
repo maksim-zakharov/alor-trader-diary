@@ -162,7 +162,6 @@ const Diary: FC<IProps> = ({
     const lastWithdrawals = useAppSelector(state => state.alorSlice.lastWithdrawals)
     const dispatch = useAppDispatch();
     const settings = useAppSelector(state => state.alorSlice.settings);
-    const api = useAppSelector(state => state.alorSlice.api);
     const userInfo = useAppSelector(state => state.alorSlice.userInfo);
     const fullName = userInfo?.fullName;
 
@@ -171,7 +170,7 @@ const Diary: FC<IProps> = ({
         dateFrom,
         dateTo
     }, {
-        skip: !userInfo || !settings.agreement || !api
+        skip: !userInfo || !settings.agreement
     })
 
     const {data: summary, isLoading: isSummaryLoading} = useGetSummaryQuery({
@@ -1417,7 +1416,7 @@ const Diary: FC<IProps> = ({
                     </Tabs.TabPane>}
                 </Tabs>
             </Drawer>
-            <OperationsDrawer isMobile={isMobile} isOpened={showOperationsModal}
+            <OperationsDrawer isOpened={showOperationsModal}
                               onClose={() => setShowOperationsModal('operations')(false)}/>
             <Drawer
                 title="Настройки"
