@@ -80,6 +80,7 @@ import {
 import {logout, selectCurrentPortfolio, setSettings} from "../../api/alor.slice";
 import Spinner from "../../common/Spinner";
 import Title from "antd/es/typography/Title";
+import ASelect from "../../common/Select";
 
 interface DataType {
     key: string;
@@ -424,7 +425,7 @@ const Diary: FC<IProps> = ({
                     // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
                     render: (_, row: any) =>
                         row.type !== 'summary' && (
-                            <Select
+                            <ASelect
                                 key={`${row.id}-reason-select`}
                                 size="small"
                                 style={{width: '180px'}}
@@ -1256,8 +1257,7 @@ const Diary: FC<IProps> = ({
                 {!success && <Form layout="vertical">
                     {(accounts.length || settings['settlementAccount']) &&
                         <FormItem label="Откуда">
-                            <Select value={portfolio}
-                                    suffixIcon={<ChevronBottomIcon/>}
+                            <ASelect value={portfolio}
                                     onChange={e => setPaidInfo(prevState => ({...prevState, portfolio: e}))}
                                     placeholder="Выберите договор"
                                     options={userInfo?.agreements?.map(p => ({
@@ -1472,7 +1472,7 @@ const Diary: FC<IProps> = ({
                         <Input placeholder="Token" {...settingsInputProps('token')} />
                     </FormItem>}
                     <FormItem label="Договор">
-                        <Select value={settings.agreement}
+                        <ASelect value={settings.agreement}
                                 {...settingsInputProps('agreement')}
 
                                 placeholder="Выберите договор"
@@ -1482,7 +1482,7 @@ const Diary: FC<IProps> = ({
                                 })) || []}/>
                     </FormItem>
                     <FormItem label="Alor Portfolio">
-                        <Select value={settings.portfolio}
+                        <ASelect value={settings.portfolio}
                                 {...settingsInputProps('portfolio')}
                                 placeholder="Выберите портфель"
                                 options={agreementsMap[settings.agreement]?.portfolios?.map(p => ({
@@ -1491,7 +1491,7 @@ const Diary: FC<IProps> = ({
                                 })) || []}/>
                     </FormItem>
                     <FormItem label="Расчет комиссии">
-                        <Select
+                        <ASelect
                             style={{width: '100%'}}
                             placeholder="Комиссия"
                             value={settingsInputProps('commissionType').value}
@@ -1526,7 +1526,7 @@ const Diary: FC<IProps> = ({
                     {/*            )} style={{width: '100%'}} onSelect={onChangeNightMode}/>*/}
                     {/*</FormItem>*/}
                     <FormItem label="Расчет текущих средств">
-                        <Select options={summaryOptions} style={{width: '100%'}}
+                        <ASelect options={summaryOptions} style={{width: '100%'}}
                                 value={settingsInputProps('summaryType').value || 'brokerSummary'}
                                 onChange={val => dispatch(setSettings({['summaryType']: val}))}
                         />

@@ -11,6 +11,7 @@ import {AlorApi, Endpoint, WssEndpoint, WssEndpointBeta} from "alor-api";
 import {oAuth2Client} from "../../api/oAuth2";
 import axios from "axios";
 import QuestionCircleIcon  from '../../assets/question-circle';
+import ASelect from "../../common/Select";
 
 const LoginPage = () => {
     const api = useAppSelector(state => state.alorSlice.api);
@@ -160,7 +161,7 @@ const LoginPage = () => {
                 </Form>}
                 {userInfo && <Form layout="vertical" onSubmitCapture={submit}>
                     <FormItem validateStatus={error ? 'error' : undefined} extra={error} label="Договор">
-                        <Select value={agreement} onSelect={handleSelectAgreement}
+                        <ASelect value={agreement} onSelect={handleSelectAgreement}
                                 placeholder="Выберите договор"
                                 options={userInfo?.agreements?.map(p => ({
                                     label: p.cid,
@@ -168,7 +169,7 @@ const LoginPage = () => {
                                 })) || []}/>
                     </FormItem>
                     <FormItem validateStatus={error ? 'error' : undefined} extra={error} label="Alor Portfolio">
-                        <Select value={portfolio} onSelect={handleSelectPortfolio}
+                        <ASelect value={portfolio} onSelect={handleSelectPortfolio}
                                 placeholder="Выберите портфель"
                                 options={options}/>
                     </FormItem>
