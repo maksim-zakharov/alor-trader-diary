@@ -1094,8 +1094,6 @@ const Diary: FC<IProps> = ({
         {label: 'Средства утром + прибыль', value: 'buyMorningPowerPlusPnL'},
     ]
 
-    const sumHelp = `Доступно ${moneyFormat(summary?.portfolioLiquidationValue, 0, 0)}`;
-
     const MobileSearch = () => {
         const [getSecurities, {data = []}] = useGetSecuritiesMutation();
         const [focused, setFocused] = React.useState(false);
@@ -1244,6 +1242,8 @@ const Diary: FC<IProps> = ({
         acc += curr.portfolioLiquidationValue;
         return acc;
     }, 0), [summaries]);
+
+    const sumHelp = `Доступно ${moneyFormat(accountSummariesMap[portfolio]?.portfolioLiquidationValue, 0, 0)}`;
 
     return (
         <div className="Diary">
