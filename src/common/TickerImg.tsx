@@ -1,4 +1,4 @@
-import React, {FC, useEffect} from "react";
+import React, {FC, useEffect, useMemo} from "react";
 
 const TickerImg: FC<{symbol: string, getIsinBySymbol: any, board?: string}> = ({symbol, getIsinBySymbol, board}) => {
 
@@ -13,9 +13,11 @@ const TickerImg: FC<{symbol: string, getIsinBySymbol: any, board?: string}> = ({
         setLogoSrc(src)
     }
 
+    const shortedSymbol = useMemo(() => symbol.slice(0, 4), [symbol]);
+
     if(placeholder)
     return <div className="ticker_placeholder">
-        {symbol}
+        {shortedSymbol}
     </div>
 
     return <img className="ticker_logo" src={logoSrc}

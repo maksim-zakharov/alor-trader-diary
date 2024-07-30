@@ -1239,15 +1239,27 @@ const Diary: FC<IProps> = ({
 
     const sumHelp = `Доступно ${moneyFormat(accountSummariesMap[portfolio]?.portfolioLiquidationValue, 0, 0)}`;
 
-    const onCarouselChange = () => {
-
+    const onCarouselChange = (current) => {
+        const sry = summaries[current];
+        if(sry){
+            dispatch(setSettings({agreement: sry.agreementNumber, portfolio: sry.accountNumber}));
+        }
     }
+
+    const ref = useRef(null);
+
+    useEffect(() => {
+        if(ref?.current){
+            const index = summaries.findIndex(s => s.accountNumber === settings.portfolio);
+            ref?.current?.goTo(index, true)
+        }
+    }, [ref])
 
     return (
         <div className="Diary">
             <Title>Дневник</Title>
             <MobileSearch/>
-            <Carousel afterChange={onCarouselChange} className="MobileSummaryCarousel">
+            <Carousel ref={ref} afterChange={onCarouselChange} className="MobileSummaryCarousel">
                 {summaries.map(summary =><MobileSummary summary={summary}/>)}
             </Carousel>
             <InfoPanelDesktop/>
