@@ -977,7 +977,7 @@ const Diary: FC<IProps> = ({
                     className={`ticker-info${selectKey === `${summary.openDate}-${dp.openDate}-${dp.symbol}` ? ' selected' : ''}`}
                     key={`${summary.openDate}-${dp.openDate}-${dp.symbol}`} onClick={() => handleSelectTicker(dp)}>
                     <div style={{display: 'flex'}}>
-                        <TickerImg getIsinBySymbol={getIsinBySymbol} symbol={dp?.symbol}/>
+                        <TickerImg getIsinBySymbol={getIsinBySymbol} key={dp?.symbol} symbol={dp?.symbol}/>
                         <div className="ticker_name">
                             <div className="ticker_name_title">{dp?.symbol}</div>
                             <div className="ticker_name_description">
@@ -1189,7 +1189,7 @@ const Diary: FC<IProps> = ({
                         {(securitiesGroupByBoard[bwl.value] || []).filter((_, i) => !hideMap[bwl.value] ? i < 3 : true).map(dp =>
                             <div className="ticker-info" key={dp.ISIN} onClick={() => handleSelectTicker(dp)}>
                                 <div style={{display: 'flex'}}>
-                                    <TickerImg getIsinBySymbol={getIsinBySymbol} board={dp?.primary_board}
+                                    <TickerImg getIsinBySymbol={getIsinBySymbol} key={dp?.symbol} board={dp?.primary_board}
                                                symbol={dp?.symbol}/>
                                     <div className="ticker_name">
                                         <div className="ticker_name_title">{dp?.description}</div>

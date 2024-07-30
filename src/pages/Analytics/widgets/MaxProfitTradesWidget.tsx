@@ -15,7 +15,7 @@ const MaxProfitTradesWidget = ({nonSummaryPositions, isLoading, getIsinBySymbol}
         {isLoading ? <Spinner/> : getMaxProfitTrades.length ? <div>
             {getMaxProfitTrades.map(getMaxProfitTrade => <div className="ticker-info">
                 <div style={{display: 'flex'}}>
-                    <TickerImg getIsinBySymbol={getIsinBySymbol} symbol={getMaxProfitTrade?.symbol}/>
+                    <TickerImg getIsinBySymbol={getIsinBySymbol} key={getMaxProfitTrade?.symbol} symbol={getMaxProfitTrade?.symbol}/>
                     <div className="ticker_name">
                         <div className="ticker_name_title">{getMaxProfitTrade?.symbol}</div>
                         <div className="ticker_name_description">

@@ -16,7 +16,7 @@ const TickerImg: FC<{symbol: string, getIsinBySymbol: any, board?: string}> = ({
     const shortedSymbol = useMemo(() => symbol.slice(0, 4), [symbol]);
 
     if(placeholder)
-    return <div className="ticker_placeholder">
+    return <div className="ticker_placeholder" key={shortedSymbol}>
         {shortedSymbol}
     </div>
 
@@ -29,6 +29,7 @@ const TickerImg: FC<{symbol: string, getIsinBySymbol: any, board?: string}> = ({
              changeSrc(`https://storage.alorbroker.ru/icon/${symbol}.png`)
              // currentTarget.src=`https://storage.alorbroker.ru/icon/${symbol}.png`;
          }}
+                key={symbol}
          alt={symbol}/>
 }
 
