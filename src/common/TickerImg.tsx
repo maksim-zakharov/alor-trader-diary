@@ -6,14 +6,24 @@ const TickerImg: FC<{symbol: string, getIsinBySymbol: any, board?: string}> = ({
 
     const [logoSrc, setLogoSrc] = React.useState<string>(board !== 'TQOB' && localStorage.getItem(key) || `https://invest-brands.cdn-tinkoff.ru/${board === 'TQOB' ? 'minfin' : getIsinBySymbol(symbol)}x160.png`);
 
+    const [placeholder, setPlaceholder] = React.useState<boolean>(false);
+
     const changeSrc = (src: string) => {
         localStorage.setItem(key, src);
         setLogoSrc(src)
     }
 
+    if(placeholder)
+    return <div className="ticker_placeholder">
+        {symbol}
+    </div>
+
     return <img className="ticker_logo" src={logoSrc}
          onError={({ currentTarget }) => {
-             currentTarget.onerror = null; // prevents looping
+             if(logoSrc === `https://storage.alorbroker.ru/icon/${symbol}.png`){
+                 currentTarget.onerror = null; // prevents looping
+                 setPlaceholder(true);
+             }
              changeSrc(`https://storage.alorbroker.ru/icon/${symbol}.png`)
              // currentTarget.src=`https://storage.alorbroker.ru/icon/${symbol}.png`;
          }}
