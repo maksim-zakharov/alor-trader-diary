@@ -51,7 +51,7 @@ const recurcive = (selector: (api: AlorApi) => any, paramsCallback = params => p
         release = await mutex.acquire();
         dispatch(acquire(release))
         // await mutex.waitForUnlock();
-        return recurcive(selector)(args, _api)
+        return recurcive(selector, paramsCallback)(args, _api)
     }
     try {
         const params = paramsCallback ? paramsCallback(args) : args;
@@ -78,7 +78,7 @@ const recurcive = (selector: (api: AlorApi) => any, paramsCallback = params => p
             }
         } else {
             await mutex.waitForUnlock();
-            return recurcive(selector)(args, _api)
+            return recurcive(selector, paramsCallback)(args, _api)
         }
         return { error } as any
     }
