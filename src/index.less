@@ -483,9 +483,22 @@ h1.ant-typography {
   }
 }
 
+.ant-carousel .slick-dots-bottom{
+  bottom: 8px;
+}
+
+.MobileSummaryCarousel{
+  display: none;
+  color: rgba(var(--pro-text-02), 1);
+}
+
+.ant-carousel{
+  display: none;
+}
+
 .MobileSummary {
   display: none;
-  margin-bottom: 16px;
+  //margin-bottom: 16px;
   /*height: 186px;*/
 
   .summary {
@@ -531,6 +544,11 @@ h1.ant-typography {
     align-items: baseline;
     justify-content: space-between;
     padding: 8px 0;
+  }
+
+  .summary__description {
+    line-height: 20px;
+    color: rgba(var(--pro-text-01), 1);
   }
 
   .button-group {
@@ -738,6 +756,9 @@ header {
     display: block;
   }
 
+  .MobileSummaryCarousel, .ant-carousel {
+    display: block;
+  }
   .MobilePosition {
     display: block;
   }

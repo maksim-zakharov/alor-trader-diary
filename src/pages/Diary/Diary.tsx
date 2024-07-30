@@ -1,6 +1,6 @@
 import {
     Button,
-    Card,
+    Card, Carousel,
     Col,
     DatePicker,
     DatePickerProps,
@@ -849,6 +849,25 @@ const Diary: FC<IProps> = ({
         return summary.buyingPowerAtMorning + todayPnL;
     }, [summary, settings['summaryType'], todayPnL]);
 
+    const {data: summaries = []} = useGetAllSummariesQuery({
+        exchange: Exchange.MOEX,
+        format: 'Simple',
+        userInfo
+    }, {
+        skip: !userInfo
+    });
+
+    const summaryValueMap = useMemo(() => {
+        if (!summaries) {
+            return 0;
+        }
+        if (!settings['summaryType'] || settings['summaryType'] === 'brokerSummary') {
+            return summaries.reduce((acc, curr) => ({...acc, [curr.accountNumber]: curr.portfolioLiquidationValue || 0}), {});
+        }
+
+        return summaries.reduce((acc, curr) => ({...acc, [curr.accountNumber]: curr.buyingPowerAtMorning + todayPnL}), {});
+    }, [summaries, settings['summaryType'], todayPnL]);
+
     const Summary = () => <div
         style={{
             display: 'flex',
@@ -872,11 +891,12 @@ const Diary: FC<IProps> = ({
                onChange={date => onChangeDate(dayjs(date.target.value, 'YYYY-MM-DD'))}/>
     </div>
 
-    const MobileSummary = () => <div className="MobileSummary widget">
+    const MobileSummary = ({summary}) => <div className="MobileSummary widget">
         {isSummaryLoading && <Spinner/>}
         {!isSummaryLoading && <div className="summary-info">
             <div>
-                <div className="summary">{settings['hideSummary'] ? '••••' : moneyFormat(summaryValue, 0, 0)}</div>
+                <div className="summary__description">Счет {summary.accountNumber} ({summary.service})</div>
+                <div className="summary">{settings['hideSummary'] ? '••••' : moneyFormat(summaryValueMap[summary.accountNumber], 0, 0)}</div>
                 <div style={{
                     display: 'inline-flex',
                     alignItems: 'end'
@@ -1199,13 +1219,6 @@ const Diary: FC<IProps> = ({
             navigator.share(data)
         }
     }
-    const {data: summaries} = useGetAllSummariesQuery({
-        exchange: Exchange.MOEX,
-        format: 'Simple',
-        userInfo
-    }, {
-        skip: !userInfo
-    });
 
     const accountSummariesMap = useMemo(() => (summaries || []).reduce((acc, curr) => ({
         ...acc,
@@ -1226,11 +1239,17 @@ const Diary: FC<IProps> = ({
 
     const sumHelp = `Доступно ${moneyFormat(accountSummariesMap[portfolio]?.portfolioLiquidationValue, 0, 0)}`;
 
+    const onCarouselChange = () => {
+
+    }
+
     return (
         <div className="Diary">
             <Title>Дневник</Title>
             <MobileSearch/>
-            <MobileSummary/>
+            <Carousel afterChange={onCarouselChange} className="MobileSummaryCarousel">
+                {summaries.map(summary =><MobileSummary summary={summary}/>)}
+            </Carousel>
             <InfoPanelDesktop/>
             <Drawer title="Вывести" open={showPayModal} placement={isMobile ? "bottom" : "right"}
                     closeIcon={<Button type="link" onClick={() => cancelEditAccount()}>Закрыть</Button>}

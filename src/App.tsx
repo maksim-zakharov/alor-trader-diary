@@ -442,7 +442,7 @@ function App() {
         },0), [summaries]);
 
         const items: MenuProps['items'] = useMemo(() => (userInfo?. agreements || []).map(agreement => ({label: <div className="portfolio-item">
-                <Space><span>Договор {agreement.agreementNumber}</span></Space>
+                <Space><span>Договор {agreement.cid}</span></Space>
                 <div className="portfolio-summary">
                     <span className="portfolio-description">Всего на {agreement.portfolios.length} счетах:</span>{moneyFormat(agreementSummariesMap[agreement.agreementNumber], 0, 0)}</div>
             </div>, type: 'group', key: agreement.agreementNumber, children: agreement.portfolios.map(portfolio => ({

@@ -147,7 +147,7 @@ const getNews = (api: AlorApi) => (params: NewsRequest)  => api.http
     .then((r) => r.data)
 
 const getAllSummaries = (api: AlorApi) => async ({userInfo, ...params}: (Omit<ExchangePortfolioSummaryParams, 'portfolio'> & {userInfo: UserInfoResponse}))  => {
-    return Promise.all(userInfo.agreements.map((agreement) => agreement.portfolios.map(p => api.clientInfo.getSummary({...params, portfolio:  p.accountNumber}).then(r => ({...r, accountNumber: p.accountNumber, agreementNumber: agreement.agreementNumber})))).flat());
+    return Promise.all(userInfo.agreements.map((agreement) => agreement.portfolios.map(p => api.clientInfo.getSummary({...params, portfolio:  p.accountNumber}).then(r => ({...r, service: p.service, accountNumber: p.accountNumber, agreementNumber: agreement.agreementNumber})))).flat());
 }
 
 export const alorApi = createApi({
