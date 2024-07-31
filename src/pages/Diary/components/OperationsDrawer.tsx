@@ -68,14 +68,14 @@ const OperationsDrawer = ({onClose, isOpened}) => {
 
     const pipka = () => {
 
-        return <div className="drawer-slider" onMouseDown={onMouseDown} onMouseUp={onMouseUp} onTouchMove={onMouseMove} onTouchStart={onMouseDown}
-                    onTouchEnd={onMouseUp}/>
+        return <div className="drawer-slider"/>
     }
 
-    const renderTitle = useMemo(() => <>
+    const renderTitle = useMemo(() => <div onMouseDown={onMouseDown} onMouseUp={onMouseUp} onTouchMove={onMouseMove} onTouchStart={onMouseDown}
+                                           onTouchEnd={onMouseUp}>
         {pipka()}
         {title}
-    </>, [title]);
+    </div>, [title]);
 
     return <Drawer title={renderTitle} panelRef={ref} open={isOpened} placement={isMobile ? "bottom" : "right"}
                    closeIcon={<Button type="link"
