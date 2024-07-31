@@ -66,7 +66,7 @@ import {
     useGetMoneyMovesQuery,
     useGetNewsQuery,
     useGetOperationCodeMutation,
-    useGetSecuritiesMutation,
+    useGetSecuritiesMutation, useGetSecurityByExchangeAndSymbolQuery,
     useGetSummaryQuery,
     useSignOperationMutation
 } from "../../api/alor.api";
@@ -75,6 +75,7 @@ import Spinner from "../../common/Spinner";
 import Title from "antd/es/typography/Title";
 import ASelect from "../../common/Select";
 import OperationsDrawer from "./components/OperationsDrawer";
+import Chart from "./components/Chart";
 
 interface DataType {
     key: string;
@@ -580,11 +581,19 @@ const Diary: FC<IProps> = ({
         setSearchParams(searchParams);
     }
 
+    const darkColors = useAppSelector(state => state.alorSlice.darkColors);
     const {data: description} = useGetDescriptionQuery({
         ticker: showSymbolModal
     }, {
         skip: !showSymbolModal
-    });
+    });const {data: security} = useGetSecurityByExchangeAndSymbolQuery({
+            symbol: showSymbolModal,
+            exchange: "MOEX",
+        },
+        {
+            skip:  !showSymbolModal
+        });
+    const digits = useMemo(() => security ? `${security.minstep}`.split('.')[1]?.length : 0, [security]);
     const {data: dividendsData, error: dividendsError} = useGetDividendsQuery({
         ticker: showSymbolModal
     }, {
@@ -1398,6 +1407,19 @@ const Diary: FC<IProps> = ({
                 <Tabs activeKey={symbolTab} onTabClick={onHandleSelectSymbolTab}>
                     <Tabs.TabPane tab="Обзор" key="description">
                         <div className="description-container">
+                            <Chart
+                                colors={nightMode && darkColors}
+                                trades={data.positions
+                                    .filter(p => p.symbol === showSymbolModal)
+                                    .map(p => p.trades).flat()
+                                    .filter(p => p.symbol === showSymbolModal)
+                            }
+                                symbol={showSymbolModal}
+                                digits={digits}
+                                security={security}
+                                from={moment().add(-8, 'hour').toISOString()}
+                                to={moment().toISOString()}
+                            />
                             <h3>О компании</h3>
                             <p>
                                 {description?.description}

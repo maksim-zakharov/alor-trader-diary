@@ -23,7 +23,6 @@ function timeToLocal(originalTime: number) {
 
 const Chart: FC<IProps> = ({security, symbol, digits, from, to, trades, colors = {}}) => {
 
-    const api = useAppSelector(state => state.alorSlice.api);
     const currentTimeframe = Timeframe.Min5;
 
     const entriesTrades = Object.entries(trades.reduce((acc, curr) => {
@@ -49,6 +48,9 @@ const Chart: FC<IProps> = ({security, symbol, digits, from, to, trades, colors =
         return timeToLocal(roundedTime) as UTCTimestamp
     }
 
+    const fromDate = useMemo(() => new Date(from), [from]);
+    const toDate = useMemo(() => new Date(to), [to]);
+
     const markers: SeriesMarker<Time>[] = useMemo(() => entriesTrades.map(t => ({
         time: roundTime(t.date),
         position: t.side === Side.Buy ? 'belowBar' : 'aboveBar',
@@ -59,17 +61,17 @@ const Chart: FC<IProps> = ({security, symbol, digits, from, to, trades, colors =
         value: t.price,
         size: 2
         // text: `${t.side === Side.Buy ? 'Buy' : 'Sell'} ${t.qty} lots by ${t.price}`
-    })), [entriesTrades])
+    }))
+        .filter(t => t.time * 1000 >= fromDate.getTime())
+        , [entriesTrades, fromDate, toDate])
 
     const {data} = useGetHistoryQuery({
         symbol,
         exchange: "MOEX",
         // @ts-ignore
         tf: currentTimeframe,
-        from: fromTo('-0.5d', new Date(from)).from,
-        to: fromTo('0.5d', new Date(to)).to,
-    }, {
-        skip: !api
+        from: fromTo('-0.5d', fromDate).from,
+        to: fromTo('0.5d', toDate).to,
     });
 
     const history = data?.history || [];

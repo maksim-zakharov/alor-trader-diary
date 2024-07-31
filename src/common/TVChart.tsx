@@ -143,7 +143,7 @@ const {
                 const timeCandleMap = new Map(data.map(d => [d.time, d]));
 
                 const toolTip: any = document.createElement('div');
-                toolTip.style =`position: absolute; display: none; z-index: 1000; top: 12px; left: 12px;`;
+                toolTip.style =`position: absolute; display: none; z-index: 1000; top: 12px; left: 12px; right: 66px;`;
                     chartContainerRef!.current.appendChild(toolTip);
 
                 // toolTip.innerHTML = '123'
@@ -293,7 +293,7 @@ const {
 
             series?.setData(data);
 
-            if(markers){
+            if(markers && markers.length > 0){
                 const firstBuy: any = markers.find(p => p.position === 'belowBar');
                 const firstSell: any = markers.find(p => p.position === 'aboveBar');
 
