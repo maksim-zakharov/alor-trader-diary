@@ -148,7 +148,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.ticker_placeholder{
+.ticker_placeholder {
   background: rgb(var(--pro-icons-marker-1));
   width: 32px;
   height: 32px;
@@ -483,16 +483,16 @@ h1.ant-typography {
   }
 }
 
-.ant-carousel .slick-dots-bottom{
+.ant-carousel .slick-dots-bottom {
   bottom: 8px;
 }
 
-.MobileSummaryCarousel{
+.MobileSummaryCarousel {
   display: none;
   color: rgba(var(--pro-text-02), 1);
 }
 
-.ant-carousel{
+.ant-carousel {
   display: none;
 }
 
@@ -973,7 +973,7 @@ header {
 
 
 @media only screen and (max-width: 700px) {
-  .ant-drawer-bottom>.ant-drawer-content-wrapper {
+  .ant-drawer-bottom > .ant-drawer-content-wrapper {
     width: 100% !important;
     border-radius: 12px;
     overflow: hidden;
@@ -2254,18 +2254,29 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
   }
 }
 
-.ant-drawer .ant-drawer-content-wrapper.ant-drawer-content-wrapper-dragger{
+.ant-drawer .ant-drawer-content-wrapper.ant-drawer-content-wrapper-dragger {
   transition: none;
 }
 
-.ant-drawer .ant-drawer-content-wrapper .drawer-slider{
+html {
+  height  : 100%;
+  overflow: hidden;
+  position: relative;
+}
+body {
+  height  : 100%;
+  overflow: auto;
+  position: relative;
+}
+
+.ant-drawer .ant-drawer-content-wrapper .drawer-slider {
   height: 20px;
   position: absolute;
   top: 0px;
   left: 0;
   right: 0;
 
-  &:after{
+  &:after {
     position: absolute;
     margin: 6px auto;
     left: 0;

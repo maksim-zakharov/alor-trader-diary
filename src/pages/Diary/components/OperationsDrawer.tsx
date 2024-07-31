@@ -16,6 +16,7 @@ const OperationsDrawer = ({onClose, isOpened}) => {
     const {height, width, isMobile} = useWindowDimensions();
 
     const [top, setTop] = useState(0);
+    // const [title, setTitle] = useState<string>('Операции');
 
     function onMouseDown(event) {
         event.target.closest('.ant-drawer-content-wrapper').classList.add('ant-drawer-content-wrapper-dragger');
@@ -24,8 +25,9 @@ const OperationsDrawer = ({onClose, isOpened}) => {
     const onMouseMove = (event) => {
         var touch = event.touches[0];
         var y = touch.pageY;
-        setTop(y)
-        event.target.closest('.ant-drawer-content-wrapper').style.top = `${y}px`;
+        // setTitle(touch.pageY);
+        setTop(y - 24)
+        event.target.closest('.ant-drawer-content-wrapper').style.top = `${y - 24}px`;
     }
 
     function onMouseUp(event) {
@@ -34,12 +36,10 @@ const OperationsDrawer = ({onClose, isOpened}) => {
         var touch = event.changedTouches[0];
         var y = touch.pageY;
 
-
         const diff = y / height;
-        if (diff >= 0.44) {
+        if (diff >= 0.40) {
             onClose();
-            setTimeout(() => event.target.closest('.ant-drawer-content-wrapper').style.removeProperty('top'), 10)
-            ;
+            setTimeout(() => event.target.closest('.ant-drawer-content-wrapper').style.removeProperty('top'), 500);
         } else {
             event.target.closest('.ant-drawer-content-wrapper').style.removeProperty('top')
         }
