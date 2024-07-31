@@ -1475,16 +1475,7 @@ const Diary: FC<IProps> = ({
                             </div>)}
                         </div>
                     </Tabs.TabPane>
-                    }{news.length > 0 && <Tabs.TabPane tab="Новости" key="news">
-                    <div className="news-list-container">
-                        {news.map(n => <div className="news-list" onClick={() => selectNews(n.id)} key={n.id}>
-                            <h4>{n.header}</h4>
-                            <div>{moment(n.publishDate).format('LLL')}</div>
-                            <p dangerouslySetInnerHTML={{__html: n.content}}/>
-                        </div>)}
-                    </div>
-                </Tabs.TabPane>
-                }
+                    }
                     {tradeEvents.length > 0 && <Tabs.TabPane tab="События" key="tradeEvents">
                         <div className="tradeEvents-list-container">
                             <List data={tradeEvents} styles={{
