@@ -352,7 +352,7 @@ function App() {
             key: 'diary',
             label: 'Дневник',
             icon: <ProfileOutlined/>,
-            element: <Diary getIsinBySymbol={getIsinBySymbol} getListSectionBySymbol={getListSectionBySymbol}
+            element: <Diary trades={_trades} getIsinBySymbol={getIsinBySymbol} getListSectionBySymbol={getListSectionBySymbol}
                             isMobile={width < 400 ? 1 : width < 1200 ? Math.round(width / 410) : 0}
                             dateFrom={dateFrom} dateTo={dateTo}
                             data={data} isLoading={isLoading}/>

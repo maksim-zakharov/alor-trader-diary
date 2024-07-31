@@ -26,7 +26,7 @@ import {
 import {
     AppstoreOutlined,
     ArrowDownOutlined,
-    ArrowUpOutlined,
+    ArrowUpOutlined, ClockCircleOutlined,
     DeleteOutlined,
     EditOutlined,
     EyeInvisibleOutlined,
@@ -42,18 +42,19 @@ import {
     SwapOutlined,
     TableOutlined
 } from '@ant-design/icons';
+import List from 'rc-virtual-list';
 
 import FormItem from 'antd/es/form/FormItem';
 import React, {ChangeEventHandler, FC, useEffect, useMemo, useRef, useState} from 'react';
 import {ColumnsType} from 'antd/es/table';
 import moment from 'moment/moment';
-import {selectOptions, summ} from '../../App';
+import {selectOptions, summ, useWindowDimensions} from '../../App';
 import {moneyFormat, shortNumberFormat} from '../../common/utils';
 import {Exchange} from "alor-api";
 import dayjs from "dayjs";
 import {useSearchParams} from "react-router-dom";
 import PositionDetails from "./components/PositionDetails";
-import {Currency} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
+import {Currency, Status} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 import {humanize, numberToPercent} from "../../utils";
 import NoResult from "../../common/NoResult";
 import TickerImg from "../../common/TickerImg";
@@ -76,6 +77,8 @@ import Title from "antd/es/typography/Title";
 import ASelect from "../../common/Select";
 import OperationsDrawer from "./components/OperationsDrawer";
 import Chart from "./components/Chart";
+import MoneyOutputIcon from "../../assets/money-output";
+import MoneyInputIcon from "../../assets/money-input";
 
 interface DataType {
     key: string;
@@ -151,6 +154,7 @@ const AccountCard: FC<any> = ({
 }
 
 const Diary: FC<IProps> = ({
+                               trades,
                                getListSectionBySymbol,
                                data,
                                isLoading,
@@ -1264,6 +1268,10 @@ const Diary: FC<IProps> = ({
         }
     }, [ref])
 
+    const tradeEvents = useMemo(() => trades.filter(s => s.symbol === showSymbolModal), [showSymbolModal, trades]);
+    const {height} = useWindowDimensions();
+    const listHeight = useMemo(() => isMobile ? height - 182 : height - 56, [isMobile, height]);
+
     return (
         <div className="Diary">
             <Title>Дневник</Title>
@@ -1466,7 +1474,57 @@ const Diary: FC<IProps> = ({
                                 <p dangerouslySetInnerHTML={{__html: n.content}}/>
                             </div>)}
                         </div>
-                    </Tabs.TabPane>}
+                    </Tabs.TabPane>
+                    }{news.length > 0 && <Tabs.TabPane tab="Новости" key="news">
+                    <div className="news-list-container">
+                        {news.map(n => <div className="news-list" onClick={() => selectNews(n.id)} key={n.id}>
+                            <h4>{n.header}</h4>
+                            <div>{moment(n.publishDate).format('LLL')}</div>
+                            <p dangerouslySetInnerHTML={{__html: n.content}}/>
+                        </div>)}
+                    </div>
+                </Tabs.TabPane>
+                }
+                    {tradeEvents.length > 0 && <Tabs.TabPane tab="События" key="tradeEvents">
+                        <div className="tradeEvents-list-container">
+                            <List data={tradeEvents} styles={{
+                                verticalScrollBar: {
+                                    width: 'calc(var(--scrollbar-width) - 2px)',
+                                    height: 'var(--scrollbar-width)',
+                                    background: 'rgba(var(--scrollbars-bg-color), var(--scrollbars-bg-opacity))',
+                                    cursor: 'pointer'
+                                },
+                                verticalScrollBarThumb: {
+                                    border: '2px solid transparent',
+                                    backgroundColor: "rgba(var(--scrollbars-thumb-color), var(--scrollbars-thumb-opacity))",
+                                    backgroundClip: "padding-box",
+                                    borderRadius: "5px",
+                                    cursor: "pointer",
+                                    // -webkit-transition: "background-color .2s ease-in",
+                                    transition: "background-color .2s ease-in"
+                                }
+                            }} height={listHeight} itemHeight={52} itemKey="id">
+                                {(getMaxLossTrade =>
+                                    <div className="ticker-info" key={getMaxLossTrade.id}>
+                                        <div style={{display: 'flex'}}>
+                                            <TickerImg getIsinBySymbol={getIsinBySymbol} key={getMaxLossTrade?.symbol} symbol={getMaxLossTrade?.symbol}/>
+                                            <div className="ticker_name">
+                                                <div className="ticker_name_title">{getMaxLossTrade?.side === 'buy'? 'Покупка' : 'Продажа'} {getMaxLossTrade?.qtyUnits} акций</div>
+                                                <div className="ticker_name_description">
+                                                    {moment(getMaxLossTrade?.openDate).format('DD.MM.YYYY HH:mm:ss')}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="ticker_actions">
+                                            <div className="ticker_name_title">
+                                                <span>{moneyFormat(getMaxLossTrade?.volume || 0)}</span>
+                                            </div>
+                                        </div>
+                                    </div>)}
+                            </List>
+                        </div>
+                    </Tabs.TabPane>
+                    }
                 </Tabs>
             </Drawer>
             <OperationsDrawer isOpened={showOperationsModal}
