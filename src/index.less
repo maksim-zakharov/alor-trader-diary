@@ -973,11 +973,12 @@ header {
 
 
 @media only screen and (max-width: 700px) {
-  .ant-drawer-content-wrapper {
+  .ant-drawer-bottom>.ant-drawer-content-wrapper {
     width: 100% !important;
     border-radius: 12px;
     overflow: hidden;
-    top: 42px !important;
+    //top: 42px !important;
+    top: 42px;
     height: initial !important;
   }
 
@@ -2250,5 +2251,31 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
 
   .ant-select-arrow .custom-icon svg {
     transform: rotate(180deg);
+  }
+}
+
+.ant-drawer .ant-drawer-content-wrapper.ant-drawer-content-wrapper-dragger{
+  transition: none;
+}
+
+.ant-drawer .ant-drawer-content-wrapper .drawer-slider{
+  height: 20px;
+  position: absolute;
+  top: 0px;
+  left: 0;
+  right: 0;
+
+  &:after{
+    position: absolute;
+    margin: 6px auto;
+    left: 0;
+    right: 0;
+    border-radius: 8px;
+    top: 0px;
+    box-sizing: border-box;
+    height: 3px;
+    width: 30px;
+    content: " ";
+    background-color: #fff;
   }
 }
