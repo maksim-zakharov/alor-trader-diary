@@ -1269,6 +1269,7 @@ const Diary: FC<IProps> = ({
     }, [ref])
 
     const tradeEvents = useMemo(() => trades.filter(s => s.symbol === showSymbolModal).sort((a, b) => a.date - b.date), [showSymbolModal, trades]);
+    const symbolPositions = useMemo(() => data.positions.filter(s => s.symbol === showSymbolModal && s.type !== 'summary').sort((a, b) => a.time - b.time), [showSymbolModal, data.positions]);
     const {height} = useWindowDimensions();
     const listHeight = useMemo(() => isMobile ? height - 186 : height - 56, [isMobile, height]);
 
@@ -1476,6 +1477,50 @@ const Diary: FC<IProps> = ({
                         </div>
                     </Tabs.TabPane>
                     }
+                    {symbolPositions.length > 0 && <Tabs.TabPane tab="Сделки" key="positions">
+                        <div className="tradeEvents-list-container">
+                            <List data={symbolPositions} styles={{
+                                verticalScrollBar: {
+                                    width: 'calc(var(--scrollbar-width) - 2px)',
+                                    height: 'var(--scrollbar-width)',
+                                    background: 'rgba(var(--scrollbars-bg-color), var(--scrollbars-bg-opacity))',
+                                    cursor: 'pointer'
+                                },
+                                verticalScrollBarThumb: {
+                                    border: '2px solid transparent',
+                                    backgroundColor: "rgba(var(--scrollbars-thumb-color), var(--scrollbars-thumb-opacity))",
+                                    backgroundClip: "padding-box",
+                                    borderRadius: "5px",
+                                    cursor: "pointer",
+                                    // -webkit-transition: "background-color .2s ease-in",
+                                    transition: "background-color .2s ease-in"
+                                }
+                            }} height={listHeight} itemHeight={48} itemKey="id">
+                                {(dp =>
+                                    <div
+                                        className="ticker-info">
+                                        <div style={{display: 'flex'}}>
+                                            <TickerImg getIsinBySymbol={getIsinBySymbol} key={dp?.symbol} symbol={dp?.symbol}/>
+                                            <div className="ticker_name">
+                                                <div className="ticker_name_title">{dp?.side === 'buy'? 'Покупка' : 'Продажа'} {dp?.qtyUnits} акций</div>
+                                                <div className="ticker_name_description">
+                                                    {moment(dp?.openDate).format('DD.MM.YYYY HH:mm:ss')}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="ticker_actions">
+                                            <div className="ticker_name_title"
+                                                 style={{color: dp?.PnL > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>
+                                                <span>{moneyFormat(dp?.PnL || 0)}</span>
+                                                <span>{`${numberToPercent(dp?.PnLPercent)}%`}</span>
+                                            </div>
+                                            <div className="ticker_name_description">на сумму {moneyFormat(dp?.volume, 0)}</div>
+                                        </div>
+                                    </div>)}
+                            </List>
+                        </div>
+                    </Tabs.TabPane>
+                    }
                     {tradeEvents.length > 0 && <Tabs.TabPane tab="События" key="tradeEvents">
                         <div className="tradeEvents-list-container">
                             <List data={tradeEvents} styles={{
@@ -1507,8 +1552,9 @@ const Diary: FC<IProps> = ({
                                             </div>
                                         </div>
                                         <div className="ticker_actions">
-                                            <div className="ticker_name_title">
-                                                <span>{moneyFormat(getMaxLossTrade?.volume || 0)}</span>
+                                            <div className="ticker_name_title"
+                                                 style={{color: getMaxLossTrade?.side === 'sell' ? 'rgba(var(--table-profit-color),1)' : undefined }}>
+                                                <span>{getMaxLossTrade?.side === 'buy'? '-' : '+'}{moneyFormat(getMaxLossTrade?.volume || 0)}</span>
                                             </div>
                                         </div>
                                     </div>)}

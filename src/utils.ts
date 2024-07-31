@@ -205,6 +205,7 @@ export const tradesToHistoryPositions = (trades: Trade[]) => {
                 closeDate: trade.date,
                 lastSide: trade.side,
                 side: trade.side === Side.Buy ? Side.Sell : Side.Buy,
+                qtyUnits: trade.qtyUnits,
                 trades: [trade],
             };
             // Если позиция есть - работаем
@@ -212,6 +213,7 @@ export const tradesToHistoryPositions = (trades: Trade[]) => {
             // Если направление трейда такое же как у трейда закрытия - суммируем тотал лот
             if (trade.side === currentPositionsMap[trade.symbol].lastSide) {
                 currentPositionsMap[trade.symbol].commQty += trade.qty;
+                currentPositionsMap[trade.symbol].qtyUnits += trade.qtyUnits;
                 currentPositionsMap[trade.symbol].trades.unshift(trade);
             } else {
                 // Если нет - вычитаем
