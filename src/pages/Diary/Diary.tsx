@@ -1268,9 +1268,9 @@ const Diary: FC<IProps> = ({
         }
     }, [ref])
 
-    const tradeEvents = useMemo(() => trades.filter(s => s.symbol === showSymbolModal), [showSymbolModal, trades]);
+    const tradeEvents = useMemo(() => trades.filter(s => s.symbol === showSymbolModal).sort((a, b) => a.date - b.date), [showSymbolModal, trades]);
     const {height} = useWindowDimensions();
-    const listHeight = useMemo(() => isMobile ? height - 182 : height - 56, [isMobile, height]);
+    const listHeight = useMemo(() => isMobile ? height - 186 : height - 56, [isMobile, height]);
 
     return (
         <div className="Diary">
@@ -1494,7 +1494,7 @@ const Diary: FC<IProps> = ({
                                     // -webkit-transition: "background-color .2s ease-in",
                                     transition: "background-color .2s ease-in"
                                 }
-                            }} height={listHeight} itemHeight={52} itemKey="id">
+                            }} height={listHeight} itemHeight={48} itemKey="id">
                                 {(getMaxLossTrade =>
                                     <div className="ticker-info" key={getMaxLossTrade.id}>
                                         <div style={{display: 'flex'}}>
@@ -1502,7 +1502,7 @@ const Diary: FC<IProps> = ({
                                             <div className="ticker_name">
                                                 <div className="ticker_name_title">{getMaxLossTrade?.side === 'buy'? 'Покупка' : 'Продажа'} {getMaxLossTrade?.qtyUnits} акций</div>
                                                 <div className="ticker_name_description">
-                                                    {moment(getMaxLossTrade?.openDate).format('DD.MM.YYYY HH:mm:ss')}
+                                                    {moment(getMaxLossTrade?.date).format('DD.MM.YYYY HH:mm:ss')}
                                                 </div>
                                             </div>
                                         </div>
