@@ -6,7 +6,6 @@ import {
     DatePickerProps,
     Descriptions,
     Divider,
-    Drawer,
     Form,
     Input,
     message,
@@ -48,7 +47,7 @@ import FormItem from 'antd/es/form/FormItem';
 import React, {ChangeEventHandler, FC, useEffect, useMemo, useRef, useState} from 'react';
 import {ColumnsType} from 'antd/es/table';
 import moment from 'moment/moment';
-import {selectOptions, summ, useWindowDimensions} from '../../App';
+import {selectOptions, summ} from '../../App';
 import {moneyFormat, shortNumberFormat} from '../../common/utils';
 import {Exchange} from "alor-api";
 import dayjs from "dayjs";
@@ -79,6 +78,8 @@ import OperationsDrawer from "./components/OperationsDrawer";
 import Chart from "./components/Chart";
 import MoneyOutputIcon from "../../assets/money-output";
 import MoneyInputIcon from "../../assets/money-input";
+import useWindowDimensions from "../../common/useWindowDimensions";
+import DraggableDrawer from "../../common/DraggableDrawerHOC";
 
 interface DataType {
     key: string;
@@ -1281,7 +1282,7 @@ const Diary: FC<IProps> = ({
                 {summaries.map(summary =><MobileSummary summary={summary}/>)}
             </Carousel>
             <InfoPanelDesktop/>
-            <Drawer title="Вывести" open={showPayModal} placement={isMobile ? "bottom" : "right"}
+            <DraggableDrawer title="Вывести" open={showPayModal} placement={isMobile ? "bottom" : "right"}
                     closeIcon={<Button type="link" onClick={() => cancelEditAccount()}>Закрыть</Button>}
                     onClose={() => cancelEditAccount()}>
                 {!success && <Form layout="vertical">
@@ -1386,8 +1387,8 @@ const Diary: FC<IProps> = ({
                             снова</Button>,
                     ]}
                 />}
-            </Drawer>
-            <Drawer title="Новости" open={selectedNews} placement={isMobile ? "bottom" : "right"}
+            </DraggableDrawer>
+            <DraggableDrawer title="Новости" open={selectedNews} placement={isMobile ? "bottom" : "right"}
                     closeIcon={<Button type="link"
                                        onClick={() => selectNews(null)}>Закрыть</Button>}
                     onClose={() => selectNews(null)}
@@ -1401,8 +1402,8 @@ const Diary: FC<IProps> = ({
                     <h3>{newsMap[selectedNews]?.header}</h3>
                     <p dangerouslySetInnerHTML={{__html: newsMap[selectedNews]?.content}}/>
                 </div>
-            </Drawer>
-            <Drawer title={description?.shortName || showSymbolModal} open={!selectedNews && showSymbolModal}
+            </DraggableDrawer>
+            <DraggableDrawer title={description?.shortName || showSymbolModal} open={!selectedNews && showSymbolModal}
                     placement={isMobile ? "bottom" : "right"}
                     closeIcon={<Button type="link"
                                        onClick={closeSymbolModal}>Закрыть</Button>}
@@ -1563,10 +1564,10 @@ const Diary: FC<IProps> = ({
                     </Tabs.TabPane>
                     }
                 </Tabs>
-            </Drawer>
+            </DraggableDrawer>
             <OperationsDrawer isOpened={showOperationsModal}
                               onClose={() => setShowOperationsModal('operations')(false)}/>
-            <Drawer
+            <DraggableDrawer
                 title="Настройки"
                 placement={isMobile ? "bottom" : "right"}
                 closeIcon={<Button type="link"
@@ -1643,7 +1644,7 @@ const Diary: FC<IProps> = ({
                                 type="link">Выйти</Button>
                     </FormItem>
                 </Form>
-            </Drawer>
+            </DraggableDrawer>
             {view === 'week' && <>
                 {years.map(year => <YearRender year={year}/>)}
             </>}

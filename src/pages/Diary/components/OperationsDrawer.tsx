@@ -5,47 +5,15 @@ import moment from "moment";
 import {Status} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 import {moneyFormat} from "../../../common/utils";
 import {ClockCircleOutlined} from "@ant-design/icons";
-import React, {useMemo, useRef, useState} from "react";
+import React, {useMemo, useRef} from "react";
 import {useGetOperationsQuery} from "../../../api/alor.api";
 import {useAppSelector} from "../../../store";
 import List from 'rc-virtual-list';
-import {useWindowDimensions} from "../../../App";
-import useMousePosition from "../../../common/useMousePosition";
+import DraggableDrawer from "../../../common/DraggableDrawerHOC";
+import useWindowDimensions from "../../../common/useWindowDimensions";
 
 const OperationsDrawer = ({onClose, isOpened}) => {
     const {height, width, isMobile} = useWindowDimensions();
-
-    const [top, setTop] = useState(0);
-    // const [title, setTitle] = useState<string>('Операции');
-
-    function onMouseDown(event) {
-        event.target.closest('.ant-drawer-content-wrapper').classList.add('ant-drawer-content-wrapper-dragger');
-    }
-
-    const onMouseMove = (event) => {
-        var touch = event.touches[0];
-        var y = touch.pageY;
-        // setTitle(touch.pageY);
-        setTop(y - 24)
-        event.target.closest('.ant-drawer-content-wrapper').style.top = `${y - 24}px`;
-    }
-
-    function onMouseUp(event) {
-        // console.log(event.target.closest('.ant-drawer-content-wrapper'))
-        event.target.closest('.ant-drawer-content-wrapper').classList.remove('ant-drawer-content-wrapper-dragger');
-        var touch = event.changedTouches[0];
-        var y = touch.pageY;
-
-        const diff = y / height;
-        if (diff >= 0.40) {
-            onClose();
-            setTimeout(() => event.target.closest('.ant-drawer-content-wrapper').style.removeProperty('top'), 500);
-        } else {
-            event.target.closest('.ant-drawer-content-wrapper').style.removeProperty('top')
-        }
-    }
-
-    const {x, y} = useMousePosition('touchmove');
 
     const userInfo = useAppSelector(state => state.alorSlice.userInfo);
     const {data: operations = []} = useGetOperationsQuery(userInfo?.agreements[0]?.agreementNumber, {
@@ -62,22 +30,9 @@ const OperationsDrawer = ({onClose, isOpened}) => {
         return format.slice(0, format.length - 8);
     }
 
-    const ref = useRef<HTMLDivElement>();
-
     const title = 'Операции'
 
-    const pipka = () => {
-
-        return <div className="drawer-slider"/>
-    }
-
-    const renderTitle = useMemo(() => <div onMouseDown={onMouseDown} onMouseUp={onMouseUp} onTouchMove={onMouseMove} onTouchStart={onMouseDown}
-                                           onTouchEnd={onMouseUp}>
-        {pipka()}
-        {title}
-    </div>, [title]);
-
-    return <Drawer title={renderTitle} panelRef={ref} open={isOpened} placement={isMobile ? "bottom" : "right"}
+    return <DraggableDrawer title={title} open={isOpened} placement={isMobile ? "bottom" : "right"}
                    closeIcon={<Button type="link"
                                       onClick={onClose}>Закрыть</Button>}
                    onClose={onClose} className="operation-modal">
@@ -118,7 +73,7 @@ const OperationsDrawer = ({onClose, isOpened}) => {
                     </div>
                 </div>)}
         </List>
-    </Drawer>
+    </DraggableDrawer>
 }
 
 export default OperationsDrawer;

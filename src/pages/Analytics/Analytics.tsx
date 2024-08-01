@@ -1,7 +1,7 @@
 import React, {FC, useEffect, useMemo, useState} from "react";
 import {AlorApi} from "alor-api";
 import Highcharts from "highcharts";
-import {selectOptionsMap, summ, useWindowDimensions} from "../../App";
+import {selectOptionsMap} from "../../App";
 import ProfitIntervalWidget from "./widgets/ProfitIntervalWidget";
 import LossIntervalWidget from "./widgets/LossIntervalWidget";
 import MaxProfitTradesWidget from "./widgets/MaxProfitTradesWidget";
