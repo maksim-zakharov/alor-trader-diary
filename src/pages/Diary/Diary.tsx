@@ -971,43 +971,45 @@ const Diary: FC<IProps> = ({
             setSearchParams(searchParams);
         }
 
-        return <div className="MobilePosition widget" key={summary.openDate}>
-            <div style={{display: 'flex', alignItems: 'end'}}>
-                <div className="title-container">
-                    <div className="title">{moment(summary.openDate).format('DD.MM.YYYY')}</div>
-                    <div style={{
-                        display: 'inline-flex',
-                        alignItems: 'end'
-                    }}>
-                        <div
-                            className={`result ${summary.PnL > 0 ? 'profit' : 'loss'}`}>{summary.PnL > 0 ? '+' : ''}{moneyFormat(summary.PnL)}
-                            {/*<span className='percent'>{shortNumberFormat(netProfitPercent)}%</span>*/}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {dayPositions.map(dp =>
-                <div
-                    className={`ticker-info${selectKey === `${summary.openDate}-${dp.openDate}-${dp.symbol}` ? ' selected' : ''}`}
-                    key={`${summary.openDate}-${dp.openDate}-${dp.symbol}`} onClick={() => handleSelectTicker(dp)}>
-                    <div style={{display: 'flex'}}>
-                        <TickerImg getIsinBySymbol={getIsinBySymbol} key={dp?.symbol} symbol={dp?.symbol}/>
-                        <div className="ticker_name">
-                            <div className="ticker_name_title">{dp?.symbol}</div>
-                            <div className="ticker_name_description">
-                                {moment(dp?.openDate).format('HH:mm:ss')}
+        return <div className="MobilePosition" key={summary.openDate}>
+            <div className="widget">
+                <div style={{display: 'flex', alignItems: 'end'}}>
+                    <div className="title-container">
+                        <div className="title">{moment(summary.openDate).format('DD.MM.YYYY')}</div>
+                        <div style={{
+                            display: 'inline-flex',
+                            alignItems: 'end'
+                        }}>
+                            <div
+                                className={`result ${summary.PnL > 0 ? 'profit' : 'loss'}`}>{summary.PnL > 0 ? '+' : ''}{moneyFormat(summary.PnL)}
+                                {/*<span className='percent'>{shortNumberFormat(netProfitPercent)}%</span>*/}
                             </div>
                         </div>
                     </div>
-                    <div className="ticker_actions">
-                        <div className="ticker_name_title"
-                             style={{color: dp?.PnL > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>
-                            <span>{moneyFormat(dp?.PnL || 0)}</span>
-                            <span>{`${numberToPercent(dp?.PnLPercent)}%`}</span>
+                </div>
+                {dayPositions.map(dp =>
+                    <div
+                        className={`ticker-info${selectKey === `${summary.openDate}-${dp.openDate}-${dp.symbol}` ? ' selected' : ''}`}
+                        key={`${summary.openDate}-${dp.openDate}-${dp.symbol}`} onClick={() => handleSelectTicker(dp)}>
+                        <div style={{display: 'flex'}}>
+                            <TickerImg getIsinBySymbol={getIsinBySymbol} key={dp?.symbol} symbol={dp?.symbol}/>
+                            <div className="ticker_name">
+                                <div className="ticker_name_title">{dp?.symbol}</div>
+                                <div className="ticker_name_description">
+                                    {moment(dp?.openDate).format('HH:mm:ss')}
+                                </div>
+                            </div>
                         </div>
-                        <div className="ticker_name_description">на сумму {moneyFormat(dp?.volume, 0)}</div>
-                    </div>
-                </div>)}
+                        <div className="ticker_actions">
+                            <div className="ticker_name_title"
+                                 style={{color: dp?.PnL > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>
+                                <span>{moneyFormat(dp?.PnL || 0)}</span>
+                                <span>{`${numberToPercent(dp?.PnLPercent)}%`}</span>
+                            </div>
+                            <div className="ticker_name_description">на сумму {moneyFormat(dp?.volume, 0)}</div>
+                        </div>
+                    </div>)}
+            </div>
         </div>
     }
 
@@ -1180,47 +1182,50 @@ const Diary: FC<IProps> = ({
             </div>
             <div>
                 {boardsWithLabel.filter(bwl => securitiesGroupByBoard[bwl.value]?.length).map(bwl =>
-                    <div className="MobilePosition widget" key={bwl.value}>
-                        <div style={{display: 'flex', alignItems: 'end'}}>
-                            <div className="title-container">
-                                <div className="title">{bwl.label}</div>
-                                {(securitiesGroupByBoard[bwl.value] || []).length > 3 && <div style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'end'
-                                }}>
-                                    {!hideMap[bwl.value] && <Button type="link"
-                                                                    onClick={() => setHideMap(prevState => ({
-                                                                        ...prevState,
-                                                                        [bwl.value]: true
-                                                                    }))}>Больше</Button>}
-                                    {hideMap[bwl.value] && <Button type="link" onClick={() => setHideMap(prevState => ({
-                                        ...prevState,
-                                        [bwl.value]: false
-                                    }))}>Меньше</Button>}
-                                </div>}
+                    <div className="MobilePosition" key={bwl.value}>
+                        <div className="widget">
+                            <div style={{display: 'flex', alignItems: 'end'}}>
+                                <div className="title-container">
+                                    <div className="title">{bwl.label}</div>
+                                    {(securitiesGroupByBoard[bwl.value] || []).length > 3 && <div style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'end'
+                                    }}>
+                                        {!hideMap[bwl.value] && <Button type="link"
+                                                                        onClick={() => setHideMap(prevState => ({
+                                                                            ...prevState,
+                                                                            [bwl.value]: true
+                                                                        }))}>Больше</Button>}
+                                        {hideMap[bwl.value] && <Button type="link" onClick={() => setHideMap(prevState => ({
+                                            ...prevState,
+                                            [bwl.value]: false
+                                        }))}>Меньше</Button>}
+                                    </div>}
+                                </div>
                             </div>
-                        </div>
-                        {(securitiesGroupByBoard[bwl.value] || []).filter((_, i) => !hideMap[bwl.value] ? i < 3 : true).map(dp =>
-                            <div className="ticker-info" key={dp.ISIN} onClick={() => handleSelectTicker(dp)}>
-                                <div style={{display: 'flex'}}>
-                                    <TickerImg getIsinBySymbol={getIsinBySymbol} key={dp?.symbol} board={dp?.primary_board}
-                                               symbol={dp?.symbol}/>
-                                    <div className="ticker_name">
-                                        <div className="ticker_name_title">{dp?.description}</div>
-                                        <div className="ticker_name_description">
-                                            {dp?.symbol}
+                            {(securitiesGroupByBoard[bwl.value] || []).filter((_, i) => !hideMap[bwl.value] ? i < 3 : true).map(dp =>
+                                <div className="ticker-info" key={dp.ISIN} onClick={() => handleSelectTicker(dp)}>
+                                    <div style={{display: 'flex'}}>
+                                        <TickerImg getIsinBySymbol={getIsinBySymbol} key={dp?.symbol} board={dp?.primary_board}
+                                                   symbol={dp?.symbol}/>
+                                        <div className="ticker_name">
+                                            <div className="ticker_name_title">{dp?.description}</div>
+                                            <div className="ticker_name_description">
+                                                {dp?.symbol}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                {/*<div className="ticker_actions">*/}
-                                {/*    <div className="ticker_name_title"*/}
-                                {/*         style={{color: dp?.PnL > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>*/}
-                                {/*        <span>{moneyFormat(dp?.PnL || 0)}</span>*/}
-                                {/*        <span>{`${numberToPercent(dp?.PnLPercent)}%`}</span>*/}
-                                {/*    </div>*/}
-                                {/*    <div className="ticker_name_description">на сумму {moneyFormat(dp?.volume, 0)}</div>*/}
-                                {/*</div>*/}
-                            </div>)}
+                                    {/*<div className="ticker_actions">*/}
+                                    {/*    <div className="ticker_name_title"*/}
+                                    {/*         style={{color: dp?.PnL > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>*/}
+                                    {/*        <span>{moneyFormat(dp?.PnL || 0)}</span>*/}
+                                    {/*        <span>{`${numberToPercent(dp?.PnLPercent)}%`}</span>*/}
+                                    {/*    </div>*/}
+                                    {/*    <div className="ticker_name_description">на сумму {moneyFormat(dp?.volume, 0)}</div>*/}
+                                    {/*</div>*/}
+                                </div>)}
+
+                        </div>
                     </div>
                 )}
 
@@ -1275,7 +1280,7 @@ const Diary: FC<IProps> = ({
     const listHeight = useMemo(() => isMobile ? height - 186 : height - 56, [isMobile, height]);
 
     return (
-        <div className="Diary">
+        <>
             <Title>Дневник</Title>
             <MobileSearch/>
             <Carousel ref={ref} afterChange={onCarouselChange} className="MobileSummaryCarousel">
@@ -1674,7 +1679,7 @@ const Diary: FC<IProps> = ({
                 />
                 {!isLoading && dayPositions.map(dp => <MobilePosition positions={dp}/>)}
             </>}
-        </div>
+        </>
     );
 };
 

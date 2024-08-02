@@ -108,8 +108,8 @@ const Analytics: FC<IProps> = ({getIsinBySymbol, getListSectionBySymbol, data, a
 
     return <>
         <Title>Аналитика</Title>
-        <ProfitWidget isLoading={isLoading} colors={nightMode && darkColors} data={balanceSeriesDataWithoutFirst}
-                      initBalance={balanceSeriesData[0]?.value || 0}/>
+        <div><ProfitWidget isLoading={isLoading} colors={nightMode && darkColors} data={balanceSeriesDataWithoutFirst}
+                           initBalance={balanceSeriesData[0]?.value || 0}/></div>
         {/*<div className="widget">*/}
         {/*    <div className="widget_header">Reasons</div>*/}
         {/*    <HighchartsReact*/}
@@ -117,7 +117,7 @@ const Analytics: FC<IProps> = ({getIsinBySymbol, getListSectionBySymbol, data, a
         {/*        options={reasonOptions}*/}
         {/*    />*/}
         {/*</div>*/}
-        <div style={{display: 'flex', flexWrap: 'wrap', margin: '0 -1px'}}>
+        <div style={{display: 'flex', flexWrap: 'wrap', margin: '0 -1px', gap: '16px'}}>
             <ProfitIntervalWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
             <LossIntervalWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
             <MaxProfitTradesWidget getIsinBySymbol={getIsinBySymbol} nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>

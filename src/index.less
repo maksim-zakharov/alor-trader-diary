@@ -102,6 +102,10 @@
     --table-profit-color: 38, 165, 78;
   }
 
+  h1{
+    padding: 0 16px;
+  }
+
   .ant-btn-link {
     color: rgb(var(--pro-link-color));
   }
@@ -399,12 +403,6 @@ h1.ant-typography {
   }
 }
 
-@media only screen and (max-width: 700px) {
-  .SearchContainer {
-    display: initial;
-  }
-}
-
 .MobilePosition {
   display: none;
 
@@ -421,15 +419,16 @@ h1.ant-typography {
     }
   }
 
-  &:not(:last-child) {
-    margin-bottom: 16px;
-  }
+  //&:not(:last-child) {
+  //  margin-bottom: 16px;
+  //}
 
   .title-container {
     display: flex;
     justify-content: space-between;
     width: 100%;
-    padding: 8px 20px;
+    padding: 8px 0;
+    //padding: 8px 20px;
   }
 
   .title {
@@ -723,12 +722,20 @@ header {
 }
 
 @media only screen and (max-width: 700px) {
+  h1.ant-typography{
+    margin-bottom: 0;
+  }
+
+  .body-content > * {
+    padding: 0 16px;
+  }
+
   .widget {
     width: 100%;
     /*padding: 16px 20px;*/
     padding: 8px 20px;
     border-radius: 20px;
-    margin-top: 16px;
+    //margin-top: 16px;
   }
 
   .widget .widget_header {
@@ -756,11 +763,19 @@ header {
     display: block;
   }
 
+  //.slick-slide, .SearchContainer, h1{
+  //  padding: 0 16px;
+  //}
+
   .MobileSummaryCarousel, .ant-carousel {
     display: block;
   }
 
   .MobilePosition {
+    display: block;
+  }
+
+  .SearchContainer {
     display: block;
   }
 
@@ -777,11 +792,13 @@ header {
   }
 
   .body-content {
-    padding: 0 16px 16px !important;
-  }
-
-  .Diary {
-    padding: 0; /* 16px; */
+    & > *{
+      padding: 0 16px;
+    }
+    padding: 0 !important;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
   }
 
   .collapsed-row {
