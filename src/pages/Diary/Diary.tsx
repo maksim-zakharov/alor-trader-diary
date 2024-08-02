@@ -80,6 +80,7 @@ import MoneyOutputIcon from "../../assets/money-output";
 import MoneyInputIcon from "../../assets/money-input";
 import useWindowDimensions from "../../common/useWindowDimensions";
 import DraggableDrawer from "../../common/DraggableDrawerHOC";
+import WithdrawDrawer from "./components/WithdrawDrawer";
 
 interface DataType {
     key: string;
@@ -124,36 +125,6 @@ interface IProps {
     dateTo?: string;
 }
 
-const AccountCard: FC<any> = ({
-                                  bankName,
-                                  settlementAccount,
-                                  onEditAccount,
-                                  confirmDeleteAccount,
-                                  onSelect,
-                                  selected
-                              }) => {
-
-    const DeleteButton: FC<any> = ({settlementAccount}: { settlementAccount: string }) => <Popconfirm
-        title="Удаление счета"
-        description="Вы уверены что хотите удалить счет?"
-        onConfirm={() => confirmDeleteAccount(settlementAccount)}
-        okText="Да"
-        cancelText="Нет"
-    >
-        <Button icon={<DeleteOutlined/>} type="link" danger></Button>
-    </Popconfirm>
-
-    const className = useMemo(() => selected ? 'AccountCard selected' : 'AccountCard', [selected]);
-
-    return <Card className={className} title={bankName} onClick={() => onSelect(settlementAccount)}
-                 extra={<Space><Button icon={<EditOutlined key="edit"/>}
-                                       onClick={() => onEditAccount(settlementAccount)}
-                                       type="link"></Button><DeleteButton
-                     settlementAccount={settlementAccount}/></Space>}>
-        {settlementAccount}
-    </Card>
-}
-
 const Diary: FC<IProps> = ({
                                trades,
                                getListSectionBySymbol,
@@ -165,11 +136,9 @@ const Diary: FC<IProps> = ({
                                isMobile
                            }) => {
 
-    const lastWithdrawals = useAppSelector(state => state.alorSlice.lastWithdrawals)
     const dispatch = useAppDispatch();
     const settings = useAppSelector(state => state.alorSlice.settings);
     const userInfo = useAppSelector(state => state.alorSlice.userInfo);
-    const fullName = userInfo?.fullName;
 
     const {data: moneyMoves = []} = useGetMoneyMovesQuery({
         agreementNumber: settings.agreement,
@@ -187,24 +156,10 @@ const Diary: FC<IProps> = ({
         skip: !userInfo || !settings.portfolio
     });
 
-    const [createOperationMutation] = useCreateOperationMutation();
-    const [getOperationCode] = useGetOperationCodeMutation();
-    const [signOperationMutation] = useSignOperationMutation();
-
     const agreementsMap = useAppSelector(state => state.alorSlice.agreementsMap);
     const currentPortfolio = useAppSelector(selectCurrentPortfolio);
 
     const moneyMovesCommission = useMemo(() => summ(moneyMoves.filter(m => m.title === "Комиссия брокера").map(m => m.sum)), [moneyMoves]);
-
-    const [showForm, setShowForm] = useState<boolean | string>(false);
-
-    const [{operationId, confirmationCode, amount, portfolio, success}, setPaidInfo] = useState({
-        operationId: '',
-        confirmationCode: '',
-        amount: '',
-        portfolio: settings.portfolio,
-        success: false
-    })
 
     const [reasons, setReasons] = useState<{ [id: string]: string }>(
         JSON.parse(localStorage.getItem('reasons') || '{}'),
@@ -223,14 +178,6 @@ const Diary: FC<IProps> = ({
     const [comments, setComments] = useState<{ [id: string]: string }>(
         JSON.parse(localStorage.getItem('state') || '{}'),
     );
-
-    const [formState, setFormState] = useState<any>({});
-
-    const [accounts, setAccounts] = useState(
-        JSON.parse(localStorage.getItem('accounts') || '[]'),
-    );
-
-    const [selectedAccount, onSelect] = useState<string>('');
 
     useEffect(() => {
         localStorage.setItem('state', JSON.stringify(comments));
@@ -465,102 +412,11 @@ const Diary: FC<IProps> = ({
         };
     };
 
-    const settingsFormProps = (field: string) => {
-        const onChange = (e: any) => {
-            const value = e.target.value;
-            setFormState((prevState) => ({...prevState, [field]: value}));
-        };
-
-        return {
-            value: formState[field],
-            defaultValue: formState[field],
-            onChange,
-            name: field,
-            id: field
-        };
-    };
-
-    const [error, setError] = useState(undefined);
-
     const netProfitPercent = useMemo(() => !summary ? 0 : data.totalPnL * 100 / (summary?.portfolioEvaluation - data.totalPnL), [data.totalPnL, summary?.portfolioEvaluation]);
 
-    const createOperation = async () => {
-        setError(undefined);
-
-        const agreementNumber = settings.agreement;
-
-        const account = accounts.find(a => a.settlementAccount === selectedAccount) || settings;
-        if (!account.settlementAccount) {
-            return;
-        }
-
-        const operationResult = await createOperationMutation({
-            agreementNumber,
-            account: portfolio,
-            bic: account.bic,
-            amount: Number((amount || "").replaceAll(" ", '')),
-            all: false,
-            bankName: account.bankName,
-            loroAccount: account.loroAccount,
-            recipient: fullName,
-            agree: true,
-            settlementAccount: account.settlementAccount,
-            currency: Currency.RUB,
-            subportfolioFrom: "MOEX"
-        }).unwrap()
-
-        if (operationResult.errorMessage) {
-            setError(operationResult.errorMessage);
-            return;
-        }
-
-        const codeResponse = await getOperationCode({
-            operationId: operationResult.operationId.toString(),
-            agreementNumber
-        }).unwrap();
-
-        if (codeResponse.errorMessage) {
-            setError(codeResponse.errorMessage);
-            return;
-        }
-
-        setPaidInfo(prevState => ({...prevState, operationId: operationResult.operationId.toString()}))
-    }
-    const signOperation = async () => {
-        const agreementNumber = settings.agreement;
-
-        const result = await signOperationMutation({
-            agreementNumber,
-            operationId,
-            confirmationCode
-        }).unwrap();
-
-        if (result.errorMessage) {
-            setError(result.errorMessage);
-            return;
-        }
-
-        if (result.success) {
-            setPaidInfo({
-                portfolio: settings.portfolio,
-                confirmationCode: '',
-                operationId: '',
-                amount: '',
-                success: true
-            })
-        }
-    }
-    const sendAgain = () => setPaidInfo({
-        portfolio: settings.portfolio,
-        confirmationCode: '',
-        operationId: '',
-        amount: '',
-        success: false
-    })
     const [searchParams, setSearchParams] = useSearchParams();
     let showOperationsModal = searchParams.get('drawer') === 'operations';
     let showSettings = searchParams.get('drawer') === 'settings';
-    let showPayModal = searchParams.get('drawer') === 'payout';
     let showSymbolModal = searchParams.get('symbol');
     let symbolTab = searchParams.get('symbolTab') || 'description';
 
@@ -645,100 +501,6 @@ const Diary: FC<IProps> = ({
         }
         setTheme(e);
     };
-
-    const confirmDeleteAccount = (settlementAccount: string) => {
-        // @deprecate
-        if (settings['settlementAccount'] === settlementAccount) {
-
-            setSettings((state: any) => {
-                const {token, portfolio, amount, ...prevState} = state;
-
-                return {token, portfolio, amount} as any
-            });
-        } else {
-            setAccounts(accounts.filter(a => a.settlementAccount !== settlementAccount));
-            localStorage.setItem('accounts', JSON.stringify(accounts.filter(a => a.settlementAccount !== settlementAccount)));
-            cancelEditAccount();
-        }
-
-    }
-
-    const saveAccount = () => {
-        let edited = false;
-        for (let i = 0; i < accounts.length; i++) {
-            if (accounts[i].settlementAccount === formState.settlementAccount) {
-                accounts[i] = formState;
-                edited = true;
-            }
-        }
-        if (!edited) {
-            accounts.push(formState)
-        }
-        setAccounts(accounts);
-        localStorage.setItem('accounts', JSON.stringify(accounts));
-        cancelEditAccount();
-    }
-
-    const onEditAccount = (settlementAccount: string) => {
-        // @deprecate
-        if (settings['settlementAccount'] === settlementAccount) {
-            setFormState(settings)
-            setShowForm(settings['settlementAccount']);
-        } else {
-            const account = accounts.find(a => a.settlementAccount === settlementAccount) || {};
-
-            setFormState(account)
-            setShowForm(account['settlementAccount']);
-        }
-    }
-
-    const cancelEditAccount = () => {
-        setFormState({})
-        setShowForm(false);
-        onSelect('');
-        setShowOperationsModal('payout')(false);
-        setPaidInfo({
-            portfolio: settings.portfolio,
-            operationId: '',
-            confirmationCode: '',
-            amount: '',
-            success: false
-        })
-    }
-
-    const AccountList = () => {
-        if (!accounts.length && !settings['settlementAccount'] && !showForm) {
-            return <div style={{
-                marginTop: "20px",
-                paddingTop: "20px",
-                display: "inline-block",
-                textAlign: "center",
-                width: '100%'
-            }}><NoResult text={"Счета для вывода средств отсутствуют"}/></div>
-        }
-
-        return <>
-            {(accounts.length || settings['settlementAccount']) && <>
-                <Typography.Text>Выберите банковский счет</Typography.Text>
-            </>}
-            {settings['settlementAccount'] && showForm !== settings['settlementAccount'] &&
-                <AccountCard key={settings['settlementAccount']} bankName={settings['bankName']}
-                             onSelect={onSelect}
-                             selected={settings['settlementAccount'] === selectedAccount}
-                             settlementAccount={settings['settlementAccount']}
-                             onEditAccount={onEditAccount}
-                             confirmDeleteAccount={confirmDeleteAccount}/>
-            }
-            {accounts.map(account => showForm !== account['settlementAccount'] &&
-                <AccountCard key={account['settlementAccount']}
-                             bankName={account['bankName']}
-                             selected={account['settlementAccount'] === selectedAccount}
-                             settlementAccount={account['settlementAccount']}
-                             onEditAccount={onEditAccount}
-                             onSelect={onSelect}
-                             confirmDeleteAccount={confirmDeleteAccount}/>)}
-        </>
-    }
 
     const weeks = useMemo(() => {
         const result = new Map<number, any>([]);
@@ -1239,10 +1001,6 @@ const Diary: FC<IProps> = ({
         }
     }
 
-    const accountSummariesMap = useMemo(() => (summaries || []).reduce((acc, curr) => ({
-        ...acc,
-        [curr.accountNumber]: curr
-    }), {}), [summaries]);
     const agreementSummariesMap = useMemo(() => (summaries || []).reduce((acc, curr) => {
         if (!acc[curr.agreementNumber]) {
             acc[curr.agreementNumber] = 0;
@@ -1255,8 +1013,6 @@ const Diary: FC<IProps> = ({
         acc += curr.portfolioLiquidationValue;
         return acc;
     }, 0), [summaries]);
-
-    const sumHelp = `Доступно ${moneyFormat(accountSummariesMap[portfolio]?.portfolioLiquidationValue, 0, 0)}`;
 
     const onCarouselChange = (current) => {
         const sry = summaries[current];
@@ -1287,112 +1043,7 @@ const Diary: FC<IProps> = ({
                 {summaries.map(summary =><MobileSummary summary={summary}/>)}
             </Carousel>
             <InfoPanelDesktop/>
-            <DraggableDrawer title="Вывести" open={showPayModal} placement={isMobile ? "bottom" : "right"}
-                    closeIcon={<Button type="link" onClick={() => cancelEditAccount()}>Закрыть</Button>}
-                    onClose={() => cancelEditAccount()}>
-                {!success && <Form layout="vertical">
-                    {(accounts.length || settings['settlementAccount']) &&
-                        <FormItem label="Откуда">
-                            <ASelect value={portfolio}
-                                     onChange={e => setPaidInfo(prevState => ({...prevState, portfolio: e}))}
-                                     placeholder="Выберите договор"
-                                     options={userInfo?.agreements?.map(p => ({
-                                         label: p.cid,
-                                         title: p.cid,
-                                         value: p.agreementNumber,
-                                         options: p.portfolios.map(portfolio => ({
-                                             label: <>
-                                                 <div>{portfolio.accountNumber}</div>
-                                                 <div>{moneyFormat(accountSummariesMap[portfolio.accountNumber]?.portfolioLiquidationValue, 0, 0)}</div>
-                                             </>,
-                                             value: portfolio.accountNumber
-                                         }))
-                                     })) || []}/>
-                        </FormItem>}
-                    <AccountList/>
-                    {showForm && <>
-                        <FormItem label="Получатель">
-                            <Input placeholder="Получатель" disabled value={fullName}/>
-                        </FormItem>
-                        <FormItem label="БИК">
-                            <Input placeholder="БИК" type="number" {...settingsFormProps('bic')} />
-                        </FormItem>
-                        <FormItem label="Корр. счет">
-                            <Input
-                                placeholder="Корр. счет" type="number"
-                                {...settingsFormProps('loroAccount')}
-                            />
-                        </FormItem>
-                        <FormItem label="Банк получатель">
-                            <Input
-                                placeholder="Банк получатель"
-                                {...settingsFormProps('bankName')}
-                            />
-                        </FormItem>
-                        <FormItem label="Номер счета">
-                            <Input
-                                placeholder="Номер счета" type="number"
-                                {...settingsFormProps('settlementAccount')}
-                            />
-                        </FormItem>
-                    </>}
-                    {!showForm && <Button onClick={() => setShowForm(true)} type="primary"
-                                          style={{width: '100%'}}>Добавить счет</Button>}
-                    {showForm && <>
-                        <Button onClick={() => saveAccount()} type="primary"
-                                style={{width: '100%'}}>Сохранить</Button>
-                        <Button onClick={() => cancelEditAccount()}
-                                style={{width: '100%'}}>Отменить</Button>
-                    </>}
-                    {selectedAccount && <>
-                        <FormItem label="Сумма" style={{width: '100%'}} help={error || sumHelp}
-                                  status={error ? 'error' : undefined}>
-                            <Input
-                                placeholder="Введите сумму"
-                                value={amount}
-                                onChange={e => setPaidInfo(prevState => ({...prevState, amount: e.target.value}))}
-                                disabled={!selectedAccount}
-                                suffix="₽" type="number"
-                            />
-                        </FormItem>
-                        {lastWithdrawals.length > 0 && <div className="tag-container">
-                            {lastWithdrawals.map(lw => <Tag key={lw} onClick={() => setPaidInfo(prevState => ({
-                                ...prevState,
-                                amount: lw.toString()
-                            }))}>{lw}</Tag>)}
-                        </div>}
-                    </>}
-                    {operationId && <FormItem label="Код подтверждения">
-                        <Input
-                            placeholder="Код подтверждения"
-                            value={confirmationCode} type="number"
-                            onChange={e => setPaidInfo(prevState => ({...prevState, confirmationCode: e.target.value}))}
-                        />
-                    </FormItem>}
-                    <FormItem>
-                        {!operationId && selectedAccount &&
-                            <Button onClick={() => createOperation()} disabled={!amount} type="primary"
-                                    style={{width: '100%'}}>Отправить код</Button>}
-                        {operationId &&
-                            <Button onClick={() => signOperation()} type="primary"
-                                    style={{width: '100%'}}>Подтвердить
-                                код</Button>}
-                    </FormItem>
-                </Form>}
-                {success && <Result
-                    style={{padding: '16px'}}
-                    status="success"
-                    title="Деньги отправлены"
-                    subTitle={`На банковский счет: ${selectedAccount.match(/.{1,4}/g).join(' ')}`}
-                    extra={[
-                        <Button key="console">
-                            Распоряжение
-                        </Button>,
-                        <Button type="primary" key="buy" onClick={() => sendAgain()} icon={<ReloadOutlined/>}>Отправить
-                            снова</Button>,
-                    ]}
-                />}
-            </DraggableDrawer>
+            <WithdrawDrawer onClose={() => setShowOperationsModal('payout')(false)}/>
             <DraggableDrawer title="Новости" open={selectedNews} placement={isMobile ? "bottom" : "right"}
                     closeIcon={<Button type="link"
                                        onClick={() => selectNews(null)}>Закрыть</Button>}
