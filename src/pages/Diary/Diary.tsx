@@ -793,6 +793,12 @@ const Diary: FC<IProps> = ({
                                 {description?.description}
                             </p>
                         </div>
+                        {security?.tradingStatus === 18 && <div className="btn-disabled" style={{position: 'fixed',
+                            left: '16px',
+                            right: '16px',
+                            bottom: '16px'}}>
+                            Биржа закрыта
+                        </div>}
                     </Tabs.TabPane>
                     <Tabs.TabPane tab="Стакан" key="level2">
                         {/*<div className="level2-container">*/}

@@ -31,7 +31,14 @@ const MobileSearch = ({getIsinBySymbol}) => {
             acc[curr.primary_board] = [];
         }
 
-        if (value && curr.description.toLowerCase().includes((value || '').toLowerCase()))
+        if (value
+            &&
+            (
+                curr.description.toLowerCase().includes((value || '').toLowerCase())
+                || curr.symbol.toLowerCase().includes((value || '').toLowerCase())
+            )
+
+        )
             acc[curr.primary_board].push(curr);
 
         return acc;
