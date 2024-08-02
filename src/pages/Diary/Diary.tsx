@@ -93,13 +93,6 @@ interface DataType {
     tags: string[];
 }
 
-interface ExpandedDataType {
-    key: React.Key;
-    date: string;
-    name: string;
-    upgradeNum: string;
-}
-
 interface DataType {
     key: string;
     name: string;
@@ -108,14 +101,6 @@ interface DataType {
     phone: number;
     address: string;
 }
-
-const sharedOnCell = (_: DataType, index: number) => {
-    if (index === 1) {
-        return {colSpan: 0};
-    }
-
-    return {};
-};
 
 interface IProps {
     data: any;
