@@ -82,6 +82,8 @@ import useWindowDimensions from "../../common/useWindowDimensions";
 import DraggableDrawer from "../../common/DraggableDrawerHOC";
 import WithdrawDrawer from "./components/WithdrawDrawer";
 import MobilePosition from "./components/MobilePosition";
+import MobileSearch from "./components/MobileSearch";
+import MobileSummaryCarousel from "./components/MobileSummaryCarousel";
 
 interface DataType {
     key: string;
@@ -626,25 +628,6 @@ const Diary: FC<IProps> = ({
         return summary.buyingPowerAtMorning + todayPnL;
     }, [summary, settings['summaryType'], todayPnL]);
 
-    const {data: summaries = []} = useGetAllSummariesQuery({
-        exchange: Exchange.MOEX,
-        format: 'Simple',
-        userInfo
-    }, {
-        skip: !userInfo
-    });
-
-    const summaryValueMap = useMemo(() => {
-        if (!summaries) {
-            return 0;
-        }
-        if (!settings['summaryType'] || settings['summaryType'] === 'brokerSummary') {
-            return summaries.reduce((acc, curr) => ({...acc, [curr.accountNumber]: curr.portfolioLiquidationValue || 0}), {});
-        }
-
-        return summaries.reduce((acc, curr) => ({...acc, [curr.accountNumber]: curr.buyingPowerAtMorning + todayPnL}), {});
-    }, [summaries, settings['summaryType'], todayPnL]);
-
     const Summary = () => <div
         style={{
             display: 'flex',
@@ -660,65 +643,6 @@ const Diary: FC<IProps> = ({
             value={moneyFormat(summaryValue)}
             precision={2}
         />
-    </div>
-
-    const MobileDatepicker = () => <div className="MobileDatepicker">
-        <label htmlFor="mobile-date">от {dateFrom}</label>
-        <input type="date" id="mobile-date" value={dateFrom}
-               onChange={date => onChangeDate(dayjs(date.target.value, 'YYYY-MM-DD'))}/>
-    </div>
-
-    const MobileSummary = ({summary}) => <div className="MobileSummary widget">
-        {isSummaryLoading && <Spinner/>}
-        {!isSummaryLoading && <div className="summary-info">
-            <div>
-                <div className="summary__description">Счет {summary.accountNumber} ({summary.service})</div>
-                <div className="summary">{settings['hideSummary'] ? '••••' : moneyFormat(summaryValueMap[summary.accountNumber], 0, 0)}</div>
-                <div style={{
-                    display: 'inline-flex',
-                    alignItems: 'end'
-                }}>
-                    <div
-                        className={`result ${data.totalPnL > 0 ? 'profit' : 'loss'}`}>{data.totalPnL > 0 ? '+' : ''}{moneyFormat(data.totalPnL)}
-                        <span className='percent'>{shortNumberFormat(netProfitPercent)}%</span>
-                    </div>
-                    <MobileDatepicker/>
-                </div>
-            </div>
-
-            <Space>
-                <Button
-                    type="text"
-                    icon={settings['hideSummary'] ? <EyeOutlined/> : <EyeInvisibleOutlined/>}
-                    className="vertical-button"
-                    onClick={(f) => dispatch(setSettings(({['hideSummary']: !settings['hideSummary']})))}
-                />
-                <Button
-                    type="text"
-                    icon={<SettingOutlined/>}
-                    className="vertical-button"
-                    onClick={(f) => setShowOperationsModal('settings')(true)}
-                />
-            </Space>
-        </div>}
-        <div className="button-group">
-            <Button
-                type="text"
-                icon={<SwapOutlined/>}
-                className="vertical-button"
-                onClick={(f) => setShowOperationsModal('operations')(true)}
-            >Операции</Button>
-
-            <Button
-                type="text"
-                icon={<LogoutOutlined/>}
-                className="vertical-button"
-                onClick={(f) => setShowOperationsModal('payout')(true)}
-            >Вывести</Button>
-
-            <Radio.Group options={options} onChange={e => onChangeView(e.target.value)} value={view} size="large"
-                         optionType="button"/>
-        </div>
     </div>
 
     const themeOptions = [
@@ -819,149 +743,11 @@ const Diary: FC<IProps> = ({
         {label: 'Средства утром + прибыль', value: 'buyMorningPowerPlusPnL'},
     ]
 
-    const MobileSearch = () => {
-        const [getSecurities, {data = []}] = useGetSecuritiesMutation();
-        const [focused, setFocused] = React.useState(false);
-        const [value, setValue] = useState<string>('');
-        const onFocus = () => setFocused(true)
-        const onBlur = () => setFocused(false)
-        const onChange = (event) => {
-            // searchParams.set('query', event.target.value);
-            // setSearchParams(searchParams);
-            setValue(event.target.value)
-        }
-
-        const boardsWithLabel = [
-            {label: 'Акции', value: 'TQBR'},
-            {label: 'Фонды', value: 'TQTF'},
-            {label: 'Паи', value: 'TQIF'},
-            {label: 'Облигации', value: 'TQCB'},
-            {label: 'Гос. облигации', value: 'TQOB'},
-        ]
-
-        const securitiesGroupByBoard = useMemo(() => data.reduce((acc, curr) => {
-            if (!acc[curr.primary_board]) {
-                acc[curr.primary_board] = [];
-            }
-
-            if (value && curr.description.toLowerCase().includes((value || '').toLowerCase()))
-                acc[curr.primary_board].push(curr);
-
-            return acc;
-        }, {}), [data, value]);
-
-        const ref = useRef(null);
-
-        const debounce = (callback: (args) => any, ms: number) => {
-            let timeout;
-            return (...args) => {
-                clearTimeout(timeout);
-                timeout = setTimeout(() => {
-                    callback(args);
-                }, ms);
-            }
-        }
-        const getData = (query: string) => getSecurities({
-            query,
-            limit: 1000,
-        }).unwrap();
-
-        const getDataDebounce = useMemo(() => debounce(getData, 500), []);
-
-        useEffect(() => {
-            if (value) {
-                getDataDebounce(value)
-            }
-        }, [value]);
-
-        const [hideMap, setHideMap] = useState({});
-
-        const handleSelectTicker = (position: any) => {
-            searchParams.set('symbol', position.symbol);
-            setSearchParams(searchParams);
-        }
-
-        return <div className="SearchContainer">
-            <div className="input-container">
-                <Input placeholder="Бумага" className="rounded" ref={ref} value={value} onChange={onChange}
-                       prefix={<SearchOutlined/>}
-                       onFocus={onFocus} onBlur={onBlur}/>
-                {value && <Button type="link" onClick={() => setValue('')}>Отменить</Button>}
-            </div>
-            <div>
-                {boardsWithLabel.filter(bwl => securitiesGroupByBoard[bwl.value]?.length).map(bwl =>
-                    <div className="MobilePosition" key={bwl.value}>
-                        <div className="widget">
-                            <div style={{display: 'flex', alignItems: 'end'}}>
-                                <div className="title-container">
-                                    <div className="title">{bwl.label}</div>
-                                    {(securitiesGroupByBoard[bwl.value] || []).length > 3 && <div style={{
-                                        display: 'inline-flex',
-                                        alignItems: 'end'
-                                    }}>
-                                        {!hideMap[bwl.value] && <Button type="link"
-                                                                        onClick={() => setHideMap(prevState => ({
-                                                                            ...prevState,
-                                                                            [bwl.value]: true
-                                                                        }))}>Больше</Button>}
-                                        {hideMap[bwl.value] && <Button type="link" onClick={() => setHideMap(prevState => ({
-                                            ...prevState,
-                                            [bwl.value]: false
-                                        }))}>Меньше</Button>}
-                                    </div>}
-                                </div>
-                            </div>
-                            {(securitiesGroupByBoard[bwl.value] || []).filter((_, i) => !hideMap[bwl.value] ? i < 3 : true).map(dp =>
-                                <div className="ticker-info" key={dp.ISIN} onClick={() => handleSelectTicker(dp)}>
-                                    <div style={{display: 'flex'}}>
-                                        <TickerImg getIsinBySymbol={getIsinBySymbol} key={dp?.symbol} board={dp?.primary_board}
-                                                   symbol={dp?.symbol}/>
-                                        <div className="ticker_name">
-                                            <div className="ticker_name_title">{dp?.description}</div>
-                                            <div className="ticker_name_description">
-                                                {dp?.symbol}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {/*<div className="ticker_actions">*/}
-                                    {/*    <div className="ticker_name_title"*/}
-                                    {/*         style={{color: dp?.PnL > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>*/}
-                                    {/*        <span>{moneyFormat(dp?.PnL || 0)}</span>*/}
-                                    {/*        <span>{`${numberToPercent(dp?.PnLPercent)}%`}</span>*/}
-                                    {/*    </div>*/}
-                                    {/*    <div className="ticker_name_description">на сумму {moneyFormat(dp?.volume, 0)}</div>*/}
-                                    {/*</div>*/}
-                                </div>)}
-
-                        </div>
-                    </div>
-                )}
-
-            </div>
-        </div>
-    }
-
     const handleShareButtonClick = (data: Omit<ShareData, 'files'>) => {
         if (navigator.canShare) {
             navigator.share(data)
         }
     }
-
-    const onCarouselChange = (current) => {
-        const sry = summaries[current];
-        if(sry){
-            dispatch(setSettings({agreement: sry.agreementNumber, portfolio: sry.accountNumber}));
-        }
-    }
-
-    const ref = useRef(null);
-
-    useEffect(() => {
-        if(ref?.current){
-            const index = summaries.findIndex(s => s.accountNumber === settings.portfolio);
-            ref?.current?.goTo(index, true)
-        }
-    }, [ref])
 
     const tradeEvents = useMemo(() => trades.filter(s => s.symbol === showSymbolModal).sort((a, b) => a.date - b.date), [showSymbolModal, trades]);
     const symbolPositions = useMemo(() => data.positions.filter(s => s.symbol === showSymbolModal && s.type !== 'summary').sort((a, b) => a.time - b.time), [showSymbolModal, data.positions]);
@@ -971,10 +757,8 @@ const Diary: FC<IProps> = ({
     return (
         <>
             <Title>Дневник</Title>
-            <MobileSearch/>
-            <Carousel ref={ref} afterChange={onCarouselChange} className="MobileSummaryCarousel">
-                {summaries.map(summary =><MobileSummary summary={summary}/>)}
-            </Carousel>
+            <MobileSearch getIsinBySymbol={getIsinBySymbol}/>
+            <MobileSummaryCarousel dateFrom={dateFrom} onChangeView={onChangeView} view={view} setShowOperationsModal={setShowOperationsModal} options={options} netProfitPercent={netProfitPercent} todayPnL={todayPnL} onChangeDate={onChangeDate} totalPnL={data.totalPnL}/>
             <InfoPanelDesktop/>
             <WithdrawDrawer onClose={() => setShowOperationsModal('payout')(false)}/>
             <DraggableDrawer title="Новости" open={selectedNews} placement={isMobile ? "bottom" : "right"}
