@@ -473,7 +473,8 @@ h1.ant-typography {
 }
 
 .ant-tag {
-  background-color: rgba(var(--pro-input-bg), 1);
+  background-color: rgb(var(--button-group-bg));
+  //background-color: rgba(var(--pro-input-bg), 1);
   color: rgba(var(--pro-input-color), 1);
   border: none;
   cursor: pointer;
@@ -1535,6 +1536,7 @@ a, .link-color {
 
     border: none;
     background: linear-gradient(to bottom right, #353535, #525252);
+    border-radius: 16px;
   }
 
   .ant-select-single.ant-select-show-arrow .ant-select-selection-item {
@@ -2301,16 +2303,16 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
 
   &:after {
     position: absolute;
-    margin: 6px auto;
+    margin: 8px auto;
     left: 0;
     right: 0;
     border-radius: 8px;
     top: 0px;
     box-sizing: border-box;
-    height: 3px;
+    height: 4px;
     width: 30px;
     content: " ";
-    background-color: #fff;
+    background-color: rgb(var(--button-group-bg));
   }
 }
 

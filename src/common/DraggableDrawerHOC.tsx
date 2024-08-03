@@ -26,7 +26,7 @@ const DraggableDrawer = (props: DrawerProps) => {
         var y = touch.pageY;
 
         const diff = y / height;
-        if (diff >= 0.40) {
+        if (diff >= 0.2) {
             props?.onClose(event);
             setTimeout(() => event.target.closest('.ant-drawer-content-wrapper').style.removeProperty('top'), 500);
         } else {
