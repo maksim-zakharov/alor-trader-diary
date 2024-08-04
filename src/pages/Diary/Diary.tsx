@@ -406,15 +406,16 @@ const Diary: FC<IProps> = ({
     const [searchParams, setSearchParams] = useSearchParams();
     let showOperationsModal = searchParams.get('drawer') === 'operations';
     let showSettings = searchParams.get('drawer') === 'settings';
-    let showSymbolModal = searchParams.get('symbol');
+    let symbol = searchParams.get('symbol');
+    let exchange = searchParams.get('exchange');
     let symbolTab = searchParams.get('symbolTab') || 'description';
 
     const {data: news = []} = useGetNewsQuery({
-        symbols: showSymbolModal,
+        symbols: symbol,
         limit: 100,
         offset: 0
     }, {
-        skip: !showSymbolModal
+        skip: !symbol
     });
 
     const newsMap = useMemo(() => news.reduce((acc, curr) => ({...acc, [curr.id]: curr}), {}), [news]);
@@ -433,21 +434,21 @@ const Diary: FC<IProps> = ({
 
     const darkColors = useAppSelector(state => state.alorSlice.darkColors);
     const {data: description} = useGetDescriptionQuery({
-        ticker: showSymbolModal
+        ticker: symbol
     }, {
-        skip: !showSymbolModal
+        skip: !symbol
     });const {data: security} = useGetSecurityByExchangeAndSymbolQuery({
-            symbol: showSymbolModal,
-            exchange: "MOEX",
+            symbol: symbol,
+            exchange: exchange || "MOEX",
         },
         {
-            skip:  !showSymbolModal
+            skip:  !symbol
         });
     const digits = useMemo(() => security ? `${security.minstep}`.split('.')[1]?.length : 0, [security]);
     const {data: dividendsData, error: dividendsError} = useGetDividendsQuery({
-        ticker: showSymbolModal
+        ticker: symbol
     }, {
-        skip: !showSymbolModal,
+        skip: !symbol,
     });
 
     const dividends = dividendsData || [];
@@ -463,6 +464,7 @@ const Diary: FC<IProps> = ({
     const closeSymbolModal = () => {
         searchParams.delete('selectedSymbolKey');
         searchParams.delete('symbol');
+        searchParams.delete('exchange');
         searchParams.delete('symbolTab');
         setSearchParams(searchParams);
     }
@@ -688,8 +690,8 @@ const Diary: FC<IProps> = ({
         }
     }
 
-    const tradeEvents = useMemo(() => trades.filter(s => s.symbol === showSymbolModal).sort((a, b) => a.date - b.date), [showSymbolModal, trades]);
-    const symbolPositions = useMemo(() => data.positions.filter(s => s.symbol === showSymbolModal && s.type !== 'summary').sort((a, b) => a.time - b.time), [showSymbolModal, data.positions]);
+    const tradeEvents = useMemo(() => trades.filter(s => s.symbol === symbol).sort((a, b) => a.date - b.date), [symbol, trades]);
+    const symbolPositions = useMemo(() => data.positions.filter(s => s.symbol === symbol && s.type !== 'summary').sort((a, b) => a.time - b.time), [symbol, data.positions]);
     const {height} = useWindowDimensions();
     const listHeight = useMemo(() => isMobile ? height - 186 : height - 56, [isMobile, height]);
 
@@ -705,9 +707,9 @@ const Diary: FC<IProps> = ({
                                        onClick={() => selectNews(null)}>Закрыть</Button>}
                     onClose={() => selectNews(null)}
                     extra={<Button onClick={() => handleShareButtonClick({
-                        title: `${description?.shortName || showSymbolModal} | Trading Diary`,
+                        title: `${description?.shortName || symbol} | Trading Diary`,
                         text: `${window.location.host}/alor-trader-diary/#`,
-                        url: `/alor-trader-diary/#/diary?symbol=${showSymbolModal}&newsId=${selectedNews}`,
+                        url: `/alor-trader-diary/#/diary?symbol=${symbol}&newsId=${selectedNews}`,
                     })} icon={<ShareAltOutlined/>}/>}
             >
                 <div className="description-container">
@@ -715,15 +717,15 @@ const Diary: FC<IProps> = ({
                     <p dangerouslySetInnerHTML={{__html: newsMap[selectedNews]?.content}}/>
                 </div>
             </DraggableDrawer>
-            <DraggableDrawer title={description?.shortName || showSymbolModal} open={!selectedNews && showSymbolModal}
+            <DraggableDrawer title={description?.shortName || symbol} open={!selectedNews && symbol}
                     placement={isMobile ? "bottom" : "right"}
                     closeIcon={<Button type="link"
                                        onClick={closeSymbolModal}>Закрыть</Button>}
                     onClose={closeSymbolModal}
                     extra={<Button onClick={() => handleShareButtonClick({
-                        title: `${description?.shortName || showSymbolModal} | Trading Diary`,
+                        title: `${description?.shortName || symbol} | Trading Diary`,
                         text: `${window.location.host}/alor-trader-diary/#`,
-                        url: `/alor-trader-diary/#/diary?symbol=${showSymbolModal}`,
+                        url: `/alor-trader-diary/#/diary?symbol=${symbol}`,
                     })} icon={<ShareAltOutlined/>}/>}
             >
                 <Tabs activeKey={symbolTab} onTabClick={onHandleSelectSymbolTab}>
@@ -732,11 +734,11 @@ const Diary: FC<IProps> = ({
                             <Chart
                                 colors={nightMode && darkColors}
                                 trades={data.positions
-                                    .filter(p => p.symbol === showSymbolModal)
+                                    .filter(p => p.symbol === symbol)
                                     .map(p => p.trades).flat()
-                                    .filter(p => p.symbol === showSymbolModal)
+                                    .filter(p => p.symbol === symbol)
                             }
-                                symbol={showSymbolModal}
+                                symbol={symbol}
                                 digits={digits}
                                 security={security}
                                 from={moment().add(-8, 'hour').toISOString()}
@@ -756,7 +758,7 @@ const Diary: FC<IProps> = ({
                     </Tabs.TabPane>
                     <Tabs.TabPane tab="Стакан" key="level2">
                         {/*<div className="level2-container">*/}
-                        {/*    <OrderbookWidget api={api} symbol={showSymbolModal} key={showSymbolModal} showClusters/>*/}
+                        {/*    <OrderbookWidget api={api} symbol={symbol} key={symbol} showClusters/>*/}
                         {/*</div>*/}
                         В разработке
                     </Tabs.TabPane>

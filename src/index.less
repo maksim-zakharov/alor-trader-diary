@@ -191,6 +191,12 @@ body {
   padding: 8px 0;
   /*min-width: 320px;*/
   justify-content: space-between;
+
+  &.blocked{
+    .ticker_name_title{
+      color: rgba(var(--pro-icon-color), 1);
+    }
+  }
 }
 
 .collapsed-row {
@@ -664,6 +670,7 @@ header {
 }
 
 .MobileFooter {
+  z-index: 20;
   box-sizing: content-box;
   display: none;
   gap: 16px;

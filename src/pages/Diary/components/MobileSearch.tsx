@@ -4,6 +4,7 @@ import {Button, Input} from "antd";
 import {SearchOutlined} from "@ant-design/icons";
 import TickerImg from "../../../common/TickerImg";
 import {useSearchParams} from "react-router-dom";
+import {moneyFormat} from "../../../common/utils";
 
 const MobileSearch = ({getIsinBySymbol}) => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -24,6 +25,8 @@ const MobileSearch = ({getIsinBySymbol}) => {
         {label: 'Паи', value: 'TQIF'},
         {label: 'Облигации', value: 'TQCB'},
         {label: 'Гос. облигации', value: 'TQOB'},
+        {label: 'Фьючерсы', value: 'RFUD'},
+        {label: 'Опционы', value: 'ROPD'},
     ]
 
     const securitiesGroupByBoard = useMemo(() => data.reduce((acc, curr) => {
@@ -31,14 +34,14 @@ const MobileSearch = ({getIsinBySymbol}) => {
             acc[curr.primary_board] = [];
         }
 
-        if (value
-            &&
-            (
-                curr.description.toLowerCase().includes((value || '').toLowerCase())
-                || curr.symbol.toLowerCase().includes((value || '').toLowerCase())
-            )
-
-        )
+        // if (value
+        //     &&
+        //     (
+        //         curr.description.toLowerCase().includes((value || '').toLowerCase())
+        //         || curr.symbol.toLowerCase().includes((value || '').toLowerCase())
+        //     )
+        //
+        // )
             acc[curr.primary_board].push(curr);
 
         return acc;
@@ -51,13 +54,14 @@ const MobileSearch = ({getIsinBySymbol}) => {
         return (...args) => {
             clearTimeout(timeout);
             timeout = setTimeout(() => {
-                callback(args);
+                // @ts-ignore
+                callback(...args);
             }, ms);
         }
     }
     const getData = (query: string) => getSecurities({
         query,
-        limit: 1000,
+        limit: 500,
     }).unwrap();
 
     const getDataDebounce = useMemo(() => debounce(getData, 500), []);
@@ -72,8 +76,11 @@ const MobileSearch = ({getIsinBySymbol}) => {
 
     const handleSelectTicker = (position: any) => {
         searchParams.set('symbol', position.symbol);
+        searchParams.set('exchange', position.exchange);
         setSearchParams(searchParams);
     }
+
+    const itemsWithValues = useMemo(() => boardsWithLabel.filter(bwl => securitiesGroupByBoard[bwl.value]?.length), [boardsWithLabel, securitiesGroupByBoard])
 
     return <div className="SearchContainer">
         <div className="input-container">
@@ -82,8 +89,8 @@ const MobileSearch = ({getIsinBySymbol}) => {
                    onFocus={onFocus} onBlur={onBlur}/>
             {value && <Button type="link" onClick={() => setValue('')}>Отменить</Button>}
         </div>
-        {data.length > 0 && <div className="search-result">
-            {boardsWithLabel.filter(bwl => securitiesGroupByBoard[bwl.value]?.length).map(bwl =>
+        {itemsWithValues.length > 0 && <div className="search-result">
+            {itemsWithValues.map(bwl =>
                 <div className="MobilePosition" key={bwl.value}>
                     <div className="widget">
                         <div style={{display: 'flex', alignItems: 'end'}}>
@@ -106,25 +113,26 @@ const MobileSearch = ({getIsinBySymbol}) => {
                             </div>
                         </div>
                         {(securitiesGroupByBoard[bwl.value] || []).filter((_, i) => !hideMap[bwl.value] ? i < 3 : true).map(dp =>
-                            <div className="ticker-info" key={dp.ISIN} onClick={() => handleSelectTicker(dp)}>
+                            <div className={`ticker-info${[18, 2].includes(dp?.tradingStatus) ? ' blocked' : ''}`} key={dp.ISIN} onClick={() => handleSelectTicker(dp)}>
                                 <div style={{display: 'flex'}}>
                                     <TickerImg getIsinBySymbol={getIsinBySymbol} key={dp?.symbol} board={dp?.primary_board}
-                                               symbol={dp?.symbol}/>
+                                               symbol={dp?.underlyingSymbol || dp?.symbol}/>
                                     <div className="ticker_name">
-                                        <div className="ticker_name_title">{dp?.description}</div>
+                                        <div className="ticker_name_title">
+                                            {dp?.primary_board === "RFUD" ? dp?.symbol
+                                            :dp?.primary_board === "ROPD" ? `${dp?.underlyingSymbol} ${dp?.optionSide?.toUpperCase()} ${moneyFormat(dp?.strikePrice || 0, 0, 0)}`: dp?.description}
+                                        </div>
                                         <div className="ticker_name_description">
-                                            {dp?.symbol}
+                                            {['RFUD', "ROPD"].includes(dp?.primary_board) ? dp?.shortname: dp?.symbol}
                                         </div>
                                     </div>
                                 </div>
-                                {/*<div className="ticker_actions">*/}
-                                {/*    <div className="ticker_name_title"*/}
-                                {/*         style={{color: dp?.PnL > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>*/}
-                                {/*        <span>{moneyFormat(dp?.PnL || 0)}</span>*/}
-                                {/*        <span>{`${numberToPercent(dp?.PnLPercent)}%`}</span>*/}
-                                {/*    </div>*/}
-                                {/*    <div className="ticker_name_description">на сумму {moneyFormat(dp?.volume, 0)}</div>*/}
-                                {/*</div>*/}
+                                {dp?.theorPriceLimit > 0 && <div className="ticker_actions">
+                                    <div className="ticker_name_title">
+                                        <span>{moneyFormat(dp?.theorPriceLimit || 0)}</span>
+                                        {/*<span>{`${numberToPercent(dp?.PnLPercent)}%`}</span>*/}
+                                    </div>
+                                </div>}
                             </div>)}
 
                     </div>
