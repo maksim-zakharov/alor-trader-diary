@@ -82,53 +82,55 @@ const MobileSearch = ({getIsinBySymbol}) => {
                    onFocus={onFocus} onBlur={onBlur}/>
             {value && <Button type="link" onClick={() => setValue('')}>Отменить</Button>}
         </div>
-        {boardsWithLabel.filter(bwl => securitiesGroupByBoard[bwl.value]?.length).map(bwl =>
-            <div className="MobilePosition" key={bwl.value}>
-                <div className="widget">
-                    <div style={{display: 'flex', alignItems: 'end'}}>
-                        <div className="title-container">
-                            <div className="title">{bwl.label}</div>
-                            {(securitiesGroupByBoard[bwl.value] || []).length > 3 && <div style={{
-                                display: 'inline-flex',
-                                alignItems: 'end'
-                            }}>
-                                {!hideMap[bwl.value] && <Button type="link"
-                                                                onClick={() => setHideMap(prevState => ({
-                                                                    ...prevState,
-                                                                    [bwl.value]: true
-                                                                }))}>Больше</Button>}
-                                {hideMap[bwl.value] && <Button type="link" onClick={() => setHideMap(prevState => ({
-                                    ...prevState,
-                                    [bwl.value]: false
-                                }))}>Меньше</Button>}
-                            </div>}
+        {data.length > 0 && <div className="search-result">
+            {boardsWithLabel.filter(bwl => securitiesGroupByBoard[bwl.value]?.length).map(bwl =>
+                <div className="MobilePosition" key={bwl.value}>
+                    <div className="widget">
+                        <div style={{display: 'flex', alignItems: 'end'}}>
+                            <div className="title-container">
+                                <div className="title">{bwl.label}</div>
+                                {(securitiesGroupByBoard[bwl.value] || []).length > 3 && <div style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'end'
+                                }}>
+                                    {!hideMap[bwl.value] && <Button type="link"
+                                                                    onClick={() => setHideMap(prevState => ({
+                                                                        ...prevState,
+                                                                        [bwl.value]: true
+                                                                    }))}>Больше</Button>}
+                                    {hideMap[bwl.value] && <Button type="link" onClick={() => setHideMap(prevState => ({
+                                        ...prevState,
+                                        [bwl.value]: false
+                                    }))}>Меньше</Button>}
+                                </div>}
+                            </div>
                         </div>
-                    </div>
-                    {(securitiesGroupByBoard[bwl.value] || []).filter((_, i) => !hideMap[bwl.value] ? i < 3 : true).map(dp =>
-                        <div className="ticker-info" key={dp.ISIN} onClick={() => handleSelectTicker(dp)}>
-                            <div style={{display: 'flex'}}>
-                                <TickerImg getIsinBySymbol={getIsinBySymbol} key={dp?.symbol} board={dp?.primary_board}
-                                           symbol={dp?.symbol}/>
-                                <div className="ticker_name">
-                                    <div className="ticker_name_title">{dp?.description}</div>
-                                    <div className="ticker_name_description">
-                                        {dp?.symbol}
+                        {(securitiesGroupByBoard[bwl.value] || []).filter((_, i) => !hideMap[bwl.value] ? i < 3 : true).map(dp =>
+                            <div className="ticker-info" key={dp.ISIN} onClick={() => handleSelectTicker(dp)}>
+                                <div style={{display: 'flex'}}>
+                                    <TickerImg getIsinBySymbol={getIsinBySymbol} key={dp?.symbol} board={dp?.primary_board}
+                                               symbol={dp?.symbol}/>
+                                    <div className="ticker_name">
+                                        <div className="ticker_name_title">{dp?.description}</div>
+                                        <div className="ticker_name_description">
+                                            {dp?.symbol}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            {/*<div className="ticker_actions">*/}
-                            {/*    <div className="ticker_name_title"*/}
-                            {/*         style={{color: dp?.PnL > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>*/}
-                            {/*        <span>{moneyFormat(dp?.PnL || 0)}</span>*/}
-                            {/*        <span>{`${numberToPercent(dp?.PnLPercent)}%`}</span>*/}
-                            {/*    </div>*/}
-                            {/*    <div className="ticker_name_description">на сумму {moneyFormat(dp?.volume, 0)}</div>*/}
-                            {/*</div>*/}
-                        </div>)}
+                                {/*<div className="ticker_actions">*/}
+                                {/*    <div className="ticker_name_title"*/}
+                                {/*         style={{color: dp?.PnL > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>*/}
+                                {/*        <span>{moneyFormat(dp?.PnL || 0)}</span>*/}
+                                {/*        <span>{`${numberToPercent(dp?.PnLPercent)}%`}</span>*/}
+                                {/*    </div>*/}
+                                {/*    <div className="ticker_name_description">на сумму {moneyFormat(dp?.volume, 0)}</div>*/}
+                                {/*</div>*/}
+                            </div>)}
 
+                    </div>
                 </div>
-            </div>
-        )}
+            )}
+        </div>}
     </div>
 }
 

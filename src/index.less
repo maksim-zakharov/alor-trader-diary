@@ -364,6 +364,8 @@ h1.ant-typography {
   display: none;
   flex-direction: column;
   gap: 16px;
+  position: relative;
+  background-color: rgba(var(--pro-app-background-color), 1);
   /*position: sticky;*/
   /*z-index: 12;*/
   /*left: 0;*/
@@ -373,6 +375,20 @@ h1.ant-typography {
   /*top: 16px;*/
   /*overflow: auto;*/
   /*height: calc(100vh - 137px);*/
+
+  .search-result{
+    display: flex;
+    gap: 16px;
+    flex-direction: column;
+    background-color: rgba(var(--pro-app-background-color), 1);
+    z-index: 20;
+    right: 0px;
+    left: 0px;
+    position: absolute;
+    top: 48px;
+    height: calc(100vh - 186px);
+    padding: 0 16px;
+  }
 
   .input-container {
     display: flex;
@@ -2283,16 +2299,16 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
   transition: none;
 }
 
-//html {
-//  height  : 100%;
-//  overflow: hidden;
-//  position: relative;
-//}
-//body {
-//  height  : 100%;
-//  overflow: auto;
-//  position: relative;
-//}
+html {
+  height  : 100%;
+  overflow: hidden;
+  position: relative;
+}
+body {
+  height  : 100%;
+  //overflow: auto;
+  position: relative;
+}
 
 .ant-drawer .ant-drawer-content-wrapper .drawer-slider {
   height: 20px;
