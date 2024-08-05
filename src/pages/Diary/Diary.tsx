@@ -85,6 +85,7 @@ import MobilePosition from "./components/MobilePosition";
 import MobileSearch from "./components/MobileSearch";
 import MobileSummaryCarousel from "./components/MobileSummaryCarousel";
 import MonthRender from "./components/MonthRender";
+import useScroll from "../../common/useScroll";
 
 interface DataType {
     key: string;
@@ -695,9 +696,14 @@ const Diary: FC<IProps> = ({
     const {height} = useWindowDimensions();
     const listHeight = useMemo(() => isMobile ? height - 186 : height - 56, [isMobile, height]);
 
+    const {yOffset} = useScroll();
+
+    const opacity = useMemo(() => isMobile ? (100 - yOffset * 2) / 100 : 1, [yOffset, isMobile]);
+
     return (
         <>
-            <Title>Дневник</Title>
+            <Title style={{opacity}}>Дневник</Title>
+            <Title className="MobileHeader" style={{opacity: 1 - opacity}}>Дневник</Title>
             <MobileSearch getIsinBySymbol={getIsinBySymbol}/>
             <MobileSummaryCarousel dateFrom={dateFrom} onChangeView={onChangeView} view={view} setShowOperationsModal={setShowOperationsModal} options={options} netProfitPercent={netProfitPercent} todayPnL={todayPnL} onChangeDate={onChangeDate} totalPnL={data.totalPnL}/>
             <InfoPanelDesktop/>

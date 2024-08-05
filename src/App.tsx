@@ -31,6 +31,7 @@ import CheckIcon from './assets/check';
 import {moneyFormat} from "./common/utils";
 import ChevronBottomIcon from "./assets/chevron-bottom";
 import useWindowDimensions from "./common/useWindowDimensions";
+import useScroll from "./common/useScroll";
 
 export const avg = (numbers: number[]) =>
     !numbers.length ? 0 : summ(numbers) / numbers.length;
