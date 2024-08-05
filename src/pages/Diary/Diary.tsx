@@ -703,7 +703,7 @@ const Diary: FC<IProps> = ({
     return (
         <>
             <Title style={{opacity}}>Дневник</Title>
-            <Title className="MobileHeader" style={{opacity: 1 - opacity}}>Дневник</Title>
+            <Title className="MobileHeader" style={{opacity: 2 - opacity}}>Дневник</Title>
             <MobileSearch getIsinBySymbol={getIsinBySymbol}/>
             <MobileSummaryCarousel dateFrom={dateFrom} onChangeView={onChangeView} view={view} setShowOperationsModal={setShowOperationsModal} options={options} netProfitPercent={netProfitPercent} todayPnL={todayPnL} onChangeDate={onChangeDate} totalPnL={data.totalPnL}/>
             <InfoPanelDesktop/>
