@@ -7,7 +7,7 @@ const TTitle: FC<TitleProps> = (props) => {
     const {height, width, isMobile} = useWindowDimensions();
     const {yOffset} = useScroll();
 
-    const opacity = useMemo(() => isMobile ? (58*2 - yOffset * 2) / 100 : 1, [yOffset, isMobile]);
+    const opacity = useMemo(() => isMobile ? (56*2 - yOffset * 2) / 100 : 1, [yOffset, isMobile]);
 
     // Ускорение появления мобильного хедера
     const FIXED_HEADER_OPACITY_SPEED = 2;
