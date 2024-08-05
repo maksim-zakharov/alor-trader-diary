@@ -697,10 +697,6 @@ const Diary: FC<IProps> = ({
     const {height} = useWindowDimensions();
     const listHeight = useMemo(() => isMobile ? height - 186 : height - 56, [isMobile, height]);
 
-    const {yOffset} = useScroll();
-
-    const opacity = useMemo(() => isMobile ? (100 - yOffset * 2) / 100 : 1, [yOffset, isMobile]);
-
     return (
         <>
             <TTitle>Дневник</TTitle>
