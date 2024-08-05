@@ -18,6 +18,7 @@ import LossSectionWidget from "./widgets/LossSectionWidget";
 import Title from "antd/es/typography/Title";
 import {useAppDispatch, useAppSelector} from "../../store";
 import {updateDarkColors} from "../../api/alor.slice";
+import TTitle from "../../common/TTitle";
 
 interface IProps {
     balanceSeriesData: any
@@ -107,7 +108,7 @@ const Analytics: FC<IProps> = ({getIsinBySymbol, getListSectionBySymbol, data, a
     }
 
     return <>
-        <Title>Аналитика</Title>
+        <TTitle>Аналитика</TTitle>
         <div><ProfitWidget isLoading={isLoading} colors={nightMode && darkColors} data={balanceSeriesDataWithoutFirst}
                            initBalance={balanceSeriesData[0]?.value || 0}/></div>
         {/*<div className="widget">*/}
