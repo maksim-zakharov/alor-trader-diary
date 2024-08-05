@@ -11,7 +11,7 @@ const TTitle: FC<TitleProps> = (props) => {
 
     return <>
         <Title {...props} style={{opacity}}/>
-        <Title {...props} className="MobileHeader" style={{opacity: 2 - opacity}}/>
+        <Title {...props} className="MobileHeader" style={{opacity: 0 - opacity}}/>
     </>
 }
 
