@@ -286,7 +286,7 @@ const WithdrawDrawer = ({onClose}) => {
     return <DraggableDrawer title="Вывести" open={showPayModal} placement={isMobile ? "bottom" : "right"}
                             closeIcon={<Button type="link" onClick={() => cancelEditAccount()}>Закрыть</Button>}
                             onClose={() => cancelEditAccount()}>
-        {!success && <Form layout="vertical">
+        {!success && <Form layout="vertical" className="pad-lr">
             {(accounts.length || settings['settlementAccount']) &&
                 <FormItem label="Откуда">
                     <ASelect value={portfolio}

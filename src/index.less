@@ -1047,7 +1047,8 @@ header {
 
 .ant-drawer .ant-drawer-body {
   /*padding: 8px 12px;*/
-  padding: 8px 16px 16px;
+  //padding: 8px 16px 16px;
+  padding: 8px 0 16px;
 }
 
 .ant-form-item {
@@ -2074,10 +2075,29 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
   color: rgba(var(--pro-text-02), 1);
 }
 
+.dividends-description{
+  padding: 0 16px;
+  display: block;
+}
+
 .dividends-table {
   width: 100%;
   margin-top: 8px;
   color: rgba(var(--pro-text-01), 1);
+  border-spacing: 0;
+  border-collapse: initial;
+
+  th:last-of-type, td:last-of-type{
+    text-align: right;
+    padding-right: 16px;
+  }
+  th:first-of-type, td:first-of-type{
+    padding-left: 16px;
+  }
+  tr:hover, tr.selected {
+    color: rgba(var(--table-profit-color),1);
+    background-color: rgb(var(--button-group-bg));
+  }
 }
 
 .dividends-table th {
@@ -2093,7 +2113,7 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
 .news-list-container {
   height: calc(100vh - 178px);
   overflow: auto;
-  overflow-x: hidden;
+  overflow-x: hidden;;
 }
 
 .tradeEvents-list-container {
@@ -2106,6 +2126,11 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
   height: calc(100vh - 178px);
   overflow: auto;
   overflow-x: hidden;
+}
+
+.news-list{
+  padding: 0 16px;
+  word-break: break-word;
 }
 
 .news-list p > p:not(:first-of-type) {
@@ -2156,11 +2181,15 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
 .description-container {
 
   color: rgba(var(--pro-text-01), 1);
+
+  h3 {
+    margin: 0;
+    margin-top: 16px;
+  }
 }
 
-.description-container h3 {
-  margin: 0;
-  margin-top: 16px;
+.pad-lr{
+  padding: 0 16px;
 }
 
 .ant-tabs-tab[data-node-key="null"] {
