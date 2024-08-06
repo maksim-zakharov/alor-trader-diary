@@ -850,7 +850,7 @@ const Diary: FC<IProps> = ({
                             }} height={listHeight} itemHeight={48} itemKey="id">
                                 {(dp =>
                                     <div
-                                        className="ticker-info">
+                                        className="ticker-info pad-lr">
                                         <div style={{display: 'flex'}}>
                                             <TickerImg getIsinBySymbol={getIsinBySymbol} key={dp?.symbol} symbol={dp?.symbol}/>
                                             <div className="ticker_name">
@@ -893,7 +893,7 @@ const Diary: FC<IProps> = ({
                                 }
                             }} height={listHeight} itemHeight={48} itemKey="id">
                                 {(getMaxLossTrade =>
-                                    <div className="ticker-info" key={getMaxLossTrade.id}>
+                                    <div className="ticker-info pad-lr" key={getMaxLossTrade.id}>
                                         <div style={{display: 'flex'}}>
                                             <TickerImg getIsinBySymbol={getIsinBySymbol} key={getMaxLossTrade?.symbol} symbol={getMaxLossTrade?.symbol}/>
                                             <div className="ticker_name">
