@@ -127,9 +127,85 @@ export interface SecurityDividend {
     fixDate:                   Date | null;
 }
 
+export interface BCSDividendsResponse {
+    data:       Datum[];
+    has_more:   boolean;
+    last_value: number;
+    total:      number;
+}
+
+export interface Datum {
+    checked:                boolean;
+    history_dates:          Date[];
+    history_values:         number[];
+    history_yields:         Array<number | null>;
+    previous_dividends:     PreviousDividend[];
+    id:                     number;
+    isin_code:              string;
+    company_name:           string;
+    short_name:             string;
+    logo_url:               string;
+    logo_primary_color:     null;
+    last_buy_day:           Date;
+    closing_date:           Date;
+    dividend_value:         number;
+    dividend_currency_code: string;
+    quote_currency_code:    string;
+    close_price:            number;
+    yield:                  number;
+    secure_code:            string;
+    class_code:             string;
+    year:                   number;
+    actual:                 boolean;
+    foreign_stock:          boolean;
+    ticker_id:              number;
+    sector:                 number;
+    sectorName:             null;
+    period_length:          null;
+    period_number:          number;
+    period_year:            null;
+}
+
+export interface PreviousDividend {
+    id:             number;
+    company_name:   string;
+    last_buy_day:   Date | null;
+    closing_date:   Date;
+    dividend_value: number;
+    close_price:    number;
+    yield:          number | null;
+}
+
+
 const getDescription = (api: AlorApi) => ({ticker}: {ticker: string})  => api.http
     .get(`/instruments/v1/${ticker}/description`, {
         baseURL: "https://api.alor.ru",
+    })
+    .then((r) => r.data)
+// fetch("https://api.bcs.ru/divcalendar/v1/dividends?actual=1&emitent=RU0009084396&limit=50&order=2&sorting=0", {
+//   "headers": {
+//     "accept": "*/*",
+//     "accept-language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
+//     "sec-ch-ua": "\"Google Chrome\";v=\"117\", \"Not;A=Brand\";v=\"8\", \"Chromium\";v=\"117\"",
+//     "sec-ch-ua-mobile": "?0",
+//     "sec-ch-ua-platform": "\"macOS\"",
+//     "sec-fetch-dest": "empty",
+//     "sec-fetch-mode": "cors",
+//     "sec-fetch-site": "cross-site",
+//     "ticket": "",
+//     "token": ""
+//   },
+//   "referrer": "https://bcs-express.ru/",
+//   "referrerPolicy": "strict-origin-when-cross-origin",
+//   "body": null,
+//   "method": "GET",
+//   "mode": "cors",
+//   "credentials": "omit"
+// });
+const getBCSDividends = (api: AlorApi) => (params: {actual: number, emitent: string, limit: number, order: number, sorting: number})  => api.http
+    .get(`/divcalendar/v1/dividends`, {
+        baseURL: "https://api.bcs.ru",
+        params
     })
     .then((r) => r.data)
 
@@ -200,6 +276,9 @@ export const alorApi = createApi({
         } as any),
         getDividends: builder.query<SecurityDividend, {ticker: string}>({
             queryFn: recurcive(api => getDividends(api)),
+        } as any),
+        getBCSDividends: builder.query<BCSDividendsResponse, {actual: number, emitent: string, limit: number, order: number, sorting: number}>({
+            queryFn: recurcive(api => getBCSDividends(api)),
         } as any),
         getDescription: builder.query<SecurityDescription, {ticker: string}>({
             queryFn: recurcive(api => getDescription(api)),
@@ -309,4 +388,4 @@ export const alorApi = createApi({
     })
 })
 
-export const {useGetUserInfoQuery, useGetAllSummariesQuery, useGetSecurityByExchangeAndSymbolQuery, useGetHistoryQuery, useGetDescriptionQuery, useGetNewsQuery, useGetDividendsQuery, useGetSecuritiesMutation, useGetTradesQuery, useSignOperationMutation, useGetOperationCodeMutation, useCreateOperationMutation, useGetEquityDynamicsQuery,useGetMoneyMovesQuery, useGetOperationsQuery, useGetSummaryQuery} = alorApi;
+export const {useGetUserInfoQuery, useGetBCSDividendsQuery, useGetAllSummariesQuery, useGetSecurityByExchangeAndSymbolQuery, useGetHistoryQuery, useGetDescriptionQuery, useGetNewsQuery, useGetDividendsQuery, useGetSecuritiesMutation, useGetTradesQuery, useSignOperationMutation, useGetOperationCodeMutation, useCreateOperationMutation, useGetEquityDynamicsQuery,useGetMoneyMovesQuery, useGetOperationsQuery, useGetSummaryQuery} = alorApi;

@@ -76,7 +76,7 @@ const MobileSearch = ({getIsinBySymbol}) => {
 
     const handleSelectTicker = (position: any) => {
         searchParams.set('symbol', position.symbol);
-        searchParams.set('exchange', position.exchange);
+        searchParams.set('exchange', position.exchange || 'MOEX');
         setSearchParams(searchParams);
     }
 

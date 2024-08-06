@@ -60,7 +60,7 @@ import TickerImg from "../../common/TickerImg";
 import {useAppDispatch, useAppSelector} from "../../store";
 import {
     useCreateOperationMutation,
-    useGetAllSummariesQuery,
+    useGetAllSummariesQuery, useGetBCSDividendsQuery,
     useGetDescriptionQuery,
     useGetDividendsQuery,
     useGetMoneyMovesQuery,
@@ -453,7 +453,34 @@ const Diary: FC<IProps> = ({
         skip: !symbol,
     });
 
-    const dividends = dividendsData || [];
+    const {data: bcsDividendsResponse} = useGetBCSDividendsQuery({
+        emitent: security?.ISIN,
+        sorting: 0,
+        order: 2,
+        limit: 50,
+        actual: 1
+    }, {
+        skip: !security?.ISIN,
+    })
+
+    const bcsDividends = useMemo(() => {
+        const divData = bcsDividendsResponse?.data?.[0];
+        if(!divData){
+            return [];
+        }
+        // return divData.previous_dividends
+        //     .map(row => ({ recordDate: row.closing_date, currency: divData.quote_currency_code, recommendDividendPerShare: row.dividend_value, dividendYield: row.yield / 100}));
+
+        return divData.history_dates
+            .map((recordDate, index) => ({recordDate, currency: divData.quote_currency_code, recommendDividendPerShare: divData.history_values[index], dividendYield: (divData.history_yields[index] || 0) / 100}))
+
+            .filter((row, index) => !!row.dividendYield)
+            // .sort((a, b) => b.date.localeCompare(a.date))
+            ;
+
+    }, [bcsDividendsResponse]);
+
+    const dividends = bcsDividends.length > 0 ? bcsDividends : dividendsData || [];
 
     const setShowOperationsModal = (drawerName: string) => (opened: boolean) => {
         if (opened) {
