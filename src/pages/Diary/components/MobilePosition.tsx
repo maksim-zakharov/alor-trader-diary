@@ -14,7 +14,7 @@ const MobilePosition = ({positions, getIsinBySymbol}) => {
 
     const handleSelectTicker = (position: any) => {
         searchParams.set('symbol', position.symbol);
-        searchParams.set('exchange', position.exchange);
+        searchParams.set('exchange', position.exchange || 'MOEX');
         searchParams.set('selectedSymbolKey', `${summary.openDate}-${position.openDate}-${position.symbol}`);
         setSearchParams(searchParams);
     }

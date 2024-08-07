@@ -392,7 +392,7 @@ h1.ant-typography {
     left: 0px;
     position: absolute;
     top: 48px;
-    height: calc(100vh - 184px);
+    height: calc(100vh - 186px);
     padding: 0 16px;
   }
 
@@ -801,6 +801,10 @@ header {
     display: block;
   }
 
+  .MobileHeader {
+    display: block !important;
+  }
+
   .SearchContainer {
     display: flex;
   }
@@ -1043,7 +1047,8 @@ header {
 
 .ant-drawer .ant-drawer-body {
   /*padding: 8px 12px;*/
-  padding: 8px 16px 16px;
+  //padding: 8px 16px 16px;
+  padding: 8px 0 16px;
 }
 
 .ant-form-item {
@@ -1935,7 +1940,7 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
 ::-webkit-scrollbar {
   width: var(--scrollbar-width);
   height: var(--scrollbar-width);
-  background: rgba(var(--pro-app-background-color), 1); // var(--scrollbars-bg-opacity));
+  background: rgba(var(--scrollbars-bg-color), var(--scrollbars-bg-opacity));
   cursor: pointer;
 }
 
@@ -2047,7 +2052,7 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
 
 .ant-tabs .ant-tabs-tab {
   color: rgba(var(--pro-text-01), 1);
-  padding: 12px;
+  padding: 0 12px 12px;
 }
 
 .ant-tabs-tab .ant-tabs-tab-active, .ant-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
@@ -2070,10 +2075,29 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
   color: rgba(var(--pro-text-02), 1);
 }
 
+.dividends-description{
+  padding: 0 16px;
+  display: block;
+}
+
 .dividends-table {
   width: 100%;
   margin-top: 8px;
   color: rgba(var(--pro-text-01), 1);
+  border-spacing: 0;
+  border-collapse: initial;
+
+  th:last-of-type, td:last-of-type{
+    text-align: right;
+    padding-right: 16px;
+  }
+  th:first-of-type, td:first-of-type{
+    padding-left: 16px;
+  }
+  tr.selected {
+    color: rgba(var(--table-profit-color),1);
+    background-color: rgb(var(--button-group-bg));
+  }
 }
 
 .dividends-table th {
@@ -2089,7 +2113,7 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
 .news-list-container {
   height: calc(100vh - 178px);
   overflow: auto;
-  overflow-x: hidden;
+  overflow-x: hidden;;
 }
 
 .tradeEvents-list-container {
@@ -2102,6 +2126,11 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
   height: calc(100vh - 178px);
   overflow: auto;
   overflow-x: hidden;
+}
+
+.news-list{
+  padding: 0 16px;
+  word-break: break-word;
 }
 
 .news-list p > p:not(:first-of-type) {
@@ -2152,11 +2181,16 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
 .description-container {
 
   color: rgba(var(--pro-text-01), 1);
+
+  h3 {
+    margin: 0;
+    margin-top: 16px;
+  }
 }
 
-.description-container h3 {
-  margin: 0;
-  margin-top: 16px;
+.pad-lr{
+  padding-left: 16px;
+  padding-right: 16px;
 }
 
 .ant-tabs-tab[data-node-key="null"] {
@@ -2306,16 +2340,16 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
   transition: none;
 }
 
-html {
-  height  : 100%;
-  overflow: hidden;
-  position: relative;
-}
-body {
-  height  : 100%;
-  overflow: auto;
-  position: relative;
-}
+//html {
+//  height  : 100%;
+//  overflow: hidden;
+//  position: relative;
+//}
+//body {
+//  height  : 100%;
+//  //overflow: auto;
+//  position: relative;
+//}
 
 .ant-drawer .ant-drawer-content-wrapper .drawer-slider {
   height: 20px;
@@ -2348,4 +2382,23 @@ body {
   justify-content: center;
   color: rgba(var(--pro-text-01), 1);
   background-color: rgb(var(--button-group-bg));
+}
+
+.MobileHeader{
+  position: fixed;
+  z-index: 20;
+  text-align: center;
+  width: 100%;
+  font-size: 14px !important;
+  margin: 0px;
+  margin-top: 0px !important;
+  background-color: black;
+  padding: 8px;
+  display: none;
+}
+
+.ant-drawer-extra{
+  padding: 0 16px;
+  position: absolute;
+  right: 0;
 }

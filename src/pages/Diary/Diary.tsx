@@ -60,7 +60,7 @@ import TickerImg from "../../common/TickerImg";
 import {useAppDispatch, useAppSelector} from "../../store";
 import {
     useCreateOperationMutation,
-    useGetAllSummariesQuery,
+    useGetAllSummariesQuery, useGetBCSDividendsQuery,
     useGetDescriptionQuery,
     useGetDividendsQuery,
     useGetMoneyMovesQuery,
@@ -85,6 +85,8 @@ import MobilePosition from "./components/MobilePosition";
 import MobileSearch from "./components/MobileSearch";
 import MobileSummaryCarousel from "./components/MobileSummaryCarousel";
 import MonthRender from "./components/MonthRender";
+import useScroll from "../../common/useScroll";
+import TTitle from "../../common/TTitle";
 
 interface DataType {
     key: string;
@@ -451,7 +453,34 @@ const Diary: FC<IProps> = ({
         skip: !symbol,
     });
 
-    const dividends = dividendsData || [];
+    const {data: bcsDividendsResponse} = useGetBCSDividendsQuery({
+        emitent: security?.ISIN,
+        sorting: 0,
+        order: 2,
+        limit: 50,
+        actual: 1
+    }, {
+        skip: !security?.ISIN,
+    })
+
+    const bcsDividends = useMemo(() => {
+        const divData = bcsDividendsResponse?.data?.[0];
+        if(!divData){
+            return [];
+        }
+        // return divData.previous_dividends
+        //     .map(row => ({ recordDate: row.closing_date, currency: divData.quote_currency_code, recommendDividendPerShare: row.dividend_value, dividendYield: row.yield / 100}));
+
+        return divData.history_dates
+            .map((recordDate, index) => ({recordDate, currency: divData.quote_currency_code, recommendDividendPerShare: divData.history_values[index], dividendYield: (divData.history_yields[index] || 0) / 100}))
+
+            .filter((row, index) => !!row.dividendYield)
+            // .sort((a, b) => b.date.localeCompare(a.date))
+            ;
+
+    }, [bcsDividendsResponse]);
+
+    const dividends = bcsDividends.length > 0 ? bcsDividends : dividendsData || [];
 
     const setShowOperationsModal = (drawerName: string) => (opened: boolean) => {
         if (opened) {
@@ -697,7 +726,7 @@ const Diary: FC<IProps> = ({
 
     return (
         <>
-            <Title>Дневник</Title>
+            <TTitle>Дневник</TTitle>
             <MobileSearch getIsinBySymbol={getIsinBySymbol}/>
             <MobileSummaryCarousel dateFrom={dateFrom} onChangeView={onChangeView} view={view} setShowOperationsModal={setShowOperationsModal} options={options} netProfitPercent={netProfitPercent} todayPnL={todayPnL} onChangeDate={onChangeDate} totalPnL={data.totalPnL}/>
             <InfoPanelDesktop/>
@@ -712,7 +741,7 @@ const Diary: FC<IProps> = ({
                         url: `/alor-trader-diary/#/diary?symbol=${symbol}&newsId=${selectedNews}`,
                     })} icon={<ShareAltOutlined/>}/>}
             >
-                <div className="description-container">
+                <div className="description-container pad-lr">
                     <h3>{newsMap[selectedNews]?.header}</h3>
                     <p dangerouslySetInnerHTML={{__html: newsMap[selectedNews]?.content}}/>
                 </div>
@@ -744,10 +773,12 @@ const Diary: FC<IProps> = ({
                                 from={moment().add(-8, 'hour').toISOString()}
                                 to={moment().toISOString()}
                             />
-                            <h3>О компании</h3>
-                            <p>
-                                {description?.description}
-                            </p>
+                            <div className="pad-lr">
+                                <h3>О компании</h3>
+                                <p>
+                                    {description?.description}
+                                </p>
+                            </div>
                         </div>
                         {security?.tradingStatus === 18 && <div className="btn-disabled" style={{position: 'fixed',
                             left: '16px',
@@ -762,9 +793,9 @@ const Diary: FC<IProps> = ({
                         {/*</div>*/}
                         В разработке
                     </Tabs.TabPane>
-                    {dividends.filter(d => d.dividendPerShare).length > 0 && !dividendsError &&
+                    {dividends.filter(d => d.recommendDividendPerShare).length > 0 && !dividendsError &&
                         <Tabs.TabPane tab="Дивиденды" key="dividends">
-                        <span>
+                        <span className="dividends-description">
                             Дата, по которой включительно необходимо купить акции биржевых эмитентов для получения дивидендов. Начисление дивидендов ориентировочно в течение 1-2 месяцев. По внебиржевым инструментам даты строго ориентировочны и могут отличаться в связи с спецификой расчета по таким сделкам.
                         </span>
                             <table className="dividends-table">
@@ -774,15 +805,15 @@ const Diary: FC<IProps> = ({
                                 <th>Доход</th>
                                 </thead>
                                 <tbody>
-                                {dividends.filter(d => d.dividendPerShare).sort((a, b) => b.recordDate.localeCompare(a.recordDate)).map(d =>
-                                    <tr key={d.id}>
+                                {dividends.filter(d => d.recommendDividendPerShare).sort((a, b) => b.recordDate.localeCompare(a.recordDate)).map(d =>
+                                    <tr key={d.id} className={new Date(d.recordDate) > new Date() ? `selected` : undefined}>
                                         <td>{moment(d.recordDate).format('LL')}</td>
                                         <td>{new Intl.NumberFormat('ru-RU', {
                                             minimumFractionDigits: 0,
-                                            maximumFractionDigits: 2,
+                                            maximumFractionDigits: digits,
                                             style: 'currency',
                                             currency: d.currency
-                                        }).format(d.dividendPerShare)}</td>
+                                        }).format(d.recommendDividendPerShare)}</td>
                                         <td>{numberToPercent(d.dividendYield)}%</td>
                                     </tr>)}
                                 </tbody>
@@ -819,7 +850,7 @@ const Diary: FC<IProps> = ({
                             }} height={listHeight} itemHeight={48} itemKey="id">
                                 {(dp =>
                                     <div
-                                        className="ticker-info">
+                                        className="ticker-info pad-lr">
                                         <div style={{display: 'flex'}}>
                                             <TickerImg getIsinBySymbol={getIsinBySymbol} key={dp?.symbol} symbol={dp?.symbol}/>
                                             <div className="ticker_name">
@@ -862,7 +893,7 @@ const Diary: FC<IProps> = ({
                                 }
                             }} height={listHeight} itemHeight={48} itemKey="id">
                                 {(getMaxLossTrade =>
-                                    <div className="ticker-info" key={getMaxLossTrade.id}>
+                                    <div className="ticker-info pad-lr" key={getMaxLossTrade.id}>
                                         <div style={{display: 'flex'}}>
                                             <TickerImg getIsinBySymbol={getIsinBySymbol} key={getMaxLossTrade?.symbol} symbol={getMaxLossTrade?.symbol}/>
                                             <div className="ticker_name">
@@ -895,7 +926,7 @@ const Diary: FC<IProps> = ({
                 onClose={() => setShowOperationsModal('settings')(false)}
                 open={showSettings}
             >
-                <Form layout="vertical">
+                <Form layout="vertical" className="pad-lr">
                     {!settings.lk && <FormItem label="Alor Token">
                         <Input placeholder="Token" {...settingsInputProps('token')} />
                     </FormItem>}
