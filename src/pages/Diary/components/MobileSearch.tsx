@@ -89,7 +89,7 @@ const MobileSearch = ({getIsinBySymbol}) => {
                    onFocus={onFocus} onBlur={onBlur}/>
             {value && <Button type="link" onClick={() => setValue('')}>Отменить</Button>}
         </div>
-        {itemsWithValues.length > 0 && <div className="search-result">
+        {itemsWithValues.length > 0 && value && <div className="search-result">
             {itemsWithValues.map(bwl =>
                 <div className="MobilePosition" key={bwl.value}>
                     <div className="widget">
