@@ -140,23 +140,6 @@ function App() {
         skip:  !userInfo || !settings.agreement || !settings.portfolio
     })
 
-    const {data: summary} = useGetSummaryQuery({
-        exchange: Exchange.MOEX,
-        format: 'Simple',
-        portfolio: settings.portfolio
-    }, {
-        skip: !userInfo || !settings.portfolio
-    });
-
-    const {data: _equityDynamics} = useGetEquityDynamicsQuery({
-        startDate: moment(dateFrom).add(-1, 'day').format('YYYY-MM-DD'),
-        endDate: dateTo,
-        portfolio: settings.portfolio,
-        agreementNumber: settings.agreement
-    }, {
-        skip: !userInfo || !settings.portfolio || !settings.agreement || !dateFrom || !api
-    });
-
     const trades = useMemo(() => {
         const tariffPlan = getCurrentTariffPlan(userInfo, settings.agreement, settings.portfolio);
         const dayVolumes = _trades.reduce((acc, curr) => {
@@ -290,37 +273,6 @@ function App() {
         return data;
     }, [historyPositions]);
 
-    const equityDynamics = useMemo(() => {
-        if (!summary) {
-            return {
-                portfolioValues: []
-            }
-        }
-        if (!_equityDynamics && summary) {
-            return {
-                portfolioValues: [{
-                    date: moment().format('YYYY-MM-DD'),
-                    value: summary.portfolioLiquidationValue
-                } as any]
-            };
-        }
-
-        const result = JSON.parse(JSON.stringify(_equityDynamics));
-
-        const lastValue = result.portfolioValues.slice(-1)[0];
-        // Если последнее значение есть и оно не сегодняшний день и мы запросили за текущий день тоже
-        if (lastValue && moment(lastValue.date).isBefore(moment()) && moment(dateTo).isAfter(moment())) {
-            result.portfolioValues.push({
-                date: moment().format('YYYY-MM-DDTHH:mm:ss'),
-                value: summary.portfolioLiquidationValue
-            } as any)
-        }
-
-        result.portfolioValues = result.portfolioValues.filter(p => !!p.value);
-
-        return result;
-    }, [_equityDynamics, summary]);
-
     useEffect(() => {
         localStorage.setItem('symbols', JSON.stringify(symbols));
     }, [symbols]);
@@ -341,10 +293,7 @@ function App() {
             icon: <FundOutlined/>,
             element: <Analytics getIsinBySymbol={getIsinBySymbol}
                                 getListSectionBySymbol={getListSectionBySymbol} data={data}
-                                balanceSeriesData={equityDynamics?.portfolioValues.map(v => ({
-                                    time: moment(v.date).format('YYYY-MM-DD'),
-                                    value: v.value
-                                })) || []} api={api} isLoading={isLoading} dateFrom={dateFrom}/>,
+                                isLoading={isLoading} dateTo={dateTo} dateFrom={dateFrom}/>,
         }//,
         // {
         //     key: 'orderbook',

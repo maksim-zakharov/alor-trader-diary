@@ -1,5 +1,5 @@
 import React, {FC, useEffect, useMemo, useState} from "react";
-import {AlorApi} from "alor-api";
+import {AlorApi, Exchange} from "alor-api";
 import Highcharts from "highcharts";
 import {selectOptionsMap} from "../../App";
 import ProfitIntervalWidget from "./widgets/ProfitIntervalWidget";
@@ -19,22 +19,78 @@ import Title from "antd/es/typography/Title";
 import {useAppDispatch, useAppSelector} from "../../store";
 import {updateDarkColors} from "../../api/alor.slice";
 import TTitle from "../../common/TTitle";
+import moment from "moment";
+import {useGetEquityDynamicsQuery, useGetSummaryQuery} from "../../api/alor.api";
 
 interface IProps {
-    balanceSeriesData: any
     data: any;
-    api: AlorApi;
     dateFrom: any;
+    dateTo?: string;
     isLoading: boolean;
     getListSectionBySymbol: any;
     getIsinBySymbol: any;
 }
 
-const Analytics: FC<IProps> = ({getIsinBySymbol, getListSectionBySymbol, data, api, dateFrom, isLoading, balanceSeriesData}) => {
+const Analytics: FC<IProps> = ({getIsinBySymbol, getListSectionBySymbol, data, dateTo, dateFrom, isLoading}) => {
     const [reasons, setReasons] = useState<{
         [id: string]: string
     }>(JSON.parse(localStorage.getItem('reasons') || '{}'));
-    const dispatch = useAppDispatch();
+
+    const settings = useAppSelector(state => state.alorSlice.settings);
+    const userInfo = useAppSelector(state => state.alorSlice.userInfo);
+
+    const {data: summary} = useGetSummaryQuery({
+        exchange: Exchange.MOEX,
+        format: 'Simple',
+        portfolio: settings.portfolio
+    }, {
+        skip: !userInfo || !settings.portfolio
+    });
+
+    const {data: _equityDynamics} = useGetEquityDynamicsQuery({
+        startDate: moment(dateFrom).add(-1, 'day').format('YYYY-MM-DD'),
+        endDate: dateTo,
+        portfolio: settings.portfolio,
+        agreementNumber: settings.agreement
+    }, {
+        skip: !userInfo || !settings.portfolio || !settings.agreement || !dateFrom
+    });
+
+    const equityDynamics = useMemo(() => {
+        if (!summary) {
+            return {
+                portfolioValues: []
+            }
+        }
+        if (!_equityDynamics && summary) {
+            return {
+                portfolioValues: [{
+                    date: moment().format('YYYY-MM-DD'),
+                    value: summary.portfolioLiquidationValue
+                } as any]
+            };
+        }
+
+        const result = JSON.parse(JSON.stringify(_equityDynamics));
+
+        const lastValue = result.portfolioValues.slice(-1)[0];
+        // Если последнее значение есть и оно не сегодняшний день и мы запросили за текущий день тоже
+        if (lastValue && moment(lastValue.date).isBefore(moment()) && moment(dateTo).isAfter(moment())) {
+            result.portfolioValues.push({
+                date: moment().format('YYYY-MM-DDTHH:mm:ss'),
+                value: summary.portfolioLiquidationValue
+            } as any)
+        }
+
+        result.portfolioValues = result.portfolioValues.filter(p => !!p.value);
+
+        return result;
+    }, [_equityDynamics, summary]);
+
+    const balanceSeriesData = useMemo(() => equityDynamics?.portfolioValues.map(v => ({
+        time: moment(v.date).format('YYYY-MM-DD'),
+        value: v.value
+    })) || [], []);
 
     const [nightMode] = useState(true); // Boolean(localStorage.getItem('night') === 'true'));
 
