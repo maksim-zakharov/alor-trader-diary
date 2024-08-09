@@ -3,7 +3,11 @@ import React, {FC, useMemo} from "react";
 import useScroll from "./useScroll";
 import useWindowDimensions from "./useWindowDimensions";
 
-const TTitle: FC<TitleProps> = (props) => {
+interface IProps{
+    isMobile?: boolean;
+}
+
+const TTitle: FC<TitleProps & IProps> = (props) => {
     const {isMobile} = useWindowDimensions();
     const {yOffset} = useScroll();
 
@@ -14,10 +18,11 @@ const TTitle: FC<TitleProps> = (props) => {
     const MOBILE_HEADER_HEIGHT = 54;
 
     const opacity = useMemo(() => isMobile ? (MOBILE_HEADER_HEIGHT*2 - yOffset * 2) / 100 : 1, [yOffset, isMobile]);
+    const mobileOpacity= useMemo(() => opacity < 0 ? 1 : 0, [opacity]);
 
     return <>
         <Title {...props} style={{opacity}}/>
-        <Title {...props} className="MobileHeader" style={{opacity: 0 - opacity * FIXED_HEADER_OPACITY_SPEED}}/>
+        {props.isMobile &&<Title {...props} className="MobileHeader" style={{opacity: mobileOpacity}}/>}
     </>
 }
 

@@ -1,5 +1,5 @@
-import React, {FC, useEffect, useMemo, useState} from "react";
-import {AlorApi, Exchange} from "alor-api";
+import React, {FC, useMemo, useState} from "react";
+import {Exchange} from "alor-api";
 import Highcharts from "highcharts";
 import {selectOptionsMap} from "../../App";
 import ProfitIntervalWidget from "./widgets/ProfitIntervalWidget";
@@ -15,12 +15,11 @@ import ProfitWeekdayWidget from "./widgets/ProfitWeekdayWidget";
 import LossWeekdayWidget from "./widgets/LossWeekdayWidget";
 import ProfitSectionWidget from "./widgets/ProfitSectionWidget";
 import LossSectionWidget from "./widgets/LossSectionWidget";
-import Title from "antd/es/typography/Title";
-import {useAppDispatch, useAppSelector} from "../../store";
-import {updateDarkColors} from "../../api/alor.slice";
+import {useAppSelector} from "../../store";
 import TTitle from "../../common/TTitle";
 import moment from "moment";
 import {useGetEquityDynamicsQuery, useGetSummaryQuery} from "../../api/alor.api";
+import useWindowDimensions from "../../common/useWindowDimensions";
 
 interface IProps {
     data: any;
@@ -32,6 +31,7 @@ interface IProps {
 }
 
 const Analytics: FC<IProps> = ({getIsinBySymbol, getListSectionBySymbol, data, dateTo, dateFrom, isLoading}) => {
+    const {isMobile} = useWindowDimensions();
     const [reasons, setReasons] = useState<{
         [id: string]: string
     }>(JSON.parse(localStorage.getItem('reasons') || '{}'));
@@ -164,7 +164,7 @@ const Analytics: FC<IProps> = ({getIsinBySymbol, getListSectionBySymbol, data, d
     }
 
     return <>
-        <TTitle>Аналитика</TTitle>
+        <TTitle isMobile={isMobile}>Аналитика</TTitle>
         <div><ProfitWidget isLoading={isLoading} colors={nightMode && darkColors} data={balanceSeriesDataWithoutFirst}
                            initBalance={balanceSeriesData[0]?.value || 0}/></div>
         {/*<div className="widget">*/}

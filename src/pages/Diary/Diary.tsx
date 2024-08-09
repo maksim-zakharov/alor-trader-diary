@@ -719,14 +719,14 @@ const Diary: FC<IProps> = ({
         }
     }
 
-    const tradeEvents = useMemo(() => trades.filter(s => s.symbol === symbol).sort((a, b) => a.date - b.date), [symbol, trades]);
-    const symbolPositions = useMemo(() => data.positions.filter(s => s.symbol === symbol && s.type !== 'summary').sort((a, b) => a.time - b.time), [symbol, data.positions]);
+    const tradeEvents = useMemo(() => trades.filter(s => s.symbol === symbol).sort((a, b) => b.date - a.date), [symbol, trades]);
+    const symbolPositions = useMemo(() => data.positions.filter(s => s.symbol === symbol && s.type !== 'summary').sort((a, b) => b.time - a.time), [symbol, data.positions]);
     const {height} = useWindowDimensions();
     const listHeight = useMemo(() => isMobile ? height - 186 : height - 56, [isMobile, height]);
 
     return (
         <>
-            <TTitle>Дневник</TTitle>
+            <TTitle isMobile={isMobile}>Дневник</TTitle>
             <MobileSearch getIsinBySymbol={getIsinBySymbol}/>
             <MobileSummaryCarousel dateFrom={dateFrom} onChangeView={onChangeView} view={view} setShowOperationsModal={setShowOperationsModal} options={options} netProfitPercent={netProfitPercent} todayPnL={todayPnL} onChangeDate={onChangeDate} totalPnL={data.totalPnL}/>
             <InfoPanelDesktop/>

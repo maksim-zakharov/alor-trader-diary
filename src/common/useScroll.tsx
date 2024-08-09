@@ -20,7 +20,6 @@ const useScroll = () => {
 
     useEffect(() => {
         function handleResize(e) {
-            console.log(e)
             setWindowDimensions(getWindowDimensions());
         }
 
