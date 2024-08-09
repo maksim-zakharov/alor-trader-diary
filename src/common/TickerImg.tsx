@@ -4,8 +4,8 @@ const TickerImg: FC<{symbol: string, getIsinBySymbol: any, board?: string}> = ({
 
     const key = `logoSrc-${symbol}`;
 
-    const bksUrl = `https://mybroker.storage.bcs.ru/FinInstrumentLogo/${getIsinBySymbol(symbol)}.png`
-    const tinkoffUrl = `https://invest-brands.cdn-tinkoff.ru/${board === 'TQOB' ? 'minfin' : getIsinBySymbol(symbol)}x160.png`
+    const bksUrl = `https://mybroker.storage.bcs.ru/FinInstrumentLogo/${getIsinBySymbol(symbol) || symbol}.png`
+    const tinkoffUrl = `https://invest-brands.cdn-tinkoff.ru/${board === 'TQOB' ? 'minfin' : getIsinBySymbol(symbol) || symbol}x160.png`
     const alorUrl = `https://storage.alorbroker.ru/icon/${symbol}.png`;
 
     const [logoSrc, setLogoSrc] = React.useState<string>(bksUrl);
