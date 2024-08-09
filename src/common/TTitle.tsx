@@ -22,7 +22,7 @@ const TTitle: FC<TitleProps & IProps> = (props) => {
 
     return <>
         <Title {...props} style={{opacity}}/>
-        {props.isMobile &&<Title {...props} className="MobileHeader" style={{opacity: mobileOpacity}}/>}
+        {!!props.isMobile &&<Title {...props} className="MobileHeader" style={{opacity: mobileOpacity}}/>}
     </>
 }
 
