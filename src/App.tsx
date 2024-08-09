@@ -292,7 +292,7 @@ function App() {
             key: 'what_buy',
             label: 'Что купить',
             icon: <SearchOutlined />,
-            element: <WhatBuy/>
+            element: <WhatBuy getIsinBySymbol={getIsinBySymbol}/>
         },
         {
             key: 'analytics',
