@@ -87,7 +87,7 @@ const recurcive = (selector: (api: AlorApi) => any, paramsCallback = params => p
 export interface NewsRequest {
     limit:           number;
     offset:     number;
-    sortDesc:     string;
+    sortDesc?:     'true';
     symbols?:       string;
 }
 

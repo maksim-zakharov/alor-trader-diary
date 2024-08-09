@@ -412,13 +412,16 @@ const Diary: FC<IProps> = ({
     let exchange = searchParams.get('exchange');
     let symbolTab = searchParams.get('symbolTab') || 'description';
 
-    const {data: news = []} = useGetNewsQuery({
+    const {data: newsData} = useGetNewsQuery({
         symbols: symbol,
         limit: 100,
+        sortDesc: 'true',
         offset: 0
     }, {
         skip: !symbol
     });
+
+    const news = useMemo(() => [...(newsData || [])].sort((a, b) => b.publishDate.localeCompare(a.publishDate)), [newsData]);
 
     const newsMap = useMemo(() => news.reduce((acc, curr) => ({...acc, [curr.id]: curr}), {}), [news]);
 
@@ -821,7 +824,7 @@ const Diary: FC<IProps> = ({
                         </Tabs.TabPane>}
                     {news.length > 0 && <Tabs.TabPane tab="Новости" key="news">
                         <div className="news-list-container">
-                            {news.map(n => <div className="news-list" onClick={() => selectNews(n.id)} key={n.id}>
+                            {news.sort((a, b) => b.publishDate.localeCompare(a.publishDate)).map(n => <div className="news-list" onClick={() => selectNews(n.id)} key={n.id}>
                                 <h4>{n.header}</h4>
                                 <div>{moment(n.publishDate).format('LLL')}</div>
                                 <p dangerouslySetInnerHTML={{__html: n.content}}/>
