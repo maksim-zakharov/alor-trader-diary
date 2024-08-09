@@ -18,7 +18,6 @@ const TickerImg: FC<{symbol: string, getIsinBySymbol: any, board?: string}> = ({
         setLogoSrc(src)
     }
 
-
     const shortedSymbol = useMemo(() => symbol.slice(0, 4), [symbol]);
 
     if(placeholder)

@@ -16,7 +16,7 @@ import useListSecs from "./useListSecs";
 import {initApi, setSettings, updateDarkColors} from "./api/alor.slice";
 import {useAppDispatch, useAppSelector} from "./store";
 import {MenuItemType} from "antd/es/menu/interface";
-import {FundOutlined, ProfileOutlined, DownOutlined} from "@ant-design/icons";
+import {FundOutlined, ProfileOutlined, DownOutlined, SearchOutlined} from "@ant-design/icons";
 import {
     calculateCommission, useGetAllSummariesQuery,
     useGetEquityDynamicsQuery,
@@ -32,6 +32,7 @@ import {moneyFormat} from "./common/utils";
 import ChevronBottomIcon from "./assets/chevron-bottom";
 import useWindowDimensions from "./common/useWindowDimensions";
 import useScroll from "./common/useScroll";
+import WhatBuy from "./pages/WhatBuy";
 
 export const avg = (numbers: number[]) =>
     !numbers.length ? 0 : summ(numbers) / numbers.length;
@@ -287,6 +288,12 @@ function App() {
                             dateFrom={dateFrom} dateTo={dateTo}
                             data={data} isLoading={isLoading}/>
         },
+        isMobile && {
+            key: 'what_buy',
+            label: 'Что купить',
+            icon: <SearchOutlined />,
+            element: <WhatBuy/>
+        },
         {
             key: 'analytics',
             label: 'Аналитика',
@@ -318,7 +325,7 @@ function App() {
         //         </div>
         //     ),
         // },
-    ];
+    ].filter(s => !!s);
 
     const onSelectMenu: MenuProps['onSelect'] = (e) => {
         let to = `/${e.key}`;

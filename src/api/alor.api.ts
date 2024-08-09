@@ -4,7 +4,7 @@ import {
     Currency,
     EquityDynamicsResponse,
     GetOperationsResponse,
-    MoneyMove, Portfolio,
+    MoneyMove, Portfolio, PublicOfferingResponse,
     UserInfoResponse
 } from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 import {
@@ -299,6 +299,11 @@ export const alorApi = createApi({
         getSecurityByExchangeAndSymbol: builder.query<Security, {symbol: string, exchange: string}>({
             queryFn: recurcive((api) => api.instruments.getSecurityByExchangeAndSymbol),
         } as any),
+        getPublicOffering: builder.query<PublicOfferingResponse, {
+            category: "current" | "past";
+        }>({
+            queryFn: recurcive((api) => api.clientInfo.getPublicOffering),
+        } as any),
         getHistory: builder.query<AHistory, DevHistoryParams>({
             queryFn: recurcive((api) => api.instruments.getHistory),
         } as any),
@@ -388,4 +393,4 @@ export const alorApi = createApi({
     })
 })
 
-export const {useGetUserInfoQuery, useGetBCSDividendsQuery, useGetAllSummariesQuery, useGetSecurityByExchangeAndSymbolQuery, useGetHistoryQuery, useGetDescriptionQuery, useGetNewsQuery, useGetDividendsQuery, useGetSecuritiesMutation, useGetTradesQuery, useSignOperationMutation, useGetOperationCodeMutation, useCreateOperationMutation, useGetEquityDynamicsQuery,useGetMoneyMovesQuery, useGetOperationsQuery, useGetSummaryQuery} = alorApi;
+export const {useGetUserInfoQuery, useGetPublicOfferingQuery, useGetBCSDividendsQuery, useGetAllSummariesQuery, useGetSecurityByExchangeAndSymbolQuery, useGetHistoryQuery, useGetDescriptionQuery, useGetNewsQuery, useGetDividendsQuery, useGetSecuritiesMutation, useGetTradesQuery, useSignOperationMutation, useGetOperationCodeMutation, useCreateOperationMutation, useGetEquityDynamicsQuery,useGetMoneyMovesQuery, useGetOperationsQuery, useGetSummaryQuery} = alorApi;
