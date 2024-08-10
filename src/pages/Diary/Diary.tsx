@@ -48,7 +48,7 @@ import React, {ChangeEventHandler, FC, useEffect, useMemo, useRef, useState} fro
 import {ColumnsType} from 'antd/es/table';
 import moment from 'moment/moment';
 import {selectOptions, summ} from '../../App';
-import {moneyFormat, shortNumberFormat} from '../../common/utils';
+import {moneyFormat, shortNumberFormat, virtualListStyles} from '../../common/utils';
 import {Exchange} from "alor-api";
 import dayjs from "dayjs";
 import {useSearchParams} from "react-router-dom";
@@ -834,23 +834,7 @@ const Diary: FC<IProps> = ({
                     }
                     {symbolPositions.length > 0 && <Tabs.TabPane tab="Сделки" key="positions">
                         <div className="tradeEvents-list-container">
-                            <List data={symbolPositions} styles={{
-                                verticalScrollBar: {
-                                    width: 'calc(var(--scrollbar-width) - 2px)',
-                                    height: 'var(--scrollbar-width)',
-                                    background: 'rgba(var(--scrollbars-bg-color), var(--scrollbars-bg-opacity))',
-                                    cursor: 'pointer'
-                                },
-                                verticalScrollBarThumb: {
-                                    border: '2px solid transparent',
-                                    backgroundColor: "rgba(var(--scrollbars-thumb-color), var(--scrollbars-thumb-opacity))",
-                                    backgroundClip: "padding-box",
-                                    borderRadius: "5px",
-                                    cursor: "pointer",
-                                    // -webkit-transition: "background-color .2s ease-in",
-                                    transition: "background-color .2s ease-in"
-                                }
-                            }} height={listHeight} itemHeight={48} itemKey="id">
+                            <List data={symbolPositions} styles={virtualListStyles} height={listHeight} itemHeight={48} itemKey="id">
                                 {(dp =>
                                     <div
                                         className="ticker-info pad-lr">
@@ -878,23 +862,7 @@ const Diary: FC<IProps> = ({
                     }
                     {tradeEvents.length > 0 && <Tabs.TabPane tab="События" key="tradeEvents">
                         <div className="tradeEvents-list-container">
-                            <List data={tradeEvents} styles={{
-                                verticalScrollBar: {
-                                    width: 'calc(var(--scrollbar-width) - 2px)',
-                                    height: 'var(--scrollbar-width)',
-                                    background: 'rgba(var(--scrollbars-bg-color), var(--scrollbars-bg-opacity))',
-                                    cursor: 'pointer'
-                                },
-                                verticalScrollBarThumb: {
-                                    border: '2px solid transparent',
-                                    backgroundColor: "rgba(var(--scrollbars-thumb-color), var(--scrollbars-thumb-opacity))",
-                                    backgroundClip: "padding-box",
-                                    borderRadius: "5px",
-                                    cursor: "pointer",
-                                    // -webkit-transition: "background-color .2s ease-in",
-                                    transition: "background-color .2s ease-in"
-                                }
-                            }} height={listHeight} itemHeight={48} itemKey="id">
+                            <List data={tradeEvents} styles={virtualListStyles} height={listHeight} itemHeight={48} itemKey="id">
                                 {(getMaxLossTrade =>
                                     <div className="ticker-info pad-lr" key={getMaxLossTrade.id}>
                                         <div style={{display: 'flex'}}>
