@@ -1,18 +1,17 @@
 import moment from "moment/moment";
 import {moneyFormat} from "../../../common/utils";
 import React, {useMemo} from "react";
-import {Skeleton} from "antd";
 import Spinner from "../../../common/Spinner";
 import NoResult from "../../../common/NoResult";
 import {numberToPercent} from "../../../utils";
 import TickerImg from "../../../common/TickerImg";
 import TickerItem from "../../../common/TickerItem";
+import Widget from "../../../common/Widget";
 
 const MaxProfitTradesWidget = ({nonSummaryPositions, isLoading, getIsinBySymbol}) => {
     const getMaxProfitTrades = useMemo(() => nonSummaryPositions.sort((a, b) => b.PnL - a.PnL).slice(0, 3).filter(p => p.PnL >= 0), [nonSummaryPositions])
 
-    return <div className="widget">
-        <div className="widget_header">Топ прибыльных сделок</div>
+    return <Widget title="Топ прибыльных сделок">
         {isLoading ? <Spinner/> : getMaxProfitTrades.length ? <div>
             {getMaxProfitTrades.map(getMaxProfitTrade =>
                 <TickerItem
@@ -29,7 +28,7 @@ const MaxProfitTradesWidget = ({nonSummaryPositions, isLoading, getIsinBySymbol}
                 />
             )}
         </div> : <NoResult text="Нет данных"/>}
-    </div>
+    </Widget>
 }
 
 export default MaxProfitTradesWidget;
