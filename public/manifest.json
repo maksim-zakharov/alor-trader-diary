@@ -25,7 +25,7 @@
   },
   "scope": "/",
   "handle_links": "preferred",
-  "start_url": ".",
+  "start_url": "/#/diary",
   "display": "standalone",
   "display_override": ["window-controls-overlay"],
   "theme_color": "#000000",
