@@ -40,11 +40,11 @@
   "shortcuts": [
     {
       "name": "Вывести средства",
-      "url": "/diary?drawer=payout"
+      "url": "/alor-trader-diary/#/diary?drawer=payout"
     },
     {
       "name": "Операции",
-      "url": "/diary?drawer=operations"
+      "url": "/alor-trader-diary/#/diary?drawer=operations"
     }
   ],
   "launch_handler": {
@@ -56,7 +56,7 @@
     }
   ],
   "share_target": {
-    "action": "/?share_target",
+    "action": "/alor-trader-diary/#/?share_target",
     "method": "POST",
     "enctype": "multipart/form-data",
     "params": {
