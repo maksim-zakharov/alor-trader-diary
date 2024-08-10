@@ -27,6 +27,45 @@
   "handle_links": "preferred",
   "start_url": ".",
   "display": "standalone",
+  "display_override": ["window-controls-overlay"],
   "theme_color": "#000000",
-  "background_color": "#000000"
+  "background_color": "#000000",
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "https://maksim-zakharov.github.io/alor-trader-diary/manifest.json"
+    }
+  ],
+  "capture_links": "existing_client_event",
+  "shortcuts": [
+    {
+      "name": "Вывести средства",
+      "url": "/diary?drawer=payout"
+    },
+    {
+      "name": "Операции",
+      "url": "/diary?drawer=operations"
+    }
+  ],
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+  "url_handlers": [
+    {
+      "origin": "https://maksim-zakharov.github.io/alor-trader-diary"
+    }
+  ],
+  "share_target": {
+    "action": "/?share_target",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "files": [
+        {
+          "name": "image",
+          "accept": ["image/*"]
+        }
+      ]
+    }
+  }
 }
