@@ -76,6 +76,13 @@
   }
 }
 
+
+@media only screen and (max-width: 700px) and (display-mode: standalone) {
+  .MobileFooter .ant-menu-item{
+    padding-bottom: 0;
+  }
+}
+
 @media only screen and (max-width: 700px) {
   :root {
     --pro-app-background-color: 1, 1, 1;
@@ -693,7 +700,7 @@ header {
   display: none;
   gap: 16px;
   justify-content: space-between;
-  height: 60px;
+  //height: 60px;
   position: sticky;
   bottom: 0;
   /*bottom: calc(env(safe-area-inset-bottom));*/
@@ -718,7 +725,7 @@ header {
     justify-content: center;
     align-items: center;
 
-    padding: 16px 0;
+    padding: 12px 0;
 
     font-size: 12px;
 
@@ -2471,13 +2478,5 @@ html.dark .container > div.qty.negative, html.dark .container > div.loss-or-prof
   .desc{
     margin-top: 4px;
     display: block;
-  }
-}
-
-@media (display-mode: window-controls-overlay) {
-  .header {
-    padding-right: calc(2 * env(titlebar-area-x));
-    padding-left: env(titlebar-area-x);
-    height: calc(env(titlebar-area-height) + 10px);
   }
 }
