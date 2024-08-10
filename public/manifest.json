@@ -23,9 +23,9 @@
     "scope_url_host": "maksim-zakharov.github.io",
     "scope_url_path": "/alor-trader-diary"
   },
-  "scope": "/alor-trader-diary/#",
+  "scope": "/",
   "handle_links": "preferred",
-  "start_url": "/diary",
+  "start_url": "/alor-trader-diary/#/diary",
   "display": "standalone",
   "display_override": ["window-controls-overlay"],
   "theme_color": "#000000",
