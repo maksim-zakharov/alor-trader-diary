@@ -4,7 +4,12 @@ import {
     Currency,
     EquityDynamicsResponse,
     GetOperationsResponse,
-    MoneyMove, Portfolio, PublicOfferingResponse,
+    MoneyMove,
+    Portfolio,
+    PublicOfferingByIdRequest,
+    PublicOfferingByIdResponse,
+    PublicOfferingRequest,
+    PublicOfferingResponse,
     UserInfoResponse
 } from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 import {
@@ -299,10 +304,11 @@ export const alorApi = createApi({
         getSecurityByExchangeAndSymbol: builder.query<Security, {symbol: string, exchange: string}>({
             queryFn: recurcive((api) => api.instruments.getSecurityByExchangeAndSymbol),
         } as any),
-        getPublicOffering: builder.query<PublicOfferingResponse, {
-            category: "current" | "past";
-        }>({
+        getPublicOffering: builder.query<PublicOfferingResponse, PublicOfferingRequest>({
             queryFn: recurcive((api) => api.clientInfo.getPublicOffering),
+        } as any),
+        getPublicOfferingById: builder.query<PublicOfferingByIdResponse, PublicOfferingByIdRequest>({
+            queryFn: recurcive((api) => api.clientInfo.getPublicOfferingById),
         } as any),
         getHistory: builder.query<AHistory, DevHistoryParams>({
             queryFn: recurcive((api) => api.instruments.getHistory),
@@ -393,4 +399,4 @@ export const alorApi = createApi({
     })
 })
 
-export const {useGetUserInfoQuery, useGetPublicOfferingQuery, useGetBCSDividendsQuery, useGetAllSummariesQuery, useGetSecurityByExchangeAndSymbolQuery, useGetHistoryQuery, useGetDescriptionQuery, useGetNewsQuery, useGetDividendsQuery, useGetSecuritiesMutation, useGetTradesQuery, useSignOperationMutation, useGetOperationCodeMutation, useCreateOperationMutation, useGetEquityDynamicsQuery,useGetMoneyMovesQuery, useGetOperationsQuery, useGetSummaryQuery} = alorApi;
+export const {useGetUserInfoQuery, useGetPublicOfferingByIdQuery, useGetPublicOfferingQuery, useGetBCSDividendsQuery, useGetAllSummariesQuery, useGetSecurityByExchangeAndSymbolQuery, useGetHistoryQuery, useGetDescriptionQuery, useGetNewsQuery, useGetDividendsQuery, useGetSecuritiesMutation, useGetTradesQuery, useSignOperationMutation, useGetOperationCodeMutation, useCreateOperationMutation, useGetEquityDynamicsQuery,useGetMoneyMovesQuery, useGetOperationsQuery, useGetSummaryQuery} = alorApi;
