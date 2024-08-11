@@ -10,6 +10,7 @@ import {Button} from "antd";
 import {ShareAltOutlined} from "@ant-design/icons";
 import DraggableDrawer from "../common/DraggableDrawerHOC";
 import {moneyFormat} from "../common/utils";
+import {humanize} from "../utils";
 
 const WhatBuy = ({getIsinBySymbol}) => {
     const {isMobile} = useWindowDimensions();
@@ -57,7 +58,8 @@ const WhatBuy = ({getIsinBySymbol}) => {
         <div className="pad-lr">
             <h3 style={{marginTop: 0}}>Сейчас размещаются</h3>
             <div className="ipo-container">
-                {offers.map((offer) => <div className="ipo-card" key={offer.issuer} onClick={() => onSelectOffer(offer)}>
+                {offers.map((offer) => <div className="ipo-card" key={offer.issuer}
+                                            onClick={() => onSelectOffer(offer)}>
                     <img src={`https://storage.alorbroker.ru/${offer.logo}`} alt={offer.issuer}/>
                     <div>
                         <span
@@ -86,8 +88,23 @@ const WhatBuy = ({getIsinBySymbol}) => {
                          })} icon={<ShareAltOutlined/>}/>}
         >
             <div className="description-container what-buy-container pad-lr">
-                <h2>Облигации</h2>
-                <h2>{offerById?.issuer}</h2>
+                <img src={`https://storage.alorbroker.ru/${offerById?.logo}`} alt={offerById?.issuer}/>
+
+                <div className="title">
+                    <div>Облигации</div>
+                    <div>{offerById?.issuer}</div>
+                </div>
+
+                <div className="status">
+                    <div>{new Date(offerById?.collectApplicationDateTo) > new Date() ? 'Сбор поручений' : 'Сбор закончен'}</div>
+                    <div>
+                        <div>
+                            до {moment(offerById?.collectApplicationDateTo).format('LL').split(',')[0].toLowerCase()} {moment(offerById?.collectApplicationDateTo).format('HH:mm')}
+                        </div>
+                        <span
+                            className="description-span">{humanize(moment.duration(moment(offerById?.collectApplicationDateTo).diff(moment(), 'days'), 'days'))}</span>
+                    </div>
+                </div>
 
                 <h2>{offerById?.potentialYield}%</h2>
                 <span className="description-span">Ориентировочная ставка купона</span>
@@ -95,8 +112,11 @@ const WhatBuy = ({getIsinBySymbol}) => {
                 <h2>{moneyFormat(offerById?.minParticipation, 0, 0)}</h2>
                 <span className="description-span">Минимальный размер участия</span>
 
-                <h2>{moment(offerById?.dateIssuance).format('LL, ddd').replaceAll(' г.', '')}</h2>
+                <h2>{moment(offerById?.dateIssuance).format('LL').replaceAll(' г.', '')}</h2>
                 <span className="description-span">Дата размещения</span>
+
+                <h3>О компании</h3>
+                <p dangerouslySetInnerHTML={{__html: offerById?.description}}/>
 
                 <h3>Дополнительно</h3>
                 <h4>Срок обращения</h4>
@@ -109,12 +129,14 @@ const WhatBuy = ({getIsinBySymbol}) => {
                 {/*<p></p>*/}
                 {/*<h4>Амортизация</h4>*/}
                 {/*<p></p>*/}
-                {/*<h4>Возможность отмены</h4>*/}
-                {/*<p></p>*/}
+                <h4>Возможность отмены</h4>
+                <p>До {moment(offerById?.collectApplicationDateTo).format('HH:mm')} мск {moment(offerById?.collectApplicationDateTo).format('LL').split(',')[0].toLowerCase()} поданное поручение может быть отменено. После этого времени Брокер приступает к исполнению поручения.</p>
                 <h4>Брокерская комиссия за сделку</h4>
                 <p>Брокерская комиссия за сделку составит {offerById?.transactionFee}</p>
-                <h4>Для квалифицированных инвесторов</h4>
-                <p></p>
+                {!offerById?.termsParticipation && <>
+                    <h4>Для квалифицированных инвесторов</h4>
+                    <p>Участие в размещении доступно только для квалифицированных инвесторов</p>
+                </>}
             </div>
         </DraggableDrawer>
     </>
