@@ -19,8 +19,7 @@ const ProfitWidget = ({data, isLoading, colors, initBalance}) => {
         dateTo = moment().endOf('month').add(1, 'day').format('YYYY-MM-DD');
     }
     const settings = useAppSelector(state => state.alorSlice.settings);
-    // @ts-ignore
-    const {data: userInfo} = useGetUserInfoQuery({});
+    const userInfo = useAppSelector(state => state.alorSlice.userInfo);
 
     const {data: moneyMoves = []} = useGetMoneyMovesQuery({
         agreementNumber: settings.agreement,

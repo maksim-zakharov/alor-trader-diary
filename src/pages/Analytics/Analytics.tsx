@@ -90,7 +90,7 @@ const Analytics: FC<IProps> = ({getIsinBySymbol, getListSectionBySymbol, data, d
     const balanceSeriesData = useMemo(() => equityDynamics?.portfolioValues.map(v => ({
         time: moment(v.date).format('YYYY-MM-DD'),
         value: v.value
-    })) || [], []);
+    })) || [], [equityDynamics?.portfolioValues]);
 
     const [nightMode] = useState(true); // Boolean(localStorage.getItem('night') === 'true'));
 

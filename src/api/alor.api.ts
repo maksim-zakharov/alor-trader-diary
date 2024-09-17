@@ -1,4 +1,4 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react'
 import {
     Agreement,
     Currency,
@@ -26,7 +26,7 @@ import {
 import moment from "moment";
 import {getCommissionByPlanAndTotalVolume, mutex} from "../utils";
 import {DevSecuritiesSearchParams, ExchangePortfolioSummaryParams} from "alor-api/dist/models/models";
-import {Mutex, MutexInterface} from "async-mutex";
+import {MutexInterface} from "async-mutex";
 import {acquire} from "./alor.slice";
 
 export const calculateCommission = (plan: string, totalVolume: number, commissionType: string | undefined) => {
@@ -51,7 +51,7 @@ const recurcive = (selector: (api: AlorApi) => any, paramsCallback = params => p
 
     await mutex.waitForUnlock();
 
-    if(!api) {
+    if (!api) {
         // return {} as any;
         release = await mutex.acquire();
         dispatch(acquire(release))
@@ -60,14 +60,14 @@ const recurcive = (selector: (api: AlorApi) => any, paramsCallback = params => p
     }
     try {
         const params = paramsCallback ? paramsCallback(args) : args;
-        if(Array.isArray(params)){
+        if (Array.isArray(params)) {
             // @ts-ignore
             return selector(api).apply(api, params).then(data => ({data}));
         }
         // @ts-ignore
         return selector(api).call(api, params).then(data => ({data}));
     } catch (error: any) {
-        if(error.message === 'Необходимо авторизоваться'){
+        if (error.message === 'Необходимо авторизоваться') {
             if (!mutex.isLocked()) {
                 const release = await mutex.acquire();
                 dispatch(acquire(release))
@@ -85,104 +85,105 @@ const recurcive = (selector: (api: AlorApi) => any, paramsCallback = params => p
             await mutex.waitForUnlock();
             return recurcive(selector, paramsCallback)(args, _api)
         }
-        return { error } as any
+        return {error} as any
     }
 }
 
 export interface NewsRequest {
-    limit:           number;
-    offset:     number;
-    sortDesc?:     'true';
-    symbols?:       string;
+    limit: number;
+    offset: number;
+    sortDesc?: 'true';
+    symbols?: string;
 }
 
 export interface News {
-    id:           number;
-    sourceId:     string;
-    header:       string;
-    publishDate:  Date;
-    newsType:     number;
-    content:      string;
+    id: number;
+    sourceId: string;
+    header: string;
+    publishDate: Date;
+    newsType: number;
+    content: string;
     countryCodes: string[];
-    rubricCodes:  string[];
-    symbols:      string[];
-    mt:           null;
+    rubricCodes: string[];
+    symbols: string[];
+    mt: null;
 }
+
 export interface SecurityDescription {
-    symbol:       string;
-    description:  string;
-    sector:       string;
-    isin:         string;
+    symbol: string;
+    description: string;
+    sector: string;
+    isin: string;
     baseCurrency: string;
     securityType: string;
-    lotsize:      number;
-    shortName:    string;
-    cfiCode:      string;
+    lotsize: number;
+    shortName: string;
+    cfiCode: string;
 }
 
 export interface SecurityDividend {
-    recordDate:                Date;
-    dividendPerShare:          number;
-    dividendYield:             number;
-    currency:                  Currency;
+    recordDate: Date;
+    dividendPerShare: number;
+    dividendYield: number;
+    currency: Currency;
     recommendDividendPerShare: number;
-    listDate:                  Date;
-    declaredPayDateNominee:    Date | null;
-    exDividendDate:            Date | null;
-    fixDate:                   Date | null;
+    listDate: Date;
+    declaredPayDateNominee: Date | null;
+    exDividendDate: Date | null;
+    fixDate: Date | null;
 }
 
 export interface BCSDividendsResponse {
-    data:       Datum[];
-    has_more:   boolean;
+    data: Datum[];
+    has_more: boolean;
     last_value: number;
-    total:      number;
+    total: number;
 }
 
 export interface Datum {
-    checked:                boolean;
-    history_dates:          Date[];
-    history_values:         number[];
-    history_yields:         Array<number | null>;
-    previous_dividends:     PreviousDividend[];
-    id:                     number;
-    isin_code:              string;
-    company_name:           string;
-    short_name:             string;
-    logo_url:               string;
-    logo_primary_color:     null;
-    last_buy_day:           Date;
-    closing_date:           Date;
-    dividend_value:         number;
+    checked: boolean;
+    history_dates: Date[];
+    history_values: number[];
+    history_yields: Array<number | null>;
+    previous_dividends: PreviousDividend[];
+    id: number;
+    isin_code: string;
+    company_name: string;
+    short_name: string;
+    logo_url: string;
+    logo_primary_color: null;
+    last_buy_day: Date;
+    closing_date: Date;
+    dividend_value: number;
     dividend_currency_code: string;
-    quote_currency_code:    string;
-    close_price:            number;
-    yield:                  number;
-    secure_code:            string;
-    class_code:             string;
-    year:                   number;
-    actual:                 boolean;
-    foreign_stock:          boolean;
-    ticker_id:              number;
-    sector:                 number;
-    sectorName:             null;
-    period_length:          null;
-    period_number:          number;
-    period_year:            null;
+    quote_currency_code: string;
+    close_price: number;
+    yield: number;
+    secure_code: string;
+    class_code: string;
+    year: number;
+    actual: boolean;
+    foreign_stock: boolean;
+    ticker_id: number;
+    sector: number;
+    sectorName: null;
+    period_length: null;
+    period_number: number;
+    period_year: null;
 }
 
 export interface PreviousDividend {
-    id:             number;
-    company_name:   string;
-    last_buy_day:   Date | null;
-    closing_date:   Date;
+    id: number;
+    company_name: string;
+    last_buy_day: Date | null;
+    closing_date: Date;
     dividend_value: number;
-    close_price:    number;
-    yield:          number | null;
+    close_price: number;
+    yield: number | null;
 }
 
 
-const getDescription = (api: AlorApi) => ({ticker}: {ticker: string})  => api.http
+const getDescription = (api: AlorApi) => ({ticker}: { ticker: string }) => api.http
     .get(`/instruments/v1/${ticker}/description`, {
         baseURL: "https://api.alor.ru",
     })
@@ -207,28 +208,47 @@ const getDescription = (api: AlorApi) => ({ticker}: {ticker: string})  => api.ht
 //   "mode": "cors",
 //   "credentials": "omit"
 // });
-const getBCSDividends = (api: AlorApi) => (params: {actual: number, emitent: string, limit: number, order: number, sorting: number})  => api.http
+const getBCSDividends = (api: AlorApi) => (params: {
+    actual: number,
+    emitent: string,
+    limit: number,
+    order: number,
+    sorting: number
+}) => api.http
     .get(`/divcalendar/v1/dividends`, {
         baseURL: "https://api.bcs.ru",
         params
     })
     .then((r) => r.data)
 
-const getDividends = (api: AlorApi) => ({ticker}: {ticker: string})  => api.http
+const getDividends = (api: AlorApi) => ({ticker}: { ticker: string }) => api.http
     .get(`/instruments/v1/${ticker}/stock/dividends`, {
         baseURL: "https://api.alor.ru",
     })
     .then((r) => r.data)
 
-const getNews = (api: AlorApi) => (params: NewsRequest)  => api.http
+const getNews = (api: AlorApi) => (params: NewsRequest) => api.http
     .get(`/news/news`, {
         params,
         baseURL: "https://api.alor.ru",
     })
     .then((r) => r.data)
 
-const getAllSummaries = (api: AlorApi) => async ({userInfo, ...params}: (Omit<ExchangePortfolioSummaryParams, 'portfolio'> & {userInfo: UserInfoResponse}))  => {
-    return Promise.all(userInfo.agreements.map((agreement) => agreement.portfolios.map(p => api.clientInfo.getSummary({...params, portfolio:  p.accountNumber}).then(r => ({...r, service: p.service, accountNumber: p.accountNumber, agreementNumber: agreement.agreementNumber})))).flat());
+const getAllSummaries = (api: AlorApi) => async ({
+                                                     userInfo,
+                                                     ...params
+                                                 }: (Omit<ExchangePortfolioSummaryParams, 'portfolio'> & {
+    userInfo: UserInfoResponse
+})) => {
+    return Promise.all(userInfo.agreements.map((agreement) => agreement.portfolios.map(p => api.clientInfo.getSummary({
+        ...params,
+        portfolio: p.accountNumber
+    }).then(r => ({
+        ...r,
+        service: p.service,
+        accountNumber: p.accountNumber,
+        agreementNumber: agreement.agreementNumber
+    })))).flat());
 }
 
 export const alorApi = createApi({
@@ -259,12 +279,15 @@ export const alorApi = createApi({
             agree: boolean;
             amount: number;
         }>({
-            queryFn: recurcive(api => api.clientInfo.createOperation, ({agreementNumber, ...params}) => [agreementNumber, params]),
+            queryFn: recurcive(api => api.clientInfo.createOperation, ({
+                                                                           agreementNumber,
+                                                                           ...params
+                                                                       }) => [agreementNumber, params]),
         } as any),
-        signOperation: builder.mutation<{validations: [], errorMessage: null, success: true}, any>({
+        signOperation: builder.mutation<{ validations: [], errorMessage: null, success: true }, any>({
             queryFn: recurcive(api => api.clientInfo.signOperation),
         }),
-        getOperationCode: builder.mutation<{errorMessage: null, success: true}, any>({
+        getOperationCode: builder.mutation<{ errorMessage: null, success: true }, any>({
             queryFn: recurcive(api => api.clientInfo.getOperationCode),
         }),
         getSecurities: builder.mutation<Securities, DevSecuritiesSearchParams>({
@@ -279,13 +302,19 @@ export const alorApi = createApi({
         getNews: builder.query<News[], NewsRequest>({
             queryFn: recurcive(api => getNews(api)),
         } as any),
-        getDividends: builder.query<SecurityDividend, {ticker: string}>({
+        getDividends: builder.query<SecurityDividend, { ticker: string }>({
             queryFn: recurcive(api => getDividends(api)),
         } as any),
-        getBCSDividends: builder.query<BCSDividendsResponse, {actual: number, emitent: string, limit: number, order: number, sorting: number}>({
+        getBCSDividends: builder.query<BCSDividendsResponse, {
+            actual: number,
+            emitent: string,
+            limit: number,
+            order: number,
+            sorting: number
+        }>({
             queryFn: recurcive(api => getBCSDividends(api)),
         } as any),
-        getDescription: builder.query<SecurityDescription, {ticker: string}>({
+        getDescription: builder.query<SecurityDescription, { ticker: string }>({
             queryFn: recurcive(api => getDescription(api)),
         } as any),
         getMoneyMoves: builder.query<MoneyMove[], {
@@ -293,15 +322,20 @@ export const alorApi = createApi({
             dateFrom: string,
             dateTo: string
         }>({
-            queryFn: recurcive(api => api.clientInfo.getMoneyMoves, ({agreementNumber, ...params}) => [agreementNumber, params]),
+            queryFn: recurcive(api => api.clientInfo.getMoneyMoves, ({
+                                                                         agreementNumber,
+                                                                         ...params
+                                                                     }) => [agreementNumber, params]),
         } as any),
         getSummary: builder.query<Summary, ExchangePortfolioSummaryParams>({
             queryFn: recurcive((api) => api.clientInfo.getSummary),
         } as any),
-        getAllSummaries: builder.query<(Summary & Pick<Agreement, 'agreementNumber'> & Pick<Portfolio, 'accountNumber'>)[], (Omit<ExchangePortfolioSummaryParams, 'portfolio'> & {userInfo: UserInfoResponse})>({
+        getAllSummaries: builder.query<(Summary & Pick<Agreement, 'agreementNumber'> & Pick<Portfolio, 'accountNumber'>)[], (Omit<ExchangePortfolioSummaryParams, 'portfolio'> & {
+            userInfo: UserInfoResponse
+        })>({
             queryFn: recurcive((api) => getAllSummaries(api)),
         } as any),
-        getSecurityByExchangeAndSymbol: builder.query<Security, {symbol: string, exchange: string}>({
+        getSecurityByExchangeAndSymbol: builder.query<Security, { symbol: string, exchange: string }>({
             queryFn: recurcive((api) => api.instruments.getSecurityByExchangeAndSymbol),
         } as any),
         getPublicOffering: builder.query<PublicOfferingResponse, PublicOfferingRequest>({
@@ -331,13 +365,13 @@ export const alorApi = createApi({
         }>({
             queryFn: recurcive((api) => {
                 const loadTrades = async ({
-                                        tariffPlan,
-                                        date,
-                                        dateFrom,
+                                              tariffPlan,
+                                              date,
+                                              dateFrom,
                                               dateTo,
                                               commissionType,
-                    portfolio
-                                    }: {
+                                              portfolio
+                                          }: {
                     tariffPlan?: string;
                     date?: string;
                     dateFrom?: string;
@@ -399,4 +433,24 @@ export const alorApi = createApi({
     })
 })
 
-export const {useGetUserInfoQuery, useGetPublicOfferingByIdQuery, useGetPublicOfferingQuery, useGetBCSDividendsQuery, useGetAllSummariesQuery, useGetSecurityByExchangeAndSymbolQuery, useGetHistoryQuery, useGetDescriptionQuery, useGetNewsQuery, useGetDividendsQuery, useGetSecuritiesMutation, useGetTradesQuery, useSignOperationMutation, useGetOperationCodeMutation, useCreateOperationMutation, useGetEquityDynamicsQuery,useGetMoneyMovesQuery, useGetOperationsQuery, useGetSummaryQuery} = alorApi;
+export const {
+    useGetUserInfoQuery,
+    useGetPublicOfferingByIdQuery,
+    useGetPublicOfferingQuery,
+    useGetBCSDividendsQuery,
+    useGetAllSummariesQuery,
+    useGetSecurityByExchangeAndSymbolQuery,
+    useGetHistoryQuery,
+    useGetDescriptionQuery,
+    useGetNewsQuery,
+    useGetDividendsQuery,
+    useGetSecuritiesMutation,
+    useGetTradesQuery,
+    useSignOperationMutation,
+    useGetOperationCodeMutation,
+    useCreateOperationMutation,
+    useGetEquityDynamicsQuery,
+    useGetMoneyMovesQuery,
+    useGetOperationsQuery,
+    useGetSummaryQuery
+} = alorApi;

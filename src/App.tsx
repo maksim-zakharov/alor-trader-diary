@@ -63,7 +63,6 @@ export const selectOptionsMap = selectOptions.reduce(
 
 function App() {
     const contentRef = React.createRef();
-    const api = useAppSelector(state => state.alorSlice.api);
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const location = useLocation();
@@ -85,9 +84,7 @@ function App() {
     }
 
     // @ts-ignore
-    const {refetch} = useGetUserInfoQuery({}, {
-        skip: !api
-    });
+    const {refetch} = useGetUserInfoQuery({});
 
     useEffect(() => {
         const url = new URL(document.location.href);

@@ -4,23 +4,10 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import { AnyAction } from 'redux';
 import {alorApi} from "./api/alor.api";
 import {alorSlice} from "./api/alor.slice";
-import {Mutex} from "async-mutex";
 
 export const reducers = {
     [alorApi.reducerPath]: alorApi.reducer,
-    // [bffLogoutApi.reducerPath]: bffLogoutApi.reducer,
-    // [billingApi.reducerPath]: billingApi.reducer,
-    // [dictionariesApi.reducerPath]: dictionariesApi.reducer,
-    // // [anAdsApi.reducerPath]: anAdsApi.reducer,
-    // [analyticsApi.reducerPath]: analyticsApi.reducer,
-    // [nsiApi.reducerPath]: nsiApi.reducer,
-    // // [anGoApi.reducerPath]: anGoApi.reducer,
-    // [goApi.reducerPath]: goApi.reducer,
-    // [segmentsApi.reducerPath]: segmentsApi.reducer,
-    [alorSlice.name]: alorSlice.reducer,
-    // [errorsSlice.name]: errorsSlice.reducer,
-    // // [coverageApi.reducerPath]: coverageApi.reducer
-    // ...CMSReducers,
+    [alorSlice.name]: alorSlice.reducer
 };
 
 const reducer = combineReducers(reducers);
