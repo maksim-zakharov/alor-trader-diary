@@ -27,7 +27,7 @@ import moment from "moment";
 import {getCommissionByPlanAndTotalVolume, mutex} from "../utils";
 import {DevSecuritiesSearchParams, ExchangePortfolioSummaryParams} from "alor-api/dist/models/models";
 import {MutexInterface} from "async-mutex";
-import {acquire} from "./alor.slice";
+import {acquire, logout} from "./alor.slice";
 
 export const calculateCommission = (plan: string, totalVolume: number, commissionType: string | undefined) => {
 
@@ -71,14 +71,20 @@ const recurcive = (selector: (api: AlorApi) => any, paramsCallback = params => p
             if (!mutex.isLocked()) {
                 const release = await mutex.acquire();
                 dispatch(acquire(release))
-                if (lk) {
-                    const {AccessToken} = await api.auth.refreshToken({refreshToken: token, type: 'lk'});
-                    api.accessToken = AccessToken;
-                    api.http.defaults.headers.common["Authorization"] =
-                        "Bearer " + AccessToken;
-                } else {
-                    await api.refresh();
-                    release();
+                try {
+                    if (lk) {
+                        const {AccessToken} = await api.auth.refreshToken({refreshToken: token, type: 'lk'});
+                        api.accessToken = AccessToken;
+                        api.http.defaults.headers.common["Authorization"] =
+                            "Bearer " + AccessToken;
+                    } else {
+                        await api.refresh();
+                        release();
+                    }
+                } catch (err: any) {
+                    if (err.status === 403) {
+                        dispatch(logout())
+                    }
                 }
             }
         } else {
