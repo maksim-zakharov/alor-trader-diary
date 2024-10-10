@@ -140,7 +140,8 @@ const Diary: FC<IProps> = ({
     })
 
     const {data: summary, isLoading: isSummaryLoading} = useGetSummaryQuery({
-        exchange: Exchange.MOEX,
+        // @ts-ignore
+        exchange: settings.portfolio.startsWith('E') ? 'UNITED' : Exchange.MOEX,
         format: 'Simple',
         portfolio: settings.portfolio
     }, {

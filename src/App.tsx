@@ -16,14 +16,8 @@ import useListSecs from "./useListSecs";
 import {initApi, setSettings, updateDarkColors} from "./api/alor.slice";
 import {useAppDispatch, useAppSelector} from "./store";
 import {MenuItemType} from "antd/es/menu/interface";
-import {FundOutlined, ProfileOutlined, DownOutlined, SearchOutlined} from "@ant-design/icons";
-import {
-    calculateCommission, useGetAllSummariesQuery,
-    useGetEquityDynamicsQuery,
-    useGetSummaryQuery,
-    useGetTradesQuery,
-    useGetUserInfoQuery
-} from './api/alor.api';
+import {FundOutlined, ProfileOutlined, SearchOutlined} from "@ant-design/icons";
+import {calculateCommission, useGetAllSummariesQuery, useGetTradesQuery, useGetUserInfoQuery} from './api/alor.api';
 import {getEnv, oAuth2Client} from "./api/oAuth2";
 import QuestionCircleIcon from "./assets/question-circle";
 import PortfolioIcon from './assets/portfolio';
@@ -31,7 +25,6 @@ import CheckIcon from './assets/check';
 import {moneyFormat} from "./common/utils";
 import ChevronBottomIcon from "./assets/chevron-bottom";
 import useWindowDimensions from "./common/useWindowDimensions";
-import useScroll from "./common/useScroll";
 import WhatBuy from "./pages/WhatBuy";
 
 export const avg = (numbers: number[]) =>
@@ -135,7 +128,7 @@ function App() {
         commissionType: settings.commissionType,
         portfolio: settings.portfolio
     }, {
-        skip:  !userInfo || !settings.agreement || !settings.portfolio
+        skip: !userInfo || !settings.agreement || !settings.portfolio
     })
 
     const trades = useMemo(() => {
@@ -280,7 +273,8 @@ function App() {
             key: 'diary',
             label: 'Дневник',
             icon: <ProfileOutlined/>,
-            element: <Diary trades={_trades} getIsinBySymbol={getIsinBySymbol} getListSectionBySymbol={getListSectionBySymbol}
+            element: <Diary trades={_trades} getIsinBySymbol={getIsinBySymbol}
+                            getListSectionBySymbol={getListSectionBySymbol}
                             isMobile={width < 400 ? 1 : width < 1200 ? Math.round(width / 410) : 0}
                             dateFrom={dateFrom} dateTo={dateTo}
                             data={data} isLoading={isLoading}/>
@@ -288,7 +282,7 @@ function App() {
         isMobile && {
             key: 'what_buy',
             label: 'Что купить',
-            icon: <SearchOutlined />,
+            icon: <SearchOutlined/>,
             element: <WhatBuy getIsinBySymbol={getIsinBySymbol}/>
         },
         {
@@ -358,36 +352,44 @@ function App() {
             skip: !userInfo
         });
 
-        const accountSummariesMap = useMemo(() => (summaries || []).reduce((acc, curr) => ({...acc, [curr.accountNumber]: curr}),{}), [summaries]);
+        const accountSummariesMap = useMemo(() => (summaries || []).reduce((acc, curr) => ({
+            ...acc,
+            [curr.accountNumber]: curr
+        }), {}), [summaries]);
         const agreementSummariesMap = useMemo(() => (summaries || []).reduce((acc, curr) => {
-            if(!acc[curr.agreementNumber]){
+            if (!acc[curr.agreementNumber]) {
                 acc[curr.agreementNumber] = 0;
             }
             acc[curr.agreementNumber] += curr.portfolioLiquidationValue;
             return acc;
-        },{}), [summaries]);
+        }, {}), [summaries]);
 
         const totalSum = useMemo(() => (summaries || []).reduce((acc, curr) => {
             acc += curr.portfolioLiquidationValue;
             return acc;
-        },0), [summaries]);
+        }, 0), [summaries]);
 
-        const items: MenuProps['items'] = useMemo(() => (userInfo?. agreements || []).map(agreement => ({label: <div className="portfolio-item">
+        const items: MenuProps['items'] = useMemo(() => (userInfo?.agreements || []).map(agreement => ({
+            label: <div className="portfolio-item">
                 <Space><span>Договор {agreement.cid}</span></Space>
-                <div className="portfolio-summary">
-                    <span className="portfolio-description">Всего на {agreement.portfolios.length} счетах:</span>{moneyFormat(agreementSummariesMap[agreement.agreementNumber], 0, 0)}</div>
-            </div>, type: 'group', key: agreement.agreementNumber, children: agreement.portfolios.map(portfolio => ({
+                {!agreement.isEDP && <div className="portfolio-summary">
+                    <span
+                        className="portfolio-description">Всего на {agreement.portfolios.length} счетах:</span>{moneyFormat(agreementSummariesMap[agreement.agreementNumber], 0, 0)}
+                </div>}
+            </div>, type: 'group', key: agreement.agreementNumber, children:( agreement.isEDP ? [{accountNumber: `E${agreement.agreementNumber}`, service: 'ЕДП'}] : agreement.portfolios).map(portfolio => ({
                 label: <div className="portfolio-item">
                     <Space><span>{portfolio.accountNumber} ({portfolio.service})</span><CheckIcon/></Space>
-                    <div className="portfolio-summary">{moneyFormat(accountSummariesMap[portfolio.accountNumber]?.portfolioLiquidationValue, 0, 0)}</div>
+                    <div
+                        className="portfolio-summary">{moneyFormat(accountSummariesMap[portfolio.accountNumber]?.portfolioLiquidationValue, 0, 0)}</div>
                 </div>,
                 key: `${agreement.agreementNumber}-${portfolio.accountNumber}`,
                 icon: <div className="portfolio-icon"><PortfolioIcon/></div>
-            })) })), [userInfo]);
+            }))
+        })), [userInfo]);
 
         const onSelect = ({key}) => {
             const [agreement, portfolio] = key.split('-');
-            if(agreement && portfolio){
+            if (agreement && portfolio) {
                 dispatch(setSettings(({agreement, portfolio})))
             }
         }
@@ -400,13 +402,18 @@ function App() {
                                          <span className="portfolio-description">Всего на всех счетах:</span>
                                      </div>
                                      <div className="portfolio-summary">
-                                        {moneyFormat(totalSum, 0, 0)}
+                                         {moneyFormat(totalSum, 0, 0)}
                                      </div>
                                  </div>
                                  <Divider/>
                                  {menu}
                              </>
-                         )} menu={{ selectedKeys: [`${settings.agreement}-${settings.portfolio}`], items, onSelect, selectable: true}} trigger={['click']} className="SelectAccountDropdown">
+                         )} menu={{
+            selectedKeys: [`${settings.agreement}-${settings.portfolio}`],
+            items,
+            onSelect,
+            selectable: true
+        }} trigger={['click']} className="SelectAccountDropdown">
             <a className="header-support-link" onClick={e => e.preventDefault()}>
                 <Space>
                     <strong>{settings.portfolio}</strong>

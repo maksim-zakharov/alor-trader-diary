@@ -246,7 +246,18 @@ const getAllSummaries = (api: AlorApi) => async ({
                                                  }: (Omit<ExchangePortfolioSummaryParams, 'portfolio'> & {
     userInfo: UserInfoResponse
 })) => {
-    return Promise.all(userInfo.agreements.map((agreement) => agreement.portfolios.map(p => api.clientInfo.getSummary({
+    // @ts-ignore
+    return Promise.all(userInfo.agreements.map((agreement) => agreement.isEDP ? [api.clientInfo.getSummary({
+        ...params,
+        // @ts-ignore
+        exchange: 'UNITED',
+        portfolio: `E${agreement.agreementNumber}`
+    }).then(r => ({
+        ...r,
+        service: 'ЕДП',
+        accountNumber: `E${agreement.agreementNumber}`,
+        agreementNumber: agreement.agreementNumber
+    }))] : agreement.portfolios.map(p => api.clientInfo.getSummary({
         ...params,
         portfolio: p.accountNumber
     }).then(r => ({
@@ -386,13 +397,15 @@ export const alorApi = createApi({
                     portfolio: string
                 }) => {
                     let trades: Trade[] = await api.clientInfo.getTrades({
-                        exchange: Exchange.MOEX,
+                        // @ts-ignore
+                        exchange: portfolio.startsWith('E') ? 'UNITED' : Exchange.MOEX,
                         portfolio,
                     });
 
                     if (date || dateFrom) {
                         let lastTrades = await api.clientInfo.getHistoryTrades({
-                            exchange: Exchange.MOEX,
+                            // @ts-ignore
+                            exchange: portfolio.startsWith('E') ? 'UNITED' : Exchange.MOEX,
                             portfolio,
                             dateFrom: date || dateFrom,
                         });
@@ -400,7 +413,8 @@ export const alorApi = createApi({
 
                         while (lastTrades.length > 1) {
                             lastTrades = await api.clientInfo.getHistoryTrades({
-                                exchange: Exchange.MOEX,
+                                // @ts-ignore
+                                exchange: portfolio.startsWith('E') ? 'UNITED' : Exchange.MOEX,
                                 portfolio,
                                 from: trades.slice(-1)[0].id,
                             });
