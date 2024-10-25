@@ -141,7 +141,7 @@ const Diary: FC<IProps> = ({
 
     const {data: summary, isLoading: isSummaryLoading} = useGetSummaryQuery({
         // @ts-ignore
-        exchange: settings.portfolio.startsWith('E') ? 'UNITED' : Exchange.MOEX,
+        exchange: settings.portfolio?.startsWith('E') ? 'UNITED' : Exchange.MOEX,
         format: 'Simple',
         portfolio: settings.portfolio
     }, {
@@ -284,7 +284,7 @@ const Diary: FC<IProps> = ({
                     title: 'Длительность',
                     dataIndex: 'duration',
                     key: 'duration',
-                    width: 130,
+                    width: 230,
                     align: 'center',
                     // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
                     render: (_, row) =>

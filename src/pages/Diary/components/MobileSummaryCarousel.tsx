@@ -1,5 +1,5 @@
 import {Button, Carousel, Radio, Space} from "antd";
-import React, {useEffect, useMemo, useRef} from "react";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 import Spinner from "../../../common/Spinner";
 import {moneyFormat, shortNumberFormat} from "../../../common/utils";
 import {EyeInvisibleOutlined, EyeOutlined, LogoutOutlined, SettingOutlined, SwapOutlined} from "@ant-design/icons";
@@ -22,6 +22,8 @@ const MobileSummaryCarousel = ({dateFrom, onChangeView, view, setShowOperationsM
         skip: !userInfo
     });
 
+    const [initialSlide, setInitialSlide] = useState(0);
+
     const summaryValueMap = useMemo(() => {
         if (!summaries) {
             return 0;
@@ -33,9 +35,14 @@ const MobileSummaryCarousel = ({dateFrom, onChangeView, view, setShowOperationsM
         return summaries.reduce((acc, curr) => ({...acc, [curr.accountNumber]: curr.buyingPowerAtMorning + todayPnL}), {});
     }, [summaries, settings['summaryType'], todayPnL]);
 
-    const onCarouselChange = (current) => {
+    const onCarouselChange = (current: number) => {
+        if(current === initialSlide){
+            return;
+        }
+
         const sry = summaries[current];
         if(sry){
+            setInitialSlide(current)
             dispatch(setSettings({agreement: sry.agreementNumber, portfolio: sry.accountNumber}));
         }
     }
@@ -108,7 +115,7 @@ const MobileSummaryCarousel = ({dateFrom, onChangeView, view, setShowOperationsM
                onChange={date => onChangeDate(dayjs(date.target.value, 'YYYY-MM-DD'))}/>
     </div>
 
-    return <Carousel ref={ref} afterChange={onCarouselChange} className="MobileSummaryCarousel">
+    return <Carousel ref={ref} initialSlide={initialSlide} afterChange={onCarouselChange} className="MobileSummaryCarousel">
         {summaries.map(summary =><MobileSummary summary={summary}/>)}
     </Carousel>
 }
