@@ -22,7 +22,22 @@ const MobileSummaryCarousel = ({dateFrom, onChangeView, view, setShowOperationsM
         skip: !userInfo
     });
 
-    const [initialSlide, setInitialSlide] = useState(0);
+    const [slide, setSlide] = useState(-1);
+
+    const  initialSlide = useMemo(() => {
+        if(!summaries || !summaries.length){
+            return -1;
+        }
+        const index = summaries.findIndex(p => p.agreementNumber === settings.agreement && p.accountNumber === settings.portfolio);
+        if(index === -1){
+            return 0;
+        }
+        return index;
+    }, [summaries]);
+
+    useEffect(() => {
+        setSlide(initialSlide)
+    }, [initialSlide]);
 
     const summaryValueMap = useMemo(() => {
         if (!summaries) {
@@ -36,13 +51,13 @@ const MobileSummaryCarousel = ({dateFrom, onChangeView, view, setShowOperationsM
     }, [summaries, settings['summaryType'], todayPnL]);
 
     const onCarouselChange = (current: number) => {
-        if(current === initialSlide){
+        if(current === slide){
             return;
         }
 
         const sry = summaries[current];
         if(sry){
-            setInitialSlide(current)
+            setSlide(current)
             dispatch(setSettings({agreement: sry.agreementNumber, portfolio: sry.accountNumber}));
         }
     }
@@ -115,7 +130,11 @@ const MobileSummaryCarousel = ({dateFrom, onChangeView, view, setShowOperationsM
                onChange={date => onChangeDate(dayjs(date.target.value, 'YYYY-MM-DD'))}/>
     </div>
 
-    return <Carousel ref={ref} initialSlide={initialSlide} afterChange={onCarouselChange} className="MobileSummaryCarousel">
+    if(slide === -1){
+        return null;
+    }
+
+    return <Carousel ref={ref} initialSlide={slide} afterChange={onCarouselChange} className="MobileSummaryCarousel">
         {summaries.map(summary =><MobileSummary summary={summary}/>)}
     </Carousel>
 }
