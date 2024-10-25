@@ -297,7 +297,7 @@ const {
                 const firstBuy: any = markers.find(p => p.position === 'belowBar');
                 const firstSell: any = markers.find(p => p.position === 'aboveBar');
 
-                series.createPriceLine({
+                firstBuy && series.createPriceLine({
                     price: firstBuy.value,
                     color: 'rgb(20, 131, 92)',
                     lineWidth: 1,
@@ -306,7 +306,7 @@ const {
                     // title: 'maximum price',
                 });
 
-                series.createPriceLine({
+                firstSell && series.createPriceLine({
                     price: firstSell.value,
                     color: 'rgb(157, 43, 56)',
                     lineWidth: 1,
