@@ -5,10 +5,22 @@ import moment from 'moment/moment';
 import {MoneyMovesSearch, Status} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 import {enumerateDaysBetweenDates} from "../../../utils";
 import {useAppSelector} from "../../../store";
-import {useGetMoneyMovesQuery, useGetUserInfoQuery} from "../../../api/alor.api";
+import {useGetMoneyMovesQuery, useGetSummaryQuery} from "../../../api/alor.api";
 import {useSearchParams} from "react-router-dom";
+import {Exchange} from "alor-api";
 
-const ProfitWidget = ({data, isLoading, colors, initBalance}) => {
+const ProfitWidget = ({data, isLoading, colors}) => {
+    const settings = useAppSelector(state => state.alorSlice.settings);
+    const userInfo = useAppSelector(state => state.alorSlice.userInfo);
+
+    const {data: summary} = useGetSummaryQuery({
+        exchange: Exchange.MOEX,
+        format: 'Simple',
+        portfolio: settings.portfolio
+    }, {
+        skip: !userInfo || !settings.portfolio
+    });
+
     const [searchParams, setSearchParams] = useSearchParams();
     let dateFrom = searchParams.get('dateFrom');
     if (!dateFrom) {
@@ -18,8 +30,6 @@ const ProfitWidget = ({data, isLoading, colors, initBalance}) => {
     if (!dateTo) {
         dateTo = moment().endOf('month').add(1, 'day').format('YYYY-MM-DD');
     }
-    const settings = useAppSelector(state => state.alorSlice.settings);
-    const userInfo = useAppSelector(state => state.alorSlice.userInfo);
 
     const {data: moneyMoves = []} = useGetMoneyMovesQuery({
         agreementNumber: settings.agreement,
@@ -30,15 +40,17 @@ const ProfitWidget = ({data, isLoading, colors, initBalance}) => {
         refetchOnMountOrArgChange: true
     });
 
-    const activeOperations = useAppSelector(state => state.alorSlice.activeOperations);
+    // const activeOperations = useAppSelector(state => state.alorSlice.activeOperations);
 
-    const moneyMovesMap = useMemo(() => moneyMoves.filter(mM =>  !['Комиссия брокера', "Комиссия депозитария"].includes(mM.title)).reduce((acc, curr) => {
-        if(!curr.sum){
+    const nonServiceMoneyMoves = useMemo(() => moneyMoves.filter(mM => ![MoneyMovesSearch.Commissions, MoneyMovesSearch.Taxes].includes(mM.subType)), [moneyMoves]);
+
+    const moneyMovesMap = useMemo(() => nonServiceMoneyMoves.reduce((acc, curr) => {
+        if (!curr.sum) {
             return acc;
         }
 
         const date = moment(curr.date).format('YYYY-MM-DD');
-        if(!acc[date]){
+        if (!acc[date]) {
             acc[date] = 0;
         }
 
@@ -48,54 +60,56 @@ const ProfitWidget = ({data, isLoading, colors, initBalance}) => {
         // if(curr.subType === MoneyMovesSearch.Withdraw){
         //     multi = -1;
         // }
-        if(curr.subType === MoneyMovesSearch.Input) {
+        if (curr.subType === MoneyMovesSearch.Input) {
             multi = 1;
         }
 
         // Только те движения которые исполнены
-        if(curr.status === Status.Resolved || curr.status === Status.executing){
+        if (curr.status === Status.Resolved || curr.status === Status.executing) {
             // спорно TODO
             acc[date] += curr.sum * multi;
         }
 
         return acc;
     }, {}), [moneyMoves]);
+    // console.log(moneyMovesMap)
 
-    const dayMoneyMovesMap = useMemo(() => activeOperations.reduce((acc, curr) => {
-        if(!curr.data.amount){
-            return acc;
-        }
+    // const dayMoneyMovesMap = useMemo(() => activeOperations.reduce((acc, curr) => {
+    //     if(!curr.data.amount){
+    //         return acc;
+    //     }
+    //
+    //     const date = moment(curr.date).format('YYYY-MM-DD');
+    //     if(!acc[date]){
+    //         acc[date] = 0;
+    //     }
+    //
+    //     let multi = 1;
+    //
+    //     if(curr.subType === 'money_withdrawal'){
+    //         multi = -1;
+    //     }
+    //     if(curr.subType === 'money_input') {
+    //         multi = 1;
+    //     }
+    //
+    //     // Только те движения которые исполнены
+    //     if(curr.status === Status.Resolved || curr.status === Status.executing){
+    //         // спорно TODO
+    //         acc[date] += curr.data.amount * multi;
+    //     }
+    //
+    //     return acc;
+    // }, {}), [activeOperations, moneyMovesMap]);
 
-        const date = moment(curr.date).format('YYYY-MM-DD');
-        if(!acc[date]){
-            acc[date] = 0;
-        }
-
-        let multi = 1;
-
-        if(curr.subType === 'money_withdrawal'){
-            multi = -1;
-        }
-        if(curr.subType === 'money_input') {
-            multi = 1;
-        }
-
-        // Только те движения которые исполнены
-        if(curr.status === Status.Resolved || curr.status === Status.executing){
-            // спорно TODO
-            acc[date] += curr.data.amount * multi;
-        }
-
-        return acc;
-    }, {}), [activeOperations, moneyMovesMap]);
+    const firstMoneyMovesDate = useMemo(() => (moneyMoves.length < 1 ? moment() : moment(moneyMoves.slice(-1)[0].date)).format('YYYY-MM-DD'), [moneyMoves])
 
     const test = useMemo(() => {
-        const firstDate = (moneyMoves.length < 1 ? moment() : moment(moneyMoves.slice(-1)[0].date)).format('YYYY-MM-DD');
         const lastDate = moment().format('YYYY-MM-DD')
 
-        const dates = enumerateDaysBetweenDates(firstDate, lastDate);
+        const dates = enumerateDaysBetweenDates(firstMoneyMovesDate, lastDate);
 
-        return dates.reduce((acc, curr,  i, items) => {
+        return dates.reduce((acc, curr, i, items) => {
             const prevIndex = i === 0 ? 0 : i - 1;
             const prevDate = items[prevIndex];
             const currDate = items[i];
@@ -107,55 +121,42 @@ const ProfitWidget = ({data, isLoading, colors, initBalance}) => {
             return acc;
         }, {})
 
-    }, [moneyMovesMap, moneyMoves]);
+    }, [moneyMovesMap, firstMoneyMovesDate]);
 
     const _data = useMemo(() => {
+        if (!summary?.portfolioLiquidationValue) {
+            return [];
+        }
         let result = [];
-        let lastMoneyMove = initBalance;
 
         data.forEach((d, i) => {
             // Вычитаем результат первого дня чтобы отсчет начинался с 0
-            if(i === 0){
+            if (i === 0) {
                 // lastMoneyMove += d.value;
             }
 
             // Изза багов Алора иногда бывает резкий 0 в балансе
-            if(d.value === 0){
-                if(i > 0)
-                d.value = data[i - 1].value;
-                else if(data.length > 1){
+            if (d.value === 0) {
+                if (i > 0)
+                    d.value = data[i - 1].value;
+                else if (data.length > 1) {
                     d.value = data[1].value;
                 }
             }
 
-            // if(dayMoneyMovesMap[d.time]){
-            //     // Вычитаем очередное движение средств
-            //     lastMoneyMove += dayMoneyMovesMap[d.time];
-            // }
-
-            // Баланс на конкретный день (d.time)
-            const dayEquity = d.value;
-
-            // Разница в балансе между текущим днем и самым первым (по сути задаем initBalance как точку отчета y = 0);
-            const diffInitCurrentDayEquity = dayEquity - initBalance;
-
-            const moneyMovesSumByTime = test[d.time]
-
-            const value = diffInitCurrentDayEquity; // - initBalance; //  - moneyMovesSumByTime;
-
-            result.push({...d, value: d.value - initBalance - test[d.time]});
-
-            // result.push({...d, value });
+            result.push({...d, value: d.value - test[d.time]});
         })
 
         return result;
-    }, [data, test, initBalance]);
+    }, [data, test, summary?.portfolioLiquidationValue]);
 
-    const balance = useMemo(() => data.slice(-1)[0]?.value || 0,[data]);
+    const balance = useMemo(() => data.slice(-1)[0]?.value || 0, [data]);
 
     return <div className="widget" style={{height: 460, width: '100%'}}>
         <div className="widget_header">Прибыль</div>
-        {isLoading ? <Spinner/> :<TVChart colors={colors} seriesType="baseLine" shortNumber={true} balance={balance} data={_data} formatTime="ll"/>}
+        {isLoading ? <Spinner/> :
+            <TVChart colors={colors} seriesType="baseLine" shortNumber={true} balance={balance} data={_data}
+                     formatTime="ll"/>}
     </div>
 }
 

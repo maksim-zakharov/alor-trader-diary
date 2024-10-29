@@ -165,8 +165,7 @@ const Analytics: FC<IProps> = ({getIsinBySymbol, getListSectionBySymbol, data, d
 
     return <>
         <TTitle isMobile={isMobile}>Аналитика</TTitle>
-        <div><ProfitWidget isLoading={isLoading} colors={nightMode && darkColors} data={balanceSeriesDataWithoutFirst}
-                           initBalance={balanceSeriesData[0]?.value || 0}/></div>
+        <div><ProfitWidget isLoading={isLoading} colors={nightMode && darkColors} data={balanceSeriesDataWithoutFirst}/></div>
         {/*<div className="widget">*/}
         {/*    <div className="widget_header">Reasons</div>*/}
         {/*    <HighchartsReact*/}
