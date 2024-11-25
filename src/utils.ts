@@ -55,13 +55,28 @@ const calculateCommission3 = (totalVolume: number): number => {
 
     return commission;
 }
+// Маркетинговый 10
+const calculateCommission4 = (totalVolume: number): number => {
+    let commission = 0.0004;
+    switch (true){
+        case totalVolume < 1000000: commission = 0.0004; break;
+        case totalVolume >= 1000000 && totalVolume < 25000000: commission = 0.0002; break;
+        case totalVolume >= 25000000 && totalVolume < 50000000: commission = 0.00015; break;
+        case totalVolume >= 50000000 && totalVolume < 100000000: commission = 0.0001; break;
+        case totalVolume >= 100000000: commission = 0.00008; break;
+        default: break;
+    }
+
+    return commission;
+}
 
 export const getCommissionByPlanAndTotalVolume = (plan: string, totalVolume: number, taker?: boolean) => {
     const map = {
         'Активный': calculateCommission,
         'Профессионал': calculateCommission1,
         'Ассистент': calculateCommission2,
-        'Единый': calculateCommission3
+        'Единый': calculateCommission3,
+        'Маркетинговый 10': calculateCommission4,
     }
 
     const func = map[plan] || calculateCommission;
