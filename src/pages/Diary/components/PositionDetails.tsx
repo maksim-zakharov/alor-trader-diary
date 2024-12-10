@@ -7,7 +7,8 @@ import {moneyFormat} from "../../../common/utils";
 import {useAppSelector} from "../../../store";
 import {useGetSecurityByExchangeAndSymbolQuery} from "../../../api/alor.api";
 
-const PositionDetails = ({nightMode, trades, symbol}) => {
+const PositionDetails = ({nightMode, row}) => {
+    const {trades, symbol, openDate, closeDate} = row
     const {data: security} = useGetSecurityByExchangeAndSymbolQuery({
             symbol,
             exchange: "MOEX",
@@ -24,7 +25,7 @@ const PositionDetails = ({nightMode, trades, symbol}) => {
             dataIndex: 'date',
             key: 'date',
             align: 'center',
-            render: (_, row) => moment(row.date).format('HH:mm:ss'),
+            render: (_, row) => moment(row.date).format('YYYY-MM-DD HH:mm:ss'),
         },
         {
             title: 'Направление',
@@ -71,8 +72,8 @@ const PositionDetails = ({nightMode, trades, symbol}) => {
             symbol={symbol}
             digits={digits}
             security={security}
-            from={trades[0].date}
-            to={trades.slice(-1)[0].date}
+            from={openDate}
+            to={closeDate}
         />
         <Table
             className="collapsed-row-details"

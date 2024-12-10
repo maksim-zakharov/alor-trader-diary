@@ -206,7 +206,13 @@ export const tradesToHistoryPositions = (trades: Trade[]) => {
     const batchPositions: any = [];
     const currentPositionsMap: { [symbol: string]: any } = {};
 
-    trades.map((trade) => {
+    if(!trades ||!trades.length){
+        return {positions: [], totalPnL: 0, totalFee: 0};
+    }
+
+    const sorted =trades.sort((a, b) => b.date.localeCompare(a.date))
+
+    sorted.forEach((trade) => {
         if (!trade.symbol) {
             trade.symbol = '';
         }

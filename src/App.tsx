@@ -218,9 +218,7 @@ function App() {
     const historyPositions = useMemo(() => {
         const allTrades = [...trades];
 
-        allTrades.reverse();
-
-        return tradesToHistoryPositions(allTrades as any);
+        return tradesToHistoryPositions(allTrades);
     }, [trades]);
 
     const data = useMemo(() => {
