@@ -11,13 +11,19 @@ import Diary from './pages/Diary/Diary';
 import Analytics from './pages/Analytics/Analytics';
 import LoginPage from "./pages/LoginPage/LoginPage";
 import {DefaultOptionType} from 'antd/es/select';
-import {getCurrentTariffPlan, positionsToTrades, tradesToHistoryPositions} from './utils';
+import {excludePositions, getCurrentTariffPlan, positionsToTrades, tradesToHistoryPositions} from './utils';
 import useListSecs from "./useListSecs";
 import {initApi, setSettings, updateDarkColors} from "./api/alor.slice";
 import {useAppDispatch, useAppSelector} from "./store";
 import {MenuItemType} from "antd/es/menu/interface";
 import {FundOutlined, ProfileOutlined, SearchOutlined} from "@ant-design/icons";
-import {calculateCommission, useGetAllSummariesQuery, useGetTradesQuery, useGetUserInfoQuery} from './api/alor.api';
+import {
+    calculateCommission,
+    useGetAllSummariesQuery,
+    useGetPositionsQuery,
+    useGetTradesQuery,
+    useGetUserInfoQuery
+} from './api/alor.api';
 import {getEnv, oAuth2Client} from "./api/oAuth2";
 import QuestionCircleIcon from "./assets/question-circle";
 import PortfolioIcon from './assets/portfolio';
@@ -61,8 +67,6 @@ function App() {
     const location = useLocation();
     const settings = useAppSelector(state => state.alorSlice.settings);
     const userInfo = useAppSelector(state => state.alorSlice.userInfo);
-
-    const [positions, setPositions] = useState<Positions>([]);
 
     const [searchParams, setSearchParams] = useSearchParams();
     const currentMenuSelectedKey = location.pathname?.split('/')[1] || 'diary';
@@ -120,7 +124,14 @@ function App() {
         }
     }, [userInfo, settings.token, searchParams])
 
-    const {data: _trades = [], isLoading} = useGetTradesQuery({
+    const {data: positions = []} = useGetPositionsQuery({
+exchange: Exchange.MOEX,
+        portfolio: settings.portfolio
+    }, {
+        skip: !settings.portfolio
+    })
+
+    const {data: tradesData = [], isLoading} = useGetTradesQuery({
         tariffPlan: getCurrentTariffPlan(userInfo, settings.agreement, settings.portfolio),
         date,
         dateFrom,
@@ -131,9 +142,9 @@ function App() {
         skip: !userInfo || !settings.agreement || !settings.portfolio
     })
 
-    const trades = useMemo(() => {
+    const _trades = useMemo(() => {
         const tariffPlan = getCurrentTariffPlan(userInfo, settings.agreement, settings.portfolio);
-        const dayVolumes = _trades.reduce((acc, curr) => {
+        const dayVolumes = tradesData.reduce((acc, curr) => {
             const day = moment(curr.date).format('YYYY-MM-DD');
             if (!acc[day]) {
                 acc[day] = 0;
@@ -143,12 +154,12 @@ function App() {
 
             return acc;
         }, {});
-        return _trades.map((t) => ({
+        return tradesData.map((t) => ({
             ...t,
             // @ts-ignore
             commission: calculateCommission(tariffPlan, dayVolumes[moment(t.date).format('YYYY-MM-DD')], settings.commissionType) * t.volume,
         }))
-    }, [userInfo, settings.commissionType, settings.agreement, settings.portfolio, _trades])
+    }, [userInfo, settings.commissionType, settings.agreement, settings.portfolio, tradesData])
 
     useEffect(() => {
         if (settings.token)
@@ -215,11 +226,9 @@ function App() {
     //     return tradesToHistoryPositions(allTrades);
     // }, [startedTrades, trades]);
 
-    const historyPositions = useMemo(() => {
-        const allTrades = [...trades];
+    const trades = useMemo(() => excludePositions(_trades, startedTrades), [_trades, startedTrades]);
 
-        return tradesToHistoryPositions(allTrades);
-    }, [trades]);
+    const historyPositions = useMemo(() => tradesToHistoryPositions(trades), [trades, startedTrades]);
 
     const data = useMemo(() => {
         const data = historyPositions;
@@ -271,7 +280,7 @@ function App() {
             key: 'diary',
             label: 'Дневник',
             icon: <ProfileOutlined/>,
-            element: <Diary trades={_trades} getIsinBySymbol={getIsinBySymbol}
+            element: <Diary trades={trades} getIsinBySymbol={getIsinBySymbol}
                             getListSectionBySymbol={getListSectionBySymbol}
                             isMobile={width < 400 ? 1 : width < 1200 ? Math.round(width / 410) : 0}
                             dateFrom={dateFrom} dateTo={dateTo}

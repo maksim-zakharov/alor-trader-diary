@@ -25,7 +25,11 @@ import {
 } from "alor-api";
 import moment from "moment";
 import {getCommissionByPlanAndTotalVolume, mutex} from "../utils";
-import {DevSecuritiesSearchParams, ExchangePortfolioSummaryParams} from "alor-api/dist/models/models";
+import {
+    DevGetAllPositionsParams,
+    DevSecuritiesSearchParams,
+    ExchangePortfolioSummaryParams, Positions
+} from "alor-api/dist/models/models";
 import {MutexInterface} from "async-mutex";
 import {acquire, logout} from "./alor.slice";
 
@@ -372,6 +376,9 @@ export const alorApi = createApi({
         }>({
             queryFn: recurcive((api) => api.clientInfo.getEquityDynamics),
         } as any),
+        getPositions: builder.query<Positions, DevGetAllPositionsParams>({
+            queryFn: recurcive((api) => api.clientInfo.getPositions),
+        } as any),
         getTrades: builder.query<Trades, {
             tariffPlan?: string;
             date?: string;
@@ -472,5 +479,6 @@ export const {
     useGetEquityDynamicsQuery,
     useGetMoneyMovesQuery,
     useGetOperationsQuery,
+    useGetPositionsQuery,
     useGetSummaryQuery
 } = alorApi;

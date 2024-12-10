@@ -202,17 +202,47 @@ export const isMobile = () => {
     }
 }
 
+export const excludePositions = (historyTrades: Trade[], positionsTrades: Trade[]): Trade[] => {
+    const symbolPositionMap = new Map(positionsTrades.filter(p => p.qty).map(p => [p.symbol, p]));
+
+    const sorted = historyTrades.sort((a, b) => b.date.localeCompare(a.date));
+
+    let result = [];
+
+    for (let i = 0; i < sorted.length; i++) {
+        const trade = sorted[i];
+        if(symbolPositionMap.get(trade.symbol)){
+            const qty = trade.qty - symbolPositionMap.get(trade.symbol).qty
+            if(qty === 0){
+                symbolPositionMap.delete(trade.symbol)
+            }
+            else if(qty > 0){
+                trade.qty-=qty;
+                result.push(trade);
+            } else if (qty < 0){
+                trade.qty = -qty;
+                result.push(trade);
+            }
+        } else {
+            result.push(trade);
+        }
+    }
+
+    return result;
+}
+
 export const tradesToHistoryPositions = (trades: Trade[]) => {
     const batchPositions: any = [];
     const currentPositionsMap: { [symbol: string]: any } = {};
 
-    if(!trades ||!trades.length){
+    if (!trades || !trades.length) {
         return {positions: [], totalPnL: 0, totalFee: 0};
     }
 
-    const sorted =trades.sort((a, b) => b.date.localeCompare(a.date))
+    const sorted = trades.sort((a, b) => b.date.localeCompare(a.date))
 
     sorted.forEach((trade) => {
+
         if (!trade.symbol) {
             trade.symbol = '';
         }

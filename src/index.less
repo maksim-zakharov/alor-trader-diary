@@ -223,16 +223,18 @@ body {
   }
 }
 
-.collapsed-row {
-  display: grid;
-  grid-template-columns: auto 800px;
-  gap: 8px;
+@media only screen and (min-width: 1200px) {
+  .collapsed-row {
+    display: grid;
+    grid-template-columns: auto 800px;
+    gap: 8px;
 
-  div{
-    grid-column: 1;
-  }
-  div + div{
-    grid-column: 2;
+    div{
+      grid-column: 1;
+    }
+    div + div{
+      grid-column: 2;
+    }
   }
 }
 
