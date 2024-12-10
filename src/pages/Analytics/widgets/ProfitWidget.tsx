@@ -155,7 +155,7 @@ const ProfitWidget = ({data, isLoading, colors, initBalance}) => {
 
     return <div className="widget" style={{height: 460, width: '100%'}}>
         <div className="widget_header">Прибыль</div>
-        {isLoading ? <Spinner/> :<TVChart colors={colors} seriesType="baseLine" shortNumber={true} balance={balance} data={_data} formatTime="ll"/>}
+        {isLoading ? <Spinner/> :<TVChart colors={colors} fitContent seriesType="baseLine" shortNumber={true} balance={balance} data={_data} formatTime="ll"/>}
     </div>
 }
 

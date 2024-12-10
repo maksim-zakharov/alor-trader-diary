@@ -20,10 +20,11 @@ interface IProps{
     digits?: number
     balance?: number
     shortNumber?: boolean;
+    fitContent?: boolean;
     lotSize?: number
 }
 
-const TVChart: FC<IProps> = ({lotSize, balance, colors, seriesType, shortNumber, digits, data, markers, formatTime}) => {
+const TVChart: FC<IProps> = ({fitContent, lotSize, balance, colors, seriesType, shortNumber, digits, data, markers, formatTime}) => {
 const {
         backgroundColor = 'white', // 'rgb(30,44,57)
         color = 'black', // 'rgb(166,189,213)'
@@ -103,7 +104,7 @@ const {
                 width: chartContainerRef!.current.clientWidth,
                 height: 400,
             });
-            // chart.timeScale(); // .fitContent();
+            fitContent && chart.timeScale().fitContent();
 
             let series;
 
@@ -350,7 +351,7 @@ const {
                 chart.remove();
             };
         },
-        [data, backgroundColor, color, chartContainerRef.current, markers, seriesType, digits]
+        [data, fitContent, backgroundColor, color, chartContainerRef.current, markers, seriesType, digits]
     );
 
     return <div
