@@ -71,7 +71,7 @@ const Chart: FC<IProps> = ({security, symbol, digits, from, to, trades, colors =
         exchange: "MOEX",
         // @ts-ignore
         tf: currentTimeframe,
-        from: fromTo('-0.5d', fromDate).from,
+        from: fromTo('-0.2d', fromDate).from,
         to: fromTo('0.5d', toDate).to,
     });
 
