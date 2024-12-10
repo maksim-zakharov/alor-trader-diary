@@ -48,6 +48,7 @@ const Chart: FC<IProps> = ({security, symbol, digits, from, to, trades, colors =
         return timeToLocal(roundedTime) as UTCTimestamp
     }
 
+
     const fromDate = useMemo(() => new Date(from), [from]);
     const toDate = useMemo(() => new Date(to), [to]);
 

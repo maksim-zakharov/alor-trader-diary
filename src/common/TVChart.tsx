@@ -103,7 +103,7 @@ const {
                 width: chartContainerRef!.current.clientWidth,
                 height: 400,
             });
-            chart.timeScale().fitContent();
+            // chart.timeScale(); // .fitContent();
 
             let series;
 

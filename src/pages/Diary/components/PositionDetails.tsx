@@ -77,7 +77,6 @@ const PositionDetails = ({nightMode, row}) => {
         />
         <Table
             className="collapsed-row-details"
-            style={{gridColumnStart: 1, gridColumnEnd: 3}}
             columns={columns}
             dataSource={trades.sort((a: any, b: any) =>
                 a.date.localeCompare(b.date),

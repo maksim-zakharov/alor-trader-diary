@@ -224,9 +224,16 @@ body {
 }
 
 .collapsed-row {
-  /*display: grid;*/
-  /*grid-template-columns: 400px auto;*/
+  display: grid;
+  grid-template-columns: auto 800px;
   gap: 8px;
+
+  div{
+    grid-column: 1;
+  }
+  div + div{
+    grid-column: 2;
+  }
 }
 
 .collapsed-row-details {
