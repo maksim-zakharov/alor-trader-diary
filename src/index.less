@@ -703,6 +703,7 @@ header {
 }
 
 .MobileFooter {
+  height: calc(56px + env(safe-area-inset-bottom));
   z-index: 20;
   box-sizing: content-box;
   display: none;
@@ -716,7 +717,7 @@ header {
   color: rgba(var(--pro-input-color), 1);
   border-top: 1px solid rgba(var(--pro-divider-bg), 0.2);
   padding: 0 16px;
-  padding-bottom: calc(env(safe-area-inset-bottom) - 4px);
+  //padding-bottom: calc(env(safe-area-inset-bottom) - 4px);
 
   .ant-menu {
     gap: 16px;
