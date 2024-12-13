@@ -5,7 +5,7 @@ import moment from 'moment/moment';
 import {MoneyMovesSearch, Status} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 import {enumerateDaysBetweenDates} from "../../../utils";
 import {useAppSelector} from "../../../store";
-import {useGetMoneyMovesQuery, useGetUserInfoQuery} from "../../../api/alor.api";
+import {useGetMoneyMovesQuery} from "../../../api/alor.api";
 import {useSearchParams} from "react-router-dom";
 
 const ProfitWidget = ({data, isLoading, colors, initBalance}) => {
@@ -44,10 +44,9 @@ const ProfitWidget = ({data, isLoading, colors, initBalance}) => {
 
         let multi = 1;
 
-        // @ts-ignore
-        // if(curr.subType === MoneyMovesSearch.Withdraw){
-        //     multi = -1;
-        // }
+        if(curr.subType === MoneyMovesSearch.Transfer && curr.accountTo !== settings.portfolio){
+            multi = -1;
+        }
         if(curr.subType === MoneyMovesSearch.Input) {
             multi = 1;
         }
@@ -59,7 +58,7 @@ const ProfitWidget = ({data, isLoading, colors, initBalance}) => {
         }
 
         return acc;
-    }, {}), [moneyMoves]);
+    }, {}), [moneyMoves, settings.portfolio]);
 
     const dayMoneyMovesMap = useMemo(() => activeOperations.reduce((acc, curr) => {
         if(!curr.data.amount){
