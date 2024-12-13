@@ -202,10 +202,25 @@ export const isMobile = () => {
     }
 }
 
+export const flatTradesByOrderNo = (trades: (Trade | any)[]) => Object.values<Trade>(trades.reduce((acc, curr) => {
+    if(!acc[curr.orderno]){
+        acc[curr.orderno] = curr;
+    } else {
+        acc[curr.orderno].volume += curr.volume;
+        acc[curr.orderno].commission += curr.commission;
+        acc[curr.orderno].qty += curr.qty;
+        acc[curr.orderno].qtyBatch += curr.qtyBatch;
+        acc[curr.orderno].qtyUnits += curr.qtyUnits;
+    }
+
+    return acc;
+}, {}));
+
 export const excludePositions = (historyTrades: Trade[], positionsTrades: Trade[]): Trade[] => {
     const symbolPositionMap = new Map(positionsTrades.filter(p => p.qty).map(p => [p.symbol, p]));
 
-    const sorted = historyTrades.sort((a, b) => b.date.localeCompare(a.date));
+    const flatTrades = flatTradesByOrderNo(historyTrades);
+    const sorted = flatTrades.sort((a, b) => b.date.localeCompare(a.date));
 
     let result = [];
 
