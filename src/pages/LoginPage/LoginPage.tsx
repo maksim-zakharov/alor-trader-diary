@@ -16,12 +16,14 @@ import ASelect from "../../common/Select";
 const LoginPage = () => {
     const api = useAppSelector(state => state.alorSlice.api);
     const userInfo = useAppSelector(state => state.alorSlice.userInfo);
+    const settings = useAppSelector(state => state.alorSlice.settings);
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     // @ts-ignore
-    const {refetch} = useGetUserInfoQuery({}, {skip: !api});
+    const {refetch} = useGetUserInfoQuery({}, {skip: !settings.token || !api, refetchOnMountOrArgChange: true});
     const [token, setToken] = React.useState<string | null>(null);
     const [error, setError] = useState();
+    console.log(settings.token, api)
 
     const [loading, setLoading] = useState(false);
 
@@ -146,7 +148,7 @@ const LoginPage = () => {
                                                 password: e.target.value
                                             }))}/>
                         </FormItem>
-                        <Button onClick={checkToken} type="primary" htmlType="submit" disabled={!login || !password}
+                        <Button onClick={checkToken} type="primary" htmlType="submit"
                                 loading={loading}>Войти</Button>
                     </>}
                     <FormItem label="Или войти через">

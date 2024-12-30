@@ -83,8 +83,9 @@ const recurcive = (selector: (api: AlorApi) => any, paramsCallback = params => p
                             "Bearer " + AccessToken;
                     } else {
                         await api.refresh();
-                        release();
                     }
+                    dispatch(acquire(release))
+                    return recurcive(selector, paramsCallback)(args, _api)
                 } catch (err: any) {
                     if (err.status === 403) {
                         dispatch(logout())

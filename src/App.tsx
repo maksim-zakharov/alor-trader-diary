@@ -65,8 +65,9 @@ function App() {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const location = useLocation();
-    const settings = useAppSelector(state => state.alorSlice.settings);
+    const api = useAppSelector(state => state.alorSlice.api);
     const userInfo = useAppSelector(state => state.alorSlice.userInfo);
+    const settings = useAppSelector(state => state.alorSlice.settings);
 
     const [searchParams, setSearchParams] = useSearchParams();
     const currentMenuSelectedKey = location.pathname?.split('/')[1] || 'diary';
@@ -81,7 +82,7 @@ function App() {
     }
 
     // @ts-ignore
-    const {refetch} = useGetUserInfoQuery({});
+    const {refetch} = useGetUserInfoQuery({}, {skip: !settings.token || !api});
 
     useEffect(() => {
         const url = new URL(document.location.href);
@@ -95,7 +96,7 @@ function App() {
             }).then(({accessToken, refreshToken}) => {
                 dispatch(initApi({token: refreshToken, accessToken: accessToken}))
                 dispatch(setSettings(({token: refreshToken})));
-                setTimeout(() => refetch());
+                // setTimeout(() => refetch());
             })
         }
     }, [document.location.href])
@@ -125,7 +126,7 @@ function App() {
     }, [userInfo, settings.token, searchParams])
 
     const {data: positions = []} = useGetPositionsQuery({
-exchange: Exchange.MOEX,
+        exchange: Exchange.MOEX,
         portfolio: settings.portfolio
     }, {
         skip: !settings.portfolio
@@ -383,7 +384,13 @@ exchange: Exchange.MOEX,
                     <span
                         className="portfolio-description">Всего на {agreement.portfolios.length} счетах:</span>{moneyFormat(agreementSummariesMap[agreement.agreementNumber], 0, 0)}
                 </div>}
-            </div>, type: 'group', key: agreement.agreementNumber, children:( agreement.isEDP ? [{accountNumber: `E${agreement.agreementNumber}`, service: 'ЕДП'}] : agreement.portfolios).map(portfolio => ({
+            </div>,
+            type: 'group',
+            key: agreement.agreementNumber,
+            children: (agreement.isEDP ? [{
+                accountNumber: `E${agreement.agreementNumber}`,
+                service: 'ЕДП'
+            }] : agreement.portfolios).map(portfolio => ({
                 label: <div className="portfolio-item">
                     <Space><span>{portfolio.accountNumber} ({portfolio.service})</span><CheckIcon/></Space>
                     <div
