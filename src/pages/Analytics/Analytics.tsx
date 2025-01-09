@@ -18,7 +18,7 @@ import LossSectionWidget from "./widgets/LossSectionWidget";
 import {useAppSelector} from "../../store";
 import TTitle from "../../common/TTitle";
 import moment from "moment";
-import {useGetEquityDynamicsQuery, useGetSummaryQuery} from "../../api/alor.api";
+import {useGetEquityDynamicsQuery, useGetOperationsQuery, useGetSummaryQuery} from "../../api/alor.api";
 import useWindowDimensions from "../../common/useWindowDimensions";
 
 interface IProps {

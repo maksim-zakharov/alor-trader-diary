@@ -4,6 +4,8 @@ import React, {useMemo} from "react";
 import {durationLabels} from "../../../utils";
 import Spinner from "../../../common/Spinner";
 import NoResult from "../../../common/NoResult";
+import {useGetOperationsQuery} from "../../../api/alor.api";
+import {useAppSelector} from "../../../store";
 
 const ProfitIntervalWidget = ({nonSummaryPositions, isLoading}) => {
     const profitPositions =  useMemo(() => nonSummaryPositions.filter(p => p.PnL > 0), [nonSummaryPositions]);

@@ -5,7 +5,7 @@ import moment from 'moment/moment';
 import {MoneyMovesSearch, Status} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 import {enumerateDaysBetweenDates} from "../../../utils";
 import {useAppSelector} from "../../../store";
-import {useGetMoneyMovesQuery} from "../../../api/alor.api";
+import {useGetMoneyMovesQuery, useGetOperationsQuery} from "../../../api/alor.api";
 import {useSearchParams} from "react-router-dom";
 
 const ProfitWidget = ({data, isLoading, colors, initBalance}) => {
@@ -21,6 +21,23 @@ const ProfitWidget = ({data, isLoading, colors, initBalance}) => {
     const settings = useAppSelector(state => state.alorSlice.settings);
     const userInfo = useAppSelector(state => state.alorSlice.userInfo);
 
+    const {data: operations = []} = useGetOperationsQuery(settings.agreement, {
+        skip: !userInfo || !settings.agreement
+    });
+
+    const withdrawalMap = useMemo(() => operations.filter(curr => curr.data?.amount && curr.status !== 'refused').reduce((acc, curr) => {
+        const date = moment(curr.date).format('YYYY-MM-DD');
+        if(!acc[date]){
+            acc[date] = 0;
+        }
+
+        if(curr.subType === 'money_withdrawal'){
+            acc[date] -= curr.data?.amount
+        }
+
+        return acc;
+    }, {}),[operations]);
+
     const {data: moneyMoves = []} = useGetMoneyMovesQuery({
         agreementNumber: settings.agreement,
         dateFrom,
@@ -30,9 +47,7 @@ const ProfitWidget = ({data, isLoading, colors, initBalance}) => {
         refetchOnMountOrArgChange: true
     });
 
-    const activeOperations = useAppSelector(state => state.alorSlice.activeOperations);
-
-    const moneyMovesMap = useMemo(() => moneyMoves.filter(mM =>  !['Комиссия брокера', "Комиссия депозитария"].includes(mM.title)).reduce((acc, curr) => {
+    const moneyMovesMap = useMemo(() => moneyMoves.filter(mM =>  !['Комиссия брокера', "Комиссия депозитария", "Вывод денежных средств"].includes(mM.title)).reduce((acc, curr) => {
         if(!curr.sum){
             return acc;
         }
@@ -60,34 +75,6 @@ const ProfitWidget = ({data, isLoading, colors, initBalance}) => {
         return acc;
     }, {}), [moneyMoves, settings.portfolio]);
 
-    const dayMoneyMovesMap = useMemo(() => activeOperations.reduce((acc, curr) => {
-        if(!curr.data.amount){
-            return acc;
-        }
-
-        const date = moment(curr.date).format('YYYY-MM-DD');
-        if(!acc[date]){
-            acc[date] = 0;
-        }
-
-        let multi = 1;
-
-        if(curr.subType === 'money_withdrawal'){
-            multi = -1;
-        }
-        if(curr.subType === 'money_input') {
-            multi = 1;
-        }
-
-        // Только те движения которые исполнены
-        if(curr.status === Status.Resolved || curr.status === Status.executing){
-            // спорно TODO
-            acc[date] += curr.data.amount * multi;
-        }
-
-        return acc;
-    }, {}), [activeOperations, moneyMovesMap]);
-
     const test = useMemo(() => {
         const firstDate = (moneyMoves.length < 1 ? moment() : moment(moneyMoves.slice(-1)[0].date)).format('YYYY-MM-DD');
         const lastDate = moment().format('YYYY-MM-DD')
@@ -100,13 +87,14 @@ const ProfitWidget = ({data, isLoading, colors, initBalance}) => {
             const currDate = items[i];
             const prevValue = i === 0 ? 0 : (acc[prevDate] || 0)
             const currValue = (moneyMovesMap[currDate] || 0);
+            const currOperationValue = (withdrawalMap[currDate] || 0);
 
-            acc[curr] = prevValue + currValue;
+            acc[curr] = prevValue + currValue + currOperationValue;
 
             return acc;
         }, {})
 
-    }, [moneyMovesMap, moneyMoves]);
+    }, [moneyMovesMap, moneyMoves, withdrawalMap]);
 
     const _data = useMemo(() => {
         let result = [];

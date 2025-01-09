@@ -15,10 +15,11 @@ import TickerItem from "../../../common/TickerItem";
 
 const OperationsDrawer = ({onClose, isOpened}) => {
     const {height, width, isMobile} = useWindowDimensions();
-
+    const settings = useAppSelector(state => state.alorSlice.settings);
     const userInfo = useAppSelector(state => state.alorSlice.userInfo);
-    const {data: operations = []} = useGetOperationsQuery(userInfo?.agreements[0]?.agreementNumber, {
-        skip: !userInfo
+
+    const {data: operations = []} = useGetOperationsQuery(settings.agreement, {
+        skip: !userInfo || !settings.agreement
     });
 
     const listHeight = useMemo(() => isMobile ? height - 106 : height - 56, [isMobile, height]);
