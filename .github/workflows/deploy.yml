@@ -2,52 +2,82 @@ name: Deploy static content to Pages
 
 on:
   push:
-    branches: ['master']
+    branches: ['main']
   workflow_dispatch:
 
-# Sets the GITHUB_TOKEN permissions to allow deployment to GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Allow one concurrent deployment
 concurrency:
   group: 'pages'
   cancel-in-progress: true
 
-
-# 👇 global env
-env:
-  SSO_CLIENT_ID: ${{ secrets.SSO_CLIENT_ID }}
-  SSO_CLIENT_SECRET: ${{ secrets.SSO_CLIENT_SECRET }}
-
 jobs:
-  # Single deploy job since we're just deploying
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      cache-hit: ${{ steps.cache.outputs.cache-hit }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get Node.js version
+        id: node-version
+        run: echo "node_version=$(node -v | cut -d'v' -f2)" >> $GITHUB_OUTPUT
+
+      - name: Cache node_modules
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            **/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}-${{ steps.node-version.outputs.node_version }}
+          restore-keys: |
+            ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}-
+            ${{ runner.os }}-node-
+
+  build:
+    needs: [prepare, test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Restore node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            **/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}-${{ needs.prepare.outputs.node_version }}
+
+      - name: Install dependencies (if cache missed)
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/
+
   deploy:
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Set up Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: 'npm'
-      - name: Install dependencies
-        run: npm ci -f
-      - name: Build
-        run: npm run build:ci
-      - name: Setup Pages
-        uses: actions/configure-pages@v3
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
-        with:
-          # Upload dist repository
-          path: './dist'
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4
