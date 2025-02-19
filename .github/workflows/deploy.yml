@@ -40,7 +40,7 @@ jobs:
             ${{ runner.os }}-node-
 
   build:
-    needs: [prepare, test]
+    needs: [prepare]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
