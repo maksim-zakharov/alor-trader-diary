@@ -218,7 +218,7 @@ const Diary: FC<IProps> = ({
 
     const renderVolume = (row) => {
         if (row.type === 'summary') {
-            return;
+            return shortNumberFormat(row.volume, 0, 2);
         }
 
         const changeVolumeView = () => {
@@ -331,17 +331,18 @@ const Diary: FC<IProps> = ({
                         ) : (
                             <strong>{moneyFormat(_)}</strong>
                         ),
-                    // onCell: (_, index) => ({
-                    //     colSpan: index === 1 ? 4 : 1,
-                    // }),
                 },
                 {
                     title: 'Объем',
                     dataIndex: 'volume',
                     key: 'volume',
                     align: 'center',
-                    // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
-                    render: (_, row: any, index) => renderVolume(row),
+                    render: (_, row: any) =>
+                        row.type !== 'summary' ? (
+                            renderVolume(row)
+                        ) : (
+                            <strong>{renderVolume(row)}</strong>
+                        ),
                 },
                 {
                     title: 'Комиссия',

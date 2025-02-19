@@ -257,6 +257,7 @@ function App() {
                         type: 'summary',
                         Fee: summ(currentDayPositions.map((p) => p.Fee)),
                         PnL: summ(currentDayPositions.map((p) => p.PnL)),
+                        volume: summ(currentDayPositions.map((p) => p.volume)),
                         openDate: currentDay
                     },
                 ];
