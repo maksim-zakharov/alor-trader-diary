@@ -1,40 +1,25 @@
 import {
     Button,
-    Card, Carousel,
-    Col,
     DatePicker,
     DatePickerProps,
-    Descriptions,
     Divider,
     Form,
     Input,
     message,
-    Popconfirm,
     Radio,
-    Result,
-    Row,
     SelectProps,
-    Space,
     Statistic,
     Table,
     Tabs,
-    Tag,
     Timeline,
-    Typography,
+
 } from 'antd';
 import {
     AppstoreOutlined,
     ArrowDownOutlined,
-    ArrowUpOutlined, ClockCircleOutlined,
-    DeleteOutlined,
-    EditOutlined,
-    EyeInvisibleOutlined,
-    EyeOutlined,
-    LogoutOutlined,
+    ArrowUpOutlined, LogoutOutlined,
     MoonOutlined,
-    ReloadOutlined,
     RetweetOutlined,
-    SearchOutlined,
     SettingOutlined,
     ShareAltOutlined,
     SunOutlined,
@@ -44,7 +29,7 @@ import {
 import List from 'rc-virtual-list';
 
 import FormItem from 'antd/es/form/FormItem';
-import React, {ChangeEventHandler, FC, useEffect, useMemo, useRef, useState} from 'react';
+import React, {ChangeEventHandler, FC, useEffect, useMemo, useState} from 'react';
 import {ColumnsType} from 'antd/es/table';
 import moment from 'moment/moment';
 import {selectOptions, summ} from '../../App';
@@ -59,16 +44,13 @@ import NoResult from "../../common/NoResult";
 import TickerImg from "../../common/TickerImg";
 import {useAppDispatch, useAppSelector} from "../../store";
 import {
-    useCreateOperationMutation,
-    useGetAllSummariesQuery, useGetBCSDividendsQuery,
+    useGetBCSDividendsQuery,
     useGetDescriptionQuery,
     useGetDividendsQuery,
     useGetMoneyMovesQuery,
     useGetNewsQuery,
-    useGetOperationCodeMutation,
-    useGetSecuritiesMutation, useGetSecurityByExchangeAndSymbolQuery,
-    useGetSummaryQuery,
-    useSignOperationMutation
+    useGetSecurityByExchangeAndSymbolQuery,
+    useGetSummaryQuery
 } from "../../api/alor.api";
 import {logout, selectCurrentPortfolio, setSettings} from "../../api/alor.slice";
 import Spinner from "../../common/Spinner";
