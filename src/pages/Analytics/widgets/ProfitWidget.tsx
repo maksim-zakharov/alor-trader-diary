@@ -47,7 +47,7 @@ const ProfitWidget = ({data, isLoading, colors, initBalance}) => {
         refetchOnMountOrArgChange: true
     });
 
-    const moneyMovesMap = useMemo(() => moneyMoves.filter(mM =>  !['Комиссия брокера', "Комиссия депозитария", "Вывод денежных средств"].includes(mM.title)).reduce((acc, curr) => {
+    const moneyMovesMap = useMemo(() => moneyMoves.filter(mM =>  !['Комиссия брокера', "Комиссия депозитария"].includes(mM.title)).reduce((acc, curr) => {
         if(!curr.sum){
             return acc;
         }
@@ -87,14 +87,13 @@ const ProfitWidget = ({data, isLoading, colors, initBalance}) => {
             const currDate = items[i];
             const prevValue = i === 0 ? 0 : (acc[prevDate] || 0)
             const currValue = (moneyMovesMap[currDate] || 0);
-            const currOperationValue = (withdrawalMap[currDate] || 0);
 
-            acc[curr] = prevValue + currValue + currOperationValue;
+            acc[curr] = prevValue + currValue;
 
             return acc;
         }, {})
 
-    }, [moneyMovesMap, moneyMoves, withdrawalMap]);
+    }, [moneyMovesMap, moneyMoves]);
 
     const _data = useMemo(() => {
         let result = [];
