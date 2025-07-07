@@ -33,15 +33,15 @@ import {
 import {MutexInterface} from "async-mutex";
 import {acquire, logout} from "./alor.slice";
 
-export const calculateCommission = (plan: string, totalVolume: number, commissionType: string | undefined) => {
+export const calculateCommission = (plan: string, totalVolume: number, t: Trade, commissionType: string | undefined) => {
 
     switch (commissionType) {
         case 'tariff':
-            return getCommissionByPlanAndTotalVolume(plan, totalVolume);
+            return getCommissionByPlanAndTotalVolume(plan, totalVolume, t);
         case 'taker':
-            return getCommissionByPlanAndTotalVolume(plan, totalVolume, true);
+            return getCommissionByPlanAndTotalVolume(plan, totalVolume, t, true);
         case undefined:
-            return getCommissionByPlanAndTotalVolume(plan, totalVolume);
+            return getCommissionByPlanAndTotalVolume(plan, totalVolume, t);
         default:
             return Number(commissionType) || 0;
     }
@@ -448,7 +448,7 @@ export const alorApi = createApi({
                         trades = trades.map((t) => ({
                             ...t,
                             // @ts-ignore
-                            commission: calculateCommission(tariffPlan, dayVolumes[moment(t.date).format('YYYY-MM-DD')], commissionType) * t.volume,
+                            commission: calculateCommission(tariffPlan, dayVolumes[moment(t.date).format('YYYY-MM-DD')], t, commissionType) * t.volume,
                         }));
                     }
 

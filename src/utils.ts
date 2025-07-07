@@ -70,7 +70,21 @@ const calculateCommission4 = (totalVolume: number): number => {
     return commission;
 }
 
-export const getCommissionByPlanAndTotalVolume = (plan: string, totalVolume: number, taker?: boolean) => {
+// 'Срочный рынок.Маркетинговый 10'
+const calculateCommissionFut1 = (totalVolume: number): number => {
+    let commission = 0.0001980;
+    switch (true){
+        case totalVolume < 10_000_000: commission = 0.0001980 * 1.5; break;
+        case totalVolume >= 10_000_001 && totalVolume < 25_000_000: commission = 0.0001980 * 1.4; break;
+        case totalVolume >= 25_000_001 && totalVolume < 50_000_000: commission = 0.0001980 * 1.3; break;
+        case totalVolume >= 50_000_001: commission = 0.0001980 * 1.25; break;
+        default: break;
+    }
+
+    return commission;
+}
+
+export const getCommissionByPlanAndTotalVolume = (plan: string, totalVolume: number, t: Trade, taker?: boolean) => {
     const map = {
         'Активный': calculateCommission,
         'Профессионал': calculateCommission1,
@@ -79,7 +93,20 @@ export const getCommissionByPlanAndTotalVolume = (plan: string, totalVolume: num
         'Маркетинговый 10': calculateCommission4,
     }
 
-    const func = map[plan] || calculateCommission;
+    const map2 = {
+        // 'Инвестиционный советник': calculateCommission,
+        // 'Ассистент PRO': calculateCommission,
+        // 'Ассистент': calculateCommission1,
+        // 'Срочный рынок. Стандарт': calculateCommission2,
+        // 'Срочный': calculateCommission3,
+        'Срочный рынок.Маркетинговый 10': calculateCommissionFut1,
+    }
+
+    let func = map[plan] || calculateCommission;
+
+    if(t.board === 'RFUD'){
+        func = map2[plan] || calculateCommission;
+    }
 
     let commission = func(totalVolume);
 

@@ -33,7 +33,7 @@ export default ({ mode }) => {
             open: true,
             host: true,
             // this sets a default port to 3000
-            port: 3000,
+            port: 4002,
         },
     })
 }
