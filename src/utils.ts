@@ -70,6 +70,13 @@ const calculateCommission4 = (totalVolume: number): number => {
     return commission;
 }
 
+// 'Срочный рынок. Стандарт'
+const calculateCommissionFut2 = (totalVolume: number): number => {
+    let commission = 0.0001980;
+
+    return commission;
+}
+
 // 'Срочный рынок.Маркетинговый 10'
 const calculateCommissionFut1 = (totalVolume: number): number => {
     let commission = 0.0001980;
@@ -97,7 +104,7 @@ export const getCommissionByPlanAndTotalVolume = (plan: string, totalVolume: num
         // 'Инвестиционный советник': calculateCommission,
         // 'Ассистент PRO': calculateCommission,
         // 'Ассистент': calculateCommission1,
-        // 'Срочный рынок. Стандарт': calculateCommission2,
+        'Срочный рынок. Стандарт': calculateCommissionFut2,
         // 'Срочный': calculateCommission3,
         'Срочный рынок.Маркетинговый 10': calculateCommissionFut1,
     }

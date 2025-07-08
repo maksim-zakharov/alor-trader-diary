@@ -28,23 +28,66 @@ import {getCommissionByPlanAndTotalVolume, mutex} from "../utils";
 import {
     DevGetAllPositionsParams,
     DevSecuritiesSearchParams,
-    ExchangePortfolioSummaryParams, Positions
+    ExchangePortfolioSummaryParams,
+    Positions
 } from "alor-api/dist/models/models";
 import {MutexInterface} from "async-mutex";
 import {acquire, logout} from "./alor.slice";
 
+
+/**
+ * Метод вычисляет какой % комиссии будет для конкретной сделки
+ * plan - тарифный план брокера текстом
+ * totalVolume - объем торгов за день
+ */
 export const calculateCommission = (plan: string, totalVolume: number, t: Trade, commissionType: string | undefined) => {
+    let _coms;
 
     switch (commissionType) {
         case 'tariff':
-            return getCommissionByPlanAndTotalVolume(plan, totalVolume, t);
+            _coms = getCommissionByPlanAndTotalVolume(plan, totalVolume, t);
+            break;
         case 'taker':
-            return getCommissionByPlanAndTotalVolume(plan, totalVolume, t, true);
+            _coms = getCommissionByPlanAndTotalVolume(plan, totalVolume, t, true);
+            break;
         case undefined:
-            return getCommissionByPlanAndTotalVolume(plan, totalVolume, t);
+            _coms = getCommissionByPlanAndTotalVolume(plan, totalVolume, t);
+            break;
         default:
-            return Number(commissionType) || 0;
+            _coms = Number(commissionType) || 0;
     }
+
+    /**
+     * Срочный:
+     * до 200 контрактов	1 руб. за контракт
+     * от 201 до 1 500 контрактов	50 коп. за контракт
+     * свыше 1 501 контрактов	10 коп. за контракт
+     *
+     * Срочный рынок. Стандарт
+     * Сделки на срочном рынке	 	1 биржевой сбор
+     *
+     */
+
+    if (t.board === 'RFUD') {
+        switch (plan) {
+            case 'Срочный рынок. Стандарт':
+            case 'Срочный рынок.Маркетинговый 10':
+                // @ts-ignore
+                _coms *= t.volume;
+                break;
+            case 'Срочный':
+                _coms = t.qty
+                break;
+            default:
+                // @ts-ignore
+                _coms *= t.volume;
+        }
+    } else {
+        // @ts-ignore Если акция - то комиссию просто умножаем на объем
+        _coms *= t.volume;
+    }
+
+    return _coms;
 }
 
 const recurcive = (selector: (api: AlorApi) => any, paramsCallback = params => params) => async (args: any[] | void, _api) => {
@@ -448,7 +491,7 @@ export const alorApi = createApi({
                         trades = trades.map((t) => ({
                             ...t,
                             // @ts-ignore
-                            commission: calculateCommission(tariffPlan, dayVolumes[moment(t.date).format('YYYY-MM-DD')], t, commissionType) * t.volume,
+                            commission: calculateCommission(tariffPlan, dayVolumes[moment(t.date).format('YYYY-MM-DD')], t, commissionType),
                         }));
                     }
 
