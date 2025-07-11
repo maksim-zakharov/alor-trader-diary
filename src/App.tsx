@@ -1,6 +1,6 @@
 // import logo from './logo.svg';
 import './App.css';
-import {Divider, Dropdown, Layout, Menu, MenuProps, Space,} from 'antd';
+import {Divider, Dropdown, Layout, Menu, MenuProps, Select, Space,} from 'antd';
 import {Content, Footer, Header} from 'antd/es/layout/layout';
 import React, {ReactNode, useEffect, useMemo, useState} from 'react';
 // import QuestionCircleIcon  from './assets/question-circle';
@@ -32,6 +32,7 @@ import {moneyFormat} from "./common/utils";
 import ChevronBottomIcon from "./assets/chevron-bottom";
 import useWindowDimensions from "./common/useWindowDimensions";
 import WhatBuy from "./pages/WhatBuy";
+import OrderbookWidget from "./pages/Orderbook/OrderbookWidget";
 
 export const avg = (numbers: number[]) =>
     !numbers.length ? 0 : summ(numbers) / numbers.length;
@@ -301,30 +302,30 @@ function App() {
             element: <Analytics getIsinBySymbol={getIsinBySymbol}
                                 getListSectionBySymbol={getListSectionBySymbol} data={data}
                                 isLoading={isLoading} dateTo={dateTo} dateFrom={dateFrom}/>,
-        }//,
-        // {
-        //     key: 'orderbook',
-        //     label: 'Orderbook',
-        //     element: (
-        //         <div style={{display: 'flex', gap: '24px', flexWrap: 'wrap'}}>
-        //             <div style={{display: 'flex', gap: '16px', width: '100%'}}>
-        //                 <Select
-        //                     style={{minWidth: '300px'}}
-        //                     mode="tags"
-        //                     value={symbols}
-        //                     placeholder="Введите тикеры разделяя клавишей Enter"
-        //                     onChange={(values) => setSymbols(values)}
-        //                 />
-        //             </div>
-        //             {symbols.map((symbol) => (
-        //                 <div>
-        //                     <h3>{symbol}</h3>
-        //                     <OrderbookWidget api={api} symbol={symbol} showClusters/>
-        //                 </div>
-        //             ))}
-        //         </div>
-        //     ),
-        // },
+        },
+        {
+            key: 'orderbook',
+            label: 'Orderbook',
+            element: (
+                <div style={{display: 'flex', gap: '24px', flexWrap: 'wrap'}}>
+                    <div style={{display: 'flex', gap: '16px', width: '100%'}}>
+                        <Select
+                            style={{minWidth: '300px'}}
+                            mode="tags"
+                            value={symbols}
+                            placeholder="Введите тикеры разделяя клавишей Enter"
+                            onChange={(values) => setSymbols(values)}
+                        />
+                    </div>
+                    {symbols.map((symbol) => (
+                        <div>
+                            <h3>{symbol}</h3>
+                            <OrderbookWidget api={api} symbol={symbol} showClusters/>
+                        </div>
+                    ))}
+                </div>
+            ),
+        },
     ].filter(s => !!s);
 
     const onSelectMenu: MenuProps['onSelect'] = (e) => {
@@ -343,7 +344,7 @@ function App() {
                 theme="dark"
                 mode="horizontal"
                 defaultSelectedKeys={[currentMenuSelectedKey]}
-                items={menuItems}
+                items={menuItems.filter(m => m.key !== 'orderbook')}
                 onSelect={onSelectMenu}
             />
             <a className="header-support-link" href="https://t.me/+8KsjwdNHVzIwNDQy"
