@@ -303,29 +303,29 @@ function App() {
                                 getListSectionBySymbol={getListSectionBySymbol} data={data}
                                 isLoading={isLoading} dateTo={dateTo} dateFrom={dateFrom}/>,
         },
-        {
-            key: 'orderbook',
-            label: 'Orderbook',
-            element: (
-                <div style={{display: 'flex', gap: '24px', flexWrap: 'wrap'}}>
-                    <div style={{display: 'flex', gap: '16px', width: '100%'}}>
-                        <Select
-                            style={{minWidth: '300px'}}
-                            mode="tags"
-                            value={symbols}
-                            placeholder="Введите тикеры разделяя клавишей Enter"
-                            onChange={(values) => setSymbols(values)}
-                        />
-                    </div>
-                    {symbols.map((symbol) => (
-                        <div>
-                            <h3>{symbol}</h3>
-                            <OrderbookWidget api={api} symbol={symbol} showClusters/>
-                        </div>
-                    ))}
-                </div>
-            ),
-        },
+        // {
+        //     key: 'orderbook',
+        //     label: 'Orderbook',
+        //     element: (
+        //         <div style={{display: 'flex', gap: '24px', flexWrap: 'wrap'}}>
+        //             <div style={{display: 'flex', gap: '16px', width: '100%'}}>
+        //                 <Select
+        //                     style={{minWidth: '300px'}}
+        //                     mode="tags"
+        //                     value={symbols}
+        //                     placeholder="Введите тикеры разделяя клавишей Enter"
+        //                     onChange={(values) => setSymbols(values)}
+        //                 />
+        //             </div>
+        //             {symbols.map((symbol) => (
+        //                 <div>
+        //                     <h3>{symbol}</h3>
+        //                     <OrderbookWidget api={api} symbol={symbol} showClusters/>
+        //                 </div>
+        //             ))}
+        //         </div>
+        //     ),
+        // },
     ].filter(s => !!s);
 
     const onSelectMenu: MenuProps['onSelect'] = (e) => {
