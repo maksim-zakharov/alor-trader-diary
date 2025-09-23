@@ -55,3 +55,53 @@ export const virtualListStyles : {
         transition: "background-color .2s ease-in"
     }
 }
+
+export function getTimezone(): { name: string; utcOffset: number; formattedOffset: string } {
+    let offset = new Date().getTimezoneOffset();
+    let timezoneName = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    // if (this.displayTimezone === 'MskTime') {
+    timezoneName = 'Europe/Moscow';
+    const localTime = new Date();
+    localTime.setMilliseconds(0);
+    localTime.setSeconds(0);
+    const mskTime = toMskTime(localTime);
+    const correction = (localTime.getTime() - mskTime.getTime()) / 1000 / 60;
+    offset = localTime.getTimezoneOffset() + correction;
+    // }
+
+    const hoursOffset = Math.trunc(offset / 60);
+    const minutesOffset = Math.abs(Math.round((offset / 60 - hoursOffset) * 60));
+    let formattedOffset = `${Math.abs(hoursOffset)}`;
+    if (minutesOffset > 0) {
+        formattedOffset += `:${minutesOffset}`;
+    }
+
+    return {
+        name: timezoneName,
+        utcOffset: offset,
+        formattedOffset: formattedOffset,
+    };
+}
+
+function toMskTime(utcDate: Date): Date {
+    return new Date(utcDate.toLocaleString('en-US', { timeZone: 'Europe/Moscow' }));
+}
+
+/**
+ * Returns the number of decimal places
+ * @param a Target number
+ * @returns The number of decimal places
+ */
+export function getPrecision(a: number): number {
+    if (!isFinite(a)) return 0;
+    let e = 1;
+    let p = 0;
+
+    while (Math.round(a * e) / e !== a) {
+        e *= 10;
+        p++;
+    }
+
+    return p;
+}

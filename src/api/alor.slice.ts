@@ -7,6 +7,7 @@ import {
     UserInfoResponse
 } from "alor-api/dist/services/ClientInfoService/ClientInfoService";
 import {AppState} from "../store";
+import {DataService} from "./data.service";
 
 type Settings = {
     token: string;
@@ -18,6 +19,7 @@ type Settings = {
 
 const initialState = {
     api: undefined,
+    dataService: undefined,
     agreementsMap: {},
     activeOperations: [],
     lastWithdrawals: [],
@@ -35,6 +37,7 @@ const initialState = {
         color: string,
         borderColor: string,
     }
+    dataService?: DataService;
     api: undefined | AlorApi, userInfo: UserInfoResponse, settings: Settings, agreementsMap: any, activeOperations: GetOperationsResponse[], lastWithdrawals: number[]
 };
 
@@ -56,14 +59,21 @@ export const alorSlice = createSlice({
     initialState,
     reducers: {
         initApi(state, action: PayloadAction<{ token: string, accessToken?: string, type?: 'lk' | 'dev' }>) {
-            state.api = new AlorApi({
-                token: action.payload.token,
-                accessToken: action.payload.accessToken,
-                endpoint: Endpoint.PROD,
-                wssEndpoint: WssEndpoint.PROD,
-                wssEndpointBeta: WssEndpointBeta.PROD,
-                refreshType: action.payload.type,
-            });
+
+            if (!state.api) {
+                const _api = new AlorApi({
+                    token: action.payload.token,
+                    accessToken: action.payload.accessToken,
+                    // authEndpoint: AuthEndpoint.PROD,
+                    endpoint: Endpoint.PROD,
+                    wssEndpoint: WssEndpoint.PROD,
+                    wssEndpointBeta: WssEndpointBeta.PROD,
+                    refreshType: action.payload.type,
+                });
+                state.api = _api;
+
+                state.dataService = new DataService(_api);
+            }
 
             state.release?.();
         },

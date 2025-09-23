@@ -6,8 +6,11 @@ import {ArrowDownOutlined, ArrowUpOutlined} from "@ant-design/icons";
 import {moneyFormat} from "../../../common/utils";
 import {useAppSelector} from "../../../store";
 import {useGetSecurityByExchangeAndSymbolQuery} from "../../../api/alor.api";
+import {TWChart} from "../../../common/TWChart";
 
 const PositionDetails = ({nightMode, row}) => {
+
+    const isNewChart = localStorage.getItem("isNewChart");
     const {trades, symbol, openDate, closeDate} = row
     const {data: security} = useGetSecurityByExchangeAndSymbolQuery({
             symbol,
@@ -66,7 +69,7 @@ const PositionDetails = ({nightMode, row}) => {
     const darkColors = useAppSelector(state => state.alorSlice.darkColors);
 
     return <div className="collapsed-row">
-        <Chart
+        {!isNewChart ? <Chart
             colors={nightMode && darkColors}
             trades={trades}
             symbol={symbol}
@@ -74,7 +77,8 @@ const PositionDetails = ({nightMode, row}) => {
             security={security}
             from={openDate}
             to={closeDate}
-        />
+        /> :
+        <TWChart ticker={symbol} />}
         <Table
             className="collapsed-row-details"
             columns={columns}
