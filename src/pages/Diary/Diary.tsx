@@ -17,7 +17,7 @@ import {
 import {
     AppstoreOutlined,
     ArrowDownOutlined,
-    ArrowUpOutlined, LogoutOutlined,
+    ArrowUpOutlined, EyeInvisibleOutlined, EyeOutlined, LogoutOutlined,
     MoonOutlined,
     RetweetOutlined,
     SettingOutlined,
@@ -597,7 +597,7 @@ const Diary: FC<IProps> = ({
         <Statistic
             title="Баланс"
             loading={isSummaryLoading}
-            value={moneyFormat(summaryValue)}
+            value={settings['hideSummary'] ? '••••••••' : moneyFormat(summaryValue)}
             precision={2}
         />
     </div>
@@ -640,7 +640,7 @@ const Diary: FC<IProps> = ({
             <Statistic
                 title="Чистая прибыль"
                 loading={isLoading}
-                value={`${moneyFormat(data.totalPnL)} (${shortNumberFormat(netProfitPercent)}%)`}
+                value={settings['hideSummary'] ? '••••••••' : `${moneyFormat(data.totalPnL)} (${shortNumberFormat(netProfitPercent)}%)`}
                 precision={2}
                 valueStyle={{
                     color:
@@ -650,9 +650,15 @@ const Diary: FC<IProps> = ({
             <Statistic
                 title="Общ. комиссия"
                 loading={isLoading}
-                value={moneyFormat(data.totalFee)}
+                value={settings['hideSummary'] ? '••••••••' : moneyFormat(data.totalFee)}
                 precision={2}
                 valueStyle={{color: 'rgba(var(--table-loss-color),1)'}}
+            />
+            <Button
+                type="text"
+                icon={settings['hideSummary'] ? <EyeOutlined/> : <EyeInvisibleOutlined/>}
+                className="vertical-button"
+                onClick={(f) => dispatch(setSettings(({['hideSummary']: !settings['hideSummary']})))}
             />
             <Button
                 type="text"
