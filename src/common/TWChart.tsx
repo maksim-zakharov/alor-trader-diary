@@ -21,7 +21,15 @@ import {
   widget,
 } from '../assets/charting_library';
 
-export const TWChart = ({ ticker, height = 400, small }: any) => {
+export const TWChart = ({ ticker, height = 400, small, markers = [] }: { ticker: string, height?: number, small?: boolean, markers?: {
+    time: number;
+    price: number;
+    type: 'entry' | 'exit';
+    text?: string;
+  }[] }) => {
+
+  const chartRef = useRef<IChartingLibraryWidget | null>(null);
+  const entityIdsRef = useRef<string[]>([]); // EntityId - это string в charting_library
 
   const ref = useRef<HTMLDivElement>(null);
   const dataService = useAppSelector((state) => state.alorSlice.dataService);
@@ -37,6 +45,56 @@ export const TWChart = ({ ticker, height = 400, small }: any) => {
         : null,
     [ws, dataService],
   );
+
+  useEffect(() => {
+    if (!chartRef.current || markers.length === 0) return;
+
+    chartRef.current.onChartReady(() => {
+      const chart = chartRef.current!.chart();
+
+      // Удаляем старые маркеры
+      entityIdsRef.current.forEach((id) => {
+        chart.removeEntity(id);
+      });
+      entityIdsRef.current = [];
+
+      // Добавляем новые маркеры
+      markers.forEach((marker) => {
+        const point = { time: marker.time, price: marker.price };
+
+        const options: Partial<any> = {
+          shape: marker.type === 'entry' ? 'arrow_up' : 'arrow_down', // Стрелка вверх для входа, вниз для выхода
+          text: marker.text || (marker.type === 'entry' ? 'Вход' : 'Выход'), // Текст маркера
+          lock: true, // Запретить перемещение пользователем
+          disableSelection: false, // Разрешить выбор (опционально)
+          disableSave: false, // Сохранять в шаблоне (опционально)
+          disableUndo: false, // Разрешить undo (опционально)
+          textColor: '#FFFFFF', // Цвет текста
+          overrides: {
+            arrowColor: marker.type === 'entry' ? 'rgb(19,193,123)' : 'rgb(255,117,132)', // Зеленый для входа, красный для выхода
+            backgroundColor: 'rgba(0, 0, 0, 0.5)', // Фон для текста (опционально)
+          },
+          zOrder: 'top', // Поверх других элементов
+        };
+
+        const entityId = chart.createShape(point, options);
+        entityIdsRef.current.push(entityId);
+      });
+    });
+
+    // Cleanup при изменении markers или unmount
+    return () => {
+      if (chartRef.current) {
+        chartRef.current.onChartReady(() => {
+          const chart = chartRef.current!.chart();
+          entityIdsRef.current.forEach((id) => {
+            chart.removeEntity(id);
+          });
+          entityIdsRef.current = [];
+        });
+      }
+    };
+  }, [markers]); // Зависимость от markers - обновление при изменении
 
   useEffect(() => {
     if (!ref.current || !datafeed) return;
@@ -149,6 +207,7 @@ export const TWChart = ({ ticker, height = 400, small }: any) => {
     };
 
     const chartWidget = new widget(config);
+    chartRef.current = chartWidget; // Сохраняем ссылку
     subscribeToChartEvents(chartWidget);
     chartWidget.onChartReady(() => {
       const chart = chartWidget.chart();

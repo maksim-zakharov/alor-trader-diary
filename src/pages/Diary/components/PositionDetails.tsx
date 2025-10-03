@@ -7,6 +7,7 @@ import {moneyFormat} from "../../../common/utils";
 import {useAppSelector} from "../../../store";
 import {useGetSecurityByExchangeAndSymbolQuery} from "../../../api/alor.api";
 import {TWChart} from "../../../common/TWChart";
+import {Side, Trades} from "alor-api";
 
 const PositionDetails = ({nightMode, row}) => {
 
@@ -69,16 +70,22 @@ const PositionDetails = ({nightMode, row}) => {
     const darkColors = useAppSelector(state => state.alorSlice.darkColors);
 
     return <div className="collapsed-row">
-        {!isNewChart ? <Chart
-            colors={nightMode && darkColors}
-            trades={trades}
-            symbol={symbol}
-            digits={digits}
-            security={security}
-            from={openDate}
-            to={closeDate}
-        /> :
-        <TWChart ticker={symbol} />}
+        {/*{!isNewChart ? <Chart*/}
+        {/*    colors={nightMode && darkColors}*/}
+        {/*    trades={trades}*/}
+        {/*    symbol={symbol}*/}
+        {/*    digits={digits}*/}
+        {/*    security={security}*/}
+        {/*    from={openDate}*/}
+        {/*    to={closeDate}*/}
+        {/*/> :*/}
+        {/*}*/}
+        <TWChart ticker={symbol} markers={(trades as Trades).map(trade => ({
+            time: new Date(trade.date).getTime() / 1000,
+            price: trade.price,
+            type: trade.side === Side.Buy ? 'entry' : "exit",
+            text: `${trade.side === Side.Buy ? 'Покупка' : 'Продажа'} ${trade.qty}@${trade.price}`
+        }))} />
         <Table
             className="collapsed-row-details"
             columns={columns}
