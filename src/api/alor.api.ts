@@ -495,7 +495,17 @@ export const alorApi = createApi({
                         }));
                     }
 
-                    return trades.filter(t => moment(t.date).isBefore(moment(dateTo)));
+                    let filteredTrades = trades.filter(t => moment(t.date).isBefore(moment(dateTo)));
+                    
+                    if (dateFrom) {
+                        const dateFromStart = moment(dateFrom).startOf('day');
+                        filteredTrades = filteredTrades.filter(t => {
+                            const tradeDate = moment(t.date);
+                            return tradeDate.isAfter(dateFromStart) || tradeDate.isSame(dateFromStart);
+                        });
+                    }
+                    
+                    return filteredTrades;
                 }
 
                 return loadTrades;
