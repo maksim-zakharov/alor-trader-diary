@@ -4,10 +4,10 @@ import Spinner from "../../../common/Spinner";
 import {moneyFormat, shortNumberFormat} from "../../../common/utils";
 import {EyeInvisibleOutlined, EyeOutlined, LogoutOutlined, SettingOutlined, SwapOutlined} from "@ant-design/icons";
 import {setSettings} from "../../../api/alor.slice";
-import dayjs from "dayjs";
 import {useGetAllSummariesQuery} from "../../../api/alor.api";
 import {Exchange} from "alor-api";
 import {useAppDispatch, useAppSelector} from "../../../store";
+import { DiaryDatePicker } from './DiaryDatePicker';
 
 const MobileSummaryCarousel = ({dateFrom, onChangeView, view, setShowOperationsModal, todayPnL, options, onChangeDate, totalPnL, netProfitPercent}) => {
     const userInfo = useAppSelector(state => state.alorSlice.userInfo);
@@ -85,7 +85,7 @@ const MobileSummaryCarousel = ({dateFrom, onChangeView, view, setShowOperationsM
                         className={`result ${totalPnL > 0 ? 'profit' : 'loss'}`}>{totalPnL > 0 ? '+' : ''}{moneyFormat(totalPnL)}
                         <span className='percent'>{shortNumberFormat(netProfitPercent)}%</span>
                     </div>
-                    <MobileDatepicker/>
+                    <DiaryDatePicker compact value={dateFrom} onChange={onChangeDate} />
                 </div>
             </div>
 
@@ -122,12 +122,6 @@ const MobileSummaryCarousel = ({dateFrom, onChangeView, view, setShowOperationsM
             <Radio.Group options={options} onChange={e => onChangeView(e.target.value)} value={view} size="large"
                          optionType="button"/>
         </div>
-    </div>
-
-    const MobileDatepicker = () => <div className="MobileDatepicker">
-        <label htmlFor="mobile-date">от {dateFrom}</label>
-        <input type="date" id="mobile-date" value={dateFrom}
-               onChange={date => onChangeDate(dayjs(date.target.value, 'YYYY-MM-DD'))}/>
     </div>
 
     if(slide === -1){

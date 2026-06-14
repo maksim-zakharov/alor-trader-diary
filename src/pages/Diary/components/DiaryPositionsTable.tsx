@@ -1,16 +1,16 @@
-import React, { ChangeEventHandler, FC, useMemo } from 'react';
+import React, { FC, useMemo } from 'react';
 import { ArrowDownOutlined, ArrowUpOutlined, RetweetOutlined } from '@ant-design/icons';
 import moment from 'moment/moment';
-import { selectOptions } from '../../../App';
 import { moneyFormat, shortNumberFormat } from '../../../common/utils';
 import { humanize, numberToPercent } from '../../../utils';
-import ASelect from '../../../common/Select';
-import { Input } from 'antd';
-import { SelectProps } from 'antd';
 import { useAppSelector } from '../../../store';
 import { selectCurrentPortfolio } from '../../../api/alor.slice';
 import { DataTable, DataTableColumn } from '@/uikit/DataTable';
 import PositionDetails from './PositionDetails';
+import {
+  DiaryPositionCommentInput,
+  DiaryPositionReasonSelect,
+} from './DiaryTableCellFields';
 
 interface DiaryPositionRow {
   id: string;
@@ -69,25 +69,6 @@ const DiaryPositionsTable: FC<DiaryPositionsTableProps> = ({
   nightMode,
 }) => {
   const currentPortfolio = useAppSelector(selectCurrentPortfolio);
-
-  const selectProps = (position: DiaryPositionRow): SelectProps => ({
-    value: reasons[position.id],
-    defaultValue: reasons[position.id],
-    options: selectOptions,
-    onSelect: (value) => onReasonChange(position.id, String(value)),
-  });
-
-  const inputProps = (position: DiaryPositionRow) => {
-    const onChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-      onCommentChange(position.id, e.target.value);
-    };
-
-    return {
-      value: comments[position.id],
-      defaultValue: comments[position.id],
-      onChange,
-    };
-  };
 
   const renderVolume = (row: DiaryPositionRow) => {
     if (row.type === 'summary') {
@@ -211,13 +192,10 @@ const DiaryPositionsTable: FC<DiaryPositionsTableProps> = ({
         width: 200,
         render: (_, row) =>
           row.type !== 'summary' && (
-            <ASelect
+            <DiaryPositionReasonSelect
               key={`${row.id}-reason-select`}
-              size="small"
-              style={{ width: '180px' }}
-              allowClear
-              placeholder="Выберите причину..."
-              {...selectProps(row)}
+              value={reasons[row.id]}
+              onChange={(value) => onReasonChange(row.id, value ?? '')}
             />
           ),
       },
@@ -227,12 +205,10 @@ const DiaryPositionsTable: FC<DiaryPositionsTableProps> = ({
         dataIndex: 'comment',
         render: (_, row) =>
           row.type !== 'summary' && (
-            <Input
+            <DiaryPositionCommentInput
               key={`${row.id}-comment-input`}
-              size="small"
-              allowClear
-              placeholder="Добавьте комментарий..."
-              {...inputProps(row)}
+              value={comments[row.id]}
+              onChange={(e) => onCommentChange(row.id, e.target.value)}
             />
           ),
       },

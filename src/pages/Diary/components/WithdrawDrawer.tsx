@@ -3,7 +3,7 @@ import FormItem from "antd/es/form/FormItem";
 import ASelect from "../../../common/Select";
 import {moneyFormat} from "../../../common/utils";
 import {DeleteOutlined, EditOutlined, ReloadOutlined} from "@ant-design/icons";
-import DraggableDrawer from "../../../common/DraggableDrawerHOC";
+import { AppDrawer } from '@/components/AppDrawer';
 import React, {FC, useMemo, useState} from "react";
 import NoResult from "../../../common/NoResult";
 import {setSettings} from "../../../api/alor.slice";
@@ -283,9 +283,13 @@ const WithdrawDrawer = ({onClose}) => {
 
     const sumHelp = `Доступно ${moneyFormat(accountSummariesMap[portfolio]?.portfolioLiquidationValue, 0, 0)}`;
 
-    return <DraggableDrawer title="Вывести" open={showPayModal} placement={isMobile ? "bottom" : "right"}
-                            closeIcon={<Button type="link" onClick={() => cancelEditAccount()}>Закрыть</Button>}
-                            onClose={() => cancelEditAccount()}>
+    return (
+        <AppDrawer
+            title="Вывести"
+            open={showPayModal}
+            onClose={() => cancelEditAccount()}
+            isMobile={isMobile}
+        >
         {!success && <Form layout="vertical" className="pad-lr">
             {(accounts.length || settings['settlementAccount']) &&
                 <FormItem label="Откуда">
@@ -388,7 +392,8 @@ const WithdrawDrawer = ({onClose}) => {
                     снова</Button>,
             ]}
         />}
-    </DraggableDrawer>
+        </AppDrawer>
+    );
 }
 
 export default WithdrawDrawer;

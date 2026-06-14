@@ -1,7 +1,5 @@
 import {
     Button,
-    DatePicker,
-    DatePickerProps,
     Divider,
     Form,
     Input,
@@ -30,7 +28,6 @@ import moment from 'moment/moment';
 import {summ} from '../../App';
 import {moneyFormat, shortNumberFormat, virtualListStyles} from '../../common/utils';
 import {Exchange} from "alor-api";
-import dayjs from "dayjs";
 import {useSearchParams} from "react-router-dom";
 import {numberToPercent} from "../../utils";
 import NoResult from "../../common/NoResult";
@@ -55,6 +52,7 @@ import MoneyOutputIcon from "../../assets/money-output";
 import MoneyInputIcon from "../../assets/money-input";
 import useWindowDimensions from "../../common/useWindowDimensions";
 import DraggableDrawer from "../../common/DraggableDrawerHOC";
+import { AppDrawer } from '@/components/AppDrawer';
 import WithdrawDrawer from "./components/WithdrawDrawer";
 import MobilePosition from "./components/MobilePosition";
 import MobileSearch from "./components/MobileSearch";
@@ -63,6 +61,7 @@ import MonthRender from "./components/MonthRender";
 import useScroll from "../../common/useScroll";
 import TTitle from "../../common/TTitle";
 import DiaryPositionsTable from "./components/DiaryPositionsTable";
+import { DiaryDatePicker } from './components/DiaryDatePicker';
 
 interface IProps {
     data: any;
@@ -279,10 +278,9 @@ const Diary: FC<IProps> = ({
     if (!dateFrom) {
         dateFrom = moment().startOf('month').format('YYYY-MM-DD');
     }
-    const currentDates: DatePickerProps['value'] = dayjs(dateFrom);
 
-    const onChangeDate = (dateFrom) => {
-        searchParams.set('dateFrom', dateFrom.format('YYYY-MM-DD'));
+    const onChangeDate = (nextDateFrom: string) => {
+        searchParams.set('dateFrom', nextDateFrom);
         setSearchParams(searchParams);
     };
 
@@ -463,7 +461,7 @@ const Diary: FC<IProps> = ({
                 onClick={(f) => setShowOperationsModal('payout')(true)}
             >Вывести</Button>
 
-            <DatePicker value={currentDates} onChange={onChangeDate} style={{width: 120}}/>
+            <DiaryDatePicker value={dateFrom} onChange={onChangeDate} />
 
 
             <Radio.Group options={options} onChange={e => onChangeView(e.target.value)} value={view}
@@ -665,13 +663,11 @@ const Diary: FC<IProps> = ({
             </DraggableDrawer>
             <OperationsDrawer isOpened={showOperationsModal}
                               onClose={() => setShowOperationsModal('operations')(false)}/>
-            <DraggableDrawer
+            <AppDrawer
                 title="Настройки"
-                placement={isMobile ? "bottom" : "right"}
-                closeIcon={<Button type="link"
-                                   onClick={() => setShowOperationsModal('settings')(false)}>Закрыть</Button>}
-                onClose={() => setShowOperationsModal('settings')(false)}
                 open={showSettings}
+                onClose={() => setShowOperationsModal('settings')(false)}
+                isMobile={!!isMobile}
             >
                 <Form layout="vertical" className="pad-lr">
                     {!settings.lk && <FormItem label="Alor Token">
@@ -742,7 +738,7 @@ const Diary: FC<IProps> = ({
                                 type="link">Выйти</Button>
                     </FormItem>
                 </Form>
-            </DraggableDrawer>
+            </AppDrawer>
             {view === 'week' && <>
                 {years.map(year => <YearRender year={year}/>)}
             </>}
