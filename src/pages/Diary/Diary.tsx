@@ -53,6 +53,7 @@ import MoneyInputIcon from "../../assets/money-input";
 import useWindowDimensions from "../../common/useWindowDimensions";
 import DraggableDrawer from "../../common/DraggableDrawerHOC";
 import { AppDrawer } from '@/components/AppDrawer';
+import { AppPanel } from '@/components/AppPanel';
 import WithdrawDrawer from "./components/WithdrawDrawer";
 import MobilePosition from "./components/MobilePosition";
 import MobileSearch from "./components/MobileSearch";
@@ -402,9 +403,9 @@ const Diary: FC<IProps> = ({
         }
     ]
 
-    const InfoPanelDesktop = () => <div
-        className="InfoPanelDesktop"
-    >
+    const InfoPanelDesktop = () => <AppPanel className="InfoPanelDesktop">
+        <TTitle isMobile={isMobile}>Дневник</TTitle>
+        <div className="InfoPanelDesktop__content">
         <Summary/>
         <div
             style={{
@@ -467,7 +468,8 @@ const Diary: FC<IProps> = ({
             <Radio.Group options={options} onChange={e => onChangeView(e.target.value)} value={view}
                          optionType="button"/>
         </div>
-    </div>
+        </div>
+    </AppPanel>
 
     const dayPositions = useMemo(() => Object.entries(data.positions.reduce((acc, curr) => {
         const date = moment(curr.openDate).format('YYYY-MM-DD');
@@ -503,10 +505,42 @@ const Diary: FC<IProps> = ({
 
     return (
         <>
-            <TTitle isMobile={isMobile}>Дневник</TTitle>
             <MobileSearch getIsinBySymbol={getIsinBySymbol}/>
-            <MobileSummaryCarousel dateFrom={dateFrom} onChangeView={onChangeView} view={view} setShowOperationsModal={setShowOperationsModal} options={options} netProfitPercent={netProfitPercent} todayPnL={todayPnL} onChangeDate={onChangeDate} totalPnL={data.totalPnL}/>
-            <InfoPanelDesktop/>
+            <div className="diary-panels flex flex-col gap-1 mt-1">
+                <AppPanel className="MobileSummaryPanel" flush>
+                    <div className="MobileSummaryPanel__header">
+                        <TTitle isMobile={isMobile}>Дневник</TTitle>
+                    </div>
+                    <MobileSummaryCarousel dateFrom={dateFrom} onChangeView={onChangeView} view={view} setShowOperationsModal={setShowOperationsModal} options={options} netProfitPercent={netProfitPercent} todayPnL={todayPnL} onChangeDate={onChangeDate} totalPnL={data.totalPnL}/>
+                </AppPanel>
+                <InfoPanelDesktop/>
+                {view === 'week' && <>
+                    {years.map(year => <YearRender year={year}/>)}
+                </>}
+                {view === 'table' && <>
+                    <AppPanel className="DiaryTablePanel" flush>
+                        {isLoading && <div className="mobile-position-spinner">
+                            <Spinner/>
+                            <div className="spinner-text">Подгружаем сделки</div>
+                        </div>}
+                        <DiaryPositionsTable
+                            positions={data.positions}
+                            isLoading={isLoading}
+                            isMobile={isMobile}
+                            getListSectionBySymbol={getListSectionBySymbol}
+                            onCopyTicker={copyToClipboard}
+                            reasons={reasons}
+                            onReasonChange={handleReasonChange}
+                            comments={comments}
+                            onCommentChange={handleCommentChange}
+                            hidenMap={hidenMap}
+                            onToggleVolumeView={handleToggleVolumeView}
+                            nightMode={nightMode}
+                        />
+                    </AppPanel>
+                    {!isLoading && dayPositions.map(dp => <MobilePosition getIsinBySymbol={getIsinBySymbol} positions={dp}/>)}
+                </>}
+            </div>
             <WithdrawDrawer onClose={() => setShowOperationsModal('payout')(false)}/>
             <DraggableDrawer title="Новости" open={selectedNews} placement={isMobile ? "bottom" : "right"}
                     closeIcon={<Button type="link"
@@ -739,30 +773,6 @@ const Diary: FC<IProps> = ({
                     </FormItem>
                 </Form>
             </AppDrawer>
-            {view === 'week' && <>
-                {years.map(year => <YearRender year={year}/>)}
-            </>}
-            {view === 'table' && <>
-                {isLoading && <div className="mobile-position-spinner">
-                    <Spinner/>
-                    <div className="spinner-text">Подгружаем сделки</div>
-                </div>}
-                <DiaryPositionsTable
-                    positions={data.positions}
-                    isLoading={isLoading}
-                    isMobile={isMobile}
-                    getListSectionBySymbol={getListSectionBySymbol}
-                    onCopyTicker={copyToClipboard}
-                    reasons={reasons}
-                    onReasonChange={handleReasonChange}
-                    comments={comments}
-                    onCommentChange={handleCommentChange}
-                    hidenMap={hidenMap}
-                    onToggleVolumeView={handleToggleVolumeView}
-                    nightMode={nightMode}
-                />
-                {!isLoading && dayPositions.map(dp => <MobilePosition getIsinBySymbol={getIsinBySymbol} positions={dp}/>)}
-            </>}
         </>
     );
 };

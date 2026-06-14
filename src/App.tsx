@@ -336,7 +336,7 @@ function App() {
 
     const MobileFooterMenu = () => {
 
-        return <div className="MobileFooter">
+        return <div className="MobileFooter mt-1">
             <Menu
                 theme="dark"
                 mode="horizontal"
@@ -368,7 +368,7 @@ function App() {
                 </div>
             </Content>
             {userInfo && <MobileFooterMenu/>}
-            {userInfo && <Footer style={{textAlign: 'center'}}>
+            {userInfo && <Footer className="mt-1" style={{textAlign: 'center'}}>
                 Alor Trader Diary ©2023 Created by Maksim Zakharov
             </Footer>}
         </Layout>

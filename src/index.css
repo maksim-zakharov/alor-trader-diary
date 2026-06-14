@@ -23,6 +23,7 @@
   --color-destructive: var(--destructive);
   --color-border: var(--border);
   --color-input: var(--input);
+  --color-input-placeholder: var(--input-placeholder);
   --color-ring: var(--ring);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -43,6 +44,8 @@
   --color-chart-3: var(--chart-3);
   --color-chart-2: var(--chart-2);
   --color-chart-1: var(--chart-1);
+  --color-app-header-bg: var(--app-header-bg);
+  --color-app-text: var(--app-text-color);
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
@@ -67,7 +70,13 @@
   --border: oklch(0.922 0 0);
   --table-row-border-color: var(--border);
   --input: oklch(0.922 0 0);
+  --input-placeholder: #adb1b8;
   --ring: oklch(0.708 0 0);
+  --app-header-bg: #17181e;
+  --app-text-color: #fff;
+  --app-text-color-rgb: 255, 255, 255;
+  --app-background-color: #000;
+  --app-background-color-rgb: 0, 0, 0;
   --radius: 0.625rem;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
@@ -86,25 +95,27 @@
 
 .dark-theme,
 .dark {
-  --background: rgb(23, 35, 46);
-  --foreground: rgb(179, 199, 219);
+  --background: var(--app-background-color);
+  --foreground: var(--app-text-color);
   --card: rgb(30, 44, 57);
-  --card-foreground: rgb(179, 199, 219);
+  --card-foreground: var(--app-text-color);
   --popover: rgb(36, 52, 66);
-  --popover-foreground: rgb(179, 199, 219);
+  --popover-foreground: var(--app-text-color);
   --primary: rgb(51, 111, 238);
-  --primary-foreground: rgb(255, 255, 255);
+  --primary-foreground: var(--app-text-color);
   --secondary: rgb(44, 60, 75);
-  --secondary-foreground: rgb(179, 199, 219);
+  --secondary-foreground: var(--app-text-color);
   --muted: rgb(44, 60, 75);
   --muted-foreground: rgb(140, 167, 190);
   --accent: rgb(51, 70, 87);
-  --accent-foreground: rgb(179, 199, 219);
+  --accent-foreground: var(--app-text-color);
   --destructive: rgb(255, 117, 132);
   --border: rgb(51, 70, 87);
   --table-row-border-color: var(--border);
-  --input: rgb(44, 60, 75);
+  --input: #25282c;
+  --input-placeholder: #adb1b8;
   --ring: rgb(51, 111, 238);
+  --app-header-bg: #17181e;
 }
 
 .dark {

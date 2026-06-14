@@ -94,7 +94,7 @@ export function AppHeader({ navItems }: AppHeaderProps) {
   };
 
   return (
-    <header className="AppHeader sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+    <header className="AppHeader sticky top-0 z-10 bg-app-header-bg">
       <div className="menu-content">
         <div className="flex items-center gap-4">
           <DropdownMenu modal={false}>
