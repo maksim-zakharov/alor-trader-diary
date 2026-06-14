@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import { useAppSelector } from '../store';
 import { DataFeed } from '../api/datafeed';
 import { getTimezone } from '../common/utils';
+import { getChartingLibraryPath } from '../utils';
 import {
   ChartingLibraryFeatureset,
   ChartingLibraryWidgetOptions,
@@ -142,7 +143,7 @@ export const TWChart = ({ ticker, height = 400, small, markers = [] }: { ticker:
       height: height || ref.current?.clientHeight,
       interval: '5' as ResolutionString,
       locale: 'ru',
-      library_path: process.env.NODE_ENV !== 'production' ? '/assets/charting_library/' : '/smartmoney-client/assets/charting_library/',
+      library_path: getChartingLibraryPath(),
       datafeed: datafeed, // this.techChartDatafeedService,
       // additional options
       fullscreen: false,

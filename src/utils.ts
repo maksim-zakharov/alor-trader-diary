@@ -484,3 +484,12 @@ export const enumerateDaysBetweenDates = (startDate, endDate) => {
 };
 
 export const getCurrentTariffPlan = (userInfo: UserInfoResponse, agreementNumber: string, accountNumber: string): string | undefined =>  (userInfo?.agreements?.find(a => a.agreementNumber === agreementNumber)?.portfolios || []).find(p => p.accountNumber === accountNumber)?.tariffPlan;
+
+/**
+ * Путь к TradingView charting_library с учётом Vite `base`
+ * (локально `/`, GitHub Pages `/alor-trader-diary/`).
+ */
+export function getChartingLibraryPath(): string {
+  const base = import.meta.env.BASE_URL || '/';
+  return `${base}assets/charting_library/`;
+}
