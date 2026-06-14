@@ -1,27 +1,25 @@
 import Spinner from '../../../common/Spinner';
 import TVChart from '../../../common/TVChart';
+import NoResult from '../../../common/NoResult';
 import React, { useMemo } from 'react';
 import moment from 'moment/moment';
-import { MoneyMovesSearch, Status } from 'alor-api/dist/services/ClientInfoService/ClientInfoService';
-import { enumerateDaysBetweenDates, numberToPercent } from '../../../utils';
-import { useAppSelector } from '../../../store';
-import { useGetMoneyMovesQuery } from '../../../api/alor.api';
+import { numberToPercent } from '../../../utils';
 import { useSearchParams } from 'react-router-dom';
 import { moneyFormat } from '../../../common/utils';
 import { summ } from '../../../App';
 
 interface ProfitWidgetProps {
-  data: { time: string; value: number }[];
+  /** Кумулятивный PnL по дням из дневника */
+  chartData: { time: string; value: number }[];
   isLoading: boolean;
   colors?: Record<string, string>;
-  initBalance: number;
   /** Позиции за период (без summary-строк) */
   nonSummaryPositions: Record<string, unknown>[];
   /** Внутри табов аналитики — без внешней обёртки widget */
   embedded?: boolean;
 }
 
-const ProfitWidget = ({ data, isLoading, colors, initBalance, nonSummaryPositions, embedded }: ProfitWidgetProps) => {
+const ProfitWidget = ({ chartData, isLoading, colors, nonSummaryPositions, embedded }: ProfitWidgetProps) => {
   const [searchParams] = useSearchParams();
   let dateFrom = searchParams.get('dateFrom');
   if (!dateFrom) {
@@ -31,94 +29,6 @@ const ProfitWidget = ({ data, isLoading, colors, initBalance, nonSummaryPosition
   if (!dateTo) {
     dateTo = moment().endOf('month').add(1, 'day').format('YYYY-MM-DD');
   }
-
-  const settings = useAppSelector((state) => state.alorSlice.settings);
-  const userInfo = useAppSelector((state) => state.alorSlice.userInfo);
-
-  const { data: moneyMoves = [] } = useGetMoneyMovesQuery(
-    {
-      agreementNumber: settings.agreement,
-      dateFrom,
-      dateTo,
-    },
-    {
-      skip: !userInfo || !settings.agreement,
-      refetchOnMountOrArgChange: true,
-    },
-  );
-
-  const moneyMovesMap = useMemo(
-    () =>
-      moneyMoves
-        .filter((mM) => !['Комиссия брокера', 'Комиссия депозитария'].includes(mM.title))
-        .reduce((acc, curr) => {
-          if (!curr.sum) {
-            return acc;
-          }
-
-          const date = moment(curr.date).format('YYYY-MM-DD');
-          if (!acc[date]) {
-            acc[date] = 0;
-          }
-
-          let multi = 1;
-
-          if (curr.subType === MoneyMovesSearch.Transfer && curr.accountTo !== settings.portfolio) {
-            multi = -1;
-          }
-          if (curr.subType === MoneyMovesSearch.Input) {
-            multi = 1;
-          }
-
-          if (curr.status === Status.Resolved || curr.status === Status.executing) {
-            acc[date] += curr.sum * multi;
-          }
-
-          return acc;
-        }, {} as Record<string, number>),
-    [moneyMoves, settings.portfolio],
-  );
-
-  const test = useMemo(() => {
-    const firstDate = (moneyMoves.length < 1 ? moment() : moment(moneyMoves.slice(-1)[0].date)).format('YYYY-MM-DD');
-    const lastDate = moment().format('YYYY-MM-DD');
-
-    const dates = enumerateDaysBetweenDates(firstDate, lastDate);
-
-    return dates.reduce((acc, curr, i, items) => {
-      const prevIndex = i === 0 ? 0 : i - 1;
-      const prevDate = items[prevIndex];
-      const currDate = items[i];
-      const prevValue = i === 0 ? 0 : acc[prevDate] || 0;
-      const currValue = moneyMovesMap[currDate] || 0;
-
-      acc[curr] = prevValue + currValue;
-
-      return acc;
-    }, {} as Record<string, number>);
-  }, [moneyMovesMap, moneyMoves]);
-
-  const _data = useMemo(() => {
-    const result: { time: string; value: number }[] = [];
-
-    data.forEach((d, i) => {
-      if (d.value === 0) {
-        if (i > 0) {
-          d.value = data[i - 1].value;
-        } else if (data.length > 1) {
-          d.value = data[1].value;
-        }
-      }
-
-      result.push({ ...d, value: d.value - initBalance - (test[d.time] || 0) });
-    });
-
-    return result;
-  }, [data, test, initBalance]);
-
-  const balance = useMemo(() => data.slice(-1)[0]?.value || 0, [data]);
-
-  const chartPnL = useMemo(() => _data.slice(-1)[0]?.value ?? 0, [_data]);
 
   const stats = useMemo(() => {
     const positions = nonSummaryPositions as {
@@ -147,6 +57,7 @@ const ProfitWidget = ({ data, isLoading, colors, initBalance, nonSummaryPosition
       totalFee,
       feePercent: turnover ? totalFee / turnover : 0,
       pnlPercent: turnover ? tradesPnL / turnover : 0,
+      tradesPnL,
     };
   }, [nonSummaryPositions]);
 
@@ -165,14 +76,14 @@ const ProfitWidget = ({ data, isLoading, colors, initBalance, nonSummaryPosition
     return `${from.format('DD')} ${formatMonth(from)} - ${to.format('DD')} ${formatMonth(to)}`;
   }, [dateFrom, dateTo]);
 
-  const pnlValue = chartPnL;
+  const pnlValue = stats.tradesPnL;
   const isProfit = pnlValue >= 0;
 
   return (
     <div className={embedded ? 'analytics-profit-widget analytics-profit-widget--embedded' : 'widget analytics-profit-widget'}>
       {isLoading ? (
         <Spinner />
-      ) : (
+      ) : chartData.length ? (
         <>
           <div className="analytics-profit-chart">
             <TVChart
@@ -181,8 +92,8 @@ const ProfitWidget = ({ data, isLoading, colors, initBalance, nonSummaryPosition
               seriesType="baseLine"
               pnlChart
               showPnLLastLine
-              balance={balance}
-              data={_data}
+              balance={stats.turnover}
+              data={chartData}
               formatTime="D MMM"
             />
           </div>
@@ -214,6 +125,8 @@ const ProfitWidget = ({ data, isLoading, colors, initBalance, nonSummaryPosition
             </div>
           </aside>
         </>
+      ) : (
+        <NoResult text="Нет данных" />
       )}
     </div>
   );

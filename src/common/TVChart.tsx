@@ -117,7 +117,6 @@ const TVChart: FC<IProps> = ({fitContent, lotSize, balance, colors, seriesType, 
                 width: chartContainerRef!.current.clientWidth,
                 height: chartContainerRef!.current.clientHeight || 400,
             });
-            fitContent && chart.timeScale().fitContent();
 
             let series;
 
@@ -314,6 +313,10 @@ const TVChart: FC<IProps> = ({fitContent, lotSize, balance, colors, seriesType, 
             }
 
             series?.setData(data);
+
+            if (fitContent) {
+                chart.timeScale().fitContent();
+            }
 
             if (pnlChart && seriesType === 'baseLine') {
                 series.createPriceLine({

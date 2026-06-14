@@ -484,6 +484,61 @@ export const enumerateDaysBetweenDates = (startDate, endDate) => {
     return dates;
 };
 
+export interface DiaryPnLPoint {
+    /** Дата в формате YYYY-MM-DD */
+    time: string;
+    /** Кумулятивный PnL */
+    value: number;
+}
+
+/**
+ * Строит кумулятивный PnL-ряд по данным таблицы дневника.
+ * Точки только в дни со сделками — без длинных «пустых» участков календаря.
+ */
+export function buildCumulativePnLSeriesFromDiary(
+    positions: { type?: string; openDate?: string; PnL?: number }[],
+    dateFrom: string,
+    dateTo: string,
+): DiaryPnLPoint[] {
+    const rangeStart = moment(dateFrom).startOf('day');
+    const rangeEnd = moment(dateTo).subtract(1, 'day').endOf('day');
+
+    const dailyPnlMap = positions
+        .filter((p) => p.type !== 'summary')
+        .reduce<Record<string, number>>((acc, row) => {
+            const day = moment(row.openDate).format('YYYY-MM-DD');
+            const dayMoment = moment(day, 'YYYY-MM-DD');
+
+            if (dayMoment.isBefore(rangeStart) || dayMoment.isAfter(rangeEnd)) {
+                return acc;
+            }
+
+            acc[day] = (acc[day] || 0) + (row.PnL ?? 0);
+            return acc;
+        }, {});
+
+    const tradingDays = Object.keys(dailyPnlMap).sort();
+
+    if (!tradingDays.length) {
+        return [];
+    }
+
+    let cumulative = 0;
+    const result: DiaryPnLPoint[] = [
+        {
+            time: moment(tradingDays[0]).subtract(1, 'day').format('YYYY-MM-DD'),
+            value: 0,
+        },
+    ];
+
+    tradingDays.forEach((day) => {
+        cumulative += dailyPnlMap[day];
+        result.push({ time: day, value: cumulative });
+    });
+
+    return result;
+}
+
 export const getCurrentTariffPlan = (userInfo: UserInfoResponse, agreementNumber: string, accountNumber: string): string | undefined =>  (userInfo?.agreements?.find(a => a.agreementNumber === agreementNumber)?.portfolios || []).find(p => p.accountNumber === accountNumber)?.tariffPlan;
 
 /**

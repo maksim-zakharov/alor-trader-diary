@@ -42,10 +42,8 @@ interface SymbolsWidgetProps {
   isLoading: boolean;
   /** Внутри табов аналитики — без внешней обёртки widget */
   embedded?: boolean;
-  /** Динамика баланса для расчёта прироста */
-  balanceData?: { time: string; value: number }[];
-  /** Начальный баланс периода */
-  initBalance?: number;
+  /** Кумулятивный PnL по дням из дневника */
+  chartData?: { time: string; value: number }[];
 }
 
 const TOP_SYMBOLS_COUNT = 6;
@@ -153,8 +151,7 @@ const SymbolsWidget: FC<SymbolsWidgetProps> = ({
   nonSummaryPositions,
   isLoading,
   embedded,
-  balanceData = [],
-  initBalance = 0,
+  chartData = [],
 }) => {
   const [searchParams] = useSearchParams();
   let dateFrom = searchParams.get('dateFrom');
@@ -209,12 +206,13 @@ const SymbolsWidget: FC<SymbolsWidgetProps> = ({
   }, [dateFrom, dateTo]);
 
   const growthPercent = useMemo(() => {
-    const currentBalance = balanceData.slice(-1)[0]?.value ?? initBalance;
-    if (!initBalance) {
+    if (!summary.turnover) {
       return 0;
     }
-    return ((currentBalance - initBalance) / initBalance) * 100;
-  }, [balanceData, initBalance]);
+    return (summary.tradesPnL / summary.turnover) * 100;
+  }, [summary.tradesPnL, summary.turnover]);
+
+  const chartPnL = useMemo(() => chartData.slice(-1)[0]?.value ?? summary.tradesPnL, [chartData, summary.tradesPnL]);
 
   const excludeTip = useMemo(() => {
     const losers = nonSummaryPositions.reduce<Record<string, number>>((acc, position) => {
@@ -293,11 +291,11 @@ const SymbolsWidget: FC<SymbolsWidgetProps> = ({
           )}
           <div className="analytics-symbols-growth">
             <div className="analytics-symbols-growth__pnl">
-              PnL {moneyFormat(summary.tradesPnL)}
+              PnL {moneyFormat(chartPnL)}
             </div>
             <div className="analytics-symbols-growth__chart">
               <LineChartOutlined />
-              <span>Прирост {Math.round(growthPercent)}%</span>
+              <span>Прирост {numberToPercent(Math.abs(growthPercent))}%</span>
             </div>
           </div>
         </div>

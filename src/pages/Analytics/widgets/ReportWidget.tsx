@@ -6,11 +6,12 @@ import {summ} from "../../../App";
 import moment from "moment";
 import Spinner from "../../../common/Spinner";
 
-const ReportWidget = ({nonSummaryPositions, tradingDays, data, isLoading}) => {
+const ReportWidget = ({nonSummaryPositions, tradingDays, chartData, isLoading}) => {
 
     const totalNetProfit = summ(nonSummaryPositions.map(t => t.PnL)) || 0;
     const profitTrades = nonSummaryPositions.filter(t => t.PnL > 0) || 0;
     const totalProfit = summ(profitTrades.map(t => t.PnL)) || 0;
+    const turnover = summ(nonSummaryPositions.map(t => (t.openVolume ?? 0) + (t.closeVolume ?? 0))) || 0;
 
     const profitFactor = totalProfit / summ(nonSummaryPositions.filter(t => t.PnL <= 0).map(t => -t.PnL)) || 0;
     const percentProfitable = profitTrades.length / nonSummaryPositions.length || 0;
@@ -24,9 +25,9 @@ const ReportWidget = ({nonSummaryPositions, tradingDays, data, isLoading}) => {
     const planingMonthlyProfit = averageTradeNetProfit * averageTradesByDay * workDaysCountInMonth || 0;
     const planingYearlyProfit = averageTradeNetProfit * averageTradesByDay * workDaysCountInYear || 0;
 
-    const drawdown = useMemo(() => calculateDrawdown(data), [data]);
+    const drawdown = useMemo(() => calculateDrawdown(chartData), [chartData]);
 
-    const currentBalance = useMemo(() => (data || []).slice(-1)[0]?.value || 0, [data]);
+    const percentBase = turnover || Math.abs(totalNetProfit) || 1;
 
     const list1 = [
         {label: 'Ср. количество сделок в день', value: <div>{averageTradesByDay}</div>},
@@ -36,7 +37,7 @@ const ReportWidget = ({nonSummaryPositions, tradingDays, data, isLoading}) => {
     ]
 
     const renderProfit = (profit) => <div style={{color:
-            profit > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>{moneyFormat(profit)} ({numberToPercent(profit / currentBalance)}%)</div>
+            profit > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)'}}>{moneyFormat(profit)} ({numberToPercent(profit / percentBase)}%)</div>
 
     const list2 = [
         {label: 'Ср. прибыль на сделку', value: renderProfit(averageTradeNetProfit)},
