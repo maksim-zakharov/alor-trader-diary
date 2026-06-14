@@ -8,7 +8,6 @@ import moment from 'moment';
 import {Navigate, Route, Routes, useLocation, useNavigate, useSearchParams,} from 'react-router-dom';
 import {Exchange} from 'alor-api';
 import Diary from './pages/Diary/Diary';
-import Analytics from './pages/Analytics/Analytics';
 import LoginPage from "./pages/LoginPage/LoginPage";
 import {DefaultOptionType} from 'antd/es/select';
 import {excludePositions, getCurrentTariffPlan, positionsToTrades, tradesToHistoryPositions} from './utils';
@@ -16,7 +15,7 @@ import useListSecs from "./useListSecs";
 import {initApi, setSettings, updateDarkColors} from "./api/alor.slice";
 import {useAppDispatch, useAppSelector} from "./store";
 import {MenuItemType} from "antd/es/menu/interface";
-import {FundOutlined, ProfileOutlined, SearchOutlined} from "@ant-design/icons";
+import {ProfileOutlined, SearchOutlined} from "@ant-design/icons";
 import {
     calculateCommission,
     useGetPositionsQuery,
@@ -290,14 +289,6 @@ function App() {
             icon: <SearchOutlined/>,
             element: <WhatBuy getIsinBySymbol={getIsinBySymbol}/>
         },
-        {
-            key: 'analytics',
-            label: 'Аналитика',
-            icon: <FundOutlined/>,
-            element: <Analytics getIsinBySymbol={getIsinBySymbol}
-                                getListSectionBySymbol={getListSectionBySymbol} data={data}
-                                isLoading={isLoading} dateTo={dateTo} dateFrom={dateFrom}/>,
-        },
         // {
         //     key: 'orderbook',
         //     label: 'Orderbook',
@@ -362,6 +353,10 @@ function App() {
                         {menuItems.map((item) => (
                             <Route path={`/${item.key}`} element={item.element}/>
                         ))}
+                        <Route
+                            path="/analytics"
+                            element={<Navigate to={{ pathname: '/diary', search: location.search }} replace />}
+                        />
                         <Route path="/login" element={<LoginPage/>}/>
                         <Route path="*" element={<Navigate to="/"/>}/>
                     </Routes>

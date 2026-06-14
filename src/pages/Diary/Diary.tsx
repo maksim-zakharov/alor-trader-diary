@@ -60,6 +60,7 @@ import DiaryPositionsTable from "./components/DiaryPositionsTable";
 import { DiaryViewTabs } from './components/DiaryViewTabs';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DiaryDatePicker } from './components/DiaryDatePicker';
+import Analytics from '../Analytics/Analytics';
 
 interface IProps {
     data: any;
@@ -505,6 +506,17 @@ const Diary: FC<IProps> = ({
                     {years.map(year => <YearRender year={year}/>)}
                 </>}
                 {view === 'table' && <>
+                    <AppPanel className="DiaryAnalyticsPanel" flush>
+                        <Analytics
+                            embedded
+                            getIsinBySymbol={getIsinBySymbol}
+                            getListSectionBySymbol={getListSectionBySymbol}
+                            data={data}
+                            isLoading={isLoading}
+                            dateFrom={dateFrom}
+                            dateTo={dateTo}
+                        />
+                    </AppPanel>
                     <AppPanel className="DiaryTablePanel" flush>
                         {isLoading && <div className="mobile-position-spinner">
                             <Spinner/>

@@ -24,11 +24,13 @@ interface IProps {
   isLoading: boolean;
   getListSectionBySymbol: any;
   getIsinBySymbol: any;
+  /** Встроен в дневник над таблицей */
+  embedded?: boolean;
 }
 
 const ANALYTICS_VIEW_STORAGE_KEY = 'analyticsMainView';
 
-const Analytics: FC<IProps> = ({ getIsinBySymbol, getListSectionBySymbol, data, dateTo, dateFrom, isLoading }) => {
+const Analytics: FC<IProps> = ({ getIsinBySymbol, getListSectionBySymbol, data, dateTo, dateFrom, isLoading, embedded }) => {
   const [analyticsView, setAnalyticsView] = useState<AnalyticsView>(() => {
     const saved = localStorage.getItem(ANALYTICS_VIEW_STORAGE_KEY);
     return saved === 'metrics' || saved === 'symbols' ? saved : 'profit';
@@ -64,7 +66,7 @@ const Analytics: FC<IProps> = ({ getIsinBySymbol, getListSectionBySymbol, data, 
   );
 
   return (
-    <div className="analytics-page flex flex-col gap-1 mt-1">
+    <div className={embedded ? 'diary-analytics-panel' : 'analytics-page flex flex-col gap-1 mt-1'}>
       <AnalyticsViewTabs
         value={analyticsView}
         onChange={handleAnalyticsViewChange}
