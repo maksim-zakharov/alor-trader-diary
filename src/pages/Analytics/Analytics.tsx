@@ -183,10 +183,10 @@ const Analytics: FC<IProps> = ({ getIsinBySymbol, getListSectionBySymbol, data, 
         symbolsContent={
           <SymbolsWidget
             embedded
-            nightMode={nightMode}
-            darkColors={chartColors}
             nonSummaryPositions={nonSummaryPositions}
             isLoading={isLoading}
+            balanceData={balanceSeriesData}
+            initBalance={balanceSeriesData[0]?.value || 0}
           />
         }
       />
