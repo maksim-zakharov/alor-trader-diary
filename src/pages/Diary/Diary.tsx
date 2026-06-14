@@ -4,17 +4,14 @@ import {
     Form,
     Input,
     message,
-    Statistic,
     Timeline,
 
 } from 'antd';
 import {
-    EyeInvisibleOutlined, EyeOutlined, LogoutOutlined,
     MoonOutlined,
     SettingOutlined,
     ShareAltOutlined,
     SunOutlined,
-    SwapOutlined,
 } from '@ant-design/icons';
 import List from 'rc-virtual-list';
 
@@ -38,11 +35,10 @@ import {
     useGetSecurityByExchangeAndSymbolQuery,
     useGetSummaryQuery
 } from "../../api/alor.api";
-import {logout, setSettings} from "../../api/alor.slice";
+import {setSettings} from "../../api/alor.slice";
 import Spinner from "../../common/Spinner";
 import Title from "antd/es/typography/Title";
 import ASelect from "../../common/Select";
-import OperationsDrawer from "./components/OperationsDrawer";
 import Chart from "./components/Chart";
 import MoneyOutputIcon from "../../assets/money-output";
 import MoneyInputIcon from "../../assets/money-input";
@@ -50,7 +46,6 @@ import useWindowDimensions from "../../common/useWindowDimensions";
 import DraggableDrawer from "../../common/DraggableDrawerHOC";
 import { AppDrawer } from '@/components/AppDrawer';
 import { AppPanel } from '@/components/AppPanel';
-import WithdrawDrawer from "./components/WithdrawDrawer";
 import MobilePosition from "./components/MobilePosition";
 import MobileSearch from "./components/MobileSearch";
 import MobileSummaryCarousel from "./components/MobileSummaryCarousel";
@@ -96,7 +91,7 @@ const Diary: FC<IProps> = ({
         skip: !userInfo || !settings.agreement
     })
 
-    const {data: summary, isLoading: isSummaryLoading} = useGetSummaryQuery({
+    const {data: summary} = useGetSummaryQuery({
         // @ts-ignore
         exchange: settings.portfolio?.startsWith('E') ? 'UNITED' : Exchange.MOEX,
         format: 'Simple',
@@ -174,7 +169,6 @@ const Diary: FC<IProps> = ({
     const netProfitPercent = useMemo(() => !summary ? 0 : data.totalPnL * 100 / (summary?.portfolioEvaluation - data.totalPnL), [data.totalPnL, summary?.portfolioEvaluation]);
 
     const [searchParams, setSearchParams] = useSearchParams();
-    let showOperationsModal = searchParams.get('drawer') === 'operations';
     let showSettings = searchParams.get('drawer') === 'settings';
     let symbol = searchParams.get('symbol');
     let exchange = searchParams.get('exchange');
@@ -352,34 +346,6 @@ const Diary: FC<IProps> = ({
 
     const todayPnL = useMemo(() => data.positions.find(row => row.type === 'summary' && moment(row.openDate).format('DD.MM.YYYY') === moment().format('DD.MM.YYYY'))?.PnL || 0, [data.positions]);
 
-    const summaryValue = useMemo(() => {
-        if (!summary) {
-            return 0;
-        }
-        if (!settings['summaryType'] || settings['summaryType'] === 'brokerSummary') {
-            return summary.portfolioLiquidationValue || 0;
-        }
-
-        return summary.buyingPowerAtMorning + todayPnL;
-    }, [summary, settings['summaryType'], todayPnL]);
-
-    const Summary = () => <div
-        style={{
-            display: 'flex',
-            gap: '16px',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexWrap: 'wrap'
-        }}
-    >
-        <Statistic
-            title="Баланс"
-            loading={isSummaryLoading}
-            value={settings['hideSummary'] ? '••••••••' : moneyFormat(summaryValue)}
-            precision={2}
-        />
-    </div>
-
     const themeOptions = [
         {
             label: 'Системная',
@@ -398,7 +364,6 @@ const Diary: FC<IProps> = ({
 
     const InfoPanelDesktop = () => <AppPanel className="InfoPanelDesktop">
         <div className="InfoPanelDesktop__content">
-        <Summary/>
         <div
             style={{
                 display: 'flex',
@@ -408,52 +373,6 @@ const Diary: FC<IProps> = ({
                 flexWrap: 'wrap'
             }}
         >
-            <Statistic
-                title="Сделок"
-                loading={isLoading}
-                value={`${data.positions.filter(p => p.type !== 'summary').length} trades`}
-                precision={2}
-            />
-            <Statistic
-                title="Чистая прибыль"
-                loading={isLoading}
-                value={settings['hideSummary'] ? '••••••••' : `${moneyFormat(data.totalPnL)} (${shortNumberFormat(netProfitPercent)}%)`}
-                precision={2}
-                valueStyle={{
-                    color:
-                        data.totalPnL > 0 ? 'rgba(var(--table-profit-color),1)' : 'rgba(var(--table-loss-color),1)',
-                }}
-            />
-            <Statistic
-                title="Общ. комиссия"
-                loading={isLoading}
-                value={settings['hideSummary'] ? '••••••••' : moneyFormat(data.totalFee)}
-                precision={2}
-                valueStyle={{color: 'rgba(var(--table-loss-color),1)'}}
-            />
-            <Button
-                type="text"
-                icon={settings['hideSummary'] ? <EyeOutlined/> : <EyeInvisibleOutlined/>}
-                className="vertical-button"
-                onClick={(f) => dispatch(setSettings(({['hideSummary']: !settings['hideSummary']})))}
-            />
-            <Button
-                type="text"
-                icon={<SettingOutlined/>}
-                onClick={(f) => setShowOperationsModal('settings')(true)}
-            />
-            <Button
-                type="text"
-                icon={<SwapOutlined/>}
-                onClick={(f) => setShowOperationsModal('operations')(true)}
-            >Операции</Button>
-
-            <Button
-                type="text"
-                icon={<LogoutOutlined/>}
-                onClick={(f) => setShowOperationsModal('payout')(true)}
-            >Вывести</Button>
-
             <DiaryDatePicker value={dateFrom} onChange={onChangeDate} />
 
 
@@ -541,7 +460,6 @@ const Diary: FC<IProps> = ({
                     {!isLoading && dayPositions.map(dp => <MobilePosition getIsinBySymbol={getIsinBySymbol} positions={dp}/>)}
                 </>}
             </div>
-            <WithdrawDrawer onClose={() => setShowOperationsModal('payout')(false)}/>
             <DraggableDrawer title="Новости" open={selectedNews} placement={isMobile ? "bottom" : "right"}
                     closeIcon={<Button type="link"
                                        onClick={() => selectNews(null)}>Закрыть</Button>}
@@ -709,8 +627,6 @@ const Diary: FC<IProps> = ({
                     )}
                 </Tabs>
             </DraggableDrawer>
-            <OperationsDrawer isOpened={showOperationsModal}
-                              onClose={() => setShowOperationsModal('operations')(false)}/>
             <AppDrawer
                 title="Настройки"
                 open={showSettings}
@@ -780,10 +696,6 @@ const Diary: FC<IProps> = ({
                                  value={settingsInputProps('summaryType').value || 'brokerSummary'}
                                  onChange={val => dispatch(setSettings({['summaryType']: val}))}
                         />
-                    </FormItem>
-                    <FormItem>
-                        <Button danger style={{width: '100%'}} onClick={() => dispatch(logout())}
-                                type="link">Выйти</Button>
                     </FormItem>
                 </Form>
             </AppDrawer>

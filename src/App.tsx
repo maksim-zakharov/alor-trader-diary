@@ -27,6 +27,8 @@ import QuestionCircleIcon from "./assets/question-circle";
 import useWindowDimensions from "./common/useWindowDimensions";
 import WhatBuy from "./pages/WhatBuy";
 import { AppHeader } from './components/AppHeader';
+import OperationsDrawer from './pages/Diary/components/OperationsDrawer';
+import WithdrawDrawer from './pages/Diary/components/WithdrawDrawer';
 
 export const avg = (numbers: number[]) =>
     !numbers.length ? 0 : summ(numbers) / numbers.length;
@@ -268,6 +270,13 @@ function App() {
         return data;
     }, [historyPositions]);
 
+    const todayPnL = useMemo(
+        () => data.positions.find((row: any) =>
+            row.type === 'summary' && moment(row.openDate).format('YYYY-MM-DD') === moment().format('YYYY-MM-DD'),
+        )?.PnL || 0,
+        [data.positions],
+    );
+
     useEffect(() => {
         localStorage.setItem('symbols', JSON.stringify(symbols));
     }, [symbols]);
@@ -316,6 +325,14 @@ function App() {
 
     const headerNavItems = menuItems.map(({ key, label }) => ({ key, label }));
 
+    const drawer = searchParams.get('drawer');
+
+    const closeDrawer = () => {
+        const next = new URLSearchParams(searchParams);
+        next.delete('drawer');
+        setSearchParams(next);
+    };
+
     const onSelectMenu: MenuProps['onSelect'] = (e) => {
         let to = `/${e.key}`;
         if (location.search) {
@@ -342,7 +359,13 @@ function App() {
 
     return (
         <Layout ref={contentRef}>
-            {userInfo && <AppHeader navItems={headerNavItems} />}
+            {userInfo && <AppHeader navItems={headerNavItems} todayPnL={todayPnL} />}
+            {userInfo && (
+                <>
+                    <OperationsDrawer isOpened={drawer === 'operations'} onClose={closeDrawer} />
+                    <WithdrawDrawer onClose={closeDrawer} />
+                </>
+            )}
             <Content className="site-layout" style={{minHeight: '100vh'}}>
                 <div className="body-content">
                     <Routes>

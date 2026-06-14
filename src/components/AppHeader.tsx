@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { ChevronDownIcon, CircleHelpIcon } from 'lucide-react';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { ChevronDownIcon, CircleHelpIcon, EyeIcon, EyeOffIcon } from 'lucide-react';
 import { Exchange } from 'alor-api';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { setSettings } from '@/api/alor.slice';
-import { useGetAllSummariesQuery } from '@/api/alor.api';
+import { setSettings, logout } from '@/api/alor.slice';
+import { useGetAllSummariesQuery, useGetSummaryQuery } from '@/api/alor.api';
 import { moneyFormat } from '@/common/utils';
 import { Button, buttonVariants } from '@/components/ui/button';
 import {
@@ -31,15 +31,33 @@ export interface AppHeaderNavItem {
 interface AppHeaderProps {
   /** Пункты навигации */
   navItems: AppHeaderNavItem[];
+  /** PnL за сегодня для альтернативного типа баланса */
+  todayPnL?: number;
+}
+
+/** Инициалы пользователя для аватарки */
+function getUserInitials(fullName?: string): string {
+  if (!fullName) {
+    return '?';
+  }
+
+  return fullName
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase();
 }
 
 /**
  * Главная шапка приложения на shadcn/ui.
  */
-export function AppHeader({ navItems }: AppHeaderProps) {
+export function AppHeader({ navItems, todayPnL = 0 }: AppHeaderProps) {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const settings = useAppSelector((state) => state.alorSlice.settings);
   const userInfo = useAppSelector((state) => state.alorSlice.userInfo);
   const currentMenuSelectedKey = location.pathname?.split('/')[1] || 'diary';
@@ -55,6 +73,18 @@ export function AppHeader({ navItems }: AppHeaderProps) {
     },
   );
 
+  const { data: summary } = useGetSummaryQuery(
+    {
+      // @ts-ignore
+      exchange: settings.portfolio?.startsWith('E') ? 'UNITED' : Exchange.MOEX,
+      format: 'Simple',
+      portfolio: settings.portfolio,
+    },
+    {
+      skip: !userInfo || !settings.portfolio,
+    },
+  );
+
   const accountSummariesMap = useMemo(
     () =>
       (summaries || []).reduce<Record<string, (typeof summaries)[number]>>(
@@ -63,6 +93,18 @@ export function AppHeader({ navItems }: AppHeaderProps) {
       ),
     [summaries],
   );
+
+  const balanceValue = useMemo(() => {
+    if (!summary) {
+      return accountSummariesMap[settings.portfolio]?.portfolioLiquidationValue ?? 0;
+    }
+
+    if (!settings['summaryType'] || settings['summaryType'] === 'brokerSummary') {
+      return summary.portfolioLiquidationValue || 0;
+    }
+
+    return summary.buyingPowerAtMorning + todayPnL;
+  }, [summary, settings, todayPnL, accountSummariesMap]);
 
   const agreementSummariesMap = useMemo(
     () =>
@@ -91,6 +133,17 @@ export function AppHeader({ navItems }: AppHeaderProps) {
 
   const onSelectPortfolio = (agreement: string, portfolio: string) => {
     dispatch(setSettings({ agreement, portfolio }));
+  };
+
+  const openDrawer = (drawer: 'operations' | 'payout' | 'settings') => {
+    const next = new URLSearchParams(searchParams);
+    next.set('drawer', drawer);
+    setSearchParams(next);
+  };
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/login');
   };
 
   return (
@@ -187,18 +240,72 @@ export function AppHeader({ navItems }: AppHeaderProps) {
                 {item.label}
               </Button>
             ))}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 px-0 text-base text-muted-foreground hover:bg-transparent hover:text-foreground"
+              onClick={() => openDrawer('operations')}
+            >
+              Операции
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 px-0 text-base text-muted-foreground hover:bg-transparent hover:text-foreground"
+              onClick={() => openDrawer('payout')}
+            >
+              Вывести
+            </Button>
           </nav>
         </div>
 
-        <a
-          href="https://t.me/+8KsjwdNHVzIwNDQy"
-          target="_blank"
-          rel="noreferrer"
-          className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }), 'header-support-link gap-2 px-2')}
-        >
-          <CircleHelpIcon data-icon="inline-start" />
-          Поддержка
-        </a>
+        <div className="AppHeader__right flex items-center gap-3">
+          <a
+            href="https://t.me/+8KsjwdNHVzIwNDQy"
+            target="_blank"
+            rel="noreferrer"
+            className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }), 'header-support-link gap-2 px-2')}
+          >
+            <CircleHelpIcon data-icon="inline-start" />
+            Поддержка
+          </a>
+          <div className="AppHeader__balance-wrap flex items-center gap-1">
+            <span className="AppHeader__balance">
+              {settings['hideSummary'] ? '••••••••' : moneyFormat(balanceValue)}
+            </span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              className="AppHeader__balance-toggle text-muted-foreground hover:text-foreground"
+              aria-label={settings['hideSummary'] ? 'Показать баланс' : 'Скрыть баланс'}
+              onClick={() => dispatch(setSettings({ hideSummary: !settings['hideSummary'] }))}
+            >
+              {settings['hideSummary'] ? <EyeIcon className="size-4" /> : <EyeOffIcon className="size-4" />}
+            </Button>
+          </div>
+          <DropdownMenu modal={false}>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                className="AppHeader__avatar"
+                title={userInfo?.fullName || 'Профиль'}
+                aria-label={userInfo?.fullName || 'Профиль'}
+              >
+                {getUserInitials(userInfo?.fullName)}
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="AppHeader__user-menu w-[180px] bg-app-header-bg text-app-text">
+              <DropdownMenuItem className="cursor-pointer" onClick={() => openDrawer('settings')}>
+                Настройки
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="cursor-pointer text-destructive" onClick={handleLogout}>
+                Выйти
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
     </header>
   );
