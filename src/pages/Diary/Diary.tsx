@@ -4,21 +4,17 @@ import {
     Form,
     Input,
     message,
-    Radio,
     Statistic,
-    Tabs,
     Timeline,
 
 } from 'antd';
 import {
-    AppstoreOutlined,
     EyeInvisibleOutlined, EyeOutlined, LogoutOutlined,
     MoonOutlined,
     SettingOutlined,
     ShareAltOutlined,
     SunOutlined,
     SwapOutlined,
-    TableOutlined
 } from '@ant-design/icons';
 import List from 'rc-virtual-list';
 
@@ -61,6 +57,8 @@ import MobileSummaryCarousel from "./components/MobileSummaryCarousel";
 import MonthRender from "./components/MonthRender";
 import useScroll from "../../common/useScroll";
 import DiaryPositionsTable from "./components/DiaryPositionsTable";
+import { DiaryViewTabs } from './components/DiaryViewTabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DiaryDatePicker } from './components/DiaryDatePicker';
 
 interface IProps {
@@ -351,11 +349,6 @@ const Diary: FC<IProps> = ({
         setView(view)
     }
 
-    const options = [
-        {label: <TableOutlined/>, value: 'table'},
-        {label: <AppstoreOutlined/>, value: 'week'},
-    ];
-
     const todayPnL = useMemo(() => data.positions.find(row => row.type === 'summary' && moment(row.openDate).format('DD.MM.YYYY') === moment().format('DD.MM.YYYY'))?.PnL || 0, [data.positions]);
 
     const summaryValue = useMemo(() => {
@@ -463,8 +456,7 @@ const Diary: FC<IProps> = ({
             <DiaryDatePicker value={dateFrom} onChange={onChangeDate} />
 
 
-            <Radio.Group options={options} onChange={e => onChangeView(e.target.value)} value={view}
-                         optionType="button"/>
+            <DiaryViewTabs value={view} onChange={onChangeView} />
         </div>
         </div>
     </AppPanel>
@@ -506,7 +498,7 @@ const Diary: FC<IProps> = ({
             <MobileSearch getIsinBySymbol={getIsinBySymbol}/>
             <div className="diary-panels flex flex-col gap-1 mt-1">
                 <AppPanel className="MobileSummaryPanel" flush>
-                    <MobileSummaryCarousel dateFrom={dateFrom} onChangeView={onChangeView} view={view} setShowOperationsModal={setShowOperationsModal} options={options} netProfitPercent={netProfitPercent} todayPnL={todayPnL} onChangeDate={onChangeDate} totalPnL={data.totalPnL}/>
+                    <MobileSummaryCarousel dateFrom={dateFrom} onChangeView={onChangeView} view={view} setShowOperationsModal={setShowOperationsModal} netProfitPercent={netProfitPercent} todayPnL={todayPnL} onChangeDate={onChangeDate} totalPnL={data.totalPnL}/>
                 </AppPanel>
                 <InfoPanelDesktop/>
                 {view === 'week' && <>
@@ -563,8 +555,18 @@ const Diary: FC<IProps> = ({
                         url: `/alor-trader-diary/#/diary?symbol=${symbol}`,
                     })} icon={<ShareAltOutlined/>}/>}
             >
-                <Tabs activeKey={symbolTab} onTabClick={onHandleSelectSymbolTab}>
-                    <Tabs.TabPane tab="Обзор" key="description">
+                <Tabs value={symbolTab} onValueChange={onHandleSelectSymbolTab} className="SymbolDrawerTabs">
+                    <TabsList variant="line" className="SymbolDrawerTabs__list w-full justify-start rounded-none bg-input px-4">
+                        <TabsTrigger value="description">Обзор</TabsTrigger>
+                        <TabsTrigger value="level2">Стакан</TabsTrigger>
+                        {dividends.filter(d => d.recommendDividendPerShare).length > 0 && !dividendsError && (
+                            <TabsTrigger value="dividends">Дивиденды</TabsTrigger>
+                        )}
+                        {news.length > 0 && <TabsTrigger value="news">Новости</TabsTrigger>}
+                        {symbolPositions.length > 0 && <TabsTrigger value="positions">Сделки</TabsTrigger>}
+                        {tradeEvents.length > 0 && <TabsTrigger value="tradeEvents">События</TabsTrigger>}
+                    </TabsList>
+                    <TabsContent value="description">
                         <div className="description-container">
                             <Chart
                                 colors={nightMode && darkColors}
@@ -592,15 +594,15 @@ const Diary: FC<IProps> = ({
                             bottom: '16px'}}>
                             Биржа закрыта
                         </div>}
-                    </Tabs.TabPane>
-                    <Tabs.TabPane tab="Стакан" key="level2">
+                    </TabsContent>
+                    <TabsContent value="level2">
                         {/*<div className="level2-container">*/}
                         {/*    <OrderbookWidget api={api} symbol={symbol} key={symbol} showClusters/>*/}
                         {/*</div>*/}
                         В разработке
-                    </Tabs.TabPane>
-                    {dividends.filter(d => d.recommendDividendPerShare).length > 0 && !dividendsError &&
-                        <Tabs.TabPane tab="Дивиденды" key="dividends">
+                    </TabsContent>
+                    {dividends.filter(d => d.recommendDividendPerShare).length > 0 && !dividendsError && (
+                        <TabsContent value="dividends">
                         <span className="dividends-description">
                             Дата, по которой включительно необходимо купить акции биржевых эмитентов для получения дивидендов. Начисление дивидендов ориентировочно в течение 1-2 месяцев. По внебиржевым инструментам даты строго ориентировочны и могут отличаться в связи с спецификой расчета по таким сделкам.
                         </span>
@@ -624,8 +626,10 @@ const Diary: FC<IProps> = ({
                                     </tr>)}
                                 </tbody>
                             </table>
-                        </Tabs.TabPane>}
-                    {news.length > 0 && <Tabs.TabPane tab="Новости" key="news">
+                        </TabsContent>
+                    )}
+                    {news.length > 0 && (
+                        <TabsContent value="news">
                         <div className="news-list-container">
                             {news.sort((a, b) => b.publishDate.localeCompare(a.publishDate)).map(n => <div className="news-list" onClick={() => selectNews(n.id)} key={n.id}>
                                 <h4>{n.header}</h4>
@@ -633,9 +637,10 @@ const Diary: FC<IProps> = ({
                                 <p dangerouslySetInnerHTML={{__html: n.content}}/>
                             </div>)}
                         </div>
-                    </Tabs.TabPane>
-                    }
-                    {symbolPositions.length > 0 && <Tabs.TabPane tab="Сделки" key="positions">
+                        </TabsContent>
+                    )}
+                    {symbolPositions.length > 0 && (
+                        <TabsContent value="positions">
                         <div className="tradeEvents-list-container">
                             <List data={symbolPositions} styles={virtualListStyles} height={listHeight} itemHeight={48} itemKey="id">
                                 {(dp =>
@@ -661,9 +666,10 @@ const Diary: FC<IProps> = ({
                                     </div>)}
                             </List>
                         </div>
-                    </Tabs.TabPane>
-                    }
-                    {tradeEvents.length > 0 && <Tabs.TabPane tab="События" key="tradeEvents">
+                        </TabsContent>
+                    )}
+                    {tradeEvents.length > 0 && (
+                        <TabsContent value="tradeEvents">
                         <div className="tradeEvents-list-container">
                             <List data={tradeEvents} styles={virtualListStyles} height={listHeight} itemHeight={48} itemKey="id">
                                 {(getMaxLossTrade =>
@@ -686,8 +692,8 @@ const Diary: FC<IProps> = ({
                                     </div>)}
                             </List>
                         </div>
-                    </Tabs.TabPane>
-                    }
+                        </TabsContent>
+                    )}
                 </Tabs>
             </DraggableDrawer>
             <OperationsDrawer isOpened={showOperationsModal}

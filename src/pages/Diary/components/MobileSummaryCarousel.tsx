@@ -1,4 +1,4 @@
-import {Button, Carousel, Radio, Space} from "antd";
+import {Button, Carousel, Space} from "antd";
 import React, {useEffect, useMemo, useRef, useState} from "react";
 import Spinner from "../../../common/Spinner";
 import {moneyFormat, shortNumberFormat} from "../../../common/utils";
@@ -8,8 +8,9 @@ import {useGetAllSummariesQuery} from "../../../api/alor.api";
 import {Exchange} from "alor-api";
 import {useAppDispatch, useAppSelector} from "../../../store";
 import { DiaryDatePicker } from './DiaryDatePicker';
+import { DiaryViewTabs } from './DiaryViewTabs';
 
-const MobileSummaryCarousel = ({dateFrom, onChangeView, view, setShowOperationsModal, todayPnL, options, onChangeDate, totalPnL, netProfitPercent}) => {
+const MobileSummaryCarousel = ({dateFrom, onChangeView, view, setShowOperationsModal, todayPnL, onChangeDate, totalPnL, netProfitPercent}) => {
     const userInfo = useAppSelector(state => state.alorSlice.userInfo);
     const settings = useAppSelector(state => state.alorSlice.settings);
     const dispatch = useAppDispatch();
@@ -119,8 +120,7 @@ const MobileSummaryCarousel = ({dateFrom, onChangeView, view, setShowOperationsM
                 onClick={(f) => setShowOperationsModal('payout')(true)}
             >Вывести</Button>
 
-            <Radio.Group options={options} onChange={e => onChangeView(e.target.value)} value={view} size="large"
-                         optionType="button"/>
+            <DiaryViewTabs value={view} onChange={onChangeView} size="large" />
         </div>
     </div>
 

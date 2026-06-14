@@ -68,7 +68,7 @@ export function DiaryDatePicker({ value, onChange, compact = false, className }:
           </>
         )}
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start">
+      <PopoverContent className="w-auto border-0 bg-[#333537] p-0 ring-foreground/10" align="start">
         <Calendar
           mode="single"
           locale={ruDayPicker}
