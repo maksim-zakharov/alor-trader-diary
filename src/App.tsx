@@ -1,12 +1,12 @@
 // import logo from './logo.svg';
 import './App.css';
-import {Divider, Dropdown, Layout, Menu, MenuProps, Select, Space,} from 'antd';
-import {Content, Footer, Header} from 'antd/es/layout/layout';
+import {Layout, Menu, MenuProps,} from 'antd';
+import {Content, Footer} from 'antd/es/layout/layout';
 import React, {ReactNode, useEffect, useMemo, useState} from 'react';
 // import QuestionCircleIcon  from './assets/question-circle';
 import moment from 'moment';
 import {Navigate, Route, Routes, useLocation, useNavigate, useSearchParams,} from 'react-router-dom';
-import {Exchange, Positions} from 'alor-api';
+import {Exchange} from 'alor-api';
 import Diary from './pages/Diary/Diary';
 import Analytics from './pages/Analytics/Analytics';
 import LoginPage from "./pages/LoginPage/LoginPage";
@@ -19,20 +19,15 @@ import {MenuItemType} from "antd/es/menu/interface";
 import {FundOutlined, ProfileOutlined, SearchOutlined} from "@ant-design/icons";
 import {
     calculateCommission,
-    useGetAllSummariesQuery,
     useGetPositionsQuery,
     useGetTradesQuery,
     useGetUserInfoQuery
 } from './api/alor.api';
 import {getEnv, oAuth2Client} from "./api/oAuth2";
 import QuestionCircleIcon from "./assets/question-circle";
-import PortfolioIcon from './assets/portfolio';
-import CheckIcon from './assets/check';
-import {moneyFormat} from "./common/utils";
-import ChevronBottomIcon from "./assets/chevron-bottom";
 import useWindowDimensions from "./common/useWindowDimensions";
 import WhatBuy from "./pages/WhatBuy";
-import OrderbookWidget from "./pages/Orderbook/OrderbookWidget";
+import { AppHeader } from './components/AppHeader';
 
 export const avg = (numbers: number[]) =>
     !numbers.length ? 0 : summ(numbers) / numbers.length;
@@ -328,6 +323,8 @@ function App() {
         // },
     ].filter(s => !!s);
 
+    const headerNavItems = menuItems.map(({ key, label }) => ({ key, label }));
+
     const onSelectMenu: MenuProps['onSelect'] = (e) => {
         let to = `/${e.key}`;
         if (location.search) {
@@ -352,109 +349,9 @@ function App() {
         </div>
     }
 
-    const SelectAccountDropdown = () => {
-
-        const {data: summaries} = useGetAllSummariesQuery({
-            exchange: Exchange.MOEX,
-            format: 'Simple',
-            userInfo
-        }, {
-            skip: !userInfo
-        });
-
-        const accountSummariesMap = useMemo(() => (summaries || []).reduce((acc, curr) => ({
-            ...acc,
-            [curr.accountNumber]: curr
-        }), {}), [summaries]);
-        const agreementSummariesMap = useMemo(() => (summaries || []).reduce((acc, curr) => {
-            if (!acc[curr.agreementNumber]) {
-                acc[curr.agreementNumber] = 0;
-            }
-            acc[curr.agreementNumber] += curr.portfolioLiquidationValue;
-            return acc;
-        }, {}), [summaries]);
-
-        const totalSum = useMemo(() => (summaries || []).reduce((acc, curr) => {
-            acc += curr.portfolioLiquidationValue;
-            return acc;
-        }, 0), [summaries]);
-
-        const items: MenuProps['items'] = useMemo(() => (userInfo?.agreements || []).map(agreement => ({
-            label: <div className="portfolio-item">
-                <Space><span>Договор {agreement.cid}</span></Space>
-                {!agreement.isEDP && <div className="portfolio-summary">
-                    <span
-                        className="portfolio-description">Всего на {agreement.portfolios.length} счетах:</span>{moneyFormat(agreementSummariesMap[agreement.agreementNumber], 0, 0)}
-                </div>}
-            </div>,
-            type: 'group',
-            key: agreement.agreementNumber,
-            children: (agreement.isEDP ? [{
-                accountNumber: `E${agreement.agreementNumber}`,
-                service: 'ЕДП'
-            }] : agreement.portfolios).map(portfolio => ({
-                label: <div className="portfolio-item">
-                    <Space><span>{portfolio.accountNumber} ({portfolio.service})</span><CheckIcon/></Space>
-                    <div
-                        className="portfolio-summary">{moneyFormat(accountSummariesMap[portfolio.accountNumber]?.portfolioLiquidationValue, 0, 0)}</div>
-                </div>,
-                key: `${agreement.agreementNumber}-${portfolio.accountNumber}`,
-                icon: <div className="portfolio-icon"><PortfolioIcon/></div>
-            }))
-        })), [userInfo]);
-
-        const onSelect = ({key}) => {
-            const [agreement, portfolio] = key.split('-');
-            if (agreement && portfolio) {
-                dispatch(setSettings(({agreement, portfolio})))
-            }
-        }
-
-        return <Dropdown overlayClassName="SelectAccountDropdownMenu"
-                         dropdownRender={menu => (
-                             <>
-                                 <div className="portfolio-item ant-dropdown-menu-item-group-title">
-                                     <div className="portfolio-summary">
-                                         <span className="portfolio-description">Всего на всех счетах:</span>
-                                     </div>
-                                     <div className="portfolio-summary">
-                                         {moneyFormat(totalSum, 0, 0)}
-                                     </div>
-                                 </div>
-                                 <Divider/>
-                                 {menu}
-                             </>
-                         )} menu={{
-            selectedKeys: [`${settings.agreement}-${settings.portfolio}`],
-            items,
-            onSelect,
-            selectable: true
-        }} trigger={['click']} className="SelectAccountDropdown">
-            <a className="header-support-link" onClick={e => e.preventDefault()}>
-                <Space>
-                    <strong>{settings.portfolio}</strong>
-                    <ChevronBottomIcon/>
-                </Space>
-            </a>
-        </Dropdown>
-    }
-
     return (
         <Layout ref={contentRef}>
-            {userInfo && <Header style={{display: 'flex', alignItems: 'center'}}>
-                <div className="menu-content">
-                    <SelectAccountDropdown/>
-                    <Menu
-                        theme="dark"
-                        mode="horizontal"
-                        defaultSelectedKeys={[currentMenuSelectedKey]}
-                        items={menuItems}
-                        onSelect={onSelectMenu}
-                    />
-                    <a className="header-support-link" href="https://t.me/+8KsjwdNHVzIwNDQy"
-                       target="_blank"><QuestionCircleIcon/>Поддержка</a>
-                </div>
-            </Header>}
+            {userInfo && <AppHeader navItems={headerNavItems} />}
             <Content className="site-layout" style={{minHeight: '100vh'}}>
                 <div className="body-content">
                     <Routes>

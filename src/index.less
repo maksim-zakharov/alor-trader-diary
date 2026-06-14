@@ -765,6 +765,10 @@ header {
   header {
     display: none !important;
   }
+
+  .AppHeader {
+    display: none !important;
+  }
 }
 
 .MobileSummary .percent:before {
@@ -810,6 +814,13 @@ header {
   .dark-theme .ant-layout .ant-layout-header {
     padding: 0;
     height: 48px !important;
+  }
+
+  .dark-theme .AppHeader {
+    padding: 0;
+    height: 48px;
+    background-color: rgba(var(--pro-app-background-color), 0.95);
+    border-bottom-color: rgba(var(--pro-divider-bg), 0.2);
   }
 
   .ant-modal .ant-modal-content {
@@ -1208,6 +1219,35 @@ header {
   z-index: 1;
 }
 
+.AppHeader {
+  height: 48px;
+  color: rgba(var(--pro-text-02), 1);
+
+  .menu-content {
+    height: 48px;
+  }
+
+  .header-support-link {
+    color: rgba(var(--pro-text-01), 1);
+    text-decoration: none;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  .SelectAccountDropdownMenu {
+    [data-slot="dropdown-menu-group"] + [data-slot="dropdown-menu-group"] {
+      border-top: 1px solid rgba(var(--pro-menu-divider-color), 1);
+    }
+
+    .portfolio-menu-item {
+      min-height: 56px;
+    }
+  }
+}
+
 .ant-table-wrapper .ant-table-thead > tr > th, .ant-table-wrapper .ant-table-thead > tr > td {
   text-align: center;
 }
@@ -1219,13 +1259,15 @@ header {
 }
 
 .menu-content {
-  width: 2000px;
+  width: 100%;
+  max-width: 2000px;
   margin: auto;
-  padding: 0;
+  padding: 0 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   height: inherit;
+  box-sizing: border-box;
 }
 
 .body-content {
