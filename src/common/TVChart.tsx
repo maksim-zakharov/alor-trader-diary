@@ -22,9 +22,13 @@ interface IProps{
     shortNumber?: boolean;
     fitContent?: boolean;
     lotSize?: number
+    /** График PnL на аналитике: зелёная/красная заливка от нуля */
+    pnlChart?: boolean;
+    /** Пунктирная линия и подпись текущего PnL справа */
+    showPnLLastLine?: boolean;
 }
 
-const TVChart: FC<IProps> = ({fitContent, lotSize, balance, colors, seriesType, shortNumber, digits, data, markers, formatTime}) => {
+const TVChart: FC<IProps> = ({fitContent, lotSize, balance, colors, seriesType, shortNumber, digits, data, markers, formatTime, pnlChart, showPnLLastLine}) => {
     const {
         backgroundColor = '#17181e',
         color = 'rgb(166,189,213)',
@@ -40,7 +44,7 @@ const TVChart: FC<IProps> = ({fitContent, lotSize, balance, colors, seriesType, 
 
     const lastValue = useMemo(() => data.slice(-1)[0],[data]);
 
-    if(shortNumber){
+    if(shortNumber && !pnlChart){
         priceFormatter = v => {
             const format = shortNumberFormat(v, digits, digits);
             // @ts-ignore
@@ -52,10 +56,17 @@ const TVChart: FC<IProps> = ({fitContent, lotSize, balance, colors, seriesType, 
         };
     }
 
+    if (pnlChart) {
+        priceFormatter = (v) => shortNumberFormat(v, 0, 1);
+    }
+
     useEffect(
         () => {
             const handleResize = () => {
-                chart.applyOptions({ width: chartContainerRef.current.clientWidth });
+                chart.applyOptions({
+                    width: chartContainerRef.current.clientWidth,
+                    height: chartContainerRef.current.clientHeight || 400,
+                });
             };
 
             const chart = createChart(chartContainerRef.current, {
@@ -104,7 +115,7 @@ const TVChart: FC<IProps> = ({fitContent, lotSize, balance, colors, seriesType, 
                     textColor: color,
                 },
                 width: chartContainerRef!.current.clientWidth,
-                height: 400,
+                height: chartContainerRef!.current.clientHeight || 400,
             });
             fitContent && chart.timeScale().fitContent();
 
@@ -184,16 +195,24 @@ const TVChart: FC<IProps> = ({fitContent, lotSize, balance, colors, seriesType, 
 
             if(seriesType === 'baseLine') {
                 series = chart.addBaselineSeries({
-                    // priceLineColor: 'rgb(51,111,238)',
-                    // crosshairMarkerBackgroundColor: 'rgb(51,111,238)',
-                    lineWidth: 1,
-                    lineType: 2,
-                    topFillColor1: 'rgb(51,111,238, 0.8)',
-                    topFillColor2: 'rgba(51,111,238, 0.3)',
-                    topLineColor: 'rgb(51,111,238)',
-                    // bottomFillColor1: 'rgb(51,111,238)',
-                    // bottomLineColor: 'rgb(51,111,238)',
-                    // bottomFillColor2: 'rgb(51,111,238)',
+                    baseValue: { type: 'price', price: 0 },
+                    lineWidth: 2,
+                    lastValueVisible: !showPnLLastLine,
+                    priceLineVisible: false,
+                    ...(pnlChart
+                        ? {
+                            topFillColor1: 'rgba(44, 232, 156, 0.22)',
+                            topFillColor2: 'rgba(44, 232, 156, 0.02)',
+                            topLineColor: 'rgb(51, 111, 238)',
+                            bottomFillColor1: 'rgba(255, 117, 132, 0.02)',
+                            bottomFillColor2: 'rgba(255, 117, 132, 0.22)',
+                            bottomLineColor: 'rgb(51, 111, 238)',
+                        }
+                        : {
+                            topFillColor1: 'rgb(51,111,238, 0.8)',
+                            topFillColor2: 'rgba(51,111,238, 0.3)',
+                            topLineColor: 'rgb(51,111,238)',
+                        }),
                 })
 
                 const toolTip: any = document.createElement('div');
@@ -296,6 +315,32 @@ const TVChart: FC<IProps> = ({fitContent, lotSize, balance, colors, seriesType, 
 
             series?.setData(data);
 
+            if (pnlChart && seriesType === 'baseLine') {
+                series.createPriceLine({
+                    price: 0,
+                    color: 'rgb(173, 177, 184)',
+                    lineWidth: 1,
+                    lineStyle: LineStyle.Solid,
+                    axisLabelVisible: true,
+                    title: '0',
+                });
+            }
+
+            if (showPnLLastLine && seriesType === 'baseLine' && data.length > 0) {
+                const lastPoint = data[data.length - 1] as { value?: number };
+                const lastPnL = lastPoint.value ?? 0;
+                const lineColor = lastPnL >= 0 ? 'rgb(44, 232, 156)' : 'rgb(255, 117, 132)';
+
+                series.createPriceLine({
+                    price: lastPnL,
+                    color: lineColor,
+                    lineWidth: 1,
+                    lineStyle: LineStyle.Dashed,
+                    axisLabelVisible: true,
+                    title: `PnL: ${moneyFormat(lastPnL)}`,
+                });
+            }
+
             if(markers && markers.length > 0){
                 const firstBuy: any = markers.find(p => p.position === 'belowBar');
                 const firstSell: any = markers.find(p => p.position === 'aboveBar');
@@ -353,7 +398,7 @@ const TVChart: FC<IProps> = ({fitContent, lotSize, balance, colors, seriesType, 
                 chart.remove();
             };
         },
-        [data, fitContent, backgroundColor, color, chartContainerRef.current, markers, seriesType, digits]
+        [data, fitContent, backgroundColor, color, chartContainerRef.current, markers, seriesType, digits, pnlChart, showPnLLastLine]
     );
 
     return <div

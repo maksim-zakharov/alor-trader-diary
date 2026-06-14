@@ -4,7 +4,7 @@ import Highcharts from "highcharts";
 import NoResult from "../../../common/NoResult";
 import React, {useMemo} from "react";
 
-const SymbolsWidget = ({nightMode, darkColors, nonSummaryPositions, isLoading}) => {
+const SymbolsWidget = ({nightMode, darkColors, nonSummaryPositions, isLoading, embedded}) => {
 
     const symbolPnlMap: {[reason: string]: number} = useMemo(() => nonSummaryPositions.reduce((acc, curr) => ({...acc, [curr.symbol]: (acc[curr.symbol] || 0) +  curr.PnL  }), {} as {[reason: string]: number}), [nonSummaryPositions])
 
@@ -112,7 +112,16 @@ const SymbolsWidget = ({nightMode, darkColors, nonSummaryPositions, isLoading}) 
         series: symbolSeries
     }
 
-    return <div className="widget" style={{height: 460, width: '100%'}}>
+    return embedded ? (
+        <div className="analytics-symbols-panel">
+            {isLoading ? <Spinner/> : symbolCategories.length ?
+                <HighchartsReact
+                    highcharts={Highcharts}
+                    options={symbolOptions}
+                /> : <NoResult text="Нет данных"/>}
+        </div>
+    ) : (
+    <div className="widget" style={{height: 460, width: '100%'}}>
         <div className="widget_header">По инструментам</div>
         {isLoading ? <Spinner/> : symbolCategories.length ?
             <HighchartsReact
@@ -120,6 +129,7 @@ const SymbolsWidget = ({nightMode, darkColors, nonSummaryPositions, isLoading}) 
                 options={symbolOptions}
             /> : <NoResult text="Нет данных"/>}
     </div>
+    );
 }
 
 export default SymbolsWidget;

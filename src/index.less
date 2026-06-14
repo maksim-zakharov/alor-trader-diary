@@ -404,6 +404,153 @@ code {
   margin: 0;
 }
 
+.analytics-view-tabs {
+  width: 100%;
+}
+
+.analytics-tabbed-widget {
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.analytics-main-tabs {
+  width: fit-content;
+  margin: 10px 12px 0;
+}
+
+.analytics-tab-panel {
+  margin: 0;
+  min-height: 480px;
+
+  &--metrics {
+    min-height: auto;
+    padding: 8px;
+  }
+}
+
+.analytics-metrics-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.analytics-symbols-panel {
+  height: 480px;
+  width: 100%;
+  padding: 8px 12px 12px;
+  box-sizing: border-box;
+}
+
+.analytics-profit-widget--embedded {
+  border-radius: 0;
+}
+
+.analytics-profit-widget {
+  position: relative;
+  min-height: 420px;
+  height: 480px;
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.analytics-profit-chart {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+
+  > div {
+    height: 100%;
+  }
+}
+
+.analytics-profit-summary {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 300px;
+  max-width: 34%;
+  height: 100%;
+  padding: 20px 18px;
+  background-color: var(--app-header-bg);
+  border-right: 1px solid rgb(32, 33, 36);
+  box-sizing: border-box;
+}
+
+.analytics-profit-period {
+  display: inline-flex;
+  width: fit-content;
+  padding: 5px 12px;
+  border-radius: 8px;
+  background-color: rgb(51, 111, 238);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+}
+
+.analytics-profit-total {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 38px;
+  letter-spacing: -0.02em;
+
+  &.profit {
+    color: rgba(var(--table-profit-color), 1);
+  }
+
+  &.loss {
+    color: rgba(var(--table-loss-color), 1);
+  }
+}
+
+.analytics-profit-percent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 18px;
+  color: #fff;
+  box-sizing: border-box;
+
+  &.profit {
+    background-color: rgba(var(--table-profit-color), 1);
+  }
+
+  &.loss {
+    background-color: rgba(var(--table-loss-color), 1);
+  }
+}
+
+.analytics-profit-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 2px;
+}
+
+.analytics-profit-metric {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  line-height: 18px;
+  color: rgb(173, 177, 184);
+
+  span:last-child {
+    color: rgba(var(--pro-text-02), 1);
+    font-weight: 500;
+    text-align: right;
+    white-space: nowrap;
+  }
+}
+
 .ant-skeleton .ant-skeleton-content .ant-skeleton-title {
   background-color: rgba(179, 199, 219, 0.1);
   margin-top: 0;
