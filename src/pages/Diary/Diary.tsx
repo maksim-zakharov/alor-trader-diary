@@ -514,6 +514,7 @@ const Diary: FC<IProps> = ({
                             positions={data.positions}
                             isLoading={isLoading}
                             isMobile={isMobile}
+                            getIsinBySymbol={getIsinBySymbol}
                             getListSectionBySymbol={getListSectionBySymbol}
                             onCopyTicker={copyToClipboard}
                             reasons={reasons}

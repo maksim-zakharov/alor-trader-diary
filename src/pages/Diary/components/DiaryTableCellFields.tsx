@@ -61,7 +61,7 @@ export const DiaryPositionCommentInput: FC<DiaryPositionCommentInputProps> = ({
   <Input
     value={value ?? ''}
     onChange={onChange}
-    placeholder="Добавьте комментарий..."
+    placeholder="Добавить комментарий..."
     className="h-7 text-sm"
   />
 );

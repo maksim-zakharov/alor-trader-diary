@@ -493,3 +493,10 @@ export function getChartingLibraryPath(): string {
   const base = import.meta.env.BASE_URL || '/';
   return `${base}assets/charting_library/`;
 }
+
+/** Видимый диапазон графика позиции: −5 ч от открытия, +5 ч после закрытия. */
+export function getPositionChartVisibleRange(openDate: string, closeDate?: string): { from: number; to: number } {
+  const from = moment(openDate).subtract(5, 'hours').unix();
+  const to = moment(closeDate || openDate).add(5, 'hours').unix();
+  return { from, to: Math.max(to, from + 1) };
+}

@@ -185,7 +185,9 @@ export function DataTable<T extends Record<string, unknown>>({
                   <TableRow className="hover:bg-transparent">
                     <TableCell colSpan={columns.length + 1} className="p-0">
                       <Collapsible open={isExpanded}>
-                        <CollapsibleContent>{expandable.expandedRowRender(row)}</CollapsibleContent>
+                        <CollapsibleContent>
+                          {isExpanded ? expandable.expandedRowRender(row) : null}
+                        </CollapsibleContent>
                       </Collapsible>
                     </TableCell>
                   </TableRow>

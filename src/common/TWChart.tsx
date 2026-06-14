@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useAppSelector } from '../store';
 import { DataFeed } from '../api/datafeed';
 import { getTimezone } from '../common/utils';
@@ -11,7 +11,9 @@ import {
   ChartTemplateContent,
   CustomTimezoneId,
   GmtTimezoneId,
+  Direction,
   IChartingLibraryWidget,
+  IExecutionLineAdapter,
   IExternalSaveLoadAdapter,
   LineToolsAndGroupsState,
   PlusClickParams,
@@ -22,21 +24,32 @@ import {
   widget,
 } from '../assets/charting_library';
 
-export const TWChart = ({ ticker, height = 400, small, markers = [] }: { ticker: string, height?: number, small?: boolean, markers?: {
+export const TWChart = ({ ticker, height = 400, small, markers = [], visibleRange }: {
+  ticker: string;
+  height?: number;
+  small?: boolean;
+  markers?: {
     time: number;
     price: number;
     type: 'entry' | 'exit';
     text?: string;
-  }[] }) => {
+  }[];
+  /** UNIX-диапазон видимости (секунды), например ±5 ч от позиции */
+  visibleRange?: { from: number; to: number };
+}) => {
 
   const chartRef = useRef<IChartingLibraryWidget | null>(null);
-  const entityIdsRef = useRef<string[]>([]);
+  const executionLinesRef = useRef<IExecutionLineAdapter[]>([]);
   const chartReadyRef = useRef(false);
   const markersRef = useRef(markers);
+  const visibleRangeRef = useRef(visibleRange);
 
   markersRef.current = markers;
+  visibleRangeRef.current = visibleRange;
 
   const ref = useRef<HTMLDivElement>(null);
+  const isPositionChart = Boolean(visibleRange);
+  const [isRangeApplied, setIsRangeApplied] = useState(!isPositionChart);
   const dataService = useAppSelector((state) => state.alorSlice.dataService);
   const ws = useAppSelector((state) => state.alorSlice.ws);
 
@@ -52,19 +65,27 @@ export const TWChart = ({ ticker, height = 400, small, markers = [] }: { ticker:
   );
 
   const clearMarkers = (widget: IChartingLibraryWidget) => {
+    executionLinesRef.current.forEach((line) => {
+      try {
+        line.remove();
+      } catch {
+        // маркер уже удалён
+      }
+    });
+    executionLinesRef.current = [];
+  };
+
+  const applyVisibleRange = async (widget: IChartingLibraryWidget) => {
+    const range = visibleRangeRef.current;
+    if (!range) {
+      return;
+    }
+
     try {
-      const chart = widget.chart();
-      entityIdsRef.current.forEach((id) => {
-        try {
-          chart.removeEntity(id);
-        } catch {
-          // маркер уже удалён
-        }
-      });
+      await widget.activeChart().setVisibleRange({ from: range.from, to: range.to });
     } catch {
       // виджет ещё не готов или уже уничтожен
     }
-    entityIdsRef.current = [];
   };
 
   const applyMarkers = (widget: IChartingLibraryWidget) => {
@@ -78,33 +99,38 @@ export const TWChart = ({ ticker, height = 400, small, markers = [] }: { ticker:
     }
 
     try {
-      const chart = widget.chart();
+      const chart = widget.activeChart();
       clearMarkers(widget);
 
       markersRef.current.forEach((marker) => {
-        const point = { time: marker.time, price: marker.price };
+        const direction: Direction = marker.type === 'entry' ? 'buy' : 'sell';
+        const arrowColor = marker.type === 'entry' ? 'rgb(19,193,123)' : 'rgb(255,117,132)';
+        const text = marker.text || (marker.type === 'entry' ? 'Вход' : 'Выход');
 
-        const options: Partial<any> = {
-          shape: marker.type === 'entry' ? 'arrow_up' : 'arrow_down',
-          text: marker.text || (marker.type === 'entry' ? 'Вход' : 'Выход'),
-          lock: true,
-          disableSelection: false,
-          disableSave: false,
-          disableUndo: false,
-          textColor: '#FFFFFF',
-          overrides: {
-            arrowColor: marker.type === 'entry' ? 'rgb(19,193,123)' : 'rgb(255,117,132)',
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          },
-          zOrder: 'top',
-        };
+        const line = chart
+          .createExecutionShape({ disableUndo: true })
+          .setDirection(direction)
+          .setTime(marker.time)
+          .setPrice(marker.price)
+          .setText(text)
+          .setTooltip(text)
+          .setArrowColor(arrowColor)
+          .setTextColor('#FFFFFF');
 
-        const entityId = chart.createShape(point, options);
-        entityIdsRef.current.push(entityId);
+        executionLinesRef.current.push(line);
       });
     } catch {
-      // виджет уничтожен между onChartReady и вызовом chart()
+      // виджет уничтожен между onChartReady и вызовом activeChart()
     }
+  };
+
+  const scheduleMarkersUpdate = (widget: IChartingLibraryWidget) => {
+    widget.activeChart().dataReady(() => {
+      if (chartRef.current !== widget || !chartReadyRef.current) {
+        return;
+      }
+      applyMarkers(widget);
+    });
   };
 
   useEffect(() => {
@@ -113,14 +139,28 @@ export const TWChart = ({ ticker, height = 400, small, markers = [] }: { ticker:
       return;
     }
 
-    applyMarkers(widget);
+    scheduleMarkersUpdate(widget);
   }, [markers]);
+
+  useEffect(() => {
+    const widget = chartRef.current;
+    if (!widget || !chartReadyRef.current || !visibleRange) {
+      return;
+    }
+
+    setIsRangeApplied(false);
+    void applyVisibleRange(widget).finally(() => {
+      setIsRangeApplied(true);
+    });
+  }, [visibleRange]);
 
   useEffect(() => {
     if (!ref.current || !datafeed) return;
 
+    setIsRangeApplied(!visibleRangeRef.current);
+
     let chartLayout;
-    const data = localStorage.getItem(`settings-${ticker}`);
+    const data = !visibleRangeRef.current ? localStorage.getItem(`settings-${ticker}`) : null;
     if (data) {
       chartLayout = JSON.parse(data) as object;
       if (chartLayout?.charts?.[0]?.panes?.[0]?.sources?.[0]?.state) {
@@ -131,7 +171,7 @@ export const TWChart = ({ ticker, height = 400, small, markers = [] }: { ticker:
 
     const currentTimezone = getTimezone();
 
-    const features = getFeatures();
+    const features = getFeatures(undefined, isPositionChart);
 
     const config: ChartingLibraryWidgetOptions = {
       // debug
@@ -161,7 +201,10 @@ export const TWChart = ({ ticker, height = 400, small, markers = [] }: { ticker:
       },
       theme: 'dark',
       saved_data: chartLayout as object,
-      auto_save_delay: 1,
+      auto_save_delay: isPositionChart ? undefined : 1,
+      loading_screen: isPositionChart
+        ? { backgroundColor: 'rgb(30,44,57)', foregroundColor: 'rgb(173,177,184)' }
+        : undefined,
       time_frames: [
         {
           text: '1000y',
@@ -229,13 +272,23 @@ export const TWChart = ({ ticker, height = 400, small, markers = [] }: { ticker:
     const chartWidget = new widget(config);
     chartRef.current = chartWidget;
     chartReadyRef.current = false;
-    subscribeToChartEvents(chartWidget);
+    if (!isPositionChart) {
+      subscribeToChartEvents(chartWidget);
+    }
     chartWidget.onChartReady(() => {
       if (chartRef.current !== chartWidget) {
         return;
       }
       chartReadyRef.current = true;
-      applyMarkers(chartWidget);
+      if (visibleRangeRef.current) {
+        void applyVisibleRange(chartWidget).finally(() => {
+          setIsRangeApplied(true);
+          scheduleMarkersUpdate(chartWidget);
+        });
+      } else {
+        setIsRangeApplied(true);
+        scheduleMarkersUpdate(chartWidget);
+      }
     });
 
     return () => {
@@ -250,7 +303,7 @@ export const TWChart = ({ ticker, height = 400, small, markers = [] }: { ticker:
         chartRef.current = null;
       }
     };
-  }, [datafeed, height, ticker]);
+  }, [datafeed, height, isPositionChart, ticker]);
 
   const subscribeToChartEvents = (widget: IChartingLibraryWidget): void => {
 
@@ -272,12 +325,18 @@ export const TWChart = ({ ticker, height = 400, small, markers = [] }: { ticker:
     target.subscribe(event, callback);
   };
 
-  const getFeatures = (settings: any = {}): { enabled: ChartingLibraryFeatureset[]; disabled: ChartingLibraryFeatureset[] } => {
+  const getFeatures = (
+    settings: any = {},
+    positionChart = false,
+  ): { enabled: ChartingLibraryFeatureset[]; disabled: ChartingLibraryFeatureset[] } => {
     const enabled = new Set<ChartingLibraryFeatureset>([
       'side_toolbar_in_fullscreen_mode',
       'chart_crosshair_menu' as ChartingLibraryFeatureset,
       'seconds_resolution',
       'chart_template_storage',
+      ...(positionChart
+        ? ['determine_first_data_request_size_using_visible_range' as ChartingLibraryFeatureset]
+        : []),
     ]);
 
     const disabled = new Set(
@@ -405,5 +464,15 @@ export const TWChart = ({ ticker, height = 400, small, markers = [] }: { ticker:
     };
   };
 
-  return <div ref={ref} style={{ position: 'relative', height: height || '100%' }}></div>;
+  return (
+    <div style={{ position: 'relative', height: height || '100%' }}>
+      {!isRangeApplied && (
+        <div
+          className="absolute inset-0 z-10"
+          style={{ backgroundColor: 'rgb(30,44,57)' }}
+        />
+      )}
+      <div ref={ref} style={{ height: '100%', visibility: isRangeApplied ? 'visible' : 'hidden' }} />
+    </div>
+  );
 };

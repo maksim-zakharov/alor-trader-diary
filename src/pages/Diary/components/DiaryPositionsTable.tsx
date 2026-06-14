@@ -34,6 +34,8 @@ interface DiaryPositionsTableProps {
   isLoading: boolean;
   /** Мобильный режим */
   isMobile: number;
+  /** ISIN по символу */
+  getIsinBySymbol: (symbol: string) => string | undefined;
   /** Эшелон по символу */
   getListSectionBySymbol: (symbol: string) => string | undefined;
   /** Копирование тикера */
@@ -58,6 +60,7 @@ const DiaryPositionsTable: FC<DiaryPositionsTableProps> = ({
   positions,
   isLoading,
   isMobile,
+  getIsinBySymbol,
   getListSectionBySymbol,
   onCopyTicker,
   reasons,
@@ -243,9 +246,16 @@ const DiaryPositionsTable: FC<DiaryPositionsTableProps> = ({
         row.type === 'summary' ? { className: row.PnL > 0 ? 'profit' : 'loss' } : undefined
       }
       expandable={{
-        expandedRowRender: (row) => <PositionDetails row={row} nightMode={nightMode} />,
+        expandedRowRender: (row) => (
+          <PositionDetails
+            key={String(row.id)}
+            row={row}
+            getIsinBySymbol={getIsinBySymbol}
+            comment={comments[row.id]}
+            onCommentChange={(value) => onCommentChange(row.id, value)}
+          />
+        ),
         rowExpandable: (row) => row.type !== 'summary',
-        defaultExpandedRowKeys: ['0'],
       }}
     />
   );
