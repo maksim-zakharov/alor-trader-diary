@@ -15,6 +15,7 @@ import ProfitWeekdayWidget from "./widgets/ProfitWeekdayWidget";
 import LossWeekdayWidget from "./widgets/LossWeekdayWidget";
 import ProfitSectionWidget from "./widgets/ProfitSectionWidget";
 import LossSectionWidget from "./widgets/LossSectionWidget";
+import {ANALYTICS_CHART_GRID_COLOR, ANALYTICS_CHART_TEXT_COLOR} from "./analytics-chart-colors";
 import {useAppSelector} from "../../store";
 import moment from "moment";
 import {useGetEquityDynamicsQuery, useGetOperationsQuery, useGetSummaryQuery} from "../../api/alor.api";
@@ -95,6 +96,12 @@ const Analytics: FC<IProps> = ({getIsinBySymbol, getListSectionBySymbol, data, d
 
     const darkColors = useAppSelector(state => state.alorSlice.darkColors);
 
+    const chartColors = useMemo(() => ({
+        ...darkColors,
+        color: ANALYTICS_CHART_TEXT_COLOR,
+        borderColor: ANALYTICS_CHART_GRID_COLOR,
+    }), [darkColors]);
+
     const tradingDays = useMemo(() => data.positions.filter(p => p.type === 'summary'), [data.positions]);
     const nonSummaryPositions: any[] = useMemo(() => data.positions.filter(p => p.type !== 'summary'), [data.positions]);
 
@@ -162,7 +169,7 @@ const Analytics: FC<IProps> = ({getIsinBySymbol, getListSectionBySymbol, data, d
 
     return <>
         <div className="analytics-page flex flex-col gap-1 mt-1">
-        <ProfitWidget isLoading={isLoading} colors={nightMode && darkColors} data={balanceSeriesDataWithoutFirst}
+        <ProfitWidget isLoading={isLoading} colors={nightMode && chartColors} data={balanceSeriesDataWithoutFirst}
                            initBalance={balanceSeriesData[0]?.value || 0}/>
         {/*<div className="widget">*/}
         {/*    <div className="widget_header">Reasons</div>*/}
@@ -185,7 +192,7 @@ const Analytics: FC<IProps> = ({getIsinBySymbol, getListSectionBySymbol, data, d
             <ReportWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading} tradingDays={tradingDays}
                           data={balanceSeriesDataWithoutFirst}/>
         </div>
-        <SymbolsWidget nightMode={nightMode} darkColors={darkColors} nonSummaryPositions={nonSummaryPositions}
+        <SymbolsWidget nightMode={nightMode} darkColors={chartColors} nonSummaryPositions={nonSummaryPositions}
                        isLoading={isLoading}/>
         </div>
     </>

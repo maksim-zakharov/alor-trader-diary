@@ -30,7 +30,9 @@ const SymbolsWidget = ({nightMode, darkColors, nonSummaryPositions, isLoading}) 
             },
             gridLineColor: nightMode && darkColors.borderColor,
             gridLineWidth: 1,
+            lineColor: nightMode && darkColors.borderColor,
             lineWidth: 0,
+            tickColor: nightMode && darkColors.borderColor,
             labels: {
                 style: {
                     color: nightMode && darkColors.color
@@ -46,8 +48,9 @@ const SymbolsWidget = ({nightMode, darkColors, nonSummaryPositions, isLoading}) 
             title: {
                 text: null
             },
-
             gridLineColor: nightMode && darkColors.borderColor,
+            lineColor: nightMode && darkColors.borderColor,
+            tickColor: nightMode && darkColors.borderColor,
         },
         plotOptions: {
             pie: {
@@ -77,7 +80,11 @@ const SymbolsWidget = ({nightMode, darkColors, nonSummaryPositions, isLoading}) 
                 // },
                 borderColor: 'transparent',
                 dataLabels: {
-                    enabled: true
+                    enabled: true,
+                    style: {
+                        color: nightMode && darkColors.color,
+                        textOutline: 'none',
+                    },
                 },
                 // color: 'rgb(51,111,238)',
                 groupPadding: 0.1
@@ -85,6 +92,11 @@ const SymbolsWidget = ({nightMode, darkColors, nonSummaryPositions, isLoading}) 
         },
         credits: {
             enabled: false
+        },
+        tooltip: {
+            style: {
+                color: nightMode && darkColors.color,
+            },
         },
         legend: {
             enabled: false,

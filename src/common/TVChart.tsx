@@ -64,6 +64,7 @@ const TVChart: FC<IProps> = ({fitContent, lotSize, balance, colors, seriesType, 
                     timeVisible: true,
                     rightOffset: 0,
                     secondsVisible: true,
+                    borderColor,
                 },
                 localization: {
                     locale: 'ru-RU',
@@ -83,6 +84,7 @@ const TVChart: FC<IProps> = ({fitContent, lotSize, balance, colors, seriesType, 
                 rightPriceScale: {
                     ticksVisible: true,
                     visible: true,
+                    borderColor,
                 },
                 leftPriceScale: {
                     visible: false,
