@@ -182,8 +182,8 @@ export function DataTable<T extends Record<string, unknown>>({
                   })}
                 </TableRow>
                 {canExpand && expandable && (
-                  <TableRow className="hover:bg-transparent">
-                    <TableCell colSpan={columns.length + 1} className="p-0">
+                  <TableRow className="data-table-expanded-row hover:!bg-transparent">
+                    <TableCell colSpan={columns.length + 1} className="p-0 hover:!bg-transparent">
                       <Collapsible open={isExpanded}>
                         <CollapsibleContent>
                           {isExpanded ? expandable.expandedRowRender(row) : null}

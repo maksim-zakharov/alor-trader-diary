@@ -206,21 +206,22 @@ export const calculatePositionPart = (trades, trade) => {
 }
 
 export const humanize = (duration: moment.Duration) => {
-    const numberDuration = (duration as any) as number;
+    const ms = duration.asMilliseconds();
 
-    if(numberDuration >= 60000){
-        let hum = duration.humanize();
-        if(hum === 'минута'){
-            hum = '1 минута';
-        }
-        if(hum === 'час'){
-            hum = '1 час';
-        }
-        return hum;
-    } else {
-        return humanizeDuration(numberDuration, { language: "ru" });
+    if (!ms) {
+        return '0 секунд';
     }
-}
+
+    if (ms < 60000) {
+        return humanizeDuration(ms, { language: 'ru' });
+    }
+
+    return humanizeDuration(ms, {
+        language: 'ru',
+        largest: 1,
+        round: true,
+    });
+};
 
 export const isMobile = () => {
     if (navigator.userAgent.match(/Android/i)

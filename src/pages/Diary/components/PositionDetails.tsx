@@ -68,10 +68,11 @@ const PositionDetails = ({ row, getIsinBySymbol, comment, onCommentChange }: Pos
     [trades],
   );
 
-  const pnlValue = PnL ?? 0;
   const durationLabel = duration != null
     ? humanize(moment.duration(duration, 'seconds'))
-    : humanize(moment.duration(moment(closeDate || openDate).diff(moment(openDate))));
+    : '';
+
+  const pnlValue = PnL ?? 0;
 
   const markers = useMemo(
     () =>
