@@ -1,17 +1,41 @@
-import {Button, Card, Form, Input, Select} from "antd";
-import {KeyOutlined, LockOutlined} from "@ant-design/icons";
-import React, {useEffect, useMemo, useState} from "react";
-import './LoginPage.less';
+import React, {FormEvent, useEffect, useMemo, useState} from "react";
+import {BarChart3, BookOpen, ChevronRight, KeyRound, Link2, Lock} from "lucide-react";
 import {useNavigate} from "react-router-dom";
-import FormItem from "antd/es/form/FormItem";
 import {useGetUserInfoQuery} from "../../api/alor.api";
 import {initApi, logout, setSettings} from "../../api/alor.slice";
 import {useAppDispatch, useAppSelector} from "../../store";
 import {AlorApi, Endpoint, WssEndpoint, WssEndpointBeta} from "alor-api";
 import {oAuth2Client} from "../../api/oAuth2";
 import axios from "axios";
-import QuestionCircleIcon  from '../../assets/question-circle';
+import QuestionCircleIcon from "../../assets/question-circle";
 import ASelect from "../../common/Select";
+import {Button} from "@/components/ui/button";
+import {Input} from "@/components/ui/input";
+import {cn} from "@/lib/utils";
+import "./LoginPage.less";
+
+type AuthTab = "credentials" | "token";
+
+const PROMO_STATS = [
+    {
+        icon: BookOpen,
+        title: "Дневник",
+        value: "100%",
+        lines: ["Все сделки", "MOEX и фьючерсы", "Комментарии"],
+    },
+    {
+        icon: BarChart3,
+        title: "Аналитика",
+        value: "PnL",
+        lines: ["Графики дохода", "Просадки", "По инструментам"],
+    },
+    {
+        icon: Link2,
+        title: "Alor",
+        value: "API",
+        lines: ["OAuth вход", "Портфели MOEX", "Без лишних шагов"],
+    },
+] as const;
 
 const LoginPage = () => {
     const api = useAppSelector(state => state.alorSlice.api);
@@ -21,169 +45,308 @@ const LoginPage = () => {
     const navigate = useNavigate();
     // @ts-ignore
     const {refetch} = useGetUserInfoQuery({}, {skip: !settings.token || !api, refetchOnMountOrArgChange: true});
-    const [token, setToken] = React.useState<string | null>(null);
-    const [error, setError] = useState();
-    console.log(settings.token, api)
-
+    const [token, setToken] = useState("");
+    const [error, setError] = useState<string>();
     const [loading, setLoading] = useState(false);
+    const [authTab, setAuthTab] = useState<AuthTab>("credentials");
+    const [{agreement, portfolio}, setState] = useState<{ agreement?: string; portfolio?: string }>({
+        agreement: undefined,
+        portfolio: undefined,
+    });
+    const [{login, password}, setCredentials] = useState({login: "", password: ""});
 
-    const [{agreement, portfolio}, setState] = useState({agreement: undefined, portfolio: undefined});
-
-    const options = useMemo(() => userInfo?.agreements.find(a => a.agreementNumber === agreement)?.portfolios?.map(p => ({
-        label: `${p.accountNumber} (${p.service})`,
-        value: p.accountNumber
-    })) || [], [agreement, userInfo]);
+    const options = useMemo(
+        () => userInfo?.agreements.find(a => a.agreementNumber === agreement)?.portfolios?.map(p => ({
+            label: `${p.accountNumber} (${p.service})`,
+            value: p.accountNumber,
+        })) || [],
+        [agreement, userInfo],
+    );
 
     const selectFirstAgreement = () => {
-        if(userInfo?.agreements[0].agreementNumber && userInfo?.agreements[0].portfolios[0]){
-            dispatch(setSettings({agreement: userInfo?.agreements[0].agreementNumber, portfolio: userInfo?.agreements[0].portfolios[0].accountNumber}));
+        if (userInfo?.agreements[0].agreementNumber && userInfo?.agreements[0].portfolios[0]) {
+            dispatch(setSettings({
+                agreement: userInfo.agreements[0].agreementNumber,
+                portfolio: userInfo.agreements[0].portfolios[0].accountNumber,
+            }));
         }
-    }
+    };
 
     useEffect(() => {
         selectFirstAgreement();
-    }, [userInfo])
+    }, [userInfo]);
 
-    const checkToken = async (event) => {
-        event.preventDefault();
-        if (withPassword) {
-            return loginByCredentials()
-        }
+    const clearToken = () => {
+        dispatch(logout());
+    };
+
+    const loginByCredentials = async () => {
         try {
-            const api = new AlorApi({
+            const ssoResult = await axios.post("https://lk-api.alor.ru/sso-auth/client", {
+                credentials: {
+                    login,
+                    password,
+                    twoFactorPin: null,
+                },
+                client_id: "SingleSignOn",
+                redirect_url: "//lk.alor.ru/",
+            }).then(res => res.data);
+
+            setError(undefined);
+            dispatch(setSettings({token: ssoResult.refreshToken, lk: true}));
+            dispatch(initApi({token: ssoResult.refreshToken, type: "lk"}));
+            setTimeout(() => refetch());
+        } catch (e: any) {
+            setError(e.response?.data?.message);
+        }
+    };
+
+    const loginBySSO = () => {
+        document.location = oAuth2Client.code.getUri();
+    };
+
+    const checkToken = async (event: FormEvent) => {
+        event.preventDefault();
+
+        if (authTab === "credentials") {
+            setLoading(true);
+            await loginByCredentials();
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const nextApi = new AlorApi({
                 token,
                 endpoint: Endpoint.PROD,
                 wssEndpoint: WssEndpoint.PROD,
                 wssEndpointBeta: WssEndpointBeta.PROD,
-            })
+            });
+
             setLoading(true);
 
-            await api.refresh(undefined, undefined, error => {
-                setError(error.message)
+            await nextApi.refresh(undefined, undefined, refreshError => {
+                setError(refreshError.message);
                 clearToken();
-                console.log(error.message);
             });
 
             setLoading(false);
 
-            if (api.accessToken) {
+            if (nextApi.accessToken) {
                 setError(undefined);
-                dispatch(initApi({token, accessToken: api.accessToken}))
-                dispatch(setSettings(({token})));
+                dispatch(initApi({token, accessToken: nextApi.accessToken}));
+                dispatch(setSettings({token}));
                 setTimeout(() => refetch());
             }
         } catch (e: any) {
             setError(e.message);
             clearToken();
+            setLoading(false);
         }
-    }
+    };
 
-    const handleSelectPortfolio = (portfolio: string) => {
-        setState(prevState => ({...prevState, portfolio}));
-    }
+    const handleSelectPortfolio = (nextPortfolio: string) => {
+        setState(prevState => ({...prevState, portfolio: nextPortfolio}));
+    };
 
-    const handleSelectAgreement = (agreement: string) => {
-        setState(prevState => ({...prevState, agreement}));
-    }
+    const handleSelectAgreement = (nextAgreement: string) => {
+        setState(prevState => ({...prevState, agreement: nextAgreement}));
+    };
 
-    const clearToken = () => {
-        dispatch(logout())
-    }
-
-    const submit = () => {
+    const submitPortfolio = (event: FormEvent) => {
+        event.preventDefault();
         if (agreement && portfolio) {
             dispatch(setSettings({agreement, portfolio}));
-            navigate('/')
+            navigate("/");
         }
-    }
+    };
 
-    const [{login, password, withPassword}, setCredentials] = useState<{
-        login?: string,
-        password?: string,
-        withPassword?: boolean
-    }>({login: '', password: '', withPassword: true});
+    const isCredentialsTab = authTab === "credentials";
+    const canSubmitCredentials = Boolean(login && password);
+    const canSubmitToken = Boolean(token);
 
-    const loginByCredentials = async () => {
-        try{
-            const ssoResult = await axios.post('https://lk-api.alor.ru/sso-auth/client', {
-                "credentials": {
-                    login,
-                    password,
-                    "twoFactorPin": null
-                }, "client_id": "SingleSignOn", "redirect_url": "//lk.alor.ru/"
-            }).then(res => res.data)
-            setError(undefined);
-            dispatch(setSettings(({token: ssoResult.refreshToken, lk: true})));
-            dispatch(initApi({token: ssoResult.refreshToken, type: 'lk'}))
-            setTimeout(() => refetch());
-        } catch (e: any){
-            setError(e.response?.data?.message);
-        }
-    }
+    return (
+        <div className="LoginPage">
+            <aside className="LoginPage__promo">
+                <div className="LoginPage__promoGlow"/>
+                <div className="LoginPage__promoContent">
+                    <p className="LoginPage__promoTitle">
+                        Ведите дневник трейдера
+                        <span> с Alor Broker</span>
+                    </p>
+                    <div className="LoginPage__promoStats">
+                        {PROMO_STATS.map(({icon: Icon, title, value, lines}) => (
+                            <div className="LoginPage__promoStat" key={title}>
+                                <Icon className="LoginPage__promoStatIcon" strokeWidth={1.5}/>
+                                <div className="LoginPage__promoStatTitle">{title}</div>
+                                <div className="LoginPage__promoStatValue">{value}</div>
+                                {lines.map(line => (
+                                    <div className="LoginPage__promoStatLine" key={line}>{line}</div>
+                                ))}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </aside>
 
-    const loginBySSO = async () => {
-        document.location = oAuth2Client.code.getUri();
-    }
+            <main className="LoginPage__main">
+                <div className="LoginPage__mainInner">
+                    <div className="LoginPage__brand">Alor Trader Diary</div>
 
-    return <div className="LoginPage">
-        <div className="ant-card-container">
-            <Card title="Вход">
-                {!userInfo && <Form layout="vertical" onSubmitCapture={checkToken}>
-                    {!withPassword && <>
-                        <FormItem validateStatus={error ? 'error' : undefined} help={error} label="Alor Token">
-                            <Input placeholder="Введите Alor Token" onChange={e => setToken(e.target.value)}/>
-                        </FormItem>
-                        <Button onClick={checkToken} type="primary" htmlType="submit" disabled={!token}
-                                loading={loading}>Продолжить</Button>
-                    </>}
-                    {withPassword && <>
-                        <FormItem validateStatus={error ? 'error' : undefined} help={error} label="Логин">
-                            <Input placeholder="Введите логин" name="login"
-                                   onChange={e => setCredentials(prevState => ({...prevState, login: e.target.value}))}/>
-                        </FormItem>
-                        <FormItem label="Пароль">
-                            <Input.Password placeholder="Введите пароль" name="password" type="password"
-                                            onChange={e => setCredentials(prevState => ({
-                                                ...prevState,
-                                                password: e.target.value
-                                            }))}/>
-                        </FormItem>
-                        <Button onClick={checkToken} type="primary" htmlType="submit"
-                                loading={loading}>Войти</Button>
-                    </>}
-                    <FormItem label="Или войти через">
-                        <div style={{display: "flex", gap: '16px'}}>
-                            <Button onClick={loginBySSO} type="default" title="Войти через Алор Брокер"
-                                    className="auth-btn"><img
-                                src="https://s3.tradingview.com/userpics/5839685-GSlC_big.png"/></Button>
-                            {withPassword && <Button onClick={() => setCredentials(({withPassword: false}))} title="Войти через токен" className="auth-btn" icon={<KeyOutlined/>}/>}
-                            {!withPassword && <Button onClick={() => setCredentials(({withPassword: true}))} title="Войти через пароль" className="auth-btn" icon={<LockOutlined/>}/>}
-                        </div>
-                    </FormItem>
-                </Form>}
-                {userInfo && <Form layout="vertical" onSubmitCapture={submit}>
-                    <FormItem validateStatus={error ? 'error' : undefined} extra={error} label="Договор">
-                        <ASelect value={agreement} onSelect={handleSelectAgreement}
-                                placeholder="Выберите договор"
-                                options={userInfo?.agreements?.map(p => ({
-                                    label: p.cid,
-                                    value: p.agreementNumber
-                                })) || []}/>
-                    </FormItem>
-                    <FormItem validateStatus={error ? 'error' : undefined} extra={error} label="Alor Portfolio">
-                        <ASelect value={portfolio} onSelect={handleSelectPortfolio}
-                                placeholder="Выберите портфель"
-                                options={options}/>
-                    </FormItem>
-                    <Button onClick={submit} type="primary" htmlType="submit"
-                            disabled={!portfolio || !agreement}>Войти</Button>
-                    <Button type="link" onClick={clearToken}>Ввести другой alor token</Button>
-                </Form>}
-            </Card>
-            <Button className="support-link" type="link" href="https://t.me/+8KsjwdNHVzIwNDQy"
-                    target="_blank"><QuestionCircleIcon/>Поддержка</Button>
+                    <div className="LoginPage__card">
+                        {!userInfo ? (
+                            <>
+                                <div className="LoginPage__cardHeader">
+                                    <h1 className="LoginPage__title">Добро пожаловать</h1>
+                                </div>
+
+                                <div className="LoginPage__tabs">
+                                    <button
+                                        type="button"
+                                        className={cn("LoginPage__tab", isCredentialsTab && "LoginPage__tab_active")}
+                                        onClick={() => {
+                                            setAuthTab("credentials");
+                                            setError(undefined);
+                                        }}
+                                    >
+                                        Логин
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className={cn("LoginPage__tab", !isCredentialsTab && "LoginPage__tab_active")}
+                                        onClick={() => {
+                                            setAuthTab("token");
+                                            setError(undefined);
+                                        }}
+                                    >
+                                        Токен
+                                    </button>
+                                </div>
+
+                                <form className="LoginPage__form" onSubmit={checkToken}>
+                                    {isCredentialsTab ? (
+                                        <>
+                                            <label className="LoginPage__field">
+                                                <span className="LoginPage__label">Логин</span>
+                                                <Input
+                                                    placeholder="Введите логин"
+                                                    name="login"
+                                                    value={login}
+                                                    className="LoginPage__input"
+                                                    onChange={e => setCredentials(prev => ({...prev, login: e.target.value}))}
+                                                />
+                                            </label>
+                                            <label className="LoginPage__field">
+                                                <span className="LoginPage__label">Пароль</span>
+                                                <Input
+                                                    placeholder="Введите пароль"
+                                                    name="password"
+                                                    type="password"
+                                                    value={password}
+                                                    className="LoginPage__input"
+                                                    onChange={e => setCredentials(prev => ({...prev, password: e.target.value}))}
+                                                />
+                                            </label>
+                                        </>
+                                    ) : (
+                                        <label className="LoginPage__field">
+                                            <span className="LoginPage__label">Alor Token</span>
+                                            <Input
+                                                placeholder="Введите Alor Token"
+                                                value={token}
+                                                className="LoginPage__input"
+                                                onChange={e => setToken(e.target.value)}
+                                            />
+                                        </label>
+                                    )}
+
+                                    {error && <p className="LoginPage__error">{error}</p>}
+
+                                    <Button
+                                        type="submit"
+                                        className="LoginPage__submit"
+                                        disabled={loading || (isCredentialsTab ? !canSubmitCredentials : !canSubmitToken)}
+                                    >
+                                        {loading ? "Загрузка..." : "Продолжить"}
+                                    </Button>
+                                </form>
+
+                                <div className="LoginPage__divider">
+                                    <span>или войти через</span>
+                                </div>
+
+                                <div className="LoginPage__social">
+                                    <button type="button" className="LoginPage__socialBtn" onClick={loginBySSO} title="Войти через Алор Брокер">
+                                        <img src="https://s3.tradingview.com/userpics/5839685-GSlC_big.png" alt="Alor"/>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="LoginPage__socialBtn"
+                                        title={isCredentialsTab ? "Войти через токен" : "Войти через логин"}
+                                        onClick={() => setAuthTab(isCredentialsTab ? "token" : "credentials")}
+                                    >
+                                        {isCredentialsTab ? <KeyRound size={20}/> : <Lock size={20}/>}
+                                    </button>
+                                </div>
+                            </>
+                        ) : (
+                            <form className="LoginPage__form" onSubmit={submitPortfolio}>
+                                <div className="LoginPage__cardHeader">
+                                    <h1 className="LoginPage__title">Выберите портфель</h1>
+                                    <p className="LoginPage__subtitle">Подключите договор и счёт для работы с дневником</p>
+                                </div>
+
+                                <label className="LoginPage__field">
+                                    <span className="LoginPage__label">Договор</span>
+                                    <ASelect
+                                        value={agreement}
+                                        onSelect={handleSelectAgreement}
+                                        placeholder="Выберите договор"
+                                        className="LoginPage__select"
+                                        options={userInfo?.agreements?.map(p => ({
+                                            label: p.cid,
+                                            value: p.agreementNumber,
+                                        })) || []}
+                                    />
+                                </label>
+
+                                <label className="LoginPage__field">
+                                    <span className="LoginPage__label">Портфель</span>
+                                    <ASelect
+                                        value={portfolio}
+                                        onSelect={handleSelectPortfolio}
+                                        placeholder="Выберите портфель"
+                                        className="LoginPage__select"
+                                        options={options}
+                                    />
+                                </label>
+
+                                {error && <p className="LoginPage__error">{error}</p>}
+
+                                <Button
+                                    type="submit"
+                                    className="LoginPage__submit"
+                                    disabled={!portfolio || !agreement}
+                                >
+                                    Войти
+                                </Button>
+
+                                <button type="button" className="LoginPage__linkBtn" onClick={clearToken}>
+                                    Ввести другой аккаунт
+                                    <ChevronRight size={16}/>
+                                </button>
+                            </form>
+                        )}
+                    </div>
+
+                    <a className="LoginPage__support" href="https://t.me/+8KsjwdNHVzIwNDQy" target="_blank" rel="noreferrer">
+                        <QuestionCircleIcon/>
+                        Поддержка
+                    </a>
+                </div>
+            </main>
         </div>
-    </div>
-}
+    );
+};
 
 export default LoginPage;

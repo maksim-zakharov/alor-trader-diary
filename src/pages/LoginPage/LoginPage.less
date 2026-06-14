@@ -1,72 +1,376 @@
 .LoginPage {
-    height: calc(100vh - 48px);
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background: #f5f6fa;
+  color: #121214;
+  color-scheme: light;
+
+  &__promo {
+    position: relative;
+    display: none;
+    width: 50%;
+    min-height: 100vh;
+    overflow: hidden;
+    background: #000;
+    color: #fff;
+  }
+
+  &__promoGlow {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 50% 42%, rgba(255, 157, 0, 0.28) 0%, rgba(255, 157, 0, 0.08) 24%, transparent 58%),
+      radial-gradient(circle at 50% 100%, rgba(255, 157, 0, 0.12) 0%, transparent 42%);
+    pointer-events: none;
+  }
+
+  &__promoContent {
+    position: relative;
+    z-index: 1;
     display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100%;
+    padding: 64px 56px;
+  }
 
-    .auth-btn {
-        width: 40px;
-        height: 40px;
-        border-radius: 4px;
-        overflow: hidden;
+  &__promoTitle {
+    max-width: 520px;
+    margin: 0 0 72px;
+    font-size: 40px;
+    line-height: 1.15;
+    font-weight: 700;
+    color: #ff9d00;
 
-        img {
-            width: 40px;
-            height: 40px;
-        }
+    span {
+      display: block;
+      margin-top: 8px;
+    }
+  }
+
+  &__promoStats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+    max-width: 760px;
+  }
+
+  &__promoStat {
+    position: relative;
+    padding: 0 28px;
+
+    &:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      top: 8px;
+      right: 0;
+      width: 1px;
+      height: calc(100% - 16px);
+      background: rgba(255, 255, 255, 0.14);
     }
 
-    .ant-input-affix-wrapper .anticon.ant-input-password-icon {
-        color: rgba(var(--pro-input-color), 0.45);
+    &:first-child {
+      padding-left: 0;
     }
 
-    .support-link {
-        /*text-align: left;*/
-        width: fit-content;
-        line-height: 1;
-        height: auto;
-        color: rgba(var(--pro-icon-color), 1);
-        padding: 0;
+    &:last-child {
+      padding-right: 0;
+    }
+  }
 
-        svg {
-            margin-right: 0;
-            width: 16px;
-        }
+  &__promoStatIcon {
+    width: 28px;
+    height: 28px;
+    margin-bottom: 18px;
+    color: #ff9d00;
+  }
+
+  &__promoStatTitle {
+    margin-bottom: 10px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #ff9d00;
+  }
+
+  &__promoStatValue {
+    margin-bottom: 12px;
+    font-size: 34px;
+    line-height: 1;
+    font-weight: 700;
+    color: #ff9d00;
+  }
+
+  &__promoStatLine {
+    font-size: 13px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.72);
+  }
+
+  &__main {
+    display: flex;
+    flex: 1;
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 20px;
+  }
+
+  &__mainInner {
+    width: 100%;
+    max-width: 460px;
+  }
+
+  &__brand {
+    margin-bottom: 28px;
+    text-align: center;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: #121214;
+  }
+
+  &__card {
+    padding: 32px 28px 28px;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 8px 32px rgba(18, 18, 20, 0.06);
+  }
+
+  &__cardHeader {
+    margin-bottom: 24px;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 28px;
+    line-height: 1.2;
+    font-weight: 700;
+    color: #121214;
+  }
+
+  &__subtitle {
+    margin: 8px 0 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #81858c;
+  }
+
+  &__tabs {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid #eceef2;
+  }
+
+  &__tab {
+    position: relative;
+    padding: 0 0 12px;
+    border: 0;
+    background: transparent;
+    font-size: 15px;
+    font-weight: 500;
+    color: #81858c;
+    cursor: pointer;
+
+    &_active {
+      color: #121214;
+      font-weight: 700;
+
+      &::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -1px;
+        height: 2px;
+        background: #121214;
+      }
+    }
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #121214;
+  }
+
+  &__input {
+    height: 48px !important;
+    border-color: #eceef2 !important;
+    background: #f5f6fa !important;
+    font-size: 15px !important;
+
+    &::placeholder {
+      color: #adb1b8;
     }
 
-    .ant-form-item {
-        border: none;
+    &:focus-visible {
+      border-color: #ff9d00 !important;
+      box-shadow: 0 0 0 3px rgba(255, 157, 0, 0.15) !important;
+    }
+  }
+
+  &__select {
+    width: 100%;
+
+    .ant-select-selector {
+      min-height: 48px !important;
+      padding: 8px 12px !important;
+      border-color: #eceef2 !important;
+      border-radius: 8px !important;
+      background: #f5f6fa !important;
+      align-items: center;
     }
 
-    .ant-card-container {
-        margin: auto;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
+    .ant-select-selection-item,
+    .ant-select-selection-placeholder {
+      font-size: 15px;
+    }
+  }
+
+  &__error {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.4;
+    color: #e5484d;
+  }
+
+  &__submit {
+    height: 48px !important;
+    margin-top: 4px;
+    border: 0 !important;
+    border-radius: 8px !important;
+    background: #ff9d00 !important;
+    color: #121214 !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+
+    &:hover:not(:disabled) {
+      background: #f09200 !important;
+    }
+  }
+
+  &__divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 24px 0 20px;
+    color: #81858c;
+    font-size: 13px;
+
+    &::before,
+    &::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: #eceef2;
+    }
+  }
+
+  &__social {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  &__socialBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border: 1px solid #eceef2;
+    border-radius: 8px;
+    background: #fff;
+    color: #121214;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+
+    img {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      object-fit: cover;
     }
 
-    .ant-card {
-        border-color: transparent;
-        width: 400px;
-        border-radius: 20px;
+    &:hover:not(:disabled) {
+      border-color: #d5d8de;
+      background: #fafbfc;
     }
 
-    .ant-card-body {
-        padding: 24px 16px 16px;
+    &:disabled {
+      opacity: 0.45;
+      cursor: default;
+    }
+  }
+
+  &__linkBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #ff9d00;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  &__support {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+    color: #81858c;
+    font-size: 14px;
+    text-decoration: none;
+
+    svg {
+      width: 16px;
+      height: 16px;
     }
 
-    .ant-card-head {
-        text-align: center;
-        font-size: 24px;
+    &:hover {
+      color: #121214;
+    }
+  }
 
-        padding: 16px 16px 0 !important;
+  @media only screen and (min-width: 1024px) {
+    &__promo {
+      display: flex;
+    }
+  }
+
+  @media only screen and (max-width: 700px) {
+    &__main {
+      padding: 24px 16px;
     }
 
-    @media only screen and (max-width: 700px) {
-        .ant-card-container {
-            width: 100%;
-        }
-
-        .ant-card{
-            width: 100%;
-        }
+    &__card {
+      padding: 24px 18px 20px;
     }
+
+    &__brand {
+      font-size: 24px;
+    }
+
+    &__title {
+      font-size: 24px;
+    }
+  }
 }
