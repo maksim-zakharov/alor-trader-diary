@@ -48,13 +48,13 @@ export function AppDrawer({
       direction={isMobile ? 'bottom' : 'right'}
     >
       <DrawerContent className={cn(isMobile ? 'max-h-[85vh]' : 'sm:max-w-md', className)}>
-        <DrawerHeader className="flex flex-row items-center justify-between gap-4 border-b border-border px-4 py-3 text-left">
+        <DrawerHeader className="flex flex-row items-center justify-between gap-4 border-b border-border px-3 py-3 text-left">
           <DrawerTitle className="text-base font-semibold">{title}</DrawerTitle>
           <Button variant="ghost" size="sm" className="h-8 shrink-0 px-2" onClick={onClose}>
             Закрыть
           </Button>
         </DrawerHeader>
-        <div className={cn('min-h-0 flex-1 overflow-y-auto p-4', contentClassName)}>{children}</div>
+        <div className={cn('min-h-0 flex-1 overflow-y-auto px-3 pt-3 pb-6', contentClassName)}>{children}</div>
       </DrawerContent>
     </Drawer>
   );

@@ -107,7 +107,7 @@ export function AppHeader({ navItems }: AppHeaderProps) {
               <span className="font-semibold">{settings.portfolio}</span>
               <ChevronDownIcon data-icon="inline-end" className="size-3.5 opacity-70" />
             </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="SelectAccountDropdownMenu w-[280px]">
+          <DropdownMenuContent align="start" className="SelectAccountDropdownMenu w-[280px] bg-app-header-bg text-app-text">
             <div className="portfolio-item px-3 py-2">
               <div className="portfolio-summary">
                 <span className="portfolio-description">Всего на всех счетах:</span>

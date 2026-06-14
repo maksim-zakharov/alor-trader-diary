@@ -41,7 +41,7 @@ const OperationsDrawer = ({ onClose, isOpened }) => {
       onClose={onClose}
       isMobile={isMobile}
       className="operation-modal"
-      contentClassName="overflow-hidden px-0 py-0"
+      contentClassName="overflow-hidden"
     >
       <List
         data={moneyOperations}

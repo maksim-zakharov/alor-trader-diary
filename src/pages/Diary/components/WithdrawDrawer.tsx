@@ -290,7 +290,7 @@ const WithdrawDrawer = ({onClose}) => {
             onClose={() => cancelEditAccount()}
             isMobile={isMobile}
         >
-        {!success && <Form layout="vertical" className="pad-lr">
+        {!success && <Form layout="vertical">
             {(accounts.length || settings['settlementAccount']) &&
                 <FormItem label="Откуда">
                     <ASelect value={portfolio}

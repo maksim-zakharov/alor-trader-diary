@@ -25,7 +25,7 @@ const initialState = {
     lastWithdrawals: [],
     release: undefined,
     darkColors: {
-        backgroundColor: 'rgb(30,44,57)',
+        backgroundColor: '#17181e',
         color: 'rgb(166,189,213)',
         borderColor: 'rgba(44,60,75, 0.6)'
     },

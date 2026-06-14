@@ -16,10 +16,8 @@ import LossWeekdayWidget from "./widgets/LossWeekdayWidget";
 import ProfitSectionWidget from "./widgets/ProfitSectionWidget";
 import LossSectionWidget from "./widgets/LossSectionWidget";
 import {useAppSelector} from "../../store";
-import TTitle from "../../common/TTitle";
 import moment from "moment";
 import {useGetEquityDynamicsQuery, useGetOperationsQuery, useGetSummaryQuery} from "../../api/alor.api";
-import useWindowDimensions from "../../common/useWindowDimensions";
 
 interface IProps {
     data: any;
@@ -31,7 +29,6 @@ interface IProps {
 }
 
 const Analytics: FC<IProps> = ({getIsinBySymbol, getListSectionBySymbol, data, dateTo, dateFrom, isLoading}) => {
-    const {isMobile} = useWindowDimensions();
     const [reasons, setReasons] = useState<{
         [id: string]: string
     }>(JSON.parse(localStorage.getItem('reasons') || '{}'));
@@ -164,9 +161,9 @@ const Analytics: FC<IProps> = ({getIsinBySymbol, getListSectionBySymbol, data, d
     }
 
     return <>
-        <TTitle isMobile={isMobile}>Аналитика</TTitle>
-        <div><ProfitWidget isLoading={isLoading} colors={nightMode && darkColors} data={balanceSeriesDataWithoutFirst}
-                           initBalance={balanceSeriesData[0]?.value || 0}/></div>
+        <div className="analytics-page flex flex-col gap-1 mt-1">
+        <ProfitWidget isLoading={isLoading} colors={nightMode && darkColors} data={balanceSeriesDataWithoutFirst}
+                           initBalance={balanceSeriesData[0]?.value || 0}/>
         {/*<div className="widget">*/}
         {/*    <div className="widget_header">Reasons</div>*/}
         {/*    <HighchartsReact*/}
@@ -174,7 +171,7 @@ const Analytics: FC<IProps> = ({getIsinBySymbol, getListSectionBySymbol, data, d
         {/*        options={reasonOptions}*/}
         {/*    />*/}
         {/*</div>*/}
-        <div style={{display: 'flex', flexWrap: 'wrap', margin: '0 -1px', gap: '16px'}}>
+        <div className="flex flex-wrap gap-1">
             <ProfitIntervalWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
             <LossIntervalWidget nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
             <MaxProfitTradesWidget getIsinBySymbol={getIsinBySymbol} nonSummaryPositions={nonSummaryPositions} isLoading={isLoading}/>
@@ -190,6 +187,7 @@ const Analytics: FC<IProps> = ({getIsinBySymbol, getListSectionBySymbol, data, d
         </div>
         <SymbolsWidget nightMode={nightMode} darkColors={darkColors} nonSummaryPositions={nonSummaryPositions}
                        isLoading={isLoading}/>
+        </div>
     </>
 }
 

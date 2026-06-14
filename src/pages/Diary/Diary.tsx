@@ -60,7 +60,6 @@ import MobileSearch from "./components/MobileSearch";
 import MobileSummaryCarousel from "./components/MobileSummaryCarousel";
 import MonthRender from "./components/MonthRender";
 import useScroll from "../../common/useScroll";
-import TTitle from "../../common/TTitle";
 import DiaryPositionsTable from "./components/DiaryPositionsTable";
 import { DiaryDatePicker } from './components/DiaryDatePicker';
 
@@ -404,7 +403,6 @@ const Diary: FC<IProps> = ({
     ]
 
     const InfoPanelDesktop = () => <AppPanel className="InfoPanelDesktop">
-        <TTitle isMobile={isMobile}>Дневник</TTitle>
         <div className="InfoPanelDesktop__content">
         <Summary/>
         <div
@@ -508,9 +506,6 @@ const Diary: FC<IProps> = ({
             <MobileSearch getIsinBySymbol={getIsinBySymbol}/>
             <div className="diary-panels flex flex-col gap-1 mt-1">
                 <AppPanel className="MobileSummaryPanel" flush>
-                    <div className="MobileSummaryPanel__header">
-                        <TTitle isMobile={isMobile}>Дневник</TTitle>
-                    </div>
                     <MobileSummaryCarousel dateFrom={dateFrom} onChangeView={onChangeView} view={view} setShowOperationsModal={setShowOperationsModal} options={options} netProfitPercent={netProfitPercent} todayPnL={todayPnL} onChangeDate={onChangeDate} totalPnL={data.totalPnL}/>
                 </AppPanel>
                 <InfoPanelDesktop/>
@@ -703,7 +698,7 @@ const Diary: FC<IProps> = ({
                 onClose={() => setShowOperationsModal('settings')(false)}
                 isMobile={!!isMobile}
             >
-                <Form layout="vertical" className="pad-lr">
+                <Form layout="vertical">
                     {!settings.lk && <FormItem label="Alor Token">
                         <Input placeholder="Token" {...settingsInputProps('token')} />
                     </FormItem>}

@@ -25,10 +25,10 @@ interface IProps{
 }
 
 const TVChart: FC<IProps> = ({fitContent, lotSize, balance, colors, seriesType, shortNumber, digits, data, markers, formatTime}) => {
-const {
-        backgroundColor = 'white', // 'rgb(30,44,57)
-        color = 'black', // 'rgb(166,189,213)'
-        borderColor = 'grey'
+    const {
+        backgroundColor = '#17181e',
+        color = 'rgb(166,189,213)',
+        borderColor = 'rgba(44,60,75, 0.6)'
     } = (colors || {})
 
     const chartContainerRef = useRef<any>();
