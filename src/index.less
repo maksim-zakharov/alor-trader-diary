@@ -1393,6 +1393,76 @@ a, .link-color {
     }
   }
 
+  .DesktopPositions {
+    [data-slot="table-row"].profit,
+    [data-slot="table-row"].loss {
+      background-color: transparent;
+    }
+
+    [data-slot="table"] {
+      background-color: rgba(var(--pro-widget-body-bg), 1);
+    }
+
+    [data-slot="table-head"] [data-slot="table-head"] {
+      background-color: rgb(var(--button-group-bg));
+      border-bottom-color: rgba(var(--pro-app-background-color), 1);
+      color: rgba(var(--pro-input-color), 1);
+      font-size: 13px;
+      line-height: 20px;
+      height: 26px;
+    }
+
+    [data-slot="table-row"] [data-slot="table-cell"] {
+      border-bottom-color: rgba(var(--pro-app-background-color), 1);
+      color: rgba(var(--pro-text-02), 1);
+      padding: 1px 8px;
+    }
+
+    [data-slot="table-cell"].loss {
+      background-color: rgba(var(--table-loss-bg), 0.4);
+      color: rgba(var(--table-loss-color), 1);
+    }
+
+    [data-slot="table-cell"].profit {
+      background-color: rgba(21, 120, 85, 0.4);
+      color: rgba(var(--table-profit-color), 1);
+    }
+
+    [data-slot="table-row"].loss [data-slot="table-cell"] {
+      background-color: rgba(209, 38, 27, 0.4);
+      color: rgba(var(--table-loss-color), 1);
+    }
+
+    [data-slot="table-row"].profit [data-slot="table-cell"] {
+      background-color: rgba(21, 120, 85, 0.4);
+      color: rgba(var(--table-profit-color), 1);
+    }
+
+    [data-slot="table-row"]:hover:not(.profit):not(.loss) [data-slot="table-cell"] {
+      background-color: rgba(var(--pro-input-color), 0.2);
+    }
+
+    [data-slot="table-row"].loss:hover [data-slot="table-cell"] {
+      background-color: rgba(209, 38, 27, 0.4);
+      color: rgba(var(--table-loss-color), 1);
+    }
+
+    [data-slot="table-row"].profit:hover [data-slot="table-cell"] {
+      background-color: rgba(21, 120, 85, 0.4);
+      color: rgba(var(--table-profit-color), 1);
+    }
+
+    [data-slot="table-row"]:hover [data-slot="table-cell"].loss {
+      background-color: rgba(var(--table-loss-bg), 0.4);
+      color: rgba(var(--table-loss-color), 1);
+    }
+
+    [data-slot="table-row"]:hover [data-slot="table-cell"].profit {
+      background-color: rgba(21, 120, 85, 0.4);
+      color: rgba(var(--table-profit-color), 1);
+    }
+  }
+
   .ant-table-row-expand-icon {
     background-color: rgba(var(--pro-input-bg), 1);
     border-color: rgba(var(--pro-input-bg), 1);

@@ -29,7 +29,11 @@ export const TWChart = ({ ticker, height = 400, small, markers = [] }: { ticker:
   }[] }) => {
 
   const chartRef = useRef<IChartingLibraryWidget | null>(null);
-  const entityIdsRef = useRef<string[]>([]); // EntityId - это string в charting_library
+  const entityIdsRef = useRef<string[]>([]);
+  const chartReadyRef = useRef(false);
+  const markersRef = useRef(markers);
+
+  markersRef.current = markers;
 
   const ref = useRef<HTMLDivElement>(null);
   const dataService = useAppSelector((state) => state.alorSlice.dataService);
@@ -46,55 +50,70 @@ export const TWChart = ({ ticker, height = 400, small, markers = [] }: { ticker:
     [ws, dataService],
   );
 
-  useEffect(() => {
-    if (!chartRef.current || markers.length === 0) return;
-
-    chartRef.current.onChartReady(() => {
-      const chart = chartRef.current!.chart();
-
-      // Удаляем старые маркеры
+  const clearMarkers = (widget: IChartingLibraryWidget) => {
+    try {
+      const chart = widget.chart();
       entityIdsRef.current.forEach((id) => {
-        chart.removeEntity(id);
+        try {
+          chart.removeEntity(id);
+        } catch {
+          // маркер уже удалён
+        }
       });
-      entityIdsRef.current = [];
+    } catch {
+      // виджет ещё не готов или уже уничтожен
+    }
+    entityIdsRef.current = [];
+  };
 
-      // Добавляем новые маркеры
-      markers.forEach((marker) => {
+  const applyMarkers = (widget: IChartingLibraryWidget) => {
+    if (!chartReadyRef.current) {
+      return;
+    }
+
+    if (markersRef.current.length === 0) {
+      clearMarkers(widget);
+      return;
+    }
+
+    try {
+      const chart = widget.chart();
+      clearMarkers(widget);
+
+      markersRef.current.forEach((marker) => {
         const point = { time: marker.time, price: marker.price };
 
         const options: Partial<any> = {
-          shape: marker.type === 'entry' ? 'arrow_up' : 'arrow_down', // Стрелка вверх для входа, вниз для выхода
-          text: marker.text || (marker.type === 'entry' ? 'Вход' : 'Выход'), // Текст маркера
-          lock: true, // Запретить перемещение пользователем
-          disableSelection: false, // Разрешить выбор (опционально)
-          disableSave: false, // Сохранять в шаблоне (опционально)
-          disableUndo: false, // Разрешить undo (опционально)
-          textColor: '#FFFFFF', // Цвет текста
+          shape: marker.type === 'entry' ? 'arrow_up' : 'arrow_down',
+          text: marker.text || (marker.type === 'entry' ? 'Вход' : 'Выход'),
+          lock: true,
+          disableSelection: false,
+          disableSave: false,
+          disableUndo: false,
+          textColor: '#FFFFFF',
           overrides: {
-            arrowColor: marker.type === 'entry' ? 'rgb(19,193,123)' : 'rgb(255,117,132)', // Зеленый для входа, красный для выхода
-            backgroundColor: 'rgba(0, 0, 0, 0.5)', // Фон для текста (опционально)
+            arrowColor: marker.type === 'entry' ? 'rgb(19,193,123)' : 'rgb(255,117,132)',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
           },
-          zOrder: 'top', // Поверх других элементов
+          zOrder: 'top',
         };
 
         const entityId = chart.createShape(point, options);
         entityIdsRef.current.push(entityId);
       });
-    });
+    } catch {
+      // виджет уничтожен между onChartReady и вызовом chart()
+    }
+  };
 
-    // Cleanup при изменении markers или unmount
-    return () => {
-      if (chartRef.current) {
-        chartRef.current.onChartReady(() => {
-          const chart = chartRef.current!.chart();
-          entityIdsRef.current.forEach((id) => {
-            chart.removeEntity(id);
-          });
-          entityIdsRef.current = [];
-        });
-      }
-    };
-  }, [markers]); // Зависимость от markers - обновление при изменении
+  useEffect(() => {
+    const widget = chartRef.current;
+    if (!widget || !chartReadyRef.current) {
+      return;
+    }
+
+    applyMarkers(widget);
+  }, [markers]);
 
   useEffect(() => {
     if (!ref.current || !datafeed) return;
@@ -207,11 +226,29 @@ export const TWChart = ({ ticker, height = 400, small, markers = [] }: { ticker:
     };
 
     const chartWidget = new widget(config);
-    chartRef.current = chartWidget; // Сохраняем ссылку
+    chartRef.current = chartWidget;
+    chartReadyRef.current = false;
     subscribeToChartEvents(chartWidget);
     chartWidget.onChartReady(() => {
-      const chart = chartWidget.chart();
+      if (chartRef.current !== chartWidget) {
+        return;
+      }
+      chartReadyRef.current = true;
+      applyMarkers(chartWidget);
     });
+
+    return () => {
+      chartReadyRef.current = false;
+      clearMarkers(chartWidget);
+      try {
+        chartWidget.remove();
+      } catch {
+        // виджет уже удалён
+      }
+      if (chartRef.current === chartWidget) {
+        chartRef.current = null;
+      }
+    };
   }, [datafeed, height, ticker]);
 
   const subscribeToChartEvents = (widget: IChartingLibraryWidget): void => {

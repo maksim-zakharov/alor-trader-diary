@@ -7,19 +7,15 @@ import {
     Input,
     message,
     Radio,
-    SelectProps,
     Statistic,
-    Table,
     Tabs,
     Timeline,
 
 } from 'antd';
 import {
     AppstoreOutlined,
-    ArrowDownOutlined,
-    ArrowUpOutlined, EyeInvisibleOutlined, EyeOutlined, LogoutOutlined,
+    EyeInvisibleOutlined, EyeOutlined, LogoutOutlined,
     MoonOutlined,
-    RetweetOutlined,
     SettingOutlined,
     ShareAltOutlined,
     SunOutlined,
@@ -29,17 +25,14 @@ import {
 import List from 'rc-virtual-list';
 
 import FormItem from 'antd/es/form/FormItem';
-import React, {ChangeEventHandler, FC, useEffect, useMemo, useState} from 'react';
-import {ColumnsType} from 'antd/es/table';
+import React, {FC, useEffect, useMemo, useState} from 'react';
 import moment from 'moment/moment';
-import {selectOptions, summ} from '../../App';
+import {summ} from '../../App';
 import {moneyFormat, shortNumberFormat, virtualListStyles} from '../../common/utils';
 import {Exchange} from "alor-api";
 import dayjs from "dayjs";
 import {useSearchParams} from "react-router-dom";
-import PositionDetails from "./components/PositionDetails";
-import {Currency, Status} from "alor-api/dist/services/ClientInfoService/ClientInfoService";
-import {humanize, numberToPercent} from "../../utils";
+import {numberToPercent} from "../../utils";
 import NoResult from "../../common/NoResult";
 import TickerImg from "../../common/TickerImg";
 import {useAppDispatch, useAppSelector} from "../../store";
@@ -52,7 +45,7 @@ import {
     useGetSecurityByExchangeAndSymbolQuery,
     useGetSummaryQuery
 } from "../../api/alor.api";
-import {logout, selectCurrentPortfolio, setSettings} from "../../api/alor.slice";
+import {logout, setSettings} from "../../api/alor.slice";
 import Spinner from "../../common/Spinner";
 import Title from "antd/es/typography/Title";
 import ASelect from "../../common/Select";
@@ -69,23 +62,7 @@ import MobileSummaryCarousel from "./components/MobileSummaryCarousel";
 import MonthRender from "./components/MonthRender";
 import useScroll from "../../common/useScroll";
 import TTitle from "../../common/TTitle";
-
-interface DataType {
-    key: string;
-    name: string;
-    age: number;
-    address: string;
-    tags: string[];
-}
-
-interface DataType {
-    key: string;
-    name: string;
-    age: number;
-    tel: string;
-    phone: number;
-    address: string;
-}
+import DiaryPositionsTable from "./components/DiaryPositionsTable";
 
 interface IProps {
     data: any;
@@ -131,7 +108,6 @@ const Diary: FC<IProps> = ({
     });
 
     const agreementsMap = useAppSelector(state => state.alorSlice.agreementsMap);
-    const currentPortfolio = useAppSelector(selectCurrentPortfolio);
 
     const moneyMovesCommission = useMemo(() => summ(moneyMoves.filter(m => m.title === "Комиссия брокера").map(m => m.sum)), [moneyMoves]);
 
@@ -159,34 +135,6 @@ const Diary: FC<IProps> = ({
 
     const nightMode = useMemo(() => (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches) || theme === 'dark', [theme]);
 
-    const expandedRowRender = (row: any) => <PositionDetails row={row}
-                                                             nightMode={nightMode}/>;
-    const selectProps = (position: any): SelectProps => {
-        const onSelect: SelectProps['onSelect'] = (value) => {
-            setReasons((prevState) => ({...prevState, [position.id]: value}));
-        };
-
-        return {
-            value: reasons[position.id],
-            defaultValue: reasons[position.id],
-            options: selectOptions,
-            onSelect,
-        };
-    };
-
-    const inputProps = (position: any) => {
-        const onChange: ChangeEventHandler = (e: any) => {
-            const value = e.target.value;
-            setComments((prevState) => ({...prevState, [position.id]: value}));
-        };
-
-        return {
-            value: comments[position.id],
-            defaultValue: comments[position.id],
-            onChange,
-        };
-    };
-
     useEffect(() => {
         localStorage.setItem('reasons', JSON.stringify(reasons));
     }, [reasons]);
@@ -196,181 +144,19 @@ const Diary: FC<IProps> = ({
         message.info(`Тикер ${symbol} скопирован.`);
     };
 
-    const [hidenMap, setHidenMap] = useState({});
+    const [hidenMap, setHidenMap] = useState<Record<string, boolean>>({});
 
-    const renderVolume = (row) => {
-        if (row.type === 'summary') {
-            return shortNumberFormat(row.volume, 0, 2);
-        }
+    const handleReasonChange = (positionId: string, value: string) => {
+        setReasons((prevState) => ({...prevState, [positionId]: value}));
+    };
 
-        const changeVolumeView = () => {
-            setHidenMap(prevState => ({...prevState, [row.id]: !!!prevState[row.id]}))
-        }
+    const handleCommentChange = (positionId: string, value: string) => {
+        setComments((prevState) => ({...prevState, [positionId]: value}));
+    };
 
-        if (!hidenMap[row.id]) {
-            return <>
-                {shortNumberFormat(row.openVolume, 0, 2)} / {shortNumberFormat(row.closeVolume, 0, 2)} <RetweetOutlined
-                style={{cursor: 'pointer'}} onClick={changeVolumeView}/>
-            </>
-        }
-
-        return <>
-            {moneyFormat(row.openVolume, 0)} / {moneyFormat(row.closeVolume, 0)} <RetweetOutlined
-            style={{cursor: 'pointer'}} onClick={changeVolumeView}/>
-        </>
-    }
-
-    const columns: ColumnsType<DataType> = useMemo(() =>
-            [
-                {
-                    title: 'Тикер',
-                    dataIndex: 'symbol',
-                    key: 'symbol',
-                    width: 60,
-                    align: 'center',
-                    // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
-                    // @ts-ignore
-                    render: (_, row) => row.type !== 'summary' &&
-                        <span className="link-color" onClick={() => copyToClipboard(row.symbol)}
-                              style={{cursor: 'pointer'}}>${row.symbol}</span>,
-                },
-                {
-                    title: 'Время открытия',
-                    dataIndex: 'openDate',
-                    key: 'openDate',
-                    width: 160,
-                    align: 'center',
-                    // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
-                    render: (_, row) =>
-                        // @ts-ignore
-                        row.type !== 'summary'
-                            ? // @ts-ignore
-                            moment(row.openDate).format('HH:mm:ss')
-                            : // @ts-ignore
-                            moment(row.openDate).format('DD.MM.YYYY'),
-                    // onCell: sharedOnCell,
-                },
-                currentPortfolio?.marketType === "FOND" && {
-                    title: 'Эшелон',
-                    dataIndex: 'symbol',
-                    key: 'symbol',
-                    width: 70,
-                    align: 'center',
-                    // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
-                    render: (_, row) =>
-                        // @ts-ignore
-                        row.type !== 'summary' && (getListSectionBySymbol(row.symbol) || 'Not found'),
-                    // onCell: sharedOnCell,
-                },
-                {
-                    title: 'Длительность',
-                    dataIndex: 'duration',
-                    key: 'duration',
-                    width: 230,
-                    align: 'center',
-                    // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
-                    render: (_, row) =>
-                        // @ts-ignore
-                        row.type !== 'summary' && humanize(moment.duration(_, 'seconds')),
-                    // onCell: sharedOnCell,
-                },
-                {
-                    title: 'L/S',
-                    dataIndex: 'side',
-                    key: 'side',
-                    align: 'center',
-                    // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
-                    render: (_, row) =>
-                        // @ts-ignore
-                        row.type !== 'summary' &&
-                        // @ts-ignore
-                        (row.side === 'sell' ? <ArrowDownOutlined/> : <ArrowUpOutlined/>),
-                },
-                {
-                    title: 'PnL %',
-                    dataIndex: 'PnLPercent',
-                    key: 'PnLPercent',
-                    align: 'center',
-                    // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
-                    // onCell: (record: any, rowIndex) => ({className: record.PnLPercent > 0 ? 'profit' : 'loss'}),
-                    // render: (_, row) => moneyFormat(_)
-                    render: (val: number, row: any) =>
-                        row.type !== 'summary' && `${numberToPercent(val)}%`,
-                },
-                {
-                    title: 'PnL',
-                    dataIndex: 'PnL',
-                    key: 'PnL',
-                    align: 'center',
-                    onCell: (record: any, rowIndex) => ({
-                        className:
-                            record.type !== 'summary' && (record.PnL > 0 ? 'profit' : 'loss'),
-                        style: {textAlign: 'center'},
-                    }),
-                    render: (_, row: any) =>
-                        row.type !== 'summary' ? (
-                            moneyFormat(_)
-                        ) : (
-                            <strong>{moneyFormat(_)}</strong>
-                        ),
-                },
-                {
-                    title: 'Объем',
-                    dataIndex: 'volume',
-                    key: 'volume',
-                    align: 'center',
-                    render: (_, row: any) =>
-                        row.type !== 'summary' ? (
-                            renderVolume(row)
-                        ) : (
-                            <strong>{renderVolume(row)}</strong>
-                        ),
-                },
-                {
-                    title: 'Комиссия',
-                    dataIndex: 'Fee',
-                    key: 'Fee',
-                    align: 'center',
-                    // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
-                    render: (_, row) => `${moneyFormat(_)} ${row.type !== 'summary' ? `(${(_ * 100 / (row.openVolume + row.closeVolume)).toFixed(3)}%)` : ''}`,
-                },
-                {
-                    title: 'Причина',
-                    dataIndex: 'reason',
-                    key: 'reason',
-                    width: 200,
-                    // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
-                    render: (_, row: any) =>
-                        row.type !== 'summary' && (
-                            <ASelect
-                                key={`${row.id}-reason-select`}
-                                size="small"
-                                style={{width: '180px'}}
-                                allowClear
-                                placeholder="Выберите причину..."
-                                {...selectProps(row)}
-                            />
-                        ),
-                },
-                {
-                    title: 'Комментарий',
-                    dataIndex: 'comment',
-                    key: 'comment',
-                    // onCell: (record: any) => record.type === 'summary'  && ({className: record.PnL > 0 ? 'profit' : 'loss'}),
-                    render: (_, row: any) =>
-                        row.type !== 'summary' && (
-                            <Input
-                                key={`${row.id}-comment-input`}
-                                size="small"
-                                allowClear
-                                placeholder="Добавьте комментарий..."
-                                {...inputProps(row)}
-                            />
-                        ),
-                },
-            ].filter(c => !!c && (!isMobile || !['comment', 'reason', 'side', 'PnLPercent', 'Fee'].includes(c.dataIndex))) as any[]
-        , [isMobile, hidenMap, currentPortfolio]);
-
+    const handleToggleVolumeView = (rowId: string) => {
+        setHidenMap((prevState) => ({...prevState, [rowId]: !prevState[rowId]}));
+    };
 
     const settingsInputProps = (field: string) => {
         const onChange = (e: any) => {
@@ -965,24 +751,19 @@ const Diary: FC<IProps> = ({
                     <Spinner/>
                     <div className="spinner-text">Подгружаем сделки</div>
                 </div>}
-                <Table
-                    onRow={(row: any) =>
-                        row.type === 'summary' && {
-                            className: row.PnL > 0 ? 'profit' : 'loss',
-                        }
-                    }
-                    className="DesktopPositions"
-                    rowKey="id"
-                    columns={columns}
-                    loading={isLoading}
-                    dataSource={data.positions}
-                    size="small"
-                    pagination={false}
-                    expandable={{
-                        expandedRowRender,
-                        defaultExpandedRowKeys: ['0'],
-                        rowExpandable: (row: any) => row.type !== 'summary',
-                    }}
+                <DiaryPositionsTable
+                    positions={data.positions}
+                    isLoading={isLoading}
+                    isMobile={isMobile}
+                    getListSectionBySymbol={getListSectionBySymbol}
+                    onCopyTicker={copyToClipboard}
+                    reasons={reasons}
+                    onReasonChange={handleReasonChange}
+                    comments={comments}
+                    onCommentChange={handleCommentChange}
+                    hidenMap={hidenMap}
+                    onToggleVolumeView={handleToggleVolumeView}
+                    nightMode={nightMode}
                 />
                 {!isLoading && dayPositions.map(dp => <MobilePosition getIsinBySymbol={getIsinBySymbol} positions={dp}/>)}
             </>}
