@@ -9,7 +9,7 @@ import {
 } from '@ant-design/icons';
 import List from 'rc-virtual-list';
 
-import React, {FC, useEffect, useMemo, useRef, useState} from 'react';
+import React, {FC, useEffect, useMemo, useState} from 'react';
 import moment from 'moment/moment';
 import {summ} from '../../App';
 import {moneyFormat, shortNumberFormat, virtualListStyles} from '../../common/utils';
@@ -84,7 +84,6 @@ const Diary: FC<IProps> = ({
     const dispatch = useAppDispatch();
     const settings = useAppSelector(state => state.alorSlice.settings);
     const userInfo = useAppSelector(state => state.alorSlice.userInfo);
-    const settingsPortalContainerRef = useRef<HTMLDivElement>(null);
 
     const {data: moneyMoves = []} = useGetMoneyMovesQuery({
         agreementNumber: settings.agreement,
@@ -635,9 +634,8 @@ const Diary: FC<IProps> = ({
                 open={showSettings}
                 onClose={() => setShowOperationsModal('settings')(false)}
                 isMobile={!!isMobile}
-                portalContainerRef={settingsPortalContainerRef}
             >
-                <FieldGroup>
+                <FieldGroup data-vaul-no-drag>
                     {!settings.lk && <Field>
                         <FieldLabel htmlFor="token">Alor Token</FieldLabel>
                         <Input
@@ -658,7 +656,7 @@ const Diary: FC<IProps> = ({
                             <SelectTrigger id="agreement" className="w-full">
                                 <SelectValue placeholder="Выберите договор"/>
                             </SelectTrigger>
-                            <SelectContent align="start" portalContainer={settingsPortalContainerRef}>
+                            <SelectContent align="start">
                                 <SelectGroup>
                                     {agreementOptions.map(option => (
                                         <SelectItem key={option.value} value={option.value}>
@@ -679,7 +677,7 @@ const Diary: FC<IProps> = ({
                             <SelectTrigger id="portfolio" className="w-full">
                                 <SelectValue placeholder="Выберите портфель"/>
                             </SelectTrigger>
-                            <SelectContent align="start" portalContainer={settingsPortalContainerRef}>
+                            <SelectContent align="start">
                                 <SelectGroup>
                                     {portfolioOptions.map(option => (
                                         <SelectItem key={option.value} value={option.value}>
@@ -700,7 +698,7 @@ const Diary: FC<IProps> = ({
                             <SelectTrigger id="commissionType" className="w-full">
                                 <SelectValue placeholder="Комиссия"/>
                             </SelectTrigger>
-                            <SelectContent align="start" portalContainer={settingsPortalContainerRef}>
+                            <SelectContent align="start">
                                 <SelectGroup>
                                     {commissionOptions.map(option => (
                                         <SelectItem key={option.value} value={option.value}>
@@ -731,7 +729,7 @@ const Diary: FC<IProps> = ({
                             <SelectTrigger id="summaryType" className="w-full">
                                 <SelectValue/>
                             </SelectTrigger>
-                            <SelectContent align="start" portalContainer={settingsPortalContainerRef}>
+                            <SelectContent align="start">
                                 <SelectGroup>
                                     {summaryOptions.map(option => (
                                         <SelectItem key={option.value} value={option.value}>

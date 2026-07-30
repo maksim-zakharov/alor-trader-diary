@@ -15,6 +15,8 @@ type Settings = {
     commissionType: string;
     agreement: string;
     lk?: boolean;
+    /** Способ расчёта текущих средств */
+    summaryType?: string;
 }
 
 const initialState = {
