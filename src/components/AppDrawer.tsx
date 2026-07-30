@@ -40,7 +40,6 @@ export function AppDrawer({
   return (
     <Drawer
       open={open}
-      modal={false}
       onOpenChange={(nextOpen) => {
         if (!nextOpen) {
           onClose();
