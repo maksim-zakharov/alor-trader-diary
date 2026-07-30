@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -15,6 +16,8 @@ interface DiaryPositionReasonSelectProps {
   /** Обработчик смены причины */
   onChange: (value: string | undefined) => void;
 }
+
+const OTHER_REASON_VALUE = '__other__';
 
 /**
  * Выпадающий список причины сделки в строке таблицы дневника.
@@ -28,17 +31,24 @@ export const DiaryPositionReasonSelect: FC<DiaryPositionReasonSelectProps> = ({
   return (
     <Select
       value={selectValue}
-      onValueChange={(nextValue) => onChange(nextValue || undefined)}
+      onValueChange={(nextValue) => {
+        onChange(nextValue === OTHER_REASON_VALUE ? undefined : nextValue);
+      }}
     >
       <SelectTrigger size="sm" className="w-[180px]">
         <SelectValue placeholder="Выберите причину..." />
       </SelectTrigger>
       <SelectContent align="start" className="max-h-60">
-        {selectOptions.map((option) => (
-          <SelectItem key={String(option.label)} value={String(option.value ?? '')}>
-            {option.label}
-          </SelectItem>
-        ))}
+        <SelectGroup>
+          {selectOptions.map((option) => (
+            <SelectItem
+              key={String(option.label)}
+              value={String(option.value ?? OTHER_REASON_VALUE)}
+            >
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectGroup>
       </SelectContent>
     </Select>
   );

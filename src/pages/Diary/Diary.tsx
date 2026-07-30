@@ -48,7 +48,14 @@ import { DiaryViewTabs } from './components/DiaryViewTabs';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { DiaryDatePicker } from './components/DiaryDatePicker';
 import Analytics from '../Analytics/Analytics';
 
@@ -150,16 +157,15 @@ const Diary: FC<IProps> = ({
         dispatch(setSettings({token: event.target.value}));
     };
 
-    const handleAgreementChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        dispatch(setSettings({agreement: event.target.value}));
+    const handleAgreementChange = (agreement: string) => {
+        dispatch(setSettings({agreement}));
     };
 
-    const handlePortfolioChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        dispatch(setSettings({portfolio: event.target.value}));
+    const handlePortfolioChange = (portfolio: string) => {
+        dispatch(setSettings({portfolio}));
     };
 
-    const handleCommissionTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        const commissionType = event.target.value;
+    const handleCommissionTypeChange = (commissionType: string) => {
         dispatch(setSettings({
             commissionType: commissionType === 'custom' ? '' : commissionType
         }));
@@ -169,8 +175,8 @@ const Diary: FC<IProps> = ({
         dispatch(setSettings({commissionType: event.target.value}));
     };
 
-    const handleSummaryTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        dispatch(setSettings({summaryType: event.target.value}));
+    const handleSummaryTypeChange = (summaryType: string) => {
+        dispatch(setSettings({summaryType}));
     };
 
     const netProfitPercent = useMemo(() => !summary ? 0 : data.totalPnL * 100 / (summary?.portfolioEvaluation - data.totalPnL), [data.totalPnL, summary?.portfolioEvaluation]);
@@ -642,50 +648,54 @@ const Diary: FC<IProps> = ({
                     </Field>}
                     <Field>
                         <FieldLabel htmlFor="agreement">Договор</FieldLabel>
-                        <NativeSelect
-                            id="agreement"
-                            className="w-full"
-                            value={settings.agreement || ''}
-                            onChange={handleAgreementChange}
-                        >
-                            <NativeSelectOption value="" disabled>Выберите договор</NativeSelectOption>
-                            {agreementOptions.map(option => (
-                                <NativeSelectOption key={option.value} value={option.value}>
-                                    {option.label}
-                                </NativeSelectOption>
-                            ))}
-                        </NativeSelect>
+                        <Select value={settings.agreement || ''} onValueChange={handleAgreementChange}>
+                            <SelectTrigger id="agreement" className="w-full">
+                                <SelectValue placeholder="Выберите договор"/>
+                            </SelectTrigger>
+                            <SelectContent align="start">
+                                <SelectGroup>
+                                    {agreementOptions.map(option => (
+                                        <SelectItem key={option.value} value={option.value}>
+                                            {option.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
                     </Field>
                     <Field>
                         <FieldLabel htmlFor="portfolio">Alor Portfolio</FieldLabel>
-                        <NativeSelect
-                            id="portfolio"
-                            className="w-full"
-                            value={settings.portfolio || ''}
-                            onChange={handlePortfolioChange}
-                        >
-                            <NativeSelectOption value="" disabled>Выберите портфель</NativeSelectOption>
-                            {portfolioOptions.map(option => (
-                                <NativeSelectOption key={option.value} value={option.value}>
-                                    {option.label}
-                                </NativeSelectOption>
-                            ))}
-                        </NativeSelect>
+                        <Select value={settings.portfolio || ''} onValueChange={handlePortfolioChange}>
+                            <SelectTrigger id="portfolio" className="w-full">
+                                <SelectValue placeholder="Выберите портфель"/>
+                            </SelectTrigger>
+                            <SelectContent align="start">
+                                <SelectGroup>
+                                    {portfolioOptions.map(option => (
+                                        <SelectItem key={option.value} value={option.value}>
+                                            {option.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
                     </Field>
                     <Field>
                         <FieldLabel htmlFor="commissionType">Расчет комиссии</FieldLabel>
-                        <NativeSelect
-                            id="commissionType"
-                            className="w-full"
-                            value={commissionType}
-                            onChange={handleCommissionTypeChange}
-                        >
-                            {commissionOptions.map(option => (
-                                <NativeSelectOption key={option.value} value={option.value}>
-                                    {option.label}
-                                </NativeSelectOption>
-                            ))}
-                        </NativeSelect>
+                        <Select value={commissionType} onValueChange={handleCommissionTypeChange}>
+                            <SelectTrigger id="commissionType" className="w-full">
+                                <SelectValue placeholder="Комиссия"/>
+                            </SelectTrigger>
+                            <SelectContent align="start">
+                                <SelectGroup>
+                                    {commissionOptions.map(option => (
+                                        <SelectItem key={option.value} value={option.value}>
+                                            {option.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
                         {commissionType === 'custom' && (
                             <Input
                                 id="commission"
@@ -699,18 +709,20 @@ const Diary: FC<IProps> = ({
                     </Field>
                     <Field>
                         <FieldLabel htmlFor="summaryType">Расчет текущих средств</FieldLabel>
-                        <NativeSelect
-                            id="summaryType"
-                            className="w-full"
-                            value={summaryType}
-                            onChange={handleSummaryTypeChange}
-                        >
-                            {summaryOptions.map(option => (
-                                <NativeSelectOption key={option.value} value={option.value}>
-                                    {option.label}
-                                </NativeSelectOption>
-                            ))}
-                        </NativeSelect>
+                        <Select value={summaryType} onValueChange={handleSummaryTypeChange}>
+                            <SelectTrigger id="summaryType" className="w-full">
+                                <SelectValue/>
+                            </SelectTrigger>
+                            <SelectContent align="start">
+                                <SelectGroup>
+                                    {summaryOptions.map(option => (
+                                        <SelectItem key={option.value} value={option.value}>
+                                            {option.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
                     </Field>
                 </FieldGroup>
             </AppDrawer>
