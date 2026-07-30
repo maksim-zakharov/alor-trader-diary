@@ -102,8 +102,6 @@ const Diary: FC<IProps> = ({
         skip: !userInfo || !settings.portfolio
     });
 
-    const agreementsMap = useAppSelector(state => state.alorSlice.agreementsMap);
-
     const moneyMovesCommission = useMemo(() => summ(moneyMoves.filter(m => m.title === "Комиссия брокера").map(m => m.sum)), [moneyMoves]);
 
     const [reasons, setReasons] = useState<{ [id: string]: string }>(
@@ -158,7 +156,10 @@ const Diary: FC<IProps> = ({
     };
 
     const handleAgreementChange = (agreement: string) => {
-        dispatch(setSettings({agreement}));
+        dispatch(setSettings({
+            agreement,
+            portfolio: agreement === settings.agreement ? settings.portfolio : ''
+        }));
     };
 
     const handlePortfolioChange = (portfolio: string) => {
@@ -395,10 +396,12 @@ const Diary: FC<IProps> = ({
         label: agreement.cid,
         value: agreement.agreementNumber
     })) || [];
-    const portfolioOptions = agreementsMap[settings.agreement]?.portfolios?.map(portfolio => ({
-        label: `${portfolio.accountNumber} (${portfolio.service})`,
-        value: portfolio.accountNumber
-    })) || [];
+    const portfolioOptions = userInfo?.agreements
+        ?.find(agreement => agreement.agreementNumber === settings.agreement)
+        ?.portfolios?.map(portfolio => ({
+            label: `${portfolio.accountNumber} (${portfolio.service})`,
+            value: portfolio.accountNumber
+        })) || [];
     const commissionType = ['tariff', 'taker'].includes(settings.commissionType)
         ? settings.commissionType
         : 'custom';
