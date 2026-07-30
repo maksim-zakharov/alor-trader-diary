@@ -1,22 +1,15 @@
 import {
     Button,
-    Divider,
-    Form,
-    Input,
     message,
     Timeline,
 
 } from 'antd';
 import {
-    MoonOutlined,
-    SettingOutlined,
     ShareAltOutlined,
-    SunOutlined,
 } from '@ant-design/icons';
 import List from 'rc-virtual-list';
 
-import FormItem from 'antd/es/form/FormItem';
-import React, {FC, useEffect, useMemo, useState} from 'react';
+import React, {FC, useEffect, useMemo, useRef, useState} from 'react';
 import moment from 'moment/moment';
 import {summ} from '../../App';
 import {moneyFormat, shortNumberFormat, virtualListStyles} from '../../common/utils';
@@ -38,7 +31,6 @@ import {
 import {setSettings} from "../../api/alor.slice";
 import Spinner from "../../common/Spinner";
 import Title from "antd/es/typography/Title";
-import ASelect from "../../common/Select";
 import Chart from "./components/Chart";
 import MoneyOutputIcon from "../../assets/money-output";
 import MoneyInputIcon from "../../assets/money-input";
@@ -54,6 +46,16 @@ import useScroll from "../../common/useScroll";
 import DiaryPositionsTable from "./components/DiaryPositionsTable";
 import { DiaryViewTabs } from './components/DiaryViewTabs';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { DiaryDatePicker } from './components/DiaryDatePicker';
 import Analytics from '../Analytics/Analytics';
 
@@ -82,6 +84,7 @@ const Diary: FC<IProps> = ({
     const dispatch = useAppDispatch();
     const settings = useAppSelector(state => state.alorSlice.settings);
     const userInfo = useAppSelector(state => state.alorSlice.userInfo);
+    const settingsPortalContainerRef = useRef<HTMLDivElement>(null);
 
     const {data: moneyMoves = []} = useGetMoneyMovesQuery({
         agreementNumber: settings.agreement,
@@ -108,7 +111,7 @@ const Diary: FC<IProps> = ({
         JSON.parse(localStorage.getItem('reasons') || '{}'),
     );
 
-    const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+    const theme = localStorage.getItem('theme') || 'dark';
 
     useEffect(() => {
         if ((theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches) || theme === 'dark') {
@@ -151,19 +154,30 @@ const Diary: FC<IProps> = ({
         setHidenMap((prevState) => ({...prevState, [rowId]: !prevState[rowId]}));
     };
 
-    const settingsInputProps = (field: string) => {
-        const onChange = (e: any) => {
-            const value = e.target ? e.target.value : e;
-            dispatch(setSettings(({[field]: value})));
-        };
+    const handleTokenChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        dispatch(setSettings({token: event.target.value}));
+    };
 
-        return {
-            value: settings[field],
-            defaultValue: settings[field],
-            onChange,
-            name: field,
-            id: field
-        };
+    const handleAgreementChange = (agreement: string) => {
+        dispatch(setSettings({agreement}));
+    };
+
+    const handlePortfolioChange = (portfolio: string) => {
+        dispatch(setSettings({portfolio}));
+    };
+
+    const handleCommissionTypeChange = (commissionType: string) => {
+        dispatch(setSettings({
+            commissionType: commissionType === 'custom' ? '' : commissionType
+        }));
+    };
+
+    const handleCommissionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        dispatch(setSettings({commissionType: event.target.value}));
+    };
+
+    const handleSummaryTypeChange = (summaryType: string) => {
+        dispatch(setSettings({summaryType}));
     };
 
     const netProfitPercent = useMemo(() => !summary ? 0 : data.totalPnL * 100 / (summary?.portfolioEvaluation - data.totalPnL), [data.totalPnL, summary?.portfolioEvaluation]);
@@ -277,15 +291,6 @@ const Diary: FC<IProps> = ({
         setSearchParams(searchParams);
     };
 
-    const onChangeNightMode = (e) => {
-        localStorage.setItem('theme', e);
-
-        if ((e === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches) || e === 'dark') {
-            document.body.className = 'dark-theme';
-        }
-        setTheme(e);
-    };
-
     const weeks = useMemo(() => {
         const result = new Map<number, any>([]);
         const nonSummary = data.positions.filter(p => p.type !== 'summary');
@@ -346,22 +351,6 @@ const Diary: FC<IProps> = ({
 
     const todayPnL = useMemo(() => data.positions.find(row => row.type === 'summary' && moment(row.openDate).format('DD.MM.YYYY') === moment().format('DD.MM.YYYY'))?.PnL || 0, [data.positions]);
 
-    const themeOptions = [
-        {
-            label: 'Системная',
-            value: 'system',
-            icon: <SettingOutlined/>
-        }, {
-            label: `Светлая`,
-            value: 'light',
-            icon: <SunOutlined/>
-        }, {
-            label: `Темная`,
-            value: 'dark',
-            icon: <MoonOutlined/>
-        }
-    ]
-
     const InfoPanelDesktop = () => <AppPanel className="InfoPanelDesktop">
         <div className="InfoPanelDesktop__content">
         <div
@@ -392,15 +381,29 @@ const Diary: FC<IProps> = ({
         return acc;
     }, {})).map(p => p[1]), [data.positions]);
 
-    const commissionOptions: any[] = [
+    const commissionOptions = [
         {label: 'По тарифу', value: 'tariff'},
         {label: 'Тейкер', value: 'taker'},
+        {label: 'Ввести вручную', value: 'custom'},
     ]
 
-    const summaryOptions: any[] = [
+    const summaryOptions = [
         {label: 'От брокера', value: 'brokerSummary'},
         {label: 'Средства утром + прибыль', value: 'buyMorningPowerPlusPnL'},
     ]
+
+    const agreementOptions = userInfo?.agreements?.map(agreement => ({
+        label: agreement.cid,
+        value: agreement.agreementNumber
+    })) || [];
+    const portfolioOptions = agreementsMap[settings.agreement]?.portfolios?.map(portfolio => ({
+        label: `${portfolio.accountNumber} (${portfolio.service})`,
+        value: portfolio.accountNumber
+    })) || [];
+    const commissionType = ['tariff', 'taker'].includes(settings.commissionType)
+        ? settings.commissionType
+        : 'custom';
+    const summaryType = settings.summaryType || 'brokerSummary';
 
     const handleShareButtonClick = (data: Omit<ShareData, 'files'>) => {
         if (navigator.canShare) {
@@ -632,72 +635,114 @@ const Diary: FC<IProps> = ({
                 open={showSettings}
                 onClose={() => setShowOperationsModal('settings')(false)}
                 isMobile={!!isMobile}
+                portalContainerRef={settingsPortalContainerRef}
             >
-                <Form layout="vertical">
-                    {!settings.lk && <FormItem label="Alor Token">
-                        <Input placeholder="Token" {...settingsInputProps('token')} />
-                    </FormItem>}
-                    <FormItem label="Договор">
-                        <ASelect value={settings.agreement}
-                                 {...settingsInputProps('agreement')}
-
-                                 placeholder="Выберите договор"
-                                 options={userInfo?.agreements?.map(p => ({
-                                     label: p.cid,
-                                     value: p.agreementNumber
-                                 })) || []}/>
-                    </FormItem>
-                    <FormItem label="Alor Portfolio">
-                        <ASelect value={settings.portfolio}
-                                 {...settingsInputProps('portfolio')}
-                                 placeholder="Выберите портфель"
-                                 options={agreementsMap[settings.agreement]?.portfolios?.map(p => ({
-                                     label: `${p.accountNumber} (${p.service})`,
-                                     value: p.accountNumber
-                                 })) || []}/>
-                    </FormItem>
-                    <FormItem label="Расчет комиссии">
-                        <ASelect
-                            style={{width: '100%'}}
-                            placeholder="Комиссия"
-                            value={settingsInputProps('commissionType').value}
-                            onChange={val => dispatch(setSettings(({['commissionType']: val})))}
-                            dropdownRender={(menu) => (
-                                <>
-                                    {menu}
-                                    <Divider style={{margin: '8px 0'}}/>
-
-                                    <Form layout="vertical">
-                                        <FormItem label="Комиссия">
-                                            <Input
-                                                placeholder="Введите комиссию"
-                                                value={settingsInputProps('commissionType').value}
-                                                onChange={settingsInputProps('commissionType').onChange}
-                                                onKeyDown={(e) => e.stopPropagation()}
-                                            />
-                                        </FormItem>
-                                    </Form>
-                                </>
-                            )}
-                            options={commissionOptions}
+                <FieldGroup>
+                    {!settings.lk && <Field>
+                        <FieldLabel htmlFor="token">Alor Token</FieldLabel>
+                        <Input
+                            id="token"
+                            name="token"
+                            placeholder="Token"
+                            value={settings.token || ''}
+                            onChange={handleTokenChange}
                         />
-                    </FormItem>
-                    {/*<FormItem label="Тема">*/}
-                    {/*    <Select options={themeOptions} value={theme}*/}
-                    {/*            optionRender={(option) => (*/}
-                    {/*                <Space>*/}
-                    {/*                    {option.data.icon}*/}
-                    {/*                    <div>{option.data.label}</div>*/}
-                    {/*                </Space>*/}
-                    {/*            )} style={{width: '100%'}} onSelect={onChangeNightMode}/>*/}
-                    {/*</FormItem>*/}
-                    <FormItem label="Расчет текущих средств">
-                        <ASelect options={summaryOptions} style={{width: '100%'}}
-                                 value={settingsInputProps('summaryType').value || 'brokerSummary'}
-                                 onChange={val => dispatch(setSettings({['summaryType']: val}))}
-                        />
-                    </FormItem>
-                </Form>
+                    </Field>}
+                    <Field>
+                        <FieldLabel htmlFor="agreement">Договор</FieldLabel>
+                        <Select
+                            items={agreementOptions}
+                            value={settings.agreement || ''}
+                            onValueChange={handleAgreementChange}
+                        >
+                            <SelectTrigger id="agreement" className="w-full">
+                                <SelectValue placeholder="Выберите договор"/>
+                            </SelectTrigger>
+                            <SelectContent align="start" portalContainer={settingsPortalContainerRef}>
+                                <SelectGroup>
+                                    {agreementOptions.map(option => (
+                                        <SelectItem key={option.value} value={option.value}>
+                                            {option.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                    </Field>
+                    <Field>
+                        <FieldLabel htmlFor="portfolio">Alor Portfolio</FieldLabel>
+                        <Select
+                            items={portfolioOptions}
+                            value={settings.portfolio || ''}
+                            onValueChange={handlePortfolioChange}
+                        >
+                            <SelectTrigger id="portfolio" className="w-full">
+                                <SelectValue placeholder="Выберите портфель"/>
+                            </SelectTrigger>
+                            <SelectContent align="start" portalContainer={settingsPortalContainerRef}>
+                                <SelectGroup>
+                                    {portfolioOptions.map(option => (
+                                        <SelectItem key={option.value} value={option.value}>
+                                            {option.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                    </Field>
+                    <Field>
+                        <FieldLabel htmlFor="commissionType">Расчет комиссии</FieldLabel>
+                        <Select
+                            items={commissionOptions}
+                            value={commissionType}
+                            onValueChange={handleCommissionTypeChange}
+                        >
+                            <SelectTrigger id="commissionType" className="w-full">
+                                <SelectValue placeholder="Комиссия"/>
+                            </SelectTrigger>
+                            <SelectContent align="start" portalContainer={settingsPortalContainerRef}>
+                                <SelectGroup>
+                                    {commissionOptions.map(option => (
+                                        <SelectItem key={option.value} value={option.value}>
+                                            {option.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                        {commissionType === 'custom' && (
+                            <Input
+                                id="commission"
+                                name="commission"
+                                inputMode="decimal"
+                                placeholder="Введите комиссию"
+                                value={settings.commissionType || ''}
+                                onChange={handleCommissionChange}
+                            />
+                        )}
+                    </Field>
+                    <Field>
+                        <FieldLabel htmlFor="summaryType">Расчет текущих средств</FieldLabel>
+                        <Select
+                            items={summaryOptions}
+                            value={summaryType}
+                            onValueChange={handleSummaryTypeChange}
+                        >
+                            <SelectTrigger id="summaryType" className="w-full">
+                                <SelectValue/>
+                            </SelectTrigger>
+                            <SelectContent align="start" portalContainer={settingsPortalContainerRef}>
+                                <SelectGroup>
+                                    {summaryOptions.map(option => (
+                                        <SelectItem key={option.value} value={option.value}>
+                                            {option.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                    </Field>
+                </FieldGroup>
             </AppDrawer>
         </>
     );
