@@ -15,48 +15,14 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  prepare:
-    runs-on: ubuntu-latest
-    outputs:
-      cache-hit: ${{ steps.cache.outputs.cache-hit }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Get Node.js version
-        id: node-version
-        run: echo "node_version=$(node -v | cut -d'v' -f2)" >> $GITHUB_OUTPUT
-
-      - name: Cache node_modules
-        id: cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            **/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}-${{ steps.node-version.outputs.node_version }}
-          restore-keys: |
-            ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}-
-            ${{ runner.os }}-node-
-
   build:
-    needs: [prepare]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Restore node_modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            **/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}-${{ needs.prepare.outputs.node_version }}
-
-      - name: Install dependencies (if cache missed)
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: npm ci
+      - name: Install dependencies
+        run: npm install
 
       - name: Build project
         run: npm run build
