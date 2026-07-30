@@ -650,6 +650,7 @@ const Diary: FC<IProps> = ({
                         <FieldLabel htmlFor="agreement">Договор</FieldLabel>
                         <Select
                             items={agreementOptions}
+                            modal={false}
                             value={settings.agreement || ''}
                             onValueChange={handleAgreementChange}
                         >
@@ -671,6 +672,7 @@ const Diary: FC<IProps> = ({
                         <FieldLabel htmlFor="portfolio">Alor Portfolio</FieldLabel>
                         <Select
                             items={portfolioOptions}
+                            modal={false}
                             value={settings.portfolio || ''}
                             onValueChange={handlePortfolioChange}
                         >
@@ -692,6 +694,7 @@ const Diary: FC<IProps> = ({
                         <FieldLabel htmlFor="commissionType">Расчет комиссии</FieldLabel>
                         <Select
                             items={commissionOptions}
+                            modal={false}
                             value={commissionType}
                             onValueChange={handleCommissionTypeChange}
                         >
@@ -723,6 +726,7 @@ const Diary: FC<IProps> = ({
                         <FieldLabel htmlFor="summaryType">Расчет текущих средств</FieldLabel>
                         <Select
                             items={summaryOptions}
+                            modal={false}
                             value={summaryType}
                             onValueChange={handleSummaryTypeChange}
                         >
