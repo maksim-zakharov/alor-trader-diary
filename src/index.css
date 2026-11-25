@@ -24,6 +24,7 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-input-placeholder: var(--input-placeholder);
+  --color-placeholder: var(--placeholder);
   --color-ring: var(--ring);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -46,6 +47,21 @@
   --color-chart-1: var(--chart-1);
   --color-app-header-bg: var(--app-header-bg);
   --color-app-text: var(--app-text-color);
+  /* smartmoney-client BDS / tmp */
+  --color-tmp-17181e: var(--tmp-17181e);
+  --color-tmp-ffb11a: var(--tmp-ffb11a);
+  --color-bds-brand-600-hover: var(--bds-brand-600-hover);
+  --color-bds-brand-700-normal: var(--bds-brand-700-normal);
+  --color-bds-gray-ele-border: var(--bds-gray-ele-border);
+  --color-bds-gray-ele-line: var(--bds-gray-ele-line);
+  --color-bds-gray-bg-float: var(--bds-gray-bg-float);
+  --color-bds-gray-bg-menu: var(--bds-gray-bg-menu);
+  --color-bds-gray-t2: var(--bds-gray-t2);
+  --color-bds-static-white: var(--bds-static-white);
+  --color-bds-green-700-normal: var(--bds-green-700-normal);
+  --color-bds-non-vip: var(--bds-non-vip);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
@@ -70,9 +86,27 @@
   --border: oklch(0.922 0 0);
   --table-row-border-color: var(--border);
   --input: oklch(0.922 0 0);
-  --input-placeholder: #adb1b8;
+  --placeholder: oklch(0.556 0 0);
+  --input-placeholder: var(--placeholder);
   --ring: oklch(0.708 0 0);
   --app-header-bg: #17181e;
+  --tmp-17181e: #17181e;
+  --tmp-ffb11a: #ffb11a;
+  --bds-brand-600-hover: #ffad52;
+  --bds-brand-700-normal: #ff9c2e;
+  --bds-gray-ele-border: #dde1e5;
+  --bds-gray-ele-line: #f3f5f7;
+  --bds-gray-bg-float: #fff;
+  --bds-gray-bg-menu: #fff;
+  --bds-gray-t2: #7f838a;
+  --bds-static-white: #fff;
+  --bds-green-700-normal: #06c167;
+  --bds-non-vip: #adb1b8;
+  --success: #24ae64;
+  --success-foreground: #24ae64;
+  --bds-trans-hover: rgb(192 210 231 / 12%);
+  --bds-shadow-l1: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --size-4: 4px;
   --app-text-color: #fff;
   --app-text-color-rgb: 255, 255, 255;
   --app-background-color: #000;
@@ -93,63 +127,50 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
+/* Токены dark как в smartmoney-client (календарь / DatePicker / Select) */
 .dark-theme,
 .dark {
-  --background: var(--app-background-color);
-  --foreground: var(--app-text-color);
-  --card: rgb(30, 44, 57);
-  --card-foreground: var(--app-text-color);
-  --popover: rgb(36, 52, 66);
-  --popover-foreground: var(--app-text-color);
-  --primary: rgb(51, 111, 238);
-  --primary-foreground: var(--app-text-color);
-  --secondary: rgb(44, 60, 75);
-  --secondary-foreground: var(--app-text-color);
-  --muted: rgb(44, 60, 75);
-  --muted-foreground: rgb(140, 167, 190);
-  --accent: rgb(51, 70, 87);
-  --accent-foreground: var(--app-text-color);
-  --destructive: rgb(255, 117, 132);
-  --border: rgb(51, 70, 87);
-  --table-row-border-color: var(--border);
-  --input: #25282c;
-  --input-placeholder: #adb1b8;
-  --ring: rgb(51, 111, 238);
-  --app-header-bg: #17181e;
-}
+  --bds-brand-600-hover: #ffad52;
+  --bds-brand-700-normal: #ff9c2e;
+  --bds-gray-ele-border: #404347;
+  --bds-gray-ele-line: #222227;
+  --bds-gray-bg-float: #333537;
+  --bds-gray-bg-menu: #16171a;
+  --bds-gray-bg-area: #101014;
+  --bds-gray-t2: #6a6e73;
+  --bds-static-white: #fff;
+  --bds-green-700-normal: #06c167;
+  --bds-non-vip: #adb1b8;
+  --bds-trans-hover: rgb(192 210 231 / 12%);
+  --bds-shadow-l1: 0 2px 8px rgba(0, 0, 0, 0.32);
+  --size-4: 4px;
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
+  --background: var(--app-background-color);
+  --foreground: #dbdbdb;
+  --card: #101014;
   --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
+  --popover: var(--bds-gray-bg-menu);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
+  --primary: var(--bds-brand-700-normal);
+  --primary-foreground: rgb(0, 0, 0);
+  --secondary: rgb(64, 67, 71);
+  --secondary-foreground: rgb(255, 255, 255);
+  --muted: rgb(192 210 231 / 12%);
+  --muted-foreground: var(--bds-non-vip);
   --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --destructive: #e04040;
+  --success: #24ae64;
+  --success-foreground: #24ae64;
+  --border: #25282c;
+  --table-row-border-color: var(--background);
+  --input: var(--bds-gray-ele-line);
+  --placeholder: #4a4a4a;
+  --input-placeholder: var(--placeholder);
+  --ring: oklch(0.439 0 0);
+  --app-header-bg: #17181e;
+  --tmp-17181e: #17181e;
+  --tmp-ffb11a: #ffb11a;
 }
 
 @layer base {

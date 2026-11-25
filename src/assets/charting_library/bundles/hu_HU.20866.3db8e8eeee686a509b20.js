@@ -1,0 +1,1 @@
+(self.webpackChunktradingview=self.webpackChunktradingview||[]).push([[20866],{820866(e){e.exports={en:["Close"],hu_HU:["Zárás"]}}}]);

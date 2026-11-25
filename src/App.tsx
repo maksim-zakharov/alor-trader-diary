@@ -15,7 +15,7 @@ import useListSecs from "./useListSecs";
 import {initApi, setSettings, updateDarkColors} from "./api/alor.slice";
 import {useAppDispatch, useAppSelector} from "./store";
 import {MenuItemType} from "antd/es/menu/interface";
-import {ProfileOutlined, SearchOutlined} from "@ant-design/icons";
+import {LineChartOutlined, ProfileOutlined, SearchOutlined} from "@ant-design/icons";
 import {
     calculateCommission,
     useGetPositionsQuery,
@@ -29,6 +29,7 @@ import WhatBuy from "./pages/WhatBuy";
 import { AppHeader } from './components/AppHeader';
 import OperationsDrawer from './pages/Diary/components/OperationsDrawer';
 import WithdrawDrawer from './pages/Diary/components/WithdrawDrawer';
+import ChartsPage from './pages/ChartsPage/ChartsPage';
 
 export const avg = (numbers: number[]) =>
     !numbers.length ? 0 : summ(numbers) / numbers.length;
@@ -292,6 +293,12 @@ function App() {
                             dateFrom={dateFrom} dateTo={dateTo}
                             data={data} isLoading={isLoading}/>
         },
+        {
+            key: 'charts',
+            label: 'Графики',
+            icon: <LineChartOutlined/>,
+            element: <ChartsPage/>
+        },
         isMobile && {
             key: 'what_buy',
             label: 'Что купить',
@@ -366,8 +373,11 @@ function App() {
                     <WithdrawDrawer onClose={closeDrawer} />
                 </>
             )}
-            <Content className="site-layout" style={{minHeight: '100vh'}}>
-                <div className="body-content">
+            <Content
+                className="site-layout"
+                style={{minHeight: currentMenuSelectedKey === 'charts' ? undefined : '100vh'}}
+            >
+                <div className={currentMenuSelectedKey === 'charts' ? 'body-content body-content--charts' : 'body-content'}>
                     <Routes>
                         <Route
                             path="/"
@@ -385,10 +395,12 @@ function App() {
                     </Routes>
                 </div>
             </Content>
-            {userInfo && <MobileFooterMenu/>}
-            {userInfo && <Footer className="mt-1" style={{textAlign: 'center'}}>
-                Alor Trader Diary ©2023 Created by Maksim Zakharov
-            </Footer>}
+            {userInfo && currentMenuSelectedKey !== 'charts' && <MobileFooterMenu/>}
+            {userInfo && currentMenuSelectedKey !== 'charts' && (
+                <Footer className="mt-1" style={{textAlign: 'center'}}>
+                    Alor Trader Diary ©2023 Created by Maksim Zakharov
+                </Footer>
+            )}
         </Layout>
     );
 }

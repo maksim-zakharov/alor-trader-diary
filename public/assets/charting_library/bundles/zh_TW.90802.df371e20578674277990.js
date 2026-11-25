@@ -1,0 +1,1 @@
+(self.webpackChunktradingview=self.webpackChunktradingview||[]).push([[90802],{327666(e){e.exports={en:["Decrease"],zh_TW:["減少"]}},870524(e){e.exports={en:["Increase"],zh_TW:["增加"]}},276459(e){e.exports={en:["Lots"],zh_TW:["手數"]}},608863(e){e.exports={en:["Number format is invalid."],zh_TW:["號碼格式無效。"]}},60132(e){e.exports={en:["Units"],zh_TW:["單位"]}}}]);

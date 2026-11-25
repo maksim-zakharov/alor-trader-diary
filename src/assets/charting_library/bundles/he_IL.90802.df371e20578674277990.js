@@ -1,0 +1,1 @@
+(self.webpackChunktradingview=self.webpackChunktradingview||[]).push([[90802],{327666(e){e.exports={en:["Decrease"],he_IL:["לְהַקְטִין"]}},870524(e){e.exports={en:["Increase"],he_IL:["גידול"]}},276459(e){e.exports={en:["Lots"]}},608863(e){e.exports={en:["Number format is invalid."],he_IL:["פורמט המספר אינו חוקי."]}},60132(e){e.exports={en:["Units"],he_IL:["יחידות"]}}}]);

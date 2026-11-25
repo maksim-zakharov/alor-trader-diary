@@ -1,0 +1,1 @@
+(self.webpackChunktradingview=self.webpackChunktradingview||[]).push([[85879],{985879(e){e.exports={en:["{plotsCount} more value","{plotsCount} more values"],ko:["{plotsCount}개 값 더보기"]}}}]);

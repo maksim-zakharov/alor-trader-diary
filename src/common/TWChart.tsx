@@ -4,6 +4,12 @@ import { DataFeed } from '../api/datafeed';
 import { getTimezone } from '../common/utils';
 import { getChartingLibraryPath } from '../utils';
 import {
+  getTwChartOverrides,
+  getTwChartStudiesOverrides,
+  TW_CHART_CUSTOM_CSS_URL,
+  TW_CHART_THEME_COLORS,
+} from '../components/tw-chart-theme';
+import {
   ChartingLibraryFeatureset,
   ChartingLibraryWidgetOptions,
   ChartMetaInfo,
@@ -24,8 +30,9 @@ import {
   widget,
 } from '../assets/charting_library';
 
-export const TWChart = ({ ticker, height = 400, small, markers = [], visibleRange }: {
+export const TWChart = ({ ticker, height, small, markers = [], visibleRange }: {
   ticker: string;
+  /** Высота; без значения — 100% родителя (autosize) */
   height?: number;
   small?: boolean;
   markers?: {
@@ -180,7 +187,7 @@ export const TWChart = ({ ticker, height = 400, small, markers = [], visibleRang
       container: ref.current,
       symbol: ticker,
       // width: width || ref.current?.clientWidth,
-      height: height || ref.current?.clientHeight,
+      height: height || ref.current?.clientHeight || undefined,
       interval: '5' as ResolutionString,
       locale: 'ru',
       library_path: getChartingLibraryPath(),
@@ -197,14 +204,17 @@ export const TWChart = ({ ticker, height = 400, small, markers = [], visibleRang
         },
       ],
       overrides: {
-        'paneProperties.background': 'rgb(30,44,57)',
+        ...getTwChartOverrides(TW_CHART_THEME_COLORS),
       },
+      studies_overrides: getTwChartStudiesOverrides(TW_CHART_THEME_COLORS),
+      custom_css_url: TW_CHART_CUSTOM_CSS_URL,
       theme: 'dark',
       saved_data: chartLayout as object,
       auto_save_delay: isPositionChart ? undefined : 1,
-      loading_screen: isPositionChart
-        ? { backgroundColor: 'rgb(30,44,57)', foregroundColor: 'rgb(173,177,184)' }
-        : undefined,
+      loading_screen: {
+        backgroundColor: TW_CHART_THEME_COLORS.background,
+        foregroundColor: TW_CHART_THEME_COLORS.scaleText,
+      },
       time_frames: [
         {
           text: '1000y',
@@ -280,6 +290,32 @@ export const TWChart = ({ ticker, height = 400, small, markers = [], visibleRang
         return;
       }
       chartReadyRef.current = true;
+      // Layout/saved_data может перетереть тему — повторяем как в smartmoney-client.
+      try {
+        const studyOverrides = getTwChartStudiesOverrides(TW_CHART_THEME_COLORS);
+        chartWidget.applyOverrides(getTwChartOverrides(TW_CHART_THEME_COLORS));
+        chartWidget.applyStudiesOverrides(studyOverrides);
+        // Уже созданный Volume из saved_data — отдельно через IStudyApi.
+        const chart = chartWidget.activeChart?.() ?? chartWidget.chart?.(0);
+        const volumeStudy = chart?.getAllStudies?.()?.find((s) => {
+          const name = (s.name || '').toLowerCase();
+          return (
+            name === 'volume' ||
+            name.includes('volume@') ||
+            name === 'объём' ||
+            name === 'объем'
+          );
+        });
+        if (volumeStudy && chart) {
+          chart.getStudyById(volumeStudy.id).applyOverrides({
+            'volume.color.0': studyOverrides['volume.volume.color.0'] as string,
+            'volume.color.1': studyOverrides['volume.volume.color.1'] as string,
+            'volume.transparency': studyOverrides['volume.volume.transparency'] as number,
+          });
+        }
+      } catch {
+        // ignore
+      }
       if (visibleRangeRef.current) {
         void applyVisibleRange(chartWidget).finally(() => {
           setIsRangeApplied(true);
@@ -348,6 +384,17 @@ export const TWChart = ({ ticker, height = 400, small, markers = [], visibleRang
         'header_saveload',
         'header_symbol_search',
         'symbol_search_hot_key',
+        /** Логотип TradingView в углу */
+        'widget_logo',
+        /** TT v32: дерево объектов */
+        'show_object_tree',
+        /** TT v32: Broker API / торговый UI */
+        'trading_account_manager',
+        'open_account_manager',
+        'order_panel',
+        'buy_sell_buttons',
+        'trading_notifications',
+        'show_trading_notifications_history',
         small && 'header_compare',
         small && 'left_toolbar',
         small && 'header_screenshot',
@@ -465,14 +512,14 @@ export const TWChart = ({ ticker, height = 400, small, markers = [], visibleRang
   };
 
   return (
-    <div style={{ position: 'relative', height: height || '100%' }}>
+    <div style={{ position: 'relative', height: height ?? '100%', width: '100%' }}>
       {!isRangeApplied && (
         <div
           className="absolute inset-0 z-10"
-          style={{ backgroundColor: 'rgb(30,44,57)' }}
+          style={{ backgroundColor: TW_CHART_THEME_COLORS.background }}
         />
       )}
-      <div ref={ref} style={{ height: '100%', visibility: isRangeApplied ? 'visible' : 'hidden' }} />
+      <div ref={ref} style={{ height: '100%', width: '100%', visibility: isRangeApplied ? 'visible' : 'hidden' }} />
     </div>
   );
 };

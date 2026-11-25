@@ -1,0 +1,1 @@
+(self.webpackChunktradingview=self.webpackChunktradingview||[]).push([[64291],{338554(e){e.exports={en:["Cancel order"],th:["ยกเลิกออร์เดอร์"]}},59855(e){e.exports={en:["Keep order"],th:["เก็บออร์เดอร์ไว้"]}},93318(e){e.exports={en:["Cancel order"],th:["ยกเลิกออร์เดอร์"]}}}]);

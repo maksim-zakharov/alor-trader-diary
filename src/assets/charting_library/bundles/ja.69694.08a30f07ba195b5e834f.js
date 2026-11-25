@@ -1,0 +1,1 @@
+(self.webpackChunktradingview=self.webpackChunktradingview||[]).push([[69694],{669694(e){e.exports={en:["Don't show again"],ja:["再び表示しない"]}}}]);

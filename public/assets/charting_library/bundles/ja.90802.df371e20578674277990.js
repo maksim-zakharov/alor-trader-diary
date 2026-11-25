@@ -1,0 +1,1 @@
+(self.webpackChunktradingview=self.webpackChunktradingview||[]).push([[90802],{327666(e){e.exports={en:["Decrease"],ja:["減少"]}},870524(e){e.exports={en:["Increase"],ja:["増加"]}},276459(e){e.exports={en:["Lots"],ja:["ロット"]}},608863(e){e.exports={en:["Number format is invalid."],ja:["数値形式が無効です。"]}},60132(e){e.exports={en:["Units"],ja:["ユニット"]}}}]);

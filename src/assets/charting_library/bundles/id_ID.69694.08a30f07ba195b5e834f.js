@@ -1,0 +1,1 @@
+(self.webpackChunktradingview=self.webpackChunktradingview||[]).push([[69694],{669694(a){a.exports={en:["Don't show again"],id_ID:["Jangan tampilkan kembali"]}}}]);

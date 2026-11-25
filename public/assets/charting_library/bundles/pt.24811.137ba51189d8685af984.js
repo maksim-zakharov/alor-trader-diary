@@ -1,0 +1,1 @@
+(self.webpackChunktradingview=self.webpackChunktradingview||[]).push([[24811],{324811(e){e.exports={en:["Lost internet connection"],pt:["Perda da conexão de internet"]}}}]);

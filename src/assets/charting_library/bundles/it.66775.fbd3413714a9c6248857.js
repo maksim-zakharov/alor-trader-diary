@@ -1,0 +1,1 @@
+(self.webpackChunktradingview=self.webpackChunktradingview||[]).push([[66775],{266775(e){e.exports={en:["erase level line"],it:["rimozione livello"]}}}]);

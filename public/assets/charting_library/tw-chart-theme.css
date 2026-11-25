@@ -1,0 +1,123 @@
+/*
+ * Тема UI TradingView Charting Library (тулбары, меню, диалоги) в палитре приложения.
+ * Подключается через `custom_css_url` (см. `src/components/tw-chart-theme.ts`).
+ *
+ * Библиотека рендерится в iframe — CSS-переменные родительского документа сюда не проникают,
+ * поэтому значения захардкожены. Фон графика #101014 (rgb(16,16,20)) совпадает с
+ * `TW_CHART_THEME_COLORS.background` в `tw-chart-theme.ts`.
+ *
+ * Библиотека использует переменные в виде `var(--tv-color-*, var(--themed-color-*, #fallback))`:
+ * `--tv-color-*` — публичные, `--themed-color-*` — внутренние (задаём самые частые, чтобы диалоги
+ * настроек/индикаторов тоже были в теме).
+ */
+
+.theme-dark:root {
+  /* ---- Фон и тулбар ---- */
+  --tv-color-platform-background: #101014;
+  --tv-color-pane-background: #101014;
+
+  --tv-color-toolbar-button-text: #adb1b8;
+  --tv-color-toolbar-button-text-hover: #fff;
+  --tv-color-toolbar-button-text-active: #ff9c2e;
+  --tv-color-toolbar-button-text-active-hover: #ffc35c;
+  --tv-color-toolbar-button-text-clicked: #fff;
+  --tv-color-toolbar-button-background-hover: transparent;
+  --tv-color-toolbar-button-background-expanded: transparent;
+  --tv-color-toolbar-button-background-clicked: transparent;
+  --tv-color-toolbar-toggle-button-background-active: #fff;
+  --tv-color-toolbar-toggle-button-background-active-hover: #fff;
+  --tv-color-toolbar-divider-background: #303030;
+  --tv-color-toolbar-save-layout-loader: #adb1b8;
+
+  /* ---- Меню и диалоги ---- */
+  --tv-color-popup-background: #16171a;
+  --tv-color-popup-element-text: #dbdbdb;
+  --tv-color-popup-element-text-hover: #fff;
+  --tv-color-popup-element-text-active: #fff;
+  --tv-color-popup-element-secondary-text: #adb1b8;
+  --tv-color-popup-element-hint-text: #8c8c8c;
+  --tv-color-popup-element-background-hover: rgba(192, 210, 231, 0.12);
+  --tv-color-popup-element-background-active: #336fee;
+  --tv-color-popup-element-divider-background: #303030;
+  --tv-color-popup-element-toolbox-text: #adb1b8;
+  --tv-color-popup-element-toolbox-text-hover: #dbdbdb;
+  --tv-color-popup-element-toolbox-text-active-hover: #fff;
+  --tv-color-popup-element-toolbox-background-hover: rgba(255, 255, 255, 0.1);
+  --tv-color-popup-element-toolbox-background-active-hover: #5b8cf5;
+
+  --tv-color-dialog-header-text: #dbdbdb;
+  --tv-color-dialog-header-separator: #303030;
+  --tv-color-item-active-text: #ff9c2e;
+  --tv-color-scrollbar-thumb-background: rgba(166, 189, 213, 0.3);
+
+  /* ---- Внутренние переменные: фоны ---- */
+  --themed-color-pane-bg: #101014;
+  --themed-color-body-bg: #101014;
+  --themed-color-chart-page-bg: #101014;
+  --themed-color-bg-primary: #16171a;
+  --themed-color-popup-background: #16171a;
+  --themed-color-toolbar-opened-element-bg: transparent;
+  --themed-color-toolbar-button-background-hover: transparent;
+  --themed-color-popup-element-background-hover: rgba(192, 210, 231, 0.12);
+  --themed-color-popup-element-background-active: #336fee;
+  --themed-color-popup-menu-separator: #303030;
+  --themed-color-scroll-bg: rgba(166, 189, 213, 0.3);
+
+  /* ---- Внутренние переменные: текст ---- */
+  --themed-color-text-primary: #dbdbdb;
+  --themed-color-popup-element-text: #dbdbdb;
+  --themed-color-popup-element-text-hover: #fff;
+  --themed-color-properties-dialog-defaults-text: #dbdbdb;
+  --themed-color-default-gray: #8c8c8c;
+  --themed-color-input-placeholder-text: #4a4a4a;
+  --themed-color-toolbar-button-text-hover: #fff;
+  --themed-color-toolbar-button-text-active: #ff9c2e;
+  --themed-color-toolbar-button-text-active-hover: #ffc35c;
+  --themed-color-toolbar-toggle-button-background-active: #fff;
+  --themed-color-toolbar-toggle-button-background-active-hover: #fff;
+
+  /* ---- Внутренние переменные: акцент и ссылки ---- */
+  --themed-color-brand: #336fee;
+  --themed-color-brand-hover: #5b8cf5;
+  --themed-color-brand-active: #2a5fd0;
+  --themed-color-control-intent-primary: #336fee;
+  --themed-color-active-switch-bg: #336fee;
+  --themed-color-checkbox-checked-hover: #5b8cf5;
+  --themed-color-link-primary-default: #336fee;
+  --themed-color-link-primary-hover: #5b8cf5;
+  --themed-color-link-primary-active: #2a5fd0;
+  --themed-color-text-btn-activated-bg: rgba(51, 111, 238, 0.2);
+  --themed-color-text-btn-activated-content: #5b8cf5;
+  --themed-color-text-btn-content-hover-brand: #5b8cf5;
+  --themed-color-text-btn-bg-hover-brand: rgba(51, 111, 238, 0.2);
+  --themed-color-button-fill-border-primary-accent-light-default: rgba(51, 111, 238, 0.2);
+  --themed-color-button-content-primary-accent-light-default: #5b8cf5;
+  --themed-color-popup-element-toolbox-background-active-hover: #2a5fd0;
+
+  /* ---- Внутренние переменные: границы и контролы ---- */
+  --themed-color-control-intent-default: #303030;
+  --themed-color-disabled-border-and-color: #303030;
+  --themed-color-button-fill-border-disabled: #303030;
+  --themed-color-button-fill-border-ghost-neutral-hover: rgba(255, 255, 255, 0.06);
+  --themed-color-button-fill-border-primary-neutral-hover: #3a3e44;
+
+  /* ---- Внутренние переменные: рост / падение ---- */
+  --themed-color-success: #20b26c;
+  --themed-color-success-hover: #1a9a5d;
+  --themed-color-content-primary-positive: #20b26c;
+  --themed-color-content-primary-negative: #ef454a;
+  --themed-color-control-intent-danger: #ef454a;
+  --themed-color-btn-danger-hover: #d63b40;
+  --themed-color-container-fill-primary-success-extra-light: rgba(32, 178, 108, 0.15);
+  --themed-color-container-fill-primary-danger-extra-light: rgba(239, 69, 74, 0.15);
+  --themed-color-container-fill-primary-success-light: rgba(32, 178, 108, 0.25);
+}
+
+/* DOM-логотип TradingView (canvas гасится disabled_features: widget_logo). */
+.tv-attr-logo,
+.js-tv-attr-logo,
+[class*="tvAttributionLogo"] {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
