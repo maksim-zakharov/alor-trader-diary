@@ -428,8 +428,11 @@ export const CandleCanvas: React.FC<CandleCanvasProps> = ({
     const yOf = (p: number) => plotTop + ((maxP - p) / (maxP - minP)) * priceH;
     const candleX = (idx: number) => plotLeft + idx * slot + slot / 2;
     const spanSec = Math.max(0, slice[slice.length - 1].time - slice[0].time);
-    const maxTimeLabels = Math.max(2, Math.min(6, Math.floor(plotW / 72)));
-    const timeIdxs = pickTimeLabelIndices(slice.length, maxTimeLabels);
+    const timeIdxs = pickTimeLabelIndices(
+      slice.map((b) => b.time),
+      plotW,
+      slot,
+    );
 
     // Сетка цены
     ctx.strokeStyle = theme.grid;
@@ -730,18 +733,62 @@ function formatPrice(price: number, decimals: number): string {
   return price.toFixed(decimals);
 }
 
+/** «Круглые» шаги оси времени, сек. */
+const CANVAS_NICE_TIME_STEPS_SEC = [
+  0.5, 1, 2, 5, 10, 15, 30, 60, 120, 300, 600, 900, 1_800, 3_600, 7_200, 14_400, 43_200,
+  86_400,
+] as const;
+
 /**
- * Индексы свечей для подписей времени.
+ * Индексы свечей для подписей времени (шаг как у TV, ~72px).
  */
-function pickTimeLabelIndices(length: number, maxLabels: number): number[] {
-  if (length <= 0 || maxLabels < 1) return [];
-  if (length === 1) return [0];
-  const n = Math.min(Math.max(2, maxLabels), length);
-  const idxs: number[] = [];
-  for (let i = 0; i < n; i += 1) {
-    idxs.push(Math.round((i * (length - 1)) / (n - 1)));
+function pickTimeLabelIndices(
+  timesSec: readonly number[],
+  plotWidth: number,
+  slotPx: number,
+): number[] {
+  const n = timesSec.length;
+  if (n <= 0 || !(plotWidth > 0)) return [];
+  if (n === 1) return [0];
+
+  const maxLabels = Math.max(2, Math.min(8, Math.floor(plotWidth / 72)));
+  if (n <= maxLabels) {
+    return Array.from({ length: n }, (_, i) => i);
   }
-  return [...new Set(idxs)];
+
+  const first = timesSec[0]!;
+  const last = timesSec[n - 1]!;
+  const spanSec = Math.max(0, last - first);
+  const raw = spanSec / Math.max(1, maxLabels - 1);
+  let stepSec = CANVAS_NICE_TIME_STEPS_SEC[CANVAS_NICE_TIME_STEPS_SEC.length - 1]!;
+  for (const step of CANVAS_NICE_TIME_STEPS_SEC) {
+    if (step >= raw) {
+      stepSec = step;
+      break;
+    }
+  }
+  const minGap = Math.max(1, Math.ceil((72 * 0.85) / Math.max(1, slotPx)));
+
+  const idxs: number[] = [];
+  let lastIdx = Number.NEGATIVE_INFINITY;
+  for (let i = 0; i < n; i += 1) {
+    const t = timesSec[i]!;
+    // Дробные 0.5s: сравниваем в мс.
+    const tMs = Math.round(t * 1000);
+    const stepMs = Math.round(stepSec * 1000);
+    if (stepMs <= 0 || tMs % stepMs !== 0) continue;
+    if (i - lastIdx < minGap) continue;
+    idxs.push(i);
+    lastIdx = i;
+    if (idxs.length >= maxLabels) break;
+  }
+  if (idxs.length >= 2) return idxs;
+
+  const even: number[] = [];
+  for (let i = 0; i < maxLabels; i += 1) {
+    even.push(Math.round((i * (n - 1)) / (maxLabels - 1)));
+  }
+  return [...new Set(even)];
 }
 
 /**

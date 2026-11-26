@@ -647,6 +647,74 @@ function formatClusterChartColumnTime(bucketStartMs: number, bucketMs: number): 
   return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
+/** Мин. ширина на одну подпись времени, px (как у TV / screener). */
+const CLUSTER_CHART_TIME_LABEL_MIN_PX = 72;
+
+/** «Круглые» шаги оси времени, мс. */
+const CLUSTER_CHART_NICE_TIME_STEPS_MS = [
+  500, 1_000, 2_000, 5_000, 10_000, 15_000, 30_000, 60_000, 120_000, 300_000, 600_000,
+  900_000, 1_800_000, 3_600_000, 7_200_000, 14_400_000, 43_200_000, 86_400_000,
+] as const;
+
+/**
+ * Подбирает шаг времени под целевое число меток.
+ */
+function resolveClusterChartNiceTimeStepMs(spanMs: number, targetLabels: number): number {
+  const raw = spanMs / Math.max(1, targetLabels - 1);
+  for (const step of CLUSTER_CHART_NICE_TIME_STEPS_MS) {
+    if (step >= raw) return step;
+  }
+  return CLUSTER_CHART_NICE_TIME_STEPS_MS[CLUSTER_CHART_NICE_TIME_STEPS_MS.length - 1]!;
+}
+
+/**
+ * Индексы колонок для оси времени: не под каждой свечой, а с шагом как у TV.
+ */
+export function pickClusterChartTimeLabelIndices(
+  columns: readonly { bucketStartMs: number }[],
+  plotWidth: number,
+  colW: number,
+): number[] {
+  const n = columns.length;
+  if (n <= 0 || !(plotWidth > 0)) return [];
+  if (n === 1) return [0];
+
+  const maxLabels = Math.max(
+    2,
+    Math.min(8, Math.floor(plotWidth / CLUSTER_CHART_TIME_LABEL_MIN_PX)),
+  );
+  if (n <= maxLabels) {
+    return Array.from({ length: n }, (_, i) => i);
+  }
+
+  const first = columns[0]!.bucketStartMs;
+  const last = columns[n - 1]!.bucketStartMs;
+  const spanMs = Math.max(0, last - first);
+  const stepMs = resolveClusterChartNiceTimeStepMs(spanMs, maxLabels);
+  const minGapCols = Math.max(
+    1,
+    Math.ceil((CLUSTER_CHART_TIME_LABEL_MIN_PX * 0.85) / Math.max(1, colW)),
+  );
+
+  const idxs: number[] = [];
+  let lastIdx = Number.NEGATIVE_INFINITY;
+  for (let i = 0; i < n; i += 1) {
+    const t = columns[i]!.bucketStartMs;
+    if (t % stepMs !== 0) continue;
+    if (i - lastIdx < minGapCols) continue;
+    idxs.push(i);
+    lastIdx = i;
+    if (idxs.length >= maxLabels) break;
+  }
+  if (idxs.length >= 2) return idxs;
+
+  const even: number[] = [];
+  for (let i = 0; i < maxLabels; i += 1) {
+    even.push(Math.round((i * (n - 1)) / (maxLabels - 1)));
+  }
+  return [...new Set(even)];
+}
+
 /**
  * Панель объёма (гистограмма) + ось времени под колонками.
  */
@@ -738,21 +806,23 @@ function drawClusterChartVolumeAndTime(
     ctx.fillRect(x, yVolTop, barW, vh);
   }
 
-  const labelEvery = colW < 40 ? 2 : 1;
+  const timeLabelIdxs = pickClusterChartTimeLabelIndices(columns, width, colW);
   ctx.font = '9px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillStyle = theme.muted;
-  for (let i = 0; i < columns.length; i++) {
+  for (let li = 0; li < timeLabelIdxs.length; li += 1) {
+    const i = timeLabelIdxs[li]!;
     const col = columns[i];
     if (!col) continue;
-    if (i % labelEvery !== 0 && i !== columns.length - 1) continue;
     const x = startX + i * colW + colW / 2;
+    if (li === 0) ctx.textAlign = 'left';
+    else if (li === timeLabelIdxs.length - 1) ctx.textAlign = 'right';
+    else ctx.textAlign = 'center';
     ctx.fillText(
       formatClusterChartColumnTime(col.bucketStartMs, bucketMs),
       x,
       timeTop + timeH / 2,
-      colW - 2,
     );
   }
 
@@ -1701,6 +1771,24 @@ export function paintClusterChart(
   });
   const drawnColW = visible.length > 0 ? Math.max(1, Math.floor(drawWidth / visible.length)) : slotW;
 
+  // Фон ленты — до сетки и кластеров.
+  if (tapeW > 0) {
+    ctx.fillStyle = theme.bg;
+    ctx.fillRect(tapeLeft, 0, tapeW, ladderHeight);
+  }
+
+  // Сетка под кластерами: до оси, даже если колонки сдвинуты влево.
+  drawClusterChartPriceLabelGrid(ctx, {
+    left: 0,
+    right: axisLeft,
+    ladderHeight,
+    ladder,
+    tick,
+    theme,
+    rowHeightPx,
+    centerPrice,
+  });
+
   // Клип: при дробном pan колонки частично заезжают за край.
   ctx.save();
   ctx.beginPath();
@@ -1724,24 +1812,6 @@ export function paintClusterChart(
     icebergPrices,
   });
   ctx.restore();
-
-  // Фон ленты (без своей сетки — общая сетка по подписям шкалы ниже).
-  if (tapeW > 0) {
-    ctx.fillStyle = theme.bg;
-    ctx.fillRect(tapeLeft, 0, tapeW, ladderHeight);
-  }
-
-  // Сетка по цифрам шкалы: всегда до оси, даже если колонки сдвинуты влево.
-  drawClusterChartPriceLabelGrid(ctx, {
-    left: 0,
-    right: axisLeft,
-    ladderHeight,
-    ladder,
-    tick,
-    theme,
-    rowHeightPx,
-    centerPrice,
-  });
 
   // Визуальные уровни Alt+H — поверх кластеров/ленты, под шариками и last price.
   if (visualLevelPrices.length) {
